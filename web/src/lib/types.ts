@@ -7,7 +7,7 @@ export interface ListingRow {
   external_id: string;
   source: string;
   title: string;
-  price: number;
+  price: number | null;
   url: string;
   image_url: string;
   match_type: string;
@@ -100,6 +100,7 @@ export interface WatchlistDashboardStats {
 // ─── Filter Types ──────────────────────────────────────────────────
 
 export interface FilterOptions {
+  source?: string;
   year?: string;
   setName?: string;
   player?: string;
@@ -116,6 +117,7 @@ export interface FilterOptions {
 }
 
 export interface FilterFacets {
+  sources: FacetItem[];
   years: FacetItem[];
   setNames: FacetItem[];
   players: FacetItem[];

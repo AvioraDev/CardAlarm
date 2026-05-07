@@ -30,6 +30,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
 
   // Extract filters from URL search params
   const filters: FilterOptions = {
+    source: typeof params.source === "string" ? params.source : undefined,
     year: typeof params.year === "string" ? params.year : undefined,
     setName: typeof params.setName === "string" ? params.setName : undefined,
     player: typeof params.player === "string" ? params.player : undefined,
@@ -202,7 +203,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
       ) : (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
           {feed.map((listing) => (
-            <ListingCard key={listing.id} listing={listing} allowDismiss={isBrowseAll} />
+            <ListingCard key={listing.id} listing={listing} allowDismiss={false} />
           ))}
         </div>
       )}

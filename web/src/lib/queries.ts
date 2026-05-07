@@ -9,83 +9,7 @@ import type {
   FacetItem,
   ScanRunRow,
 } from "./types";
-
-const ACTIVE_WHERE = "is_dismissed = false AND is_oos = false";
-
-function buildFilterClause(filters: FilterOptions): {
-  conditions: string[];
-  params: unknown[];
-} {
-  const conditions: string[] = [];
-  const params: unknown[] = [];
-  const addParam = (value: unknown): string => {
-    params.push(value);
-    return `$${params.length}`;
-  };
-
-  if (filters.year) conditions.push(`year = ${addParam(filters.year)}`);
-  if (filters.setName) conditions.push(`set_name = ${addParam(filters.setName)}`);
-  if (filters.player) conditions.push(`player_name = ${addParam(filters.player)}`);
-  if (filters.variant) conditions.push(`variant = ${addParam(filters.variant)}`);
-  if (filters.matchType) conditions.push(`match_type = ${addParam(filters.matchType)}`);
-  if (filters.category) conditions.push(`category = ${addParam(filters.category)}`);
-  if (filters.isSerial === "1") conditions.push("is_serial = true");
-  else if (filters.isSerial === "0") conditions.push("is_serial = false");
-  if (filters.isAuto === "1") conditions.push("is_auto = true");
-  else if (filters.isAuto === "0") conditions.push("is_auto = false");
-  if (filters.isRookie === "1") conditions.push("is_rookie = true");
-  else if (filters.isRookie === "0") conditions.push("is_rookie = false");
-  if (filters.watchlistOnly === "1") {
-    conditions.push("player_name IN (SELECT player_name FROM watchlist WHERE is_active = true)");
-  } else if (filters.watchlistOnly === "0") {
-    conditions.push("player_name NOT IN (SELECT player_name FROM watchlist WHERE is_active = true)");
-  }
-  if (filters.priceMin) {
-    const min = Number.parseFloat(filters.priceMin);
-    if (!Number.isNaN(min)) conditions.push(`price >= ${addParam(min)}`);
-  }
-  if (filters.priceMax) {
-    const max = Number.parseFloat(filters.priceMax);
-    if (!Number.isNaN(max)) conditions.push(`price <= ${addParam(max)}`);
-  }
-  if (filters.search) conditions.push(`title ILIKE ${addParam(`%${filters.search}%`)}`);
-
-  return { conditions, params };
-}
-
-function listingSelectSql(prefix = ""): string {
-  return `id,
-       external_id,
-       source,
-       title,
-       price::float8 as price,
-       url,
-       image_url,
-       match_type,
-       is_dismissed,
-       is_oos,
-       created_at,
-       year,
-       set_name,
-       card_number,
-       player_name,
-       variant,
-       is_serial,
-       serial_number,
-       serial_current,
-       serial_limit,
-       is_auto,
-       is_rookie,
-       category,
-       match_confidence::float8 as match_confidence,
-       match_status,
-       match_reasons,
-       unmatched_fields,
-       matcher_version`
-    .split("\n")
-    .map((line) => (line.trim().length === 0 ? line : `${prefix}${line}`))
-    .join("\n");
-}
+import { buildInventoryWhereSql, inventoryListingSelectSql, inventoryMatchJoinSql } from "./inventory-sql";
 
 function watchlistListingSelectSql(): string {
   return `lf.id,
@@ -119,14 +43,14 @@ function watchlistListingSelectSql(): string {
 }
 
 export async function getActiveFeed(filters: FilterOptions = {}): Promise<ListingRow[]> {
-  const { conditions, params } = buildFilterClause(filters);
-  const allConditions = [ACTIVE_WHERE, ...conditions].join(" AND ");
+  const { whereSql, params } = buildInventoryWhereSql(filters);
   return query<ListingRow>(
     `SELECT
-       ${listingSelectSql()}
-     FROM listings_feed
-     WHERE ${allConditions}
-     ORDER BY created_at DESC`,
+       ${inventoryListingSelectSql()}
+     FROM public.store_products sp
+     ${inventoryMatchJoinSql()}
+     WHERE ${whereSql}
+     ORDER BY sp.last_checked_at DESC NULLS LAST, sp.last_seen_at DESC, sp.created_at DESC`,
     params,
   );
 }
@@ -153,16 +77,16 @@ async function count(sql: string, params: unknown[]): Promise<number> {
 }
 
 export async function getFeedStats(filters: FilterOptions = {}): Promise<FeedStats> {
-  const { conditions, params } = buildFilterClause(filters);
-  const allConditions = [ACTIVE_WHERE, ...conditions].join(" AND ");
+  const { whereSql, params } = buildInventoryWhereSql(filters);
+  const fromSql = `FROM public.store_products sp ${inventoryMatchJoinSql()} WHERE ${whereSql}`;
 
   const [total, direct, stealth, confirmed, possible, serialized] = await Promise.all([
-    count(`SELECT COUNT(*) as c FROM listings_feed WHERE ${allConditions}`, params),
-    count(`SELECT COUNT(*) as c FROM listings_feed WHERE ${allConditions} AND match_type = 'Direct'`, params),
-    count(`SELECT COUNT(*) as c FROM listings_feed WHERE ${allConditions} AND match_type = 'Stealth'`, params),
-    count(`SELECT COUNT(*) as c FROM listings_feed WHERE ${allConditions} AND COALESCE(match_status, 'confirmed') = 'confirmed'`, params),
-    count(`SELECT COUNT(*) as c FROM listings_feed WHERE ${allConditions} AND match_status = 'possible'`, params),
-    count(`SELECT COUNT(*) as c FROM listings_feed WHERE ${allConditions} AND is_serial = true`, params),
+    count(`SELECT COUNT(*) as c ${fromSql}`, params),
+    count(`SELECT COUNT(*) as c ${fromSql} AND pcm.id IS NOT NULL`, params),
+    count(`SELECT COUNT(*) as c ${fromSql} AND pcm.id IS NULL`, params),
+    count(`SELECT COUNT(*) as c ${fromSql} AND pcm.id IS NOT NULL AND COALESCE(pcm.status, 'confirmed') != 'possible'`, params),
+    count(`SELECT COUNT(*) as c ${fromSql} AND pcm.status = 'possible'`, params),
+    count(`SELECT COUNT(*) as c ${fromSql} AND (coalesce(pcm.matched_fields, '[]'::jsonb) ? 'serial')`, params),
   ]);
 
   return { total, direct, stealth, confirmed, possible, serialized };
@@ -209,29 +133,26 @@ export async function getUserWatchlistStats(userId: string): Promise<WatchlistDa
 }
 
 export async function getFilterFacets(filters: FilterOptions = {}): Promise<FilterFacets> {
-  const { conditions, params } = buildFilterClause(filters);
-  const baseWhere = [ACTIVE_WHERE, ...conditions].join(" AND ");
+  const { whereSql, params } = buildInventoryWhereSql(filters);
 
-  async function getFacet(column: string): Promise<FacetItem[]> {
+  async function getFacet(expression: string): Promise<FacetItem[]> {
     return query<FacetItem>(
-      `SELECT ${column} as value, COUNT(*)::int as count
-       FROM listings_feed
-       WHERE ${baseWhere} AND ${column} IS NOT NULL AND ${column} != ''
-       GROUP BY ${column}
+      `SELECT ${expression} as value, COUNT(*)::int as count
+       FROM public.store_products sp
+       ${inventoryMatchJoinSql()}
+       WHERE ${whereSql} AND ${expression} IS NOT NULL AND ${expression} != ''
+       GROUP BY ${expression}
        ORDER BY count DESC`,
       params
     );
   }
 
-  const [years, setNames, players, variants, categories] = await Promise.all([
-    getFacet("year"),
-    getFacet("set_name"),
-    getFacet("player_name"),
-    getFacet("variant"),
-    getFacet("category"),
+  const [sources, players] = await Promise.all([
+    getFacet("sp.source"),
+    getFacet("pcm.matched_player_name"),
   ]);
 
-  return { years, setNames, players, variants, categories };
+  return { sources, years: [], setNames: [], players, variants: [], categories: [] };
 }
 
 export async function getWatchlist(): Promise<WatchlistRow[]> {

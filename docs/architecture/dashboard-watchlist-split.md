@@ -14,7 +14,8 @@ The dashboard now follows the intended MVP operating model:
 - Added `getUserWatchlistStats()` for dashboard counts.
 - Updated `/dashboard` to default to My Matches.
 - Added `/dashboard?mode=all` for Browse All cached listings.
-- Browse All keeps existing filters.
+- Browse All reads canonical cached inventory from `store_products`.
+- Browse All keeps practical filters for cached inventory: source, title search, price, matched player, match status, serial, auto, and rookie signals.
 - My Matches hides legacy global dismiss actions.
 - Dashboard copy now explains cached inventory and watchlist backfill.
 
@@ -28,9 +29,10 @@ Default dashboard:
 
 Browse All:
 
-- `listings_feed`
+- `store_products`
+- optional best `product_card_matches` row per product
 
-This keeps compatibility data available while moving the primary user experience toward user-owned matches.
+This keeps compatibility data available for watchlist mode while moving browse-all inventory to the canonical cache. `listings_feed` remains in use for the existing watchlist match compatibility path until watchlist backfill and dashboard joins are moved to canonical inventory in a later task.
 
 ## Manual Test Plan
 

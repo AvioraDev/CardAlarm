@@ -38,8 +38,9 @@ export function FilterBar({
   );
 
   const clearAll = useCallback(() => {
-    router.push(pathname);
-  }, [router, pathname]);
+    const mode = searchParams.get("mode");
+    router.push(mode ? `${pathname}?mode=${mode}` : pathname);
+  }, [router, pathname, searchParams]);
 
   const activeCount = Object.values(activeFilters).filter(Boolean).length;
   const isFiltered = activeCount > 0;
@@ -75,6 +76,14 @@ export function FilterBar({
       {isExpanded && (
         <div className="border-t border-border px-4 py-4 md:px-5">
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-6">
+            {/* Source */}
+            <FilterSelect
+              label="Source"
+              value={activeFilters.source}
+              options={facets.sources}
+              onChange={(v) => updateFilter("source", v)}
+            />
+
             {/* Category */}
             <FilterSelect
               label="Category"
@@ -120,8 +129,8 @@ export function FilterBar({
               label="Match Type"
               value={activeFilters.matchType}
               options={[
-                { value: "Direct", count: 0 },
-                { value: "Stealth", count: 0 },
+                { value: "Matched", count: 0 },
+                { value: "Cached", count: 0 },
               ]}
               onChange={(v) => updateFilter("matchType", v)}
               hideCounts

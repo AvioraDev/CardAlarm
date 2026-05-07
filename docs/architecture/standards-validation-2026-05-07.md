@@ -68,17 +68,17 @@ Required standard:
 - Return status rows from set-based queries.
 - Avoid per-product `select id` lookups where a set-based `returning` or join can be used.
 
-### 2. `listings_feed` Is Still Acting As The Canonical Read Model
+### 2. `listings_feed` Is Still Acting As A Compatibility Read Model
 
 The master context says CardAlarm must cache all scanned inventory, not only matched listings.
 
 Current problem:
 
-- Dashboard browse-all reads from `listings_feed`.
+- Dashboard browse-all has been moved to canonical `store_products`.
 - Watchlist dashboard joins `watchlist_matches` back to `listings_feed`.
 - Watchlist backfill starts from `listings_feed`.
 
-That is not correct as the long-term MVP standard because `listings_feed` is a compatibility table for previously matched feed rows. It is not the full cached inventory.
+Remaining watchlist dependencies are not correct as the long-term MVP standard because `listings_feed` is a compatibility table for previously matched feed rows. It is not the full cached inventory.
 
 Required standard:
 
