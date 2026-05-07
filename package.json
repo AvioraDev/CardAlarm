@@ -1,0 +1,27 @@
+{
+  "name": "cardalarm",
+  "private": true,
+  "scripts": {
+    "seed": "node seed.js",
+    "engine:dev": "tsx watch engine/src/index.ts",
+    "engine:start": "tsx engine/src/index.ts",
+    "web:dev": "cd web && npm run dev",
+    "web:build": "cd web && npm run build",
+    "test": "jest --config jest.config.js"
+  },
+  "dependencies": {
+    "better-sqlite3": "^12.9.0",
+    "node-cron": "^3.0.3",
+    "xlsx": "^0.18.5"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^7.6.12",
+    "@types/node": "^22.0.0",
+    "@types/node-cron": "^3.0.11",
+    "jest": "^29.7.0",
+    "@types/jest": "^29.5.14",
+    "ts-jest": "^29.2.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.7.0"
+  }
+}

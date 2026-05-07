@@ -1,0 +1,22 @@
+[
+  {
+    "name": "TopPlay Sports Cards",
+    "slug": "topplay",
+    "baseUrl": "https://topplaysportscards.co.nz"
+  },
+  {
+    "name": "Dime City Cards",
+    "slug": "dime-city-cards",
+    "baseUrl": "https://dimecitycards.com/"
+  },
+  {
+    "name": "Sports Cards NZ",
+    "slug": "sports-cards-nz",
+    "baseUrl": "https://sportscards.co.nz/"
+  },
+  {
+    "name": "Icons of Sport AU",
+    "slug": "Icons of Sport",
+    "baseUrl": "https://iconsofsport.com.au"
+  }
+]

@@ -1,0 +1,120 @@
+@import "tailwindcss";
+
+/*
+ * CardAlarm Brutalist Design System
+ * Per agent.md: "High contrast, high data density, monospace fonts for data points.
+ * No animations or gradients unless functionally necessary."
+ */
+
+@theme {
+  --color-bg: #07080b;
+  --color-surface: #11131a;
+  --color-card: #151821;
+  --color-elevated: #1b1f2b;
+  --color-surface-hover: #202431;
+  --color-border: #2a3040;
+  --color-border-strong: #4b5568;
+  --color-text: #f4f7fb;
+  --color-text-muted: #8b95a7;
+  --color-accent: #37d67a;
+  --color-accent-hover: #21bf64;
+  --color-danger: #ef4444;
+  --color-danger-hover: #dc2626;
+  --color-stealth: #a855f7;
+  --color-direct: #3b82f6;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+  --font-sans: "Inter", ui-sans-serif, sans-serif;
+  --shadow-card: 0 18px 60px rgba(0, 0, 0, 0.24);
+  --shadow-card-hover: 0 24px 80px rgba(0, 0, 0, 0.32);
+}
+
+/* ─── Base Reset ──────────────────────────────────────────────────── */
+
+body {
+  background:
+    radial-gradient(circle at top left, rgba(55, 214, 122, 0.12), transparent 32rem),
+    radial-gradient(circle at top right, rgba(168, 85, 247, 0.10), transparent 28rem),
+    var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ─── Scrollbar (brutalist thin) ──────────────────────────────────── */
+
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-bg);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-border-strong);
+}
+
+/* ─── Scan pulse (functional animation: active process indicator) ── */
+
+@keyframes scan-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+.scan-pulse {
+  animation: scan-pulse 1.5s ease-in-out infinite;
+}
+
+.metric-card {
+  border: 1px solid var(--color-border);
+  border-radius: 1.5rem;
+  background: color-mix(in srgb, var(--color-card) 86%, transparent);
+  padding: 1rem;
+  box-shadow: 0 16px 50px rgba(0, 0, 0, 0.22);
+}
+
+.metric-label {
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.metric-value {
+  margin-top: 0.25rem;
+  font-family: var(--font-mono);
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: var(--color-text);
+}
+
+.tag {
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  padding: 0.25rem 0.55rem;
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  line-height: 1;
+  color: var(--color-text-muted);
+  background: rgba(7, 8, 11, 0.48);
+}
+
+.tag-accent {
+  border-color: color-mix(in srgb, var(--color-accent) 42%, transparent);
+  color: var(--color-accent);
+  background: rgba(55, 214, 122, 0.10);
+}
+
+.tag-warning {
+  border-color: rgba(250, 204, 21, 0.45);
+  color: #facc15;
+  background: rgba(250, 204, 21, 0.10);
+}
+
+.tag-rookie {
+  border-color: rgba(251, 146, 60, 0.45);
+  color: #fb923c;
+  background: rgba(251, 146, 60, 0.10);
+}

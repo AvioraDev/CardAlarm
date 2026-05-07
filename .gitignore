@@ -1,0 +1,39 @@
+﻿# Dependencies
+node_modules/
+web/node_modules/
+
+# Build output
+dist/
+build/
+.next/
+web/.next/
+web/out/
+coverage/
+
+# Local databases and runtime state
+*.db
+*.db-shm
+*.db-wal
+*.db.backup-*
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# OS/editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# TypeScript incremental
+*.tsbuildinfo
+web/tsconfig.tsbuildinfo
