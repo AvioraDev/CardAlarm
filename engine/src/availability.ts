@@ -1,4 +1,4 @@
-import type Database from 'better-sqlite3';
+import type { DbClient } from './db';
 import type { SourceConfig, ShopifyProductsResponse } from './types';
 import { reconcileSourceAvailability } from './db';
 
@@ -86,7 +86,7 @@ async function fetchAvailableProductIds(source: SourceConfig): Promise<{
 }
 
 export async function runAvailabilityCheck(
-  db: Database.Database,
+  db: DbClient,
   sources: SourceConfig[]
 ): Promise<{ checked: number; markedOOS: number }> {
   let checked = 0;
@@ -101,7 +101,7 @@ export async function runAvailabilityCheck(
       continue;
     }
 
-    const sourceMarkedOOS = reconcileSourceAvailability(
+    const sourceMarkedOOS = await reconcileSourceAvailability(
       db,
       source.slug,
       result.availableExternalIds

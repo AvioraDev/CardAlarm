@@ -1,5 +1,6 @@
-import Database from 'better-sqlite3';
-import path from 'path';
+import fs from 'node:fs';
+import path from 'node:path';
+import { Pool, PoolClient, type QueryResult, type QueryResultRow } from 'pg';
 import type {
   ChecklistRow,
   ListingInsert,
@@ -12,346 +13,249 @@ import type {
   SourceProductRow,
 } from './types';
 
-const DB_PATH = path.resolve(__dirname, '..', '..', 'cardalarm.db');
+export type DbClient = Pool | PoolClient;
 
-let _db: Database.Database | null = null;
+let pool: Pool | null = null;
+let localEnvLoaded = false;
 
-/**
- * Returns the singleton DB connection. Creates it on first call.
- * Accepts an optional path override for testing with :memory:.
- */
-export function getDb(dbPath?: string): Database.Database {
-  if (_db) return _db;
-  _db = new Database(dbPath ?? DB_PATH);
-  _db.pragma('journal_mode = WAL');
-  initSchema(_db);
-  return _db;
-}
+const localDbEnvKeys = new Set([
+  'DATABASE_POSTGRES_URL_NON_POOLING',
+  'DATABASE_URL',
+  'POSTGRES_SSL_REJECT_UNAUTHORIZED',
+  'PGSSLMODE',
+  'POSTGRES_POOL_MAX',
+]);
 
-/**
- * Replace the singleton with an externally-created instance (for tests).
- */
-export function setDb(db: Database.Database): void {
-  _db = db;
-  initSchema(_db);
-}
+function loadLocalEnvFile(): void {
+  if (localEnvLoaded || process.env.NODE_ENV === 'production') return;
+  localEnvLoaded = true;
 
-/**
- * Close and clear the singleton. Safe to call multiple times.
- */
-export function closeDb(): void {
-  if (_db) {
-    _db.close();
-    _db = null;
+  const envPath = path.resolve(process.cwd(), '.env');
+  if (!fs.existsSync(envPath)) return;
+
+  const lines = fs.readFileSync(envPath, 'utf8').split(/\r?\n/);
+  for (const line of lines) {
+    const trimmed = line.trim();
+    if (!trimmed || trimmed.startsWith('#')) continue;
+
+    const equalsIndex = trimmed.indexOf('=');
+    if (equalsIndex === -1) continue;
+
+    const key = trimmed.slice(0, equalsIndex).trim();
+    if (!localDbEnvKeys.has(key)) continue;
+
+    process.env[key] = trimmed.slice(equalsIndex + 1).trim().replace(/^['"]|['"]$/g, '');
   }
 }
 
-// ─── Schema ────────────────────────────────────────────────────────
-
-function initSchema(db: Database.Database): void {
-  db.exec(`
-    CREATE TABLE IF NOT EXISTS reference_checklists (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      year INTEGER,
-      set_name TEXT,
-      card_number TEXT,
-      player_name TEXT,
-      UNIQUE(set_name, card_number)
-    );
-
-    CREATE TABLE IF NOT EXISTS profiles (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      user_id TEXT NOT NULL UNIQUE,
-      display_name TEXT,
-      role TEXT NOT NULL DEFAULT 'user',
-      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-      updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
-    );
-
-    CREATE TABLE IF NOT EXISTS stores (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      slug TEXT NOT NULL UNIQUE,
-      name TEXT NOT NULL,
-      base_url TEXT NOT NULL,
-      source_type TEXT NOT NULL DEFAULT 'shopify',
-      country_code TEXT DEFAULT 'NZ',
-      currency TEXT DEFAULT 'NZD',
-      is_active INTEGER DEFAULT 1,
-      scan_frequency_minutes INTEGER DEFAULT 15,
-      last_successful_scan_at DATETIME,
-      last_failed_scan_at DATETIME,
-      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-      updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
-    );
-
-    CREATE TABLE IF NOT EXISTS store_scan_runs (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      store_slug TEXT NOT NULL,
-      status TEXT NOT NULL,
-      started_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-      completed_at DATETIME,
-      products_seen INTEGER DEFAULT 0,
-      products_created INTEGER DEFAULT 0,
-      products_updated INTEGER DEFAULT 0,
-      products_marked_unavailable INTEGER DEFAULT 0,
-      error_message TEXT,
-      metadata TEXT,
-      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-    );
-
-    CREATE TABLE IF NOT EXISTS watchlist (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      player_name TEXT NOT NULL,
-      variants TEXT DEFAULT '',
-      target_numbers TEXT,
-      is_active INTEGER DEFAULT 1
-    );
-
-    CREATE TABLE IF NOT EXISTS listings_feed (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      external_id TEXT NOT NULL,
-      source TEXT NOT NULL,
-      title TEXT,
-      price REAL,
-      url TEXT,
-      image_url TEXT,
-      match_type TEXT,
-      is_dismissed INTEGER DEFAULT 0,
-      is_oos INTEGER DEFAULT 0,
-      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-      UNIQUE(external_id, source)
-    );
-
-    CREATE TABLE IF NOT EXISTS source_products (
-      source TEXT NOT NULL,
-      external_id TEXT NOT NULL,
-      handle TEXT,
-      title TEXT,
-      price REAL,
-      available INTEGER DEFAULT 0,
-      url TEXT,
-      image_url TEXT,
-      description TEXT,
-      normalized_title TEXT,
-      content_hash TEXT NOT NULL,
-      last_matched_hash TEXT,
-      last_matched_context_hash TEXT,
-      raw_latest_payload TEXT,
-      first_seen_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-      last_seen_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-      last_checked_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-      last_seen_scan_token TEXT,
-      PRIMARY KEY(source, external_id)
-    );
-
-    CREATE TABLE IF NOT EXISTS product_snapshots (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      source TEXT NOT NULL,
-      external_id TEXT NOT NULL,
-      scan_run_id INTEGER,
-      title TEXT,
-      description TEXT,
-      price REAL,
-      currency TEXT DEFAULT 'NZD',
-      availability INTEGER,
-      image_url TEXT,
-      raw_payload TEXT,
-      content_hash TEXT NOT NULL,
-      observed_at DATETIME DEFAULT CURRENT_TIMESTAMP
-    );
-
-    CREATE TABLE IF NOT EXISTS product_card_matches (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      source TEXT NOT NULL,
-      external_id TEXT NOT NULL,
-      checklist_id INTEGER,
-      matched_player_name TEXT,
-      confidence REAL NOT NULL,
-      status TEXT NOT NULL,
-      matched_fields TEXT,
-      match_reasons TEXT,
-      unmatched_fields TEXT,
-      matcher_version TEXT,
-      reviewed_at DATETIME,
-      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-      updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-      UNIQUE(source, external_id, matcher_version)
-    );
-
-    CREATE TABLE IF NOT EXISTS watchlist_matches (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      watchlist_id INTEGER NOT NULL,
-      source TEXT NOT NULL,
-      external_id TEXT NOT NULL,
-      product_card_match_id INTEGER,
-      confidence REAL NOT NULL,
-      status TEXT NOT NULL,
-      first_matched_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-      last_matched_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-      updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-      UNIQUE(watchlist_id, source, external_id)
-    );
-
-    CREATE TABLE IF NOT EXISTS scan_runs (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      mode TEXT NOT NULL,
-      status TEXT NOT NULL DEFAULT 'running',
-      processed INTEGER DEFAULT 0,
-      matched INTEGER DEFAULT 0,
-      error TEXT,
-      started_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-      completed_at DATETIME
-    );
-  `);
-
-  // ── Additive migrations for metadata columns ──
-  // SQLite ALTER TABLE ADD COLUMN is safe: column becomes NULL for existing rows.
-  const migrations = [
-    'ALTER TABLE listings_feed ADD COLUMN year TEXT',
-    'ALTER TABLE listings_feed ADD COLUMN set_name TEXT',
-    'ALTER TABLE listings_feed ADD COLUMN card_number TEXT',
-    'ALTER TABLE listings_feed ADD COLUMN player_name TEXT',
-    'ALTER TABLE listings_feed ADD COLUMN variant TEXT',
-    'ALTER TABLE listings_feed ADD COLUMN is_serial INTEGER DEFAULT 0',
-    'ALTER TABLE listings_feed ADD COLUMN serial_number TEXT',
-    'ALTER TABLE listings_feed ADD COLUMN is_auto INTEGER DEFAULT 0',
-    'ALTER TABLE listings_feed ADD COLUMN is_rookie INTEGER DEFAULT 0',
-    'ALTER TABLE listings_feed ADD COLUMN category TEXT',
-    'ALTER TABLE listings_feed ADD COLUMN serial_current TEXT',
-    'ALTER TABLE listings_feed ADD COLUMN serial_limit TEXT',
-    'ALTER TABLE listings_feed ADD COLUMN match_confidence REAL',
-    'ALTER TABLE listings_feed ADD COLUMN match_status TEXT',
-    'ALTER TABLE listings_feed ADD COLUMN match_reasons TEXT',
-    'ALTER TABLE listings_feed ADD COLUMN unmatched_fields TEXT',
-    'ALTER TABLE listings_feed ADD COLUMN matcher_version TEXT',
-    'ALTER TABLE source_products ADD COLUMN description TEXT',
-    'ALTER TABLE source_products ADD COLUMN normalized_title TEXT',
-    'ALTER TABLE source_products ADD COLUMN raw_latest_payload TEXT',
-    'ALTER TABLE source_products ADD COLUMN last_checked_at DATETIME',
-  ];
-
-  for (const sql of migrations) {
-    try {
-      db.exec(sql);
-    } catch {
-      // Column already exists — expected on subsequent runs
-    }
+function connectionString(): string {
+  loadLocalEnvFile();
+  const value = process.env.DATABASE_POSTGRES_URL_NON_POOLING || process.env.DATABASE_URL;
+  if (!value) {
+    throw new Error('DATABASE_POSTGRES_URL_NON_POOLING or DATABASE_URL is required for Postgres runtime access');
   }
+  return value;
+}
 
-  // ── Indexes for filter performance ──
-  const indexes = [
-    'CREATE INDEX IF NOT EXISTS idx_feed_year ON listings_feed(year)',
-    'CREATE INDEX IF NOT EXISTS idx_feed_set ON listings_feed(set_name)',
-    'CREATE INDEX IF NOT EXISTS idx_feed_player ON listings_feed(player_name)',
-    'CREATE INDEX IF NOT EXISTS idx_feed_category ON listings_feed(category)',
-    'CREATE INDEX IF NOT EXISTS idx_feed_active ON listings_feed(is_dismissed, is_oos)',
-    'CREATE INDEX IF NOT EXISTS idx_feed_confidence ON listings_feed(match_status, match_confidence)',
-    'CREATE INDEX IF NOT EXISTS idx_snapshots_product ON product_snapshots(source, external_id, observed_at)',
-    'CREATE INDEX IF NOT EXISTS idx_product_matches_status ON product_card_matches(status, confidence)',
-    'CREATE INDEX IF NOT EXISTS idx_watchlist_matches_watchlist ON watchlist_matches(watchlist_id, status)',
-    'CREATE INDEX IF NOT EXISTS idx_source_products_scan ON source_products(source, last_seen_scan_token)',
-    'CREATE INDEX IF NOT EXISTS idx_source_products_available ON source_products(source, available)',
-  ];
+function normalizeConnectionString(value: string): string {
+  loadLocalEnvFile();
+  if (process.env.POSTGRES_SSL_REJECT_UNAUTHORIZED !== 'false') return value;
+  const parsed = new URL(value);
+  parsed.searchParams.delete('sslmode');
+  return parsed.toString();
+}
 
-  for (const sql of indexes) {
-    db.exec(sql);
+function sslConfig(): { rejectUnauthorized: boolean } | undefined {
+  loadLocalEnvFile();
+  if (process.env.PGSSLMODE === 'disable') return undefined;
+  return {
+    rejectUnauthorized: process.env.POSTGRES_SSL_REJECT_UNAUTHORIZED !== 'false',
+  };
+}
+
+export function getDb(): Pool {
+  if (pool) return pool;
+  pool = new Pool({
+    connectionString: normalizeConnectionString(connectionString()),
+    ssl: sslConfig(),
+    max: Number(process.env.POSTGRES_POOL_MAX ?? 8),
+  });
+  return pool;
+}
+
+export async function closeDb(): Promise<void> {
+  if (pool) {
+    await pool.end();
+    pool = null;
   }
 }
 
-// ─── Source Product Cache ──────────────────────────────────────────
+export async function withTransaction<T>(fn: (client: PoolClient) => Promise<T>): Promise<T> {
+  const client = await getDb().connect();
+  try {
+    await client.query('begin');
+    const result = await fn(client);
+    await client.query('commit');
+    return result;
+  } catch (error) {
+    await client.query('rollback');
+    throw error;
+  } finally {
+    client.release();
+  }
+}
 
-export function upsertSourceProducts(
-  db: Database.Database,
+async function query<T extends QueryResultRow = QueryResultRow>(
+  db: DbClient,
+  sql: string,
+  params: unknown[] = []
+): Promise<QueryResult<T>> {
+  return db.query<T>(sql, params);
+}
+
+function parseJson(value: string): unknown {
+  if (!value) return null;
+  try {
+    return JSON.parse(value);
+  } catch {
+    return value;
+  }
+}
+
+function matchedFieldsFor(listing: ListingInsert): string[] {
+  return [
+    listing.playerName ? 'player' : null,
+    listing.setName ? 'set' : null,
+    listing.cardNumber ? 'card_number' : null,
+    listing.variant ? 'parallel' : null,
+    listing.isSerial ? 'serial' : null,
+  ].filter((field): field is string => Boolean(field));
+}
+
+export async function upsertSourceProducts(
+  db: DbClient,
   products: SourceProductCacheInput[],
   matchContextHash: string
-): SourceProductCacheStatus[] {
+): Promise<SourceProductCacheStatus[]> {
   if (products.length === 0) return [];
 
   const source = products[0]!.source;
   const ids = products.map(product => product.externalId);
-  const placeholders = ids.map(() => '?').join(', ');
-  const existingRows = db
-    .prepare(`
-      SELECT source, external_id, content_hash, last_matched_hash, last_matched_context_hash
-      FROM source_products
-      WHERE source = ? AND external_id IN (${placeholders})
-    `)
-    .all(source, ...ids) as Pick<
-      SourceProductRow,
-      'source' | 'external_id' | 'content_hash' | 'last_matched_hash' | 'last_matched_context_hash'
-    >[];
-
-  const existingById = new Map(existingRows.map(row => [row.external_id, row]));
-
-  const upsertStmt = db.prepare(`
-    INSERT INTO source_products (
-      source, external_id, handle, title, price, available, url, image_url,
-      description, normalized_title, raw_latest_payload, content_hash, last_seen_scan_token,
-      last_checked_at
-    )
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
-    ON CONFLICT(source, external_id) DO UPDATE SET
-      handle = excluded.handle,
-      title = excluded.title,
-      price = excluded.price,
-      available = excluded.available,
-      url = excluded.url,
-      image_url = excluded.image_url,
-      description = excluded.description,
-      normalized_title = excluded.normalized_title,
-      raw_latest_payload = excluded.raw_latest_payload,
-      content_hash = excluded.content_hash,
-      last_seen_at = CURRENT_TIMESTAMP,
-      last_checked_at = CURRENT_TIMESTAMP,
-      last_seen_scan_token = excluded.last_seen_scan_token
-  `);
-
-  const snapshotStmt = db.prepare(`
-    INSERT INTO product_snapshots (
-      source, external_id, title, description, price, availability,
-      image_url, raw_payload, content_hash
-    )
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-  `);
-
+  const existing = await query<Pick<SourceProductRow, 'source' | 'external_id' | 'content_hash' | 'last_matched_hash' | 'last_matched_context_hash'>>(
+    db,
+    `select source, external_id, content_hash, last_matched_hash, last_matched_context_hash
+     from source_products
+     where source = $1 and external_id = any($2::text[])`,
+    [source, ids]
+  );
+  const existingById = new Map(existing.rows.map(row => [row.external_id, row]));
   const statuses: SourceProductCacheStatus[] = [];
-  const writeBatch = db.transaction((batch: SourceProductCacheInput[]) => {
-    for (const product of batch) {
-      const existing = existingById.get(product.externalId);
-      const isNew = !existing;
-      const changed = existing?.content_hash !== product.contentHash;
-      const alreadyMatched =
-        existing?.last_matched_hash === product.contentHash &&
-        existing?.last_matched_context_hash === matchContextHash;
 
-      upsertStmt.run(
-        product.source,
-        product.externalId,
-        product.handle,
-        product.title,
-        product.price,
-        product.available ? 1 : 0,
-        product.url,
-        product.imageUrl,
-        product.description,
-        product.title.toLowerCase(),
-        product.rawPayload,
-        product.contentHash,
-        product.scanToken
+  await withTransaction(async client => {
+    for (const product of products) {
+      const existingRow = existingById.get(product.externalId);
+      const isNew = !existingRow;
+      const changed = existingRow?.content_hash !== product.contentHash;
+      const alreadyMatched =
+        existingRow?.last_matched_hash === product.contentHash &&
+        existingRow?.last_matched_context_hash === matchContextHash;
+
+      await client.query(
+        `insert into source_products (
+          source, external_id, handle, title, price, available, url, image_url,
+          description, normalized_title, raw_latest_payload, content_hash,
+          last_seen_scan_token, last_checked_at
+        ) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11::jsonb,$12,$13,now())
+        on conflict (source, external_id) do update set
+          handle = excluded.handle,
+          title = excluded.title,
+          price = excluded.price,
+          available = excluded.available,
+          url = excluded.url,
+          image_url = excluded.image_url,
+          description = excluded.description,
+          normalized_title = excluded.normalized_title,
+          raw_latest_payload = excluded.raw_latest_payload,
+          content_hash = excluded.content_hash,
+          last_seen_at = now(),
+          last_checked_at = now(),
+          last_seen_scan_token = excluded.last_seen_scan_token`,
+        [
+          product.source,
+          product.externalId,
+          product.handle,
+          product.title,
+          product.price,
+          product.available,
+          product.url,
+          product.imageUrl,
+          product.description,
+          product.title.toLowerCase(),
+          product.rawPayload,
+          product.contentHash,
+          product.scanToken,
+        ]
+      );
+
+      await client.query(
+        `insert into store_products (
+          source, external_product_id, handle, title, current_price, current_availability,
+          product_url, canonical_url, image_url, description, normalized_title,
+          raw_latest_payload, product_fingerprint, last_checked_at
+        ) values ($1,$2,$3,$4,$5,$6,$7,$7,$8,$9,$10,$11::jsonb,$12,now())
+        on conflict (source, external_product_id) do update set
+          handle = excluded.handle,
+          title = excluded.title,
+          current_price = excluded.current_price,
+          current_availability = excluded.current_availability,
+          product_url = excluded.product_url,
+          canonical_url = excluded.canonical_url,
+          image_url = excluded.image_url,
+          description = excluded.description,
+          normalized_title = excluded.normalized_title,
+          raw_latest_payload = excluded.raw_latest_payload,
+          product_fingerprint = excluded.product_fingerprint,
+          last_seen_at = now(),
+          last_checked_at = now(),
+          updated_at = now()`,
+        [
+          product.source,
+          product.externalId,
+          product.handle,
+          product.title,
+          product.price,
+          product.available,
+          product.url,
+          product.imageUrl,
+          product.description,
+          product.title.toLowerCase(),
+          product.rawPayload,
+          product.contentHash,
+        ]
       );
 
       if (isNew || changed) {
-        snapshotStmt.run(
-          product.source,
-          product.externalId,
-          product.title,
-          product.description,
-          product.price,
-          product.available ? 1 : 0,
-          product.imageUrl,
-          product.rawPayload,
-          product.contentHash
+        const storeProduct = await client.query<{ id: number }>(
+          'select id from store_products where source = $1 and external_product_id = $2',
+          [product.source, product.externalId]
+        );
+        await client.query(
+          `insert into product_snapshots (
+            store_product_id, source, external_id, title, description, price, availability,
+            image_url, raw_payload, content_hash
+          ) values ($1,$2,$3,$4,$5,$6,$7,$8,$9::jsonb,$10)`,
+          [
+            storeProduct.rows[0]?.id ?? null,
+            product.source,
+            product.externalId,
+            product.title,
+            product.description,
+            product.price,
+            product.available,
+            product.imageUrl,
+            product.rawPayload,
+            product.contentHash,
+          ]
         );
       }
 
@@ -365,347 +269,307 @@ export function upsertSourceProducts(
     }
   });
 
-  writeBatch(products);
   return statuses;
 }
 
-export function markSourceProductsMatched(
-  db: Database.Database,
+export async function markSourceProductsMatched(
+  db: DbClient,
   source: string,
   matches: { externalId: string; contentHash: string }[],
   matchContextHash: string
-): void {
+): Promise<void> {
   if (matches.length === 0) return;
-
-  const stmt = db.prepare(`
-    UPDATE source_products
-    SET last_matched_hash = ?, last_matched_context_hash = ?
-    WHERE source = ? AND external_id = ?
-  `);
-
-  const batch = db.transaction((rows: { externalId: string; contentHash: string }[]) => {
-    for (const row of rows) {
-      stmt.run(row.contentHash, matchContextHash, source, row.externalId);
+  await withTransaction(async client => {
+    for (const row of matches) {
+      await client.query(
+        `update source_products
+         set last_matched_hash = $1, last_matched_context_hash = $2
+         where source = $3 and external_id = $4`,
+        [row.contentHash, matchContextHash, source, row.externalId]
+      );
     }
   });
-
-  batch(matches);
 }
 
-export function markMissingSourceProductsOOS(
-  db: Database.Database,
+export async function markMissingSourceProductsOOS(
+  db: DbClient,
   source: string,
   scanToken: string
-): number {
-  const updateCache = db.prepare(`
-    UPDATE source_products
-    SET available = 0
-    WHERE source = ? AND available = 1 AND last_seen_scan_token IS NOT ?
-  `);
-  const updateFeed = db.prepare(`
-    UPDATE listings_feed
-    SET is_oos = 1
-    WHERE source = ?
-      AND is_oos = 0
-      AND external_id IN (
-        SELECT external_id FROM source_products
-        WHERE source = ? AND available = 0
-      )
-  `);
-
-  const run = db.transaction(() => {
-    updateCache.run(source, scanToken);
-    return updateFeed.run(source, source).changes;
+): Promise<number> {
+  return withTransaction(async client => {
+    await client.query(
+      `update source_products
+       set available = false
+       where source = $1 and available = true and last_seen_scan_token is distinct from $2`,
+      [source, scanToken]
+    );
+    await client.query(
+      `update store_products
+       set current_availability = false, is_active = false, updated_at = now()
+       where source = $1 and current_availability = true
+         and external_product_id in (select external_id from source_products where source = $1 and available = false)`,
+      [source]
+    );
+    const result = await client.query(
+      `update listings_feed
+       set is_oos = true
+       where source = $1 and is_oos = false
+         and external_id in (select external_id from source_products where source = $1 and available = false)`,
+      [source]
+    );
+    return result.rowCount ?? 0;
   });
-
-  return run();
 }
 
-export function reconcileSourceAvailability(
-  db: Database.Database,
+export async function reconcileSourceAvailability(
+  db: DbClient,
   source: string,
   availableExternalIds: string[]
-): number {
-  const run = db.transaction((ids: string[]) => {
-    db.exec('DROP TABLE IF EXISTS temp_available_products');
-    db.exec('CREATE TEMP TABLE temp_available_products (external_id TEXT PRIMARY KEY)');
-
-    const insertTemp = db.prepare('INSERT INTO temp_available_products (external_id) VALUES (?)');
-    for (const id of ids) {
-      insertTemp.run(id);
-    }
-
-    db.prepare(`
-      UPDATE source_products
-      SET available = CASE
-        WHEN external_id IN (SELECT external_id FROM temp_available_products) THEN 1
-        ELSE 0
-      END
-      WHERE source = ?
-    `).run(source);
-
-    const updatedFeed = db.prepare(`
-      UPDATE listings_feed
-      SET is_oos = 1
-      WHERE source = ?
-        AND is_oos = 0
-        AND external_id NOT IN (SELECT external_id FROM temp_available_products)
-    `).run(source).changes;
-
-    db.exec('DROP TABLE temp_available_products');
-    return updatedFeed;
+): Promise<number> {
+  return withTransaction(async client => {
+    await client.query(
+      `update source_products
+       set available = external_id = any($2::text[])
+       where source = $1`,
+      [source, availableExternalIds]
+    );
+    await client.query(
+      `update store_products
+       set current_availability = external_product_id = any($2::text[]),
+           is_active = external_product_id = any($2::text[]),
+           updated_at = now()
+       where source = $1`,
+      [source, availableExternalIds]
+    );
+    const updatedFeed = await client.query(
+      `update listings_feed
+       set is_oos = true
+       where source = $1 and is_oos = false and not (external_id = any($2::text[]))`,
+      [source, availableExternalIds]
+    );
+    return updatedFeed.rowCount ?? 0;
   });
-
-  return run(availableExternalIds);
 }
 
-// ─── Checklist Queries ─────────────────────────────────────────────
-
-/**
- * Scoped lookup: find the player for a specific set + card number combo.
- * Returns null if no match. This is the high-precision Stealth Match path.
- */
-export function getChecklistBySetAndNumber(
-  db: Database.Database,
+export async function getChecklistBySetAndNumber(
+  db: DbClient,
   setNameFragment: string,
   cardNumber: string
-): ChecklistRow | undefined {
-  // Use LIKE with the fragment embedded in the set_name column.
-  // Real set names: "2023-24 Panini Prizm - Green Prizm" vs DB: "Base", "Silver", etc.
-  // We match on card_number exactly and set_name containing the fragment.
-  const stmt = db.prepare(`
-    SELECT * FROM reference_checklists
-    WHERE card_number = ? AND set_name LIKE ?
-    LIMIT 1
-  `);
-  return stmt.get(cardNumber, `%${setNameFragment}%`) as ChecklistRow | undefined;
-}
-
-/**
- * Broad lookup: find ALL players across all sets for a given card number.
- * Used as fallback when set extraction fails. Returns multiple candidates.
- */
-export function getChecklistByNumber(
-  db: Database.Database,
-  cardNumber: string
-): ChecklistRow[] {
-  const stmt = db.prepare(`
-    SELECT * FROM reference_checklists
-    WHERE card_number = ?
-  `);
-  return stmt.all(cardNumber) as ChecklistRow[];
-}
-
-export function getAllChecklistPlayerNames(db: Database.Database): string[] {
-  const stmt = db.prepare(`
-    SELECT DISTINCT player_name FROM reference_checklists
-  `);
-  const rows = stmt.all() as { player_name: string }[];
-  return rows.map(r => r.player_name);
-}
-
-// ─── Watchlist Queries ─────────────────────────────────────────────
-
-export function getActiveWatchlistPlayers(db: Database.Database): WatchlistRow[] {
-  const stmt = db.prepare(`
-    SELECT * FROM watchlist WHERE is_active = 1
-  `);
-  return stmt.all() as WatchlistRow[];
-}
-
-export function isPlayerOnWatchlist(db: Database.Database, playerName: string): boolean {
-  const stmt = db.prepare(`
-    SELECT 1 FROM watchlist
-    WHERE player_name = ? COLLATE NOCASE AND is_active = 1
-    LIMIT 1
-  `);
-  return stmt.get(playerName) !== undefined;
-}
-
-// ─── Listings Mutations ────────────────────────────────────────────
-
-/**
- * INSERT OR IGNORE prevents duplicates on the (external_id, source) constraint.
- * Now writes all metadata columns extracted from the title.
- * Returns true if a new row was inserted.
- */
-export function upsertListing(db: Database.Database, listing: ListingInsert): boolean {
-  const stmt = db.prepare(`
-    INSERT INTO listings_feed
-      (external_id, source, title, price, url, image_url, match_type,
-       year, set_name, card_number, player_name, variant,
-       is_serial, serial_number, serial_current, serial_limit, is_auto, is_rookie, category,
-       match_confidence, match_status, match_reasons, unmatched_fields, matcher_version)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    ON CONFLICT(external_id, source) DO UPDATE SET
-      is_oos = 0,
-      price = excluded.price,
-      title = excluded.title,
-      image_url = excluded.image_url,
-      match_type = excluded.match_type,
-      year = excluded.year,
-      set_name = excluded.set_name,
-      card_number = excluded.card_number,
-      player_name = excluded.player_name,
-      variant = excluded.variant,
-      is_serial = excluded.is_serial,
-      serial_number = excluded.serial_number,
-      serial_current = excluded.serial_current,
-      serial_limit = excluded.serial_limit,
-      is_auto = excluded.is_auto,
-      is_rookie = excluded.is_rookie,
-      category = excluded.category,
-      match_confidence = excluded.match_confidence,
-      match_status = excluded.match_status,
-      match_reasons = excluded.match_reasons,
-      unmatched_fields = excluded.unmatched_fields,
-      matcher_version = excluded.matcher_version
-  `);
-  const info = stmt.run(
-    listing.externalId,
-    listing.source,
-    listing.title,
-    listing.price,
-    listing.url,
-    listing.imageUrl,
-    listing.matchType,
-    listing.year,
-    listing.setName,
-    listing.cardNumber,
-    listing.playerName,
-    listing.variant,
-    listing.isSerial ? 1 : 0,
-    listing.serialNumber,
-    listing.serialCurrent,
-    listing.serialLimit,
-    listing.isAuto ? 1 : 0,
-    listing.isRookie ? 1 : 0,
-    listing.category,
-    listing.matchConfidence,
-    listing.matchStatus,
-    JSON.stringify(listing.matchReasons),
-    JSON.stringify(listing.unmatchedFields),
-    listing.matcherVersion,
+): Promise<ChecklistRow | undefined> {
+  const result = await query<ChecklistRow>(
+    db,
+    `select * from reference_checklists
+     where card_number = $1 and set_name ilike $2
+     limit 1`,
+    [cardNumber, `%${setNameFragment}%`]
   );
-  upsertProductCardMatch(db, listing);
-  return info.changes > 0;
+  return result.rows[0];
 }
 
-function upsertProductCardMatch(db: Database.Database, listing: ListingInsert): void {
-  db.prepare(`
-    INSERT INTO product_card_matches (
-      source, external_id, matched_player_name, confidence, status,
+export async function getChecklistByNumber(db: DbClient, cardNumber: string): Promise<ChecklistRow[]> {
+  const result = await query<ChecklistRow>(db, 'select * from reference_checklists where card_number = $1', [cardNumber]);
+  return result.rows;
+}
+
+export async function getAllChecklistPlayerNames(db: DbClient): Promise<string[]> {
+  const result = await query<{ player_name: string }>(db, 'select distinct player_name from reference_checklists where player_name is not null');
+  return result.rows.map(row => row.player_name);
+}
+
+export async function getActiveWatchlistPlayers(db: DbClient): Promise<WatchlistRow[]> {
+  const userWatchlistResult = await query<WatchlistRow>(
+    db,
+    `select
+       wr.id,
+       coalesce(nullif(split_part(wr.include_terms, ',', 1), ''), w.name) as player_name,
+       concat_ws(', ', wr.parallel, wr.product_line, wr.brand) as variants,
+       wr.card_number as target_numbers,
+       w.is_active
+     from watchlist_rules wr
+     join watchlists w on w.id = wr.watchlist_id
+     where w.is_active = true
+       and (
+         nullif(wr.include_terms, '') is not null
+         or nullif(w.name, '') is not null
+       )
+     order by player_name`
+  );
+
+  if (userWatchlistResult.rows.length > 0) return userWatchlistResult.rows;
+
+  const legacyResult = await query<WatchlistRow>(
+    db,
+    'select * from watchlist where is_active = true order by player_name'
+  );
+  return legacyResult.rows;
+}
+
+export async function isPlayerOnWatchlist(db: DbClient, playerName: string): Promise<boolean> {
+  const result = await query(db, 'select 1 from watchlist where player_name ilike $1 and is_active = true limit 1', [playerName]);
+  return result.rowCount !== null && result.rowCount > 0;
+}
+
+export async function upsertListing(db: DbClient, listing: ListingInsert): Promise<boolean> {
+  const inserted = await withTransaction(async client => {
+    const result = await client.query(
+      `insert into listings_feed (
+        external_id, source, title, price, url, image_url, match_type,
+        year, set_name, card_number, player_name, variant,
+        is_serial, serial_number, serial_current, serial_limit, is_auto, is_rookie, category,
+        match_confidence, match_status, match_reasons, unmatched_fields, matcher_version
+      ) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22::jsonb,$23::jsonb,$24)
+      on conflict (source, external_id) do update set
+        is_oos = false,
+        price = excluded.price,
+        title = excluded.title,
+        image_url = excluded.image_url,
+        match_type = excluded.match_type,
+        year = excluded.year,
+        set_name = excluded.set_name,
+        card_number = excluded.card_number,
+        player_name = excluded.player_name,
+        variant = excluded.variant,
+        is_serial = excluded.is_serial,
+        serial_number = excluded.serial_number,
+        serial_current = excluded.serial_current,
+        serial_limit = excluded.serial_limit,
+        is_auto = excluded.is_auto,
+        is_rookie = excluded.is_rookie,
+        category = excluded.category,
+        match_confidence = excluded.match_confidence,
+        match_status = excluded.match_status,
+        match_reasons = excluded.match_reasons,
+        unmatched_fields = excluded.unmatched_fields,
+        matcher_version = excluded.matcher_version`,
+      [
+        listing.externalId,
+        listing.source,
+        listing.title,
+        listing.price,
+        listing.url,
+        listing.imageUrl,
+        listing.matchType,
+        listing.year,
+        listing.setName,
+        listing.cardNumber,
+        listing.playerName,
+        listing.variant,
+        listing.isSerial,
+        listing.serialNumber,
+        listing.serialCurrent,
+        listing.serialLimit,
+        listing.isAuto,
+        listing.isRookie,
+        listing.category,
+        listing.matchConfidence,
+        listing.matchStatus,
+        JSON.stringify(listing.matchReasons),
+        JSON.stringify(listing.unmatchedFields),
+        listing.matcherVersion,
+      ]
+    );
+
+    await upsertProductCardMatch(client, listing);
+    return (result.rowCount ?? 0) > 0;
+  });
+  return inserted;
+}
+
+async function upsertProductCardMatch(db: DbClient, listing: ListingInsert): Promise<void> {
+  const storeProduct = await db.query<{ id: number }>(
+    'select id from store_products where source = $1 and external_product_id = $2',
+    [listing.source, listing.externalId]
+  );
+  await db.query(
+    `insert into product_card_matches (
+      store_product_id, source, external_id, matched_player_name, confidence, status,
       matched_fields, match_reasons, unmatched_fields, matcher_version
-    )
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-    ON CONFLICT(source, external_id, matcher_version) DO UPDATE SET
+    ) values ($1,$2,$3,$4,$5,$6,$7::jsonb,$8::jsonb,$9::jsonb,$10)
+    on conflict (source, external_id, matcher_version) do update set
+      store_product_id = excluded.store_product_id,
       matched_player_name = excluded.matched_player_name,
       confidence = excluded.confidence,
       status = excluded.status,
       matched_fields = excluded.matched_fields,
       match_reasons = excluded.match_reasons,
       unmatched_fields = excluded.unmatched_fields,
-      updated_at = CURRENT_TIMESTAMP
-  `).run(
-    listing.source,
-    listing.externalId,
-    listing.playerName,
-    listing.matchConfidence,
-    listing.matchStatus,
-    JSON.stringify([
-      listing.playerName ? 'player' : null,
-      listing.setName ? 'set' : null,
-      listing.cardNumber ? 'card_number' : null,
-      listing.variant ? 'parallel' : null,
-      listing.isSerial ? 'serial' : null,
-    ].filter(Boolean)),
-    JSON.stringify(listing.matchReasons),
-    JSON.stringify(listing.unmatchedFields),
-    listing.matcherVersion
+      updated_at = now()`,
+    [
+      storeProduct.rows[0]?.id ?? null,
+      listing.source,
+      listing.externalId,
+      listing.playerName,
+      listing.matchConfidence,
+      listing.matchStatus,
+      JSON.stringify(matchedFieldsFor(listing)),
+      JSON.stringify(listing.matchReasons),
+      JSON.stringify(listing.unmatchedFields),
+      listing.matcherVersion,
+    ]
   );
 }
 
-export function markOOS(db: Database.Database, externalId: string, source: string): void {
-  const stmt = db.prepare(`
-    UPDATE listings_feed SET is_oos = 1
-    WHERE external_id = ? AND source = ?
-  `);
-  stmt.run(externalId, source);
+export async function markOOS(db: DbClient, externalId: string, source: string): Promise<void> {
+  await query(db, 'update listings_feed set is_oos = true where external_id = $1 and source = $2', [externalId, source]);
 }
 
-export function dismissListing(db: Database.Database, id: number): void {
-  const stmt = db.prepare(`
-    UPDATE listings_feed SET is_dismissed = 1 WHERE id = ?
-  `);
-  stmt.run(id);
+export async function dismissListing(db: DbClient, id: number): Promise<void> {
+  await query(db, 'update listings_feed set is_dismissed = true where id = $1', [id]);
 }
 
-// ─── Listings Queries ──────────────────────────────────────────────
-
-export function getActiveFeed(db: Database.Database): ListingRow[] {
-  const stmt = db.prepare(`
-    SELECT * FROM listings_feed
-    WHERE is_dismissed = 0 AND is_oos = 0
-    ORDER BY created_at DESC
-  `);
-  return stmt.all() as ListingRow[];
+export async function getActiveFeed(db: DbClient): Promise<ListingRow[]> {
+  const result = await query<ListingRow>(
+    db,
+    `select * from listings_feed
+     where is_dismissed = false and is_oos = false
+     order by created_at desc`
+  );
+  return result.rows;
 }
 
-export function getAllActiveListings(db: Database.Database): ListingRow[] {
-  const stmt = db.prepare(`
-    SELECT * FROM listings_feed
-    WHERE is_oos = 0
-    ORDER BY created_at DESC
-  `);
-  return stmt.all() as ListingRow[];
+export async function getAllActiveListings(db: DbClient): Promise<ListingRow[]> {
+  const result = await query<ListingRow>(db, 'select * from listings_feed where is_oos = false order by created_at desc');
+  return result.rows;
 }
 
-// ─── Scan Run Tracking ─────────────────────────────────────────────
-
-export function createScanRun(db: Database.Database, mode: ScanMode): number {
-  const stmt = db.prepare(`
-    INSERT INTO scan_runs (mode, status) VALUES (?, 'running')
-  `);
-  const info = stmt.run(mode);
-  return Number(info.lastInsertRowid);
+export async function createScanRun(db: DbClient, mode: ScanMode): Promise<number> {
+  const result = await query<{ id: number }>(db, 'insert into scan_runs (mode, status) values ($1, $2) returning id', [mode, 'running']);
+  return Number(result.rows[0]!.id);
 }
 
-export function updateScanRun(
-  db: Database.Database,
+export async function updateScanRun(
+  db: DbClient,
   id: number,
   update: { processed?: number; matched?: number; status?: string; error?: string }
-): void {
+): Promise<void> {
   const sets: string[] = [];
   const params: unknown[] = [];
 
   if (update.processed !== undefined) {
-    sets.push('processed = ?');
     params.push(update.processed);
+    sets.push(`processed = $${params.length}`);
   }
   if (update.matched !== undefined) {
-    sets.push('matched = ?');
     params.push(update.matched);
+    sets.push(`matched = $${params.length}`);
   }
   if (update.status !== undefined) {
-    sets.push('status = ?');
     params.push(update.status);
+    sets.push(`status = $${params.length}`);
     if (update.status === 'completed' || update.status === 'failed') {
-      sets.push('completed_at = CURRENT_TIMESTAMP');
+      sets.push('completed_at = now()');
     }
   }
   if (update.error !== undefined) {
-    sets.push('error = ?');
     params.push(update.error);
+    sets.push(`error = $${params.length}`);
   }
-
   if (sets.length === 0) return;
   params.push(id);
-  db.prepare(`UPDATE scan_runs SET ${sets.join(', ')} WHERE id = ?`).run(...params);
+  await query(db, `update scan_runs set ${sets.join(', ')} where id = $${params.length}`, params);
 }
 
-export function getLatestScanRun(db: Database.Database): ScanRunRow | undefined {
-  const stmt = db.prepare(`
-    SELECT * FROM scan_runs ORDER BY started_at DESC LIMIT 1
-  `);
-  return stmt.get() as ScanRunRow | undefined;
+export async function getLatestScanRun(db: DbClient): Promise<ScanRunRow | undefined> {
+  const result = await query<ScanRunRow>(db, 'select * from scan_runs order by started_at desc limit 1');
+  return result.rows[0];
 }

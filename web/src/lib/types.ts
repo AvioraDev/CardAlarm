@@ -11,25 +11,25 @@ export interface ListingRow {
   url: string;
   image_url: string;
   match_type: string;
-  is_dismissed: number;
-  is_oos: number;
+  is_dismissed: boolean;
+  is_oos: boolean;
   created_at: string;
   year: string | null;
   set_name: string | null;
   card_number: string | null;
   player_name: string | null;
   variant: string | null;
-  is_serial: number;
+  is_serial: boolean;
   serial_number: string | null;
   serial_current: string | null;
   serial_limit: string | null;
-  is_auto: number;
-  is_rookie: number;
+  is_auto: boolean;
+  is_rookie: boolean;
   category: string | null;
   match_confidence: number | null;
   match_status: string | null;
-  match_reasons: string | null;
-  unmatched_fields: string | null;
+  match_reasons: string[] | null;
+  unmatched_fields: string[] | null;
   matcher_version: string | null;
 }
 
@@ -38,7 +38,46 @@ export interface WatchlistRow {
   player_name: string;
   variants: string;
   target_numbers: string | null;
-  is_active: number;
+  is_active: boolean;
+}
+
+export interface UserWatchlistRuleRow {
+  id: number;
+  watchlist_id: number;
+  player_id: number | null;
+  team_id: number | null;
+  brand: string | null;
+  product_line: string | null;
+  season: string | null;
+  set_id: number | null;
+  card_number: string | null;
+  parallel: string | null;
+  rookie_only: boolean;
+  autograph_only: boolean;
+  relic_only: boolean;
+  serial_numbered_only: boolean;
+  graded_only: boolean;
+  raw_only: boolean;
+  min_price: number | null;
+  max_price: number | null;
+  currency: string | null;
+  include_terms: string | null;
+  exclude_terms: string | null;
+  minimum_match_confidence: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface UserWatchlistRow {
+  id: number;
+  user_id: string;
+  name: string;
+  is_active: boolean;
+  notification_enabled: boolean;
+  created_at: string;
+  updated_at: string;
+  rules: UserWatchlistRuleRow[];
+  match_count: number;
 }
 
 export interface FeedStats {
@@ -47,6 +86,14 @@ export interface FeedStats {
   stealth: number;
   confirmed: number;
   possible: number;
+  serialized: number;
+}
+
+export interface WatchlistDashboardStats {
+  total: number;
+  current: number;
+  possible: number;
+  watchlists: number;
   serialized: number;
 }
 

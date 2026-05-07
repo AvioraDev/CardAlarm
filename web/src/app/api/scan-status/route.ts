@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { requireUser } from "@/lib/auth";
 import { getLatestScanRun } from "@/lib/queries";
 
 /**
@@ -8,7 +9,8 @@ import { getLatestScanRun } from "@/lib/queries";
  * The scan-panel client component polls this every 3s while a scan is running.
  */
 export async function GET(): Promise<NextResponse> {
-  const scanRun = getLatestScanRun();
+  await requireUser();
+  const scanRun = await getLatestScanRun();
   return NextResponse.json({ scanRun });
 }
 

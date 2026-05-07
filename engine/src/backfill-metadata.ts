@@ -5,7 +5,7 @@
  *
  * Usage: npx tsx engine/src/backfill-metadata.ts
  */
-import { getDb, closeDb } from './db';
+import { getDb, closeDb } from './sqlite-test-db';
 import { parseTitleMetadata } from './parse-title';
 
 const db = getDb();

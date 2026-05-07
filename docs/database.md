@@ -88,3 +88,8 @@ The database connection should be instantiated once and shared.
 const Database = require('better-sqlite3');
 const db = new Database('cardalarm.db');
 db.pragma('journal_mode = WAL'); // Enable Write-Ahead Logging for performance
+
+## 4. Supabase Migration Path
+
+The managed Postgres target is documented in docs/architecture/supabase-migration.md. The current app still uses SQLite locally, but Supabase schema and migration tooling now exist under supabase/ and scripts/migrate-sqlite-to-supabase.js.
+

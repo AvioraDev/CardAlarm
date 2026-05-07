@@ -9,7 +9,7 @@ import {
   upsertSourceProducts,
   markSourceProductsMatched,
   reconcileSourceAvailability,
-} from '../src/db';
+} from '../src/sqlite-test-db';
 import type { ListingInsert, SourceProductCacheInput } from '../src/types';
 
 /** Test helper: create a ListingInsert with metadata defaults */

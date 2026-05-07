@@ -1,5 +1,5 @@
 import crypto from 'crypto';
-import type Database from 'better-sqlite3';
+import type { DbClient } from './db';
 import type {
   SourceConfig,
   ShopifyProduct,
@@ -19,13 +19,16 @@ import {
   upsertSourceProducts,
 } from './db';
 
-const PAGE_SIZE = 250;
-const PAGE_CONCURRENCY = 1;
-const EARLY_STOP_UNCHANGED_PAGES = 2;
+const PAGE_SIZE = Number(process.env.CARDALARM_PAGE_SIZE ?? 100);
+const PAGE_CONCURRENCY = Number(process.env.CARDALARM_PAGE_CONCURRENCY ?? 1);
+const EARLY_STOP_UNCHANGED_PAGES = Number(process.env.CARDALARM_EARLY_STOP_UNCHANGED_PAGES ?? 2);
+const FETCH_TIMEOUT_MS = Number(process.env.CARDALARM_FETCH_TIMEOUT_MS ?? 15000);
 const MATCHER_VERSION = 'matcher-v2-cache-v1';
 
 function randomDelay(): Promise<void> {
-  const ms = 2000 + Math.floor(Math.random() * 3000);
+  const minMs = Number(process.env.CARDALARM_SCAN_DELAY_MIN_MS ?? 2000);
+  const maxMs = Number(process.env.CARDALARM_SCAN_DELAY_MAX_MS ?? 5000);
+  const ms = minMs + Math.floor(Math.random() * Math.max(0, maxMs - minMs));
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
@@ -55,20 +58,35 @@ async function fetchProductPage(
   page: number
 ): Promise<ShopifyProduct[] | null> {
   const url = `${normalizeBaseUrl(baseUrl)}/products.json?limit=${PAGE_SIZE}&page=${page}`;
+  const startedAt = Date.now();
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
   console.log(`  ↳ Fetching page ${page}: ${url}`);
 
   try {
-    const response = await fetch(url);
+    const response = await fetch(url, {
+      signal: controller.signal,
+      headers: {
+        accept: 'application/json',
+        'user-agent': 'CardAlarmBot/0.1 (+https://cardalarm.local)',
+      },
+    });
     if (!response.ok) {
       console.error(`  ✗ HTTP ${response.status} from ${url}`);
       return null;
     }
 
     const data = (await response.json()) as ShopifyProductsResponse;
-    return data.products ?? [];
+    const products = data.products ?? [];
+    console.log(`  ↳ Page ${page} fetched ${products.length} products in ${Date.now() - startedAt}ms`);
+    return products;
   } catch (err) {
-    console.error(`  ✗ Network error fetching ${url}:`, err);
+    const error = err instanceof Error ? err : new Error(String(err));
+    const isTimeout = error.name === 'AbortError';
+    console.error(`  ✗ ${isTimeout ? 'Timeout' : 'Network error'} fetching ${url} after ${Date.now() - startedAt}ms:`, error.message);
     return null;
+  } finally {
+    clearTimeout(timeout);
   }
 }
 
@@ -123,7 +141,7 @@ function toRawListing(product: SourceProductCacheInput): RawListing | null {
 }
 
 async function processSource(
-  db: Database.Database,
+  db: DbClient,
   source: SourceConfig,
   scanToken: string,
   matchContextHash: string,
@@ -171,7 +189,10 @@ async function processSource(
       fetched += products.length;
 
       const cacheInputs = products.map(product => toCacheInput(product, source, scanToken));
-      const statuses = upsertSourceProducts(db, cacheInputs, matchContextHash);
+      const upsertStartedAt = Date.now();
+      console.log(`  ↳ Caching page ${page}: ${cacheInputs.length} products`);
+      const statuses = await upsertSourceProducts(db, cacheInputs, matchContextHash);
+      console.log(`  ↳ Cached page ${page} in ${Date.now() - upsertStartedAt}ms`);
       const statusById = new Map(statuses.map(status => [status.externalId, status]));
       const isUnchangedFullPage =
         products.length === PAGE_SIZE &&
@@ -179,6 +200,9 @@ async function processSource(
 
       consecutiveUnchangedPages = isUnchangedFullPage ? consecutiveUnchangedPages + 1 : 0;
 
+      const matchStartedAt = Date.now();
+      let pageProcessed = 0;
+      let pageMatched = 0;
       for (const cacheInput of cacheInputs) {
         const status = statusById.get(cacheInput.externalId) as SourceProductCacheStatus | undefined;
         if (!status?.shouldMatch) {
@@ -193,7 +217,8 @@ async function processSource(
         }
 
         processed++;
-        const result = processListingWithCache(
+        pageProcessed++;
+        const result = await processListingWithCache(
           db,
           raw,
           watchlistEntries,
@@ -208,9 +233,11 @@ async function processSource(
 
         if (result.matched) {
           matched++;
+          pageMatched++;
           console.log(`  ★ ${result.matchType} Match: "${raw.title}" → ${result.playerName}`);
         }
       }
+      console.log(`  ↳ Matched page ${page} in ${Date.now() - matchStartedAt}ms. Processed: ${pageProcessed}, matched: ${pageMatched}`);
 
       if (products.length < PAGE_SIZE) {
         reachedEnd = true;
@@ -229,10 +256,10 @@ async function processSource(
     await randomDelay();
   }
 
-  markSourceProductsMatched(db, source.slug, matchedCacheRows, matchContextHash);
+  await markSourceProductsMatched(db, source.slug, matchedCacheRows, matchContextHash);
   const markedOOS =
     !hadFetchError && !stoppedEarlyFromCache
-      ? markMissingSourceProductsOOS(db, source.slug, scanToken)
+      ? await markMissingSourceProductsOOS(db, source.slug, scanToken)
       : 0;
 
   console.log(
@@ -244,31 +271,31 @@ async function processSource(
 
 interface ScanOptions {
   mode: ScanMode;
+  onProgress?: (progress: { processed: number; matched: number }) => Promise<void>;
 }
 
 export async function runIngestionCycle(
-  db: Database.Database,
+  db: DbClient,
   sources: SourceConfig[],
   options: ScanOptions = { mode: 'full' }
 ): Promise<{ processed: number; matched: number }> {
-  const watchlistEntries = getActiveWatchlistPlayers(db);
+  const watchlistEntries = await getActiveWatchlistPlayers(db);
   const watchlistNameSet = new Set(watchlistEntries.map(w => w.player_name.toLowerCase()));
-  const allPlayerNames = getAllChecklistPlayerNames(db);
+  const allPlayerNames = await getAllChecklistPlayerNames(db);
   const matchContextHash = buildMatchContextHash(watchlistEntries);
   const runToken = `${Date.now()}-${crypto.randomUUID()}`;
 
-  console.log(`  Mode: ${options.mode} | Watchlist targets: ${watchlistEntries.length}`);
+  console.log(`  Mode: ${options.mode} | User watchlist targets: ${watchlistEntries.length}`);
 
   if (options.mode === 'watchlist' && watchlistEntries.length === 0) {
-    console.log('  ⚠ No active watchlist entries. Add targets at /admin first.');
+    console.log('  ⚠ No active user watchlists. Add targets at /watchlists first.');
     return { processed: 0, matched: 0 };
   }
 
   const results = [];
 
   for (const source of sources) {
-    results.push(
-      await processSource(
+    const sourceResult = await processSource(
         db,
         source,
         `${runToken}-${source.slug}`,
@@ -276,8 +303,16 @@ export async function runIngestionCycle(
         watchlistEntries,
         watchlistNameSet,
         allPlayerNames
-      )
-    );
+      );
+    results.push(sourceResult);
+
+    if (options.onProgress) {
+      await options.onProgress({
+        processed: results.reduce((sum, result) => sum + result.processed, 0),
+        matched: results.reduce((sum, result) => sum + result.matched, 0),
+      });
+    }
+
     await randomDelay();
   }
 

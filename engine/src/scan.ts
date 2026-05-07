@@ -49,12 +49,17 @@ async function main(): Promise<void> {
   console.log(`${'═'.repeat(60)}`);
 
   // Create a scan run record so the UI can track progress
-  const runId = createScanRun(db, mode);
+  const runId = await createScanRun(db, mode);
 
   try {
-    const result = await runIngestionCycle(db, sources, { mode });
+    const result = await runIngestionCycle(db, sources, {
+      mode,
+      onProgress: async progress => {
+        await updateScanRun(db, runId, progress);
+      },
+    });
 
-    updateScanRun(db, runId, {
+    await updateScanRun(db, runId, {
       processed: result.processed,
       matched: result.matched,
       status: 'completed',
@@ -63,14 +68,14 @@ async function main(): Promise<void> {
     console.log(`\n✅ Scan run #${runId} completed.`);
   } catch (err) {
     const errorMessage = err instanceof Error ? err.message : String(err);
-    updateScanRun(db, runId, {
+    await updateScanRun(db, runId, {
       status: 'failed',
       error: errorMessage,
     });
     console.error(`\n✗ Scan run #${runId} failed:`, errorMessage);
     process.exitCode = 1;
   } finally {
-    closeDb();
+    await closeDb();
   }
 }
 

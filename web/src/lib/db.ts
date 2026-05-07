@@ -1,58 +1,117 @@
-import Database from "better-sqlite3";
-import path from "path";
+import 'server-only';
+import fs from 'node:fs';
+import path from 'node:path';
+import { Pool, type PoolClient, type QueryResultRow } from 'pg';
 
-// Resolve to the shared cardalarm.db one directory above /web
-const DB_PATH = path.resolve(process.cwd(), "..", "cardalarm.db");
+let pool: Pool | null = null;
+let localEnvLoaded = false;
 
-let _db: Database.Database | null = null;
+const localDbEnvKeys = new Set([
+  'DATABASE_POSTGRES_URL_NON_POOLING',
+  'DATABASE_URL',
+  'POSTGRES_SSL_REJECT_UNAUTHORIZED',
+  'PGSSLMODE',
+  'POSTGRES_POOL_MAX',
+]);
 
-/**
- * Singleton DB connection for the Next.js server process.
- * Points at the same cardalarm.db the engine writes to.
- * WAL mode allows concurrent reads while the engine writes.
- */
-export function getDb(): Database.Database {
-  if (_db) return _db;
-  _db = new Database(DB_PATH);
-  _db.pragma("journal_mode = WAL");
-  ensureSchema(_db);
-  return _db;
+function loadLocalEnvFile(): void {
+  if (localEnvLoaded || process.env.NODE_ENV === 'production') return;
+  localEnvLoaded = true;
+
+  const envPath = path.join(process.cwd(), '.env.local');
+  if (!fs.existsSync(envPath)) return;
+
+  const lines = fs.readFileSync(envPath, 'utf8').split(/\r?\n/);
+  for (const line of lines) {
+    const trimmed = line.trim();
+    if (!trimmed || trimmed.startsWith('#')) continue;
+
+    const equalsIndex = trimmed.indexOf('=');
+    if (equalsIndex === -1) continue;
+
+    const key = trimmed.slice(0, equalsIndex).trim();
+    if (!localDbEnvKeys.has(key)) continue;
+
+    process.env[key] = trimmed.slice(equalsIndex + 1).trim().replace(/^['"]|['"]$/g, '');
+  }
 }
 
-/**
- * Ensure tables the web process reads from exist.
- * The engine owns the full schema, but if it hasn't run yet
- * after a migration, these tables would be missing.
- */
-function ensureSchema(db: Database.Database): void {
-  db.exec(`
-    CREATE TABLE IF NOT EXISTS scan_runs (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      mode TEXT NOT NULL,
-      status TEXT NOT NULL DEFAULT 'running',
-      processed INTEGER DEFAULT 0,
-      matched INTEGER DEFAULT 0,
-      error TEXT,
-      started_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-      completed_at DATETIME
-    );
-  `);
+function connectionString(): string {
+  loadLocalEnvFile();
+  const value = process.env.DATABASE_POSTGRES_URL_NON_POOLING || process.env.DATABASE_URL;
+  if (!value) {
+    throw new Error('DATABASE_POSTGRES_URL_NON_POOLING or DATABASE_URL is required for CardAlarm web database access');
+  }
+  return value;
+}
 
-  const migrations = [
-    "ALTER TABLE listings_feed ADD COLUMN serial_current TEXT",
-    "ALTER TABLE listings_feed ADD COLUMN serial_limit TEXT",
-    "ALTER TABLE listings_feed ADD COLUMN match_confidence REAL",
-    "ALTER TABLE listings_feed ADD COLUMN match_status TEXT",
-    "ALTER TABLE listings_feed ADD COLUMN match_reasons TEXT",
-    "ALTER TABLE listings_feed ADD COLUMN unmatched_fields TEXT",
-    "ALTER TABLE listings_feed ADD COLUMN matcher_version TEXT",
-  ];
+function normalizeConnectionString(value: string): string {
+  loadLocalEnvFile();
+  if (process.env.POSTGRES_SSL_REJECT_UNAUTHORIZED !== 'false') return value;
+  const parsed = new URL(value);
+  parsed.searchParams.delete('sslmode');
+  return parsed.toString();
+}
 
-  for (const sql of migrations) {
-    try {
-      db.exec(sql);
-    } catch {
-      // Column already exists or listings_feed has not been created by the engine yet.
-    }
+function dbTarget(value: string): string {
+  try {
+    const parsed = new URL(value);
+    return `${parsed.username}@${parsed.hostname}${parsed.pathname}`;
+  } catch {
+    return 'invalid database url';
+  }
+}
+
+export function getDb(): Pool {
+  if (pool) return pool;
+  const selectedConnectionString = connectionString();
+  pool = new Pool({
+    connectionString: normalizeConnectionString(selectedConnectionString),
+    ssl: process.env.PGSSLMODE === 'disable'
+      ? undefined
+      : { rejectUnauthorized: process.env.POSTGRES_SSL_REJECT_UNAUTHORIZED !== 'false' },
+    max: Number(process.env.POSTGRES_POOL_MAX ?? 8),
+  });
+  pool.on('error', (error) => {
+    console.error(`CardAlarm database pool error for ${dbTarget(selectedConnectionString)}:`, error.message);
+  });
+  return pool;
+}
+
+export async function query<T extends QueryResultRow = QueryResultRow>(
+  sql: string,
+  params: unknown[] = []
+): Promise<T[]> {
+  try {
+    const result = await getDb().query<T>(sql, params);
+    return result.rows;
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    throw new Error(`CardAlarm database query failed for ${dbTarget(connectionString())}: ${message}`);
+  }
+}
+
+export async function execute(sql: string, params: unknown[] = []): Promise<number> {
+  try {
+    const result = await getDb().query(sql, params);
+    return result.rowCount ?? 0;
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    throw new Error(`CardAlarm database mutation failed for ${dbTarget(connectionString())}: ${message}`);
+  }
+}
+
+export async function transaction<T>(callback: (client: PoolClient) => Promise<T>): Promise<T> {
+  const client = await getDb().connect();
+  try {
+    await client.query('begin');
+    const result = await callback(client);
+    await client.query('commit');
+    return result;
+  } catch (error) {
+    await client.query('rollback');
+    throw error;
+  } finally {
+    client.release();
   }
 }

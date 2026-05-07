@@ -50,13 +50,13 @@ cron.schedule('7,37 * * * *', () => {
 });
 
 // Graceful shutdown
-process.on('SIGINT', () => {
+process.on('SIGINT', async () => {
   console.log('\n🔴 CardAlarm Engine shutting down...');
-  closeDb();
+  await closeDb();
   process.exit(0);
 });
 
-process.on('SIGTERM', () => {
-  closeDb();
+process.on('SIGTERM', async () => {
+  await closeDb();
   process.exit(0);
 });

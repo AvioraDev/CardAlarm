@@ -1,6 +1,6 @@
 import Database from 'better-sqlite3';
-import { setDb, closeDb, upsertListing, getActiveFeed } from '../src/db';
-import { processListing, checkMatch, titleContainsPlayerName } from '../src/match';
+import { setDb, closeDb, upsertListing, getActiveFeed } from '../src/sqlite-test-db';
+import { processListing, checkMatch, titleContainsPlayerName } from '../src/sqlite-match';
 import type { RawListing } from '../src/types';
 
 let db: Database.Database;

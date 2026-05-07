@@ -93,7 +93,7 @@ export interface WatchlistRow {
   player_name: string;
   variants: string;
   target_numbers: string | null;
-  is_active: number;
+  is_active: boolean;
 }
 
 export interface ListingRow {
@@ -105,25 +105,25 @@ export interface ListingRow {
   url: string;
   image_url: string;
   match_type: string;
-  is_dismissed: number;
-  is_oos: number;
+  is_dismissed: boolean;
+  is_oos: boolean;
   created_at: string;
   year: string | null;
   set_name: string | null;
   card_number: string | null;
   player_name: string | null;
   variant: string | null;
-  is_serial: number;
+  is_serial: boolean;
   serial_number: string | null;
   serial_current: string | null;
   serial_limit: string | null;
-  is_auto: number;
-  is_rookie: number;
+  is_auto: boolean;
+  is_rookie: boolean;
   category: string | null;
   match_confidence: number | null;
   match_status: string | null;
-  match_reasons: string | null;
-  unmatched_fields: string | null;
+  match_reasons: string[] | null;
+  unmatched_fields: string[] | null;
   matcher_version: string | null;
 }
 
@@ -148,7 +148,7 @@ export interface SourceProductRow {
   handle: string;
   title: string;
   price: number;
-  available: number;
+  available: boolean;
   url: string;
   image_url: string;
   description: string | null;

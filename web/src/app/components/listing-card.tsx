@@ -6,16 +6,11 @@ import type { ListingRow } from "@/lib/types";
 
 interface ListingCardProps {
   listing: ListingRow;
+  allowDismiss?: boolean;
 }
 
-function parseReasons(value: string | null): string[] {
-  if (!value) return [];
-  try {
-    const parsed = JSON.parse(value) as unknown;
-    return Array.isArray(parsed) ? parsed.filter((item): item is string => typeof item === "string") : [];
-  } catch {
-    return [];
-  }
+function parseReasons(value: string[] | null): string[] {
+  return Array.isArray(value) ? value.filter((item): item is string => typeof item === "string") : [];
 }
 
 function confidenceLabel(confidence: number | null): string {
@@ -26,7 +21,13 @@ function confidenceLabel(confidence: number | null): string {
   return "Low confidence";
 }
 
-export function ListingCard({ listing }: ListingCardProps) {
+function formatPrice(value: number | string | null): string {
+  const price = typeof value === "number" ? value : Number(value);
+  if (!Number.isFinite(price)) return "Price unavailable";
+  return `$${price.toFixed(2)}`;
+}
+
+export function ListingCard({ listing, allowDismiss = true }: ListingCardProps) {
   const [isPending, startTransition] = useTransition();
   const reasons = useMemo(() => parseReasons(listing.match_reasons).slice(0, 3), [listing.match_reasons]);
 
@@ -90,7 +91,7 @@ export function ListingCard({ listing }: ListingCardProps) {
               {listing.player_name ?? "Unknown player"}
             </h2>
             <span className="shrink-0 font-mono text-lg font-bold text-text">
-              ${listing.price.toFixed(2)}
+              {formatPrice(listing.price)}
             </span>
           </div>
           <p className="mt-1 line-clamp-2 text-sm leading-5 text-text-muted" title={listing.title}>
@@ -103,9 +104,9 @@ export function ListingCard({ listing }: ListingCardProps) {
           {listing.set_name && <span className="tag max-w-[170px] truncate">{listing.set_name}</span>}
           {listing.card_number && <span className="tag">#{listing.card_number}</span>}
           {listing.variant && <span className="tag max-w-[150px] truncate">{listing.variant}</span>}
-          {listing.is_serial === 1 && serialDisplay && <span className="tag tag-accent">{serialDisplay}</span>}
-          {listing.is_auto === 1 && <span className="tag tag-warning">Auto</span>}
-          {listing.is_rookie === 1 && <span className="tag tag-rookie">RC</span>}
+          {listing.is_serial && serialDisplay && <span className="tag tag-accent">{serialDisplay}</span>}
+          {listing.is_auto && <span className="tag tag-warning">Auto</span>}
+          {listing.is_rookie && <span className="tag tag-rookie">RC</span>}
         </div>
 
         <div className="rounded-2xl border border-border bg-bg/45 p-3">
@@ -137,12 +138,14 @@ export function ListingCard({ listing }: ListingCardProps) {
             >
               View
             </a>
-            <button
-              onClick={handleDismiss}
-              className="rounded-full border border-danger/40 px-4 py-2 text-xs font-bold uppercase tracking-wider text-danger transition hover:bg-danger hover:text-bg"
-            >
-              Dismiss
-            </button>
+            {allowDismiss ? (
+              <button
+                onClick={handleDismiss}
+                className="rounded-full border border-danger/40 px-4 py-2 text-xs font-bold uppercase tracking-wider text-danger transition hover:bg-danger hover:text-bg"
+              >
+                Dismiss
+              </button>
+            ) : null}
           </div>
         </div>
       </div>

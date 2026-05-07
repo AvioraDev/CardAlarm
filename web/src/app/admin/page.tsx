@@ -1,17 +1,41 @@
+import Link from "next/link";
 import { getWatchlist } from "@/lib/queries";
 import { addWatchlistEntry } from "@/lib/actions";
+import { requireAdmin } from "@/lib/auth";
 import { WatchlistTable } from "../components/watchlist-table";
 
 export const dynamic = "force-dynamic";
 
-export default function AdminPage() {
-  const watchlist = getWatchlist();
+export default async function AdminPage() {
+  await requireAdmin();
+  const watchlist = await getWatchlist();
 
   return (
     <div>
-      <h1 className="font-mono text-sm font-bold uppercase tracking-[0.15em] text-text mb-6">
-        Watchlist Management
-      </h1>
+      <section className="mb-6 rounded-3xl border border-border bg-card p-6 shadow-card">
+        <p className="font-mono text-xs uppercase tracking-[0.24em] text-accent">Admin</p>
+        <div className="mt-3 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+          <div>
+            <h1 className="text-3xl font-semibold tracking-tight text-text">
+              Operations
+            </h1>
+            <p className="mt-2 max-w-2xl text-sm leading-6 text-text-muted">
+              Manage beta operations. Store scans should be triggered from the scan page;
+              this legacy watchlist panel remains for compatibility during migration.
+            </p>
+          </div>
+          <Link
+            href="/admin/scans"
+            className="inline-flex items-center justify-center rounded-full bg-accent px-5 py-3 font-mono text-xs font-bold uppercase tracking-wider text-bg transition-colors hover:bg-accent-hover"
+          >
+            Open Scans
+          </Link>
+        </div>
+      </section>
+
+      <h2 className="mb-6 font-mono text-sm font-bold uppercase tracking-[0.15em] text-text">
+        Legacy Watchlist Management
+      </h2>
 
       {/* Current Watchlist */}
       <WatchlistTable entries={watchlist} />
