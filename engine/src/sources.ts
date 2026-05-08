@@ -4,6 +4,8 @@ import type { DbClient } from './db';
 import type { SourceConfig } from './types';
 
 const DEFAULT_SOURCES_PATH = path.resolve(__dirname, '..', '..', 'sources.json');
+const SOURCES_JSON_FALLBACK_ENV = 'CARDALARM_ALLOW_SOURCES_JSON_FALLBACK';
+export const NO_SCAN_SOURCES_MESSAGE = 'No active scan sources configured. Add or activate Shopify stores under /admin/stores.';
 
 type StoreRow = {
   slug: string;
@@ -23,8 +25,17 @@ type SourceJsonRow = {
   currency?: string;
 };
 
+type LoadScanSourcesOptions = {
+  fallbackPath?: string;
+  allowSourcesJsonFallback?: boolean;
+};
+
 function normalizeBaseUrl(value: string): string {
   return value.trim().replace(/\/+$/, '');
+}
+
+function allowSourcesJsonFallback(options: LoadScanSourcesOptions): boolean {
+  return options.allowSourcesJsonFallback ?? process.env[SOURCES_JSON_FALLBACK_ENV]?.toLowerCase() === 'true';
 }
 
 function normalizeSourceType(value: string | null | undefined): 'shopify' | null {
@@ -77,11 +88,16 @@ export async function loadActiveStoreSources(db: DbClient): Promise<SourceConfig
   return result.rows.map(sourceFromStoreRow).filter((source): source is SourceConfig => source !== null);
 }
 
-export async function loadScanSources(db: DbClient): Promise<SourceConfig[]> {
+export async function loadScanSources(db: DbClient, options: LoadScanSourcesOptions = {}): Promise<SourceConfig[]> {
   const dbSources = await loadActiveStoreSources(db);
   if (dbSources.length > 0) return dbSources;
 
-  const fallbackSources = loadSourceFallback();
-  console.warn('No active Shopify stores found in public.stores; falling back to sources.json for local development.');
+  if (!allowSourcesJsonFallback(options)) {
+    console.warn(`${NO_SCAN_SOURCES_MESSAGE} Set ${SOURCES_JSON_FALLBACK_ENV}=true only for local sources.json fallback.`);
+    return [];
+  }
+
+  const fallbackSources = loadSourceFallback(options.fallbackPath);
+  console.warn(`No active Shopify stores found in public.stores; ${SOURCES_JSON_FALLBACK_ENV}=true, using sources.json fallback for local development.`);
   return fallbackSources;
 }

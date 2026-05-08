@@ -1,6 +1,6 @@
 import { getDb, closeDb, createScanRun, updateScanRun } from './db';
 import { runIngestionCycle } from './ingest';
-import { loadScanSources } from './sources';
+import { loadScanSources, NO_SCAN_SOURCES_MESSAGE } from './sources';
 import type { ScanMode } from './types';
 
 /**
@@ -32,18 +32,18 @@ function parseMode(): ScanMode {
 async function main(): Promise<void> {
   const mode = parseMode();
   const db = getDb();
-  const sources = await loadScanSources(db);
-
-  console.log(`\n${'═'.repeat(60)}`);
-  console.log(`  CardAlarm Scan — ${mode.toUpperCase()} mode`);
-  console.log(`  ${new Date().toLocaleString()}`);
-  console.log(`  Sources: ${sources.map(s => s.name).join(', ')}`);
-  console.log(`${'═'.repeat(60)}`);
-
-  // Create a scan run record so the UI can track progress
   const runId = await createScanRun(db, mode);
 
   try {
+    const sources = await loadScanSources(db);
+    if (sources.length === 0) throw new Error(NO_SCAN_SOURCES_MESSAGE);
+
+    console.log(`\n${'='.repeat(60)}`);
+    console.log(`  CardAlarm Scan - ${mode.toUpperCase()} mode`);
+    console.log(`  ${new Date().toLocaleString()}`);
+    console.log(`  Sources: ${sources.map(s => s.name).join(', ')}`);
+    console.log(`${'='.repeat(60)}`);
+
     const result = await runIngestionCycle(db, sources, {
       mode,
       onProgress: async progress => {
@@ -57,14 +57,14 @@ async function main(): Promise<void> {
       status: 'completed',
     });
 
-    console.log(`\n✅ Scan run #${runId} completed.`);
+    console.log(`\nScan run #${runId} completed.`);
   } catch (err) {
     const errorMessage = err instanceof Error ? err.message : String(err);
     await updateScanRun(db, runId, {
       status: 'failed',
       error: errorMessage,
     });
-    console.error(`\n✗ Scan run #${runId} failed:`, errorMessage);
+    console.error(`\nScan run #${runId} failed:`, errorMessage);
     process.exitCode = 1;
   } finally {
     await closeDb();

@@ -2,11 +2,12 @@ import cron from 'node-cron';
 import { getDb, closeDb } from './db';
 import { runIngestionCycle } from './ingest';
 import { runAvailabilityCheck } from './availability';
-import { loadScanSources } from './sources';
+import { loadScanSources, NO_SCAN_SOURCES_MESSAGE } from './sources';
 
 async function ingest(): Promise<void> {
   const db = getDb();
   const sources = await loadScanSources(db);
+  if (sources.length === 0) throw new Error(NO_SCAN_SOURCES_MESSAGE);
   console.log(`\n${'═'.repeat(60)}`);
   console.log(`  CardAlarm Ingestion — ${new Date().toLocaleString()}`);
   console.log(`  Sources: ${sources.map(s => s.name).join(', ')}`);
@@ -17,6 +18,7 @@ async function ingest(): Promise<void> {
 async function checkAvailability(): Promise<void> {
   const db = getDb();
   const sources = await loadScanSources(db);
+  if (sources.length === 0) throw new Error(NO_SCAN_SOURCES_MESSAGE);
   console.log(`\n${'─'.repeat(60)}`);
   console.log(`  CardAlarm OOS Watchdog — ${new Date().toLocaleString()}`);
   console.log(`${'─'.repeat(60)}`);

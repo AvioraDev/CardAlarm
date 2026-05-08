@@ -1,7 +1,13 @@
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
-import { loadActiveStoreSources, loadScanSources, loadSourceFallback, sourceFromStoreRow } from '../src/sources';
+import {
+  loadActiveStoreSources,
+  loadScanSources,
+  loadSourceFallback,
+  NO_SCAN_SOURCES_MESSAGE,
+  sourceFromStoreRow,
+} from '../src/sources';
 import type { DbClient } from '../src/db';
 
 function mockDb(rows: unknown[]): DbClient {
@@ -11,6 +17,17 @@ function mockDb(rows: unknown[]): DbClient {
 }
 
 describe('scan source loading', () => {
+  const originalFallbackEnv = process.env.CARDALARM_ALLOW_SOURCES_JSON_FALLBACK;
+
+  afterEach(() => {
+    if (originalFallbackEnv === undefined) {
+      delete process.env.CARDALARM_ALLOW_SOURCES_JSON_FALLBACK;
+    } else {
+      process.env.CARDALARM_ALLOW_SOURCES_JSON_FALLBACK = originalFallbackEnv;
+    }
+    jest.restoreAllMocks();
+  });
+
   it('maps active Shopify store rows to scan source config', () => {
     const source = sourceFromStoreRow({
       slug: 'topplay',
@@ -68,6 +85,7 @@ describe('scan source loading', () => {
   });
 
   it('uses database stores before sources.json fallback', async () => {
+    process.env.CARDALARM_ALLOW_SOURCES_JSON_FALLBACK = 'false';
     const db = mockDb([
       {
         slug: 'db-store',
@@ -87,6 +105,40 @@ describe('scan source loading', () => {
       countryCode: 'AU',
       currency: 'AUD',
     }]);
+  });
+
+  it('uses sources.json fallback when no database stores exist and fallback is enabled', async () => {
+    jest.spyOn(console, 'warn').mockImplementation(() => undefined);
+    const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'cardalarm-sources-'));
+    const tempFile = path.join(tempDir, 'sources.json');
+    fs.writeFileSync(tempFile, JSON.stringify([
+      {
+        slug: 'json-store',
+        name: 'JSON Store',
+        baseUrl: 'https://json.example/',
+      },
+    ]));
+
+    await expect(loadScanSources(mockDb([]), {
+      fallbackPath: tempFile,
+      allowSourcesJsonFallback: true,
+    })).resolves.toEqual([{
+      slug: 'json-store',
+      name: 'JSON Store',
+      baseUrl: 'https://json.example',
+      sourceType: 'shopify',
+      countryCode: 'NZ',
+      currency: 'NZD',
+    }]);
+  });
+
+  it('returns no sources when no database stores exist and fallback is disabled', async () => {
+    const warn = jest.spyOn(console, 'warn').mockImplementation(() => undefined);
+
+    await expect(loadScanSources(mockDb([]), {
+      allowSourcesJsonFallback: false,
+    })).resolves.toEqual([]);
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining(NO_SCAN_SOURCES_MESSAGE));
   });
 
   it('can load sources.json fallback for local development', () => {

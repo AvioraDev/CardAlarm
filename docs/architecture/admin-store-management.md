@@ -10,7 +10,9 @@
 ## Operational Notes
 
 - Active Shopify stores in `public.stores` remain the scanner source of truth.
-- `sources.json` remains a local fallback and seed source only; this task does not change scanner runtime behaviour.
+- `sources.json` remains a local fallback and seed source only.
+- `sources.json` fallback is disabled by default and only runs when `CARDALARM_ALLOW_SOURCES_JSON_FALLBACK=true`.
+- If no active database stores are configured, manual scans fail with an instruction to add or activate stores under `/admin/stores`.
 - To add a store manually, sign in as an admin, open `/admin/stores`, choose **New Store**, enter a Shopify base URL, and keep **Active for scans** checked.
 - To disable scanning for a store, open `/admin/stores` and use **Deactivate** or edit the store and untick **Active for scans**.
 
