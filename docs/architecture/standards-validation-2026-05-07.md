@@ -76,9 +76,9 @@ Current problem:
 
 - Dashboard browse-all has been moved to canonical `store_products`.
 - Watchlist dashboard has been moved to `watchlist_matches` joined to canonical `store_products`.
-- Watchlist backfill starts from `listings_feed`.
+- Watchlist backfill has been moved to canonical `store_products`.
 
-Remaining backfill and engine compatibility dependencies are not correct as the long-term MVP standard because `listings_feed` is a compatibility table for previously matched feed rows. It is not the full cached inventory.
+Remaining engine compatibility dependencies are not correct as the long-term MVP standard because `listings_feed` is a compatibility table for previously matched feed rows. It is not the full cached inventory.
 
 Required standard:
 

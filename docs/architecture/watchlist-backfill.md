@@ -3,11 +3,12 @@
 ## Status
 
 Phase 9 is implemented for MVP-scale cached inventory matching.
-Creating a user-owned watchlist now immediately evaluates its first structured rule against cached listings and writes deduplicated `watchlist_matches`.
+Creating a user-owned watchlist now immediately evaluates its first structured rule against canonical cached inventory and writes deduplicated `watchlist_matches`.
 
 ## Implemented
 
 - Added `web/src/lib/watchlist-backfill.ts`.
+- Added canonical SQL helpers in `web/src/lib/watchlist-backfill-sql.ts`.
 - Added a Postgres transaction helper in `web/src/lib/db.ts`.
 - Added a partial unique index for duplicate prevention on `watchlist_matches`.
 - Added owner-scoped RLS policies for inserting, updating, and deleting `watchlist_matches`.
@@ -20,9 +21,9 @@ Creating a user-owned watchlist now immediately evaluates its first structured r
 ## Matching Approach
 
 This is intentionally rules-first and explainable.
-For MVP backfill, a listing can match when current cached inventory satisfies the structured watchlist rule:
+For MVP backfill, a cached store product can match when current canonical inventory satisfies the structured watchlist rule:
 
-- include terms against listing title/player/set/variant/product description
+- include terms against store product title/description and available product-card match data
 - exclude terms
 - brand
 - product line / set
@@ -34,8 +35,8 @@ For MVP backfill, a listing can match when current cached inventory satisfies th
 - min/max price
 - current availability
 
-The backfill also links to `store_products` and `product_card_matches` when available.
-Confidence uses the strongest available value from `product_card_matches`, `listings_feed`, or the rule minimum confidence.
+The backfill starts from active/current `store_products` and links to the best available `product_card_matches` row.
+Confidence uses the strongest available value from `product_card_matches` or the rule minimum confidence.
 
 ## Duplicate Prevention
 
@@ -55,9 +56,8 @@ This avoids accidentally matching all cached inventory.
 
 ## Current Limitations
 
-- Dashboard still renders compatibility `listings_feed`.
-- Backfilled `watchlist_matches` are counted on watchlist pages but not yet rendered as the primary dashboard feed.
-- Existing product-card matching quality still depends on the current matcher and imported compatibility data.
+- Backfill still uses text heuristics over product title/description when catalogue matching is unavailable.
+- Existing product-card matching quality still depends on the current matcher.
 - Rule editing is not yet implemented.
 
 ## Manual Test Plan
@@ -84,9 +84,8 @@ npm run build
 
 ## Next MVP Task
 
-Implement Phase 10 dashboard migration:
+Improve matching and watchlist operations:
 
-- read from user-owned `watchlist_matches`
-- show Current Matches and Possible Matches
-- include watchlist summary
+- improve catalogue/product-card matching quality before backfill
+- add rule editing
 - keep legacy `listings_feed` available only as an admin/compatibility view

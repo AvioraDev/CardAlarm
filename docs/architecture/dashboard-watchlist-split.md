@@ -36,7 +36,7 @@ Browse All:
 - `store_products`
 - optional best `product_card_matches` row per product
 
-Both dashboard modes now render from canonical cached inventory. `listings_feed` remains in use for legacy engine writes, legacy dismiss actions, and current watchlist backfill until those compatibility paths are migrated.
+Both dashboard modes now render from canonical cached inventory. `listings_feed` remains in use for legacy engine writes and legacy dismiss actions until those compatibility paths are migrated.
 
 ## Manual Test Plan
 
