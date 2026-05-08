@@ -75,10 +75,10 @@ The master context says CardAlarm must cache all scanned inventory, not only mat
 Current problem:
 
 - Dashboard browse-all has been moved to canonical `store_products`.
-- Watchlist dashboard joins `watchlist_matches` back to `listings_feed`.
+- Watchlist dashboard has been moved to `watchlist_matches` joined to canonical `store_products`.
 - Watchlist backfill starts from `listings_feed`.
 
-Remaining watchlist dependencies are not correct as the long-term MVP standard because `listings_feed` is a compatibility table for previously matched feed rows. It is not the full cached inventory.
+Remaining backfill and engine compatibility dependencies are not correct as the long-term MVP standard because `listings_feed` is a compatibility table for previously matched feed rows. It is not the full cached inventory.
 
 Required standard:
 

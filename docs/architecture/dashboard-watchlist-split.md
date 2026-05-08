@@ -28,14 +28,15 @@ Default dashboard:
 
 - `watchlist_matches`
 - `watchlists`
-- `listings_feed`
+- `store_products`
+- optional linked or best available `product_card_matches`
 
 Browse All:
 
 - `store_products`
 - optional best `product_card_matches` row per product
 
-This keeps compatibility data available for watchlist mode while moving browse-all inventory to the canonical cache. `listings_feed` remains in use for the existing watchlist match compatibility path until watchlist backfill and dashboard joins are moved to canonical inventory in a later task.
+Both dashboard modes now render from canonical cached inventory. `listings_feed` remains in use for legacy engine writes, legacy dismiss actions, and current watchlist backfill until those compatibility paths are migrated.
 
 ## Manual Test Plan
 

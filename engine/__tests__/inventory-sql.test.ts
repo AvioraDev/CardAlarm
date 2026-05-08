@@ -1,4 +1,10 @@
-import { buildInventoryWhereSql, inventoryListingSelectSql, inventoryMatchJoinSql } from '../../web/src/lib/inventory-sql';
+import {
+  buildInventoryWhereSql,
+  inventoryListingSelectSql,
+  inventoryMatchJoinSql,
+  watchlistInventoryListingSelectSql,
+  watchlistInventoryMatchJoinSql,
+} from '../../web/src/lib/inventory-sql';
 
 describe('canonical inventory SQL helpers', () => {
   it('builds browse-all SQL from store_products without listings_feed', () => {
@@ -7,6 +13,18 @@ describe('canonical inventory SQL helpers', () => {
 
     expect(selectSql).toContain('sp.external_product_id as external_id');
     expect(joinSql).toContain('public.product_card_matches');
+    expect(`${selectSql}\n${joinSql}`).not.toContain('listings_feed');
+  });
+
+  it('builds My Matches SQL shape from watchlist_matches and store_products without listings_feed', () => {
+    const selectSql = watchlistInventoryListingSelectSql();
+    const joinSql = watchlistInventoryMatchJoinSql();
+
+    expect(selectSql).toContain('sp.external_product_id as external_id');
+    expect(selectSql).toContain("when wm.status = 'possible' then 'possible'");
+    expect(selectSql).toContain('greatest(coalesce(wm.confidence, 0), coalesce(pcm.confidence, 0))');
+    expect(joinSql).toContain('public.product_card_matches');
+    expect(joinSql).toContain('pcm.id = wm.product_card_match_id');
     expect(`${selectSql}\n${joinSql}`).not.toContain('listings_feed');
   });
 

@@ -9,38 +9,13 @@ import type {
   FacetItem,
   ScanRunRow,
 } from "./types";
-import { buildInventoryWhereSql, inventoryListingSelectSql, inventoryMatchJoinSql } from "./inventory-sql";
-
-function watchlistListingSelectSql(): string {
-  return `lf.id,
-       lf.external_id,
-       lf.source,
-       lf.title,
-       lf.price::float8 as price,
-       lf.url,
-       lf.image_url,
-       lf.match_type,
-       lf.is_dismissed,
-       lf.is_oos,
-       lf.created_at,
-       lf.year,
-       lf.set_name,
-       lf.card_number,
-       lf.player_name,
-       lf.variant,
-       lf.is_serial,
-       lf.serial_number,
-       lf.serial_current,
-       lf.serial_limit,
-       lf.is_auto,
-       lf.is_rookie,
-       lf.category,
-       greatest(coalesce(wm.confidence, 0), coalesce(lf.match_confidence, 0))::float8 as match_confidence,
-       case when wm.status = 'possible' then 'possible' else coalesce(lf.match_status, 'confirmed') end as match_status,
-       lf.match_reasons,
-       lf.unmatched_fields,
-       lf.matcher_version`;
-}
+import {
+  buildInventoryWhereSql,
+  inventoryListingSelectSql,
+  inventoryMatchJoinSql,
+  watchlistInventoryListingSelectSql,
+  watchlistInventoryMatchJoinSql,
+} from "./inventory-sql";
 
 export async function getActiveFeed(
   filters: FilterOptions = {},
@@ -64,16 +39,17 @@ export async function getActiveFeed(
 
 export async function getUserWatchlistFeed(userId: string): Promise<ListingRow[]> {
   return query<ListingRow>(
-    `select distinct on (lf.source, lf.external_id)
-       ${watchlistListingSelectSql()}
+    `select distinct on (sp.id)
+       ${watchlistInventoryListingSelectSql()}
      from public.watchlist_matches wm
      join public.watchlists w on w.id = wm.watchlist_id
-     join public.listings_feed lf on lf.source = wm.source and lf.external_id = wm.external_id
+     join public.store_products sp on sp.id = wm.store_product_id
+     ${watchlistInventoryMatchJoinSql()}
      where w.user_id = $1
        and w.is_active = true
-       and lf.is_dismissed = false
-       and lf.is_oos = false
-     order by lf.source, lf.external_id, wm.confidence desc, wm.last_matched_at desc`,
+       and sp.is_active = true
+       and sp.current_availability = true
+     order by sp.id, wm.confidence desc, wm.last_matched_at desc`,
     [userId],
   );
 }
@@ -100,38 +76,38 @@ export async function getFeedStats(filters: FilterOptions = {}): Promise<FeedSta
 }
 
 export async function getUserWatchlistStats(userId: string): Promise<WatchlistDashboardStats> {
+  const watchlistInventoryFromSql = `
+       from public.watchlist_matches wm
+       join public.watchlists w on w.id = wm.watchlist_id
+       join public.store_products sp on sp.id = wm.store_product_id
+       ${watchlistInventoryMatchJoinSql()}
+       where w.user_id = $1
+         and w.is_active = true
+         and sp.is_active = true
+         and sp.current_availability = true`;
   const [total, current, possible, watchlists, serialized] = await Promise.all([
     count(
-      `select count(distinct (lf.source, lf.external_id)) as c
-       from public.watchlist_matches wm
-       join public.watchlists w on w.id = wm.watchlist_id
-       join public.listings_feed lf on lf.source = wm.source and lf.external_id = wm.external_id
-       where w.user_id = $1 and w.is_active = true and lf.is_dismissed = false and lf.is_oos = false`,
+      `select count(distinct sp.id) as c
+       ${watchlistInventoryFromSql}`,
       [userId],
     ),
     count(
-      `select count(distinct (lf.source, lf.external_id)) as c
-       from public.watchlist_matches wm
-       join public.watchlists w on w.id = wm.watchlist_id
-       join public.listings_feed lf on lf.source = wm.source and lf.external_id = wm.external_id
-       where w.user_id = $1 and w.is_active = true and wm.status != 'possible' and lf.is_dismissed = false and lf.is_oos = false`,
+      `select count(distinct sp.id) as c
+       ${watchlistInventoryFromSql}
+         and wm.status != 'possible'`,
       [userId],
     ),
     count(
-      `select count(distinct (lf.source, lf.external_id)) as c
-       from public.watchlist_matches wm
-       join public.watchlists w on w.id = wm.watchlist_id
-       join public.listings_feed lf on lf.source = wm.source and lf.external_id = wm.external_id
-       where w.user_id = $1 and w.is_active = true and wm.status = 'possible' and lf.is_dismissed = false and lf.is_oos = false`,
+      `select count(distinct sp.id) as c
+       ${watchlistInventoryFromSql}
+         and wm.status = 'possible'`,
       [userId],
     ),
     count("select count(*) as c from public.watchlists where user_id = $1 and is_active = true", [userId]),
     count(
-      `select count(distinct (lf.source, lf.external_id)) as c
-       from public.watchlist_matches wm
-       join public.watchlists w on w.id = wm.watchlist_id
-       join public.listings_feed lf on lf.source = wm.source and lf.external_id = wm.external_id
-       where w.user_id = $1 and w.is_active = true and lf.is_serial = true and lf.is_dismissed = false and lf.is_oos = false`,
+      `select count(distinct sp.id) as c
+       ${watchlistInventoryFromSql}
+         and (coalesce(pcm.matched_fields, '[]'::jsonb) ? 'serial')`,
       [userId],
     ),
   ]);
