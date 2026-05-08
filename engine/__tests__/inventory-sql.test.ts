@@ -21,6 +21,10 @@ describe('canonical inventory SQL helpers', () => {
     const joinSql = watchlistInventoryMatchJoinSql();
 
     expect(selectSql).toContain('sp.external_product_id as external_id');
+    expect(selectSql).toContain('pcm.matched_player_name');
+    expect(selectSql).toContain('p.full_name');
+    expect(selectSql).toContain("nullif(trim(split_part(coalesce(wr.include_terms, ''), ',', 1)), '')");
+    expect(selectSql).toContain('w.name');
     expect(selectSql).toContain("when wm.status = 'possible' then 'possible'");
     expect(selectSql).toContain('greatest(coalesce(wm.confidence, 0), coalesce(pcm.confidence, 0))');
     expect(joinSql).toContain('public.product_card_matches');

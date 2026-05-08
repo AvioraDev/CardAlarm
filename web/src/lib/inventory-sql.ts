@@ -101,7 +101,12 @@ export function watchlistInventoryListingSelectSql(): string {
        null::text as year,
        null::text as set_name,
        null::text as card_number,
-       pcm.matched_player_name as player_name,
+       coalesce(
+         pcm.matched_player_name,
+         p.full_name,
+         nullif(trim(split_part(coalesce(wr.include_terms, ''), ',', 1)), ''),
+         w.name
+       ) as player_name,
        null::text as variant,
        (coalesce(pcm.matched_fields, '[]'::jsonb) ? 'serial') as is_serial,
        null::text as serial_number,

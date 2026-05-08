@@ -43,6 +43,8 @@ export async function getUserWatchlistFeed(userId: string): Promise<ListingRow[]
        ${watchlistInventoryListingSelectSql()}
      from public.watchlist_matches wm
      join public.watchlists w on w.id = wm.watchlist_id
+     left join public.watchlist_rules wr on wr.id = wm.watchlist_rule_id
+     left join public.players p on p.id = wr.player_id
      join public.store_products sp on sp.id = wm.store_product_id
      ${watchlistInventoryMatchJoinSql()}
      where w.user_id = $1
