@@ -8,7 +8,7 @@ Admin users can now trigger store scans, track scan progress, and view scan hist
 
 - Added `/admin/scans`.
 - Added recent scan run query support.
-- Reused the scan trigger/polling panel on the dedicated admin scans page.
+- Scan trigger/polling panel now lives only on the dedicated admin scans page.
 - Added scan run history table with mode, status, processed count, matched count, timestamps, and errors.
 - Linked scan operations from the admin page and header navigation.
 - Updated engine scan execution to write source-level progress to `scan_runs`.
@@ -20,12 +20,14 @@ The scan UI supports:
 
 - `Scan Watchlist`
 - `Scan All`
-- live polling through `/api/scan-status`
+- admin-only live polling through `/api/scan-status`
 - optimistic running state
 - recent scan status/history
 
 Progress is updated after each source completes.
 This is enough for MVP visibility without adding a separate job runner yet.
+
+The main dashboard does not render scan controls and does not poll scan status. `GET /api/scan-status` marks running scans older than 30 minutes as failed before returning status.
 
 ## Manual Test Plan
 
@@ -37,6 +39,7 @@ This is enough for MVP visibility without adding a separate job runner yet.
 6. Confirm the scan run appears in Recent Runs.
 7. Confirm failures show in the Error column if a source fails.
 8. Open `/dashboard?mode=all` after completion and confirm cached listings are visible.
+9. Open `/dashboard` and confirm no repeated `/api/scan-status` requests occur.
 
 ## Commands
 

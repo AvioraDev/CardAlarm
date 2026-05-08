@@ -32,6 +32,7 @@ export function FilterBar({
       } else {
         params.delete(key);
       }
+      params.delete("page");
       router.push(`${pathname}?${params.toString()}`);
     },
     [router, pathname, searchParams]
@@ -139,12 +140,6 @@ export function FilterBar({
 
           {/* Toggle Row */}
           <div className="mt-3 flex flex-wrap items-center gap-3 border-t border-border pt-3">
-            <FilterToggle
-              label="Watchlist"
-              paramKey="watchlistOnly"
-              value={activeFilters.watchlistOnly}
-              onChange={(v) => updateFilter("watchlistOnly", v)}
-            />
             <FilterToggle
               label="Serialized"
               paramKey="isSerial"

@@ -42,16 +42,23 @@ function watchlistListingSelectSql(): string {
        lf.matcher_version`;
 }
 
-export async function getActiveFeed(filters: FilterOptions = {}): Promise<ListingRow[]> {
+export async function getActiveFeed(
+  filters: FilterOptions = {},
+  pagination: { limit?: number; offset?: number } = {},
+): Promise<ListingRow[]> {
   const { whereSql, params } = buildInventoryWhereSql(filters);
+  const limit = Math.min(Math.max(pagination.limit ?? 48, 1), 96);
+  const offset = Math.max(pagination.offset ?? 0, 0);
   return query<ListingRow>(
     `SELECT
        ${inventoryListingSelectSql()}
      FROM public.store_products sp
      ${inventoryMatchJoinSql()}
      WHERE ${whereSql}
-     ORDER BY sp.last_checked_at DESC NULLS LAST, sp.last_seen_at DESC, sp.created_at DESC`,
-    params,
+     ORDER BY sp.last_checked_at DESC NULLS LAST, sp.last_seen_at DESC, sp.created_at DESC
+     LIMIT $${params.length + 1}
+     OFFSET $${params.length + 2}`,
+    [...params, limit, offset],
   );
 }
 

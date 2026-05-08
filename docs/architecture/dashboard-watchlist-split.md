@@ -16,7 +16,10 @@ The dashboard now follows the intended MVP operating model:
 - Added `/dashboard?mode=all` for Browse All cached listings.
 - Browse All reads canonical cached inventory from `store_products`.
 - Browse All keeps practical filters for cached inventory: source, title search, price, matched player, match status, serial, auto, and rookie signals.
+- Browse All intentionally hides watchlist filtering because it is an inventory browser, not a user-match view.
+- Browse All is paginated at 48 products per page while keeping the total current cached inventory count visible.
 - My Matches hides legacy global dismiss actions.
+- Main dashboard does not render scan controls or poll scan status.
 - Dashboard copy now explains cached inventory and watchlist backfill.
 
 ## Data Sources
@@ -42,8 +45,11 @@ This keeps compatibility data available for watchlist mode while moving browse-a
 4. Confirm My Matches is selected by default.
 5. Confirm only watchlist-backed cards are shown.
 6. Open `/dashboard?mode=all`.
-7. Confirm Browse All shows all cached listings and filters.
-8. Confirm Browse All copy clearly says listings may not be on the watchlist.
+7. Confirm Browse All shows currently available cached products from `store_products`.
+8. Confirm the Watchlist filter toggle is not shown.
+9. Confirm pagination limits the visible results to 48 per page.
+10. Confirm the Network panel shows no repeated `/api/scan-status` calls on `/dashboard`.
+11. Confirm Browse All copy clearly says it is current cached inventory, not all historical products.
 
 ## Commands
 

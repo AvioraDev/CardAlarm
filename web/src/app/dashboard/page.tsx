@@ -8,11 +8,10 @@ import {
   getUserWatchlistFeed,
   getUserWatchlistStats,
 } from "@/lib/queries";
-import { getCurrentProfile, requireUser } from "@/lib/auth";
-import type { FilterOptions } from "@/lib/types";
+import { requireUser } from "@/lib/auth";
+import type { FeedStats, FilterFacets, FilterOptions, ListingRow } from "@/lib/types";
 import { ListingCard } from "../components/listing-card";
 import { FilterBar } from "../components/filter-bar";
-import { ScanPanel } from "../components/scan-panel";
 
 // Force dynamic rendering — feed changes with every engine cycle
 export const dynamic = "force-dynamic";
@@ -23,10 +22,14 @@ interface DashboardPageProps {
 
 export default async function DashboardPage({ searchParams }: DashboardPageProps) {
   const user = await requireUser();
-  const profile = await getCurrentProfile();
   const params = await searchParams;
   const mode = params.mode === "all" ? "all" : "matches";
   const isBrowseAll = mode === "all";
+  const pageSize = 48;
+  const currentPage = Math.max(
+    Number.parseInt(typeof params.page === "string" ? params.page : "1", 10) || 1,
+    1,
+  );
 
   // Extract filters from URL search params
   const filters: FilterOptions = {
@@ -48,18 +51,32 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
 
   // Strip undefined values
   const cleanFilters = Object.fromEntries(
-    Object.entries(filters).filter(([, v]) => v !== undefined)
+    Object.entries(filters).filter(([key, value]) => {
+      if (isBrowseAll && key === "watchlistOnly") return false;
+      return value !== undefined && value !== "";
+    })
   ) as FilterOptions;
 
-  const [allFeed, allStats, unfilteredStats, facets, scanRun, watchlistFeed, watchlistStats] = await Promise.all([
-    getActiveFeed(cleanFilters),
-    getFeedStats(cleanFilters),
-    Object.keys(cleanFilters).length > 0 ? getFeedStats() : getFeedStats(cleanFilters),
-    getFilterFacets(),
+  const [scanRun, watchlistFeed, watchlistStats] = await Promise.all([
     getLatestScanRun(),
     getUserWatchlistFeed(user.id),
     getUserWatchlistStats(user.id),
   ]);
+  const emptyStats: FeedStats = { total: 0, direct: 0, stealth: 0, confirmed: 0, possible: 0, serialized: 0 };
+  const emptyFacets: FilterFacets = { sources: [], years: [], setNames: [], players: [], variants: [], categories: [] };
+  let allFeed: ListingRow[] = [];
+  let allStats = emptyStats;
+  let unfilteredStats = emptyStats;
+  let facets = emptyFacets;
+
+  if (isBrowseAll) {
+    [allFeed, allStats, unfilteredStats, facets] = await Promise.all([
+      getActiveFeed(cleanFilters, { limit: pageSize, offset: (currentPage - 1) * pageSize }),
+      getFeedStats(cleanFilters),
+      Object.keys(cleanFilters).length > 0 ? getFeedStats() : getFeedStats(cleanFilters),
+      getFilterFacets(),
+    ]);
+  }
   const feed = isBrowseAll ? allFeed : watchlistFeed;
   const stats = isBrowseAll
     ? {
@@ -70,6 +87,19 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
         serialized: allStats.serialized,
       }
     : watchlistStats;
+  const pageCount = isBrowseAll ? Math.max(Math.ceil(stats.total / pageSize), 1) : 1;
+  const pageStart = isBrowseAll && stats.total > 0 ? (currentPage - 1) * pageSize + 1 : 0;
+  const pageEnd = isBrowseAll ? Math.min(currentPage * pageSize, stats.total) : feed.length;
+
+  function pageHref(page: number): string {
+    const nextParams = new URLSearchParams();
+    nextParams.set("mode", "all");
+    for (const [key, value] of Object.entries(cleanFilters)) {
+      if (value) nextParams.set(key, value);
+    }
+    if (page > 1) nextParams.set("page", String(page));
+    return `/dashboard?${nextParams.toString()}`;
+  }
 
   return (
     <div className="space-y-5">
@@ -84,7 +114,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
             </h1>
             <p className="mt-2 max-w-2xl text-sm leading-6 text-text-muted">
               {isBrowseAll
-                ? "Explore all current cached store listings. These are not necessarily on your watchlist."
+                ? "Explore currently available cached store products from the latest scans. This is not your watchlist and does not include unavailable historical products."
                 : "Your dashboard defaults to cards matched against your active watchlists. Add or refresh watchlists to backfill against cached store inventory."}
             </p>
           </div>
@@ -95,8 +125,6 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
           </div>
         </div>
       </section>
-
-      {profile?.role === "admin" ? <ScanPanel initialScanRun={scanRun} /> : null}
 
       <div className="flex flex-col gap-3 rounded-3xl border border-border bg-card p-3 shadow-card sm:flex-row sm:items-center sm:justify-between">
         <div className="flex flex-wrap gap-2">
@@ -125,7 +153,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
       <div className="grid grid-cols-2 gap-3 md:grid-cols-5">
         <div className="metric-card">
           <p className="metric-label">
-            {isBrowseAll ? "All Active" : "My Matches"}
+            {isBrowseAll ? "Current Cached" : "My Matches"}
           </p>
           <p className="metric-value">
             {stats.total}
@@ -166,14 +194,25 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
       </div>
 
       {isBrowseAll ? (
-        <Suspense fallback={null}>
-          <FilterBar
-            facets={facets}
-            activeFilters={cleanFilters}
-            totalUnfiltered={unfilteredStats.total}
-            totalFiltered={stats.total}
-          />
-        </Suspense>
+        <div className="space-y-3">
+          <Suspense fallback={null}>
+            <FilterBar
+              facets={facets}
+              activeFilters={cleanFilters}
+              totalUnfiltered={unfilteredStats.total}
+              totalFiltered={stats.total}
+            />
+          </Suspense>
+          <div className="flex flex-col gap-2 rounded-2xl border border-border bg-card/70 px-4 py-3 text-sm text-text-muted sm:flex-row sm:items-center sm:justify-between">
+            <span>
+              Showing {pageStart.toLocaleString()}-{pageEnd.toLocaleString()} of{" "}
+              {stats.total.toLocaleString()} currently available cached products.
+            </span>
+            <span className="font-mono text-[10px] uppercase tracking-wider">
+              Page {currentPage} of {pageCount}
+            </span>
+          </div>
+        </div>
       ) : null}
 
       {/* Feed Grid */}
@@ -207,6 +246,38 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
           ))}
         </div>
       )}
+
+      {isBrowseAll && pageCount > 1 ? (
+        <nav className="flex items-center justify-between rounded-3xl border border-border bg-card p-3 shadow-card">
+          {currentPage > 1 ? (
+            <Link
+              href={pageHref(currentPage - 1)}
+              className="rounded-full border border-border px-4 py-2 font-mono text-xs font-bold uppercase tracking-wider text-text-muted transition-colors hover:border-accent hover:text-text"
+            >
+              Previous
+            </Link>
+          ) : (
+            <span className="rounded-full border border-border px-4 py-2 font-mono text-xs uppercase tracking-wider text-text-muted/40">
+              Previous
+            </span>
+          )}
+          <span className="font-mono text-[10px] uppercase tracking-wider text-text-muted">
+            48 per page
+          </span>
+          {currentPage < pageCount ? (
+            <Link
+              href={pageHref(currentPage + 1)}
+              className="rounded-full border border-border px-4 py-2 font-mono text-xs font-bold uppercase tracking-wider text-text-muted transition-colors hover:border-accent hover:text-text"
+            >
+              Next
+            </Link>
+          ) : (
+            <span className="rounded-full border border-border px-4 py-2 font-mono text-xs uppercase tracking-wider text-text-muted/40">
+              Next
+            </span>
+          )}
+        </nav>
+      ) : null}
     </div>
   );
 }
