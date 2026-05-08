@@ -133,6 +133,57 @@ function matchedFieldsFor(listing: ListingInsert): string[] {
   ].filter((field): field is string => Boolean(field));
 }
 
+type ExistingSourceProductCacheRow = Pick<
+  SourceProductRow,
+  'source' | 'external_id' | 'content_hash' | 'last_matched_hash' | 'last_matched_context_hash'
+>;
+
+type SourceProductBatchRow = {
+  input_order: number;
+  source: string;
+  external_id: string;
+  handle: string;
+  title: string;
+  price: number;
+  available: boolean;
+  url: string;
+  image_url: string;
+  description: string | null;
+  normalized_title: string;
+  raw_payload: string;
+  content_hash: string;
+  scan_token: string;
+};
+
+function sourceProductKey(source: string, externalId: string): string {
+  return `${source}\u0000${externalId}`;
+}
+
+export function buildSourceProductBatchRows(products: SourceProductCacheInput[]): SourceProductBatchRow[] {
+  const uniqueRows = new Map<string, SourceProductBatchRow>();
+
+  products.forEach((product, inputOrder) => {
+    uniqueRows.set(sourceProductKey(product.source, product.externalId), {
+      input_order: inputOrder,
+      source: product.source,
+      external_id: product.externalId,
+      handle: product.handle,
+      title: product.title,
+      price: product.price,
+      available: product.available,
+      url: product.url,
+      image_url: product.imageUrl,
+      description: product.description,
+      normalized_title: product.title.toLowerCase(),
+      raw_payload: product.rawPayload,
+      content_hash: product.contentHash,
+      scan_token: product.scanToken,
+    });
+  });
+
+  return Array.from(uniqueRows.values()).sort((a, b) => a.input_order - b.input_order);
+}
+
 export async function upsertSourceProducts(
   db: DbClient,
   products: SourceProductCacheInput[],
@@ -140,137 +191,133 @@ export async function upsertSourceProducts(
 ): Promise<SourceProductCacheStatus[]> {
   if (products.length === 0) return [];
 
-  const source = products[0]!.source;
-  const ids = products.map(product => product.externalId);
-  const existing = await query<Pick<SourceProductRow, 'source' | 'external_id' | 'content_hash' | 'last_matched_hash' | 'last_matched_context_hash'>>(
+  const batchRows = buildSourceProductBatchRows(products);
+  const payload = JSON.stringify(batchRows);
+  const existing = await query<ExistingSourceProductCacheRow>(
     db,
-    `select source, external_id, content_hash, last_matched_hash, last_matched_context_hash
-     from source_products
-     where source = $1 and external_id = any($2::text[])`,
-    [source, ids]
+    `with input as (
+       select source, external_id
+       from jsonb_to_recordset($1::jsonb) as x(source text, external_id text)
+     )
+     select sp.source, sp.external_id, sp.content_hash, sp.last_matched_hash, sp.last_matched_context_hash
+     from source_products sp
+     join input i on i.source = sp.source and i.external_id = sp.external_id`,
+    [payload]
   );
-  const existingById = new Map(existing.rows.map(row => [row.external_id, row]));
-  const statuses: SourceProductCacheStatus[] = [];
+  const existingByKey = new Map(existing.rows.map(row => [sourceProductKey(row.source, row.external_id), row]));
 
   await withTransaction(async client => {
-    for (const product of products) {
-      const existingRow = existingById.get(product.externalId);
-      const isNew = !existingRow;
-      const changed = existingRow?.content_hash !== product.contentHash;
-      const alreadyMatched =
-        existingRow?.last_matched_hash === product.contentHash &&
-        existingRow?.last_matched_context_hash === matchContextHash;
-
-      await client.query(
-        `insert into source_products (
-          source, external_id, handle, title, price, available, url, image_url,
-          description, normalized_title, raw_latest_payload, content_hash,
-          last_seen_scan_token, last_checked_at
-        ) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11::jsonb,$12,$13,now())
-        on conflict (source, external_id) do update set
-          handle = excluded.handle,
-          title = excluded.title,
-          price = excluded.price,
-          available = excluded.available,
-          url = excluded.url,
-          image_url = excluded.image_url,
-          description = excluded.description,
-          normalized_title = excluded.normalized_title,
-          raw_latest_payload = excluded.raw_latest_payload,
-          content_hash = excluded.content_hash,
-          last_seen_at = now(),
-          last_checked_at = now(),
-          last_seen_scan_token = excluded.last_seen_scan_token`,
-        [
-          product.source,
-          product.externalId,
-          product.handle,
-          product.title,
-          product.price,
-          product.available,
-          product.url,
-          product.imageUrl,
-          product.description,
-          product.title.toLowerCase(),
-          product.rawPayload,
-          product.contentHash,
-          product.scanToken,
-        ]
-      );
-
-      await client.query(
-        `insert into store_products (
-          source, external_product_id, handle, title, current_price, current_availability,
-          product_url, canonical_url, image_url, description, normalized_title,
-          raw_latest_payload, product_fingerprint, last_checked_at
-        ) values ($1,$2,$3,$4,$5,$6,$7,$7,$8,$9,$10,$11::jsonb,$12,now())
-        on conflict (source, external_product_id) do update set
-          handle = excluded.handle,
-          title = excluded.title,
-          current_price = excluded.current_price,
-          current_availability = excluded.current_availability,
-          product_url = excluded.product_url,
-          canonical_url = excluded.canonical_url,
-          image_url = excluded.image_url,
-          description = excluded.description,
-          normalized_title = excluded.normalized_title,
-          raw_latest_payload = excluded.raw_latest_payload,
-          product_fingerprint = excluded.product_fingerprint,
-          last_seen_at = now(),
-          last_checked_at = now(),
-          updated_at = now()`,
-        [
-          product.source,
-          product.externalId,
-          product.handle,
-          product.title,
-          product.price,
-          product.available,
-          product.url,
-          product.imageUrl,
-          product.description,
-          product.title.toLowerCase(),
-          product.rawPayload,
-          product.contentHash,
-        ]
-      );
-
-      if (isNew || changed) {
-        const storeProduct = await client.query<{ id: number }>(
-          'select id from store_products where source = $1 and external_product_id = $2',
-          [product.source, product.externalId]
-        );
-        await client.query(
-          `insert into product_snapshots (
-            store_product_id, source, external_id, title, description, price, availability,
-            image_url, raw_payload, content_hash
-          ) values ($1,$2,$3,$4,$5,$6,$7,$8,$9::jsonb,$10)`,
-          [
-            storeProduct.rows[0]?.id ?? null,
-            product.source,
-            product.externalId,
-            product.title,
-            product.description,
-            product.price,
-            product.available,
-            product.imageUrl,
-            product.rawPayload,
-            product.contentHash,
-          ]
-        );
-      }
-
-      statuses.push({
-        externalId: product.externalId,
-        contentHash: product.contentHash,
-        isNew,
-        changed,
-        shouldMatch: product.available && (isNew || changed || !alreadyMatched),
-      });
-    }
+    await client.query(
+      `with input as (
+         select *
+         from jsonb_to_recordset($1::jsonb) as x(
+           input_order integer,
+           source text,
+           external_id text,
+           handle text,
+           title text,
+           price numeric,
+           available boolean,
+           url text,
+           image_url text,
+           description text,
+           normalized_title text,
+           raw_payload text,
+           content_hash text,
+           scan_token text
+         )
+       ),
+       existing_source as (
+         select i.source, i.external_id, sp.content_hash as old_content_hash
+         from input i
+         left join source_products sp on sp.source = i.source and sp.external_id = i.external_id
+       ),
+       upserted_source as (
+         insert into source_products (
+           source, external_id, handle, title, price, available, url, image_url,
+           description, normalized_title, raw_latest_payload, content_hash,
+           last_seen_scan_token, last_checked_at
+         )
+         select
+           source, external_id, handle, title, price, available, url, image_url,
+           description, normalized_title, raw_payload::jsonb, content_hash,
+           scan_token, now()
+         from input
+         on conflict (source, external_id) do update set
+           handle = excluded.handle,
+           title = excluded.title,
+           price = excluded.price,
+           available = excluded.available,
+           url = excluded.url,
+           image_url = excluded.image_url,
+           description = excluded.description,
+           normalized_title = excluded.normalized_title,
+           raw_latest_payload = excluded.raw_latest_payload,
+           content_hash = excluded.content_hash,
+           last_seen_at = now(),
+           last_checked_at = now(),
+           last_seen_scan_token = excluded.last_seen_scan_token
+         returning source, external_id
+       ),
+       upserted_store as (
+         insert into store_products (
+           source, external_product_id, handle, title, current_price, current_availability,
+           product_url, canonical_url, image_url, description, normalized_title,
+           raw_latest_payload, product_fingerprint, last_checked_at
+         )
+         select
+           source, external_id, handle, title, price, available,
+           url, url, image_url, description, normalized_title,
+           raw_payload::jsonb, content_hash, now()
+         from input
+         on conflict (source, external_product_id) do update set
+           handle = excluded.handle,
+           title = excluded.title,
+           current_price = excluded.current_price,
+           current_availability = excluded.current_availability,
+           product_url = excluded.product_url,
+           canonical_url = excluded.canonical_url,
+           image_url = excluded.image_url,
+           description = excluded.description,
+           normalized_title = excluded.normalized_title,
+           raw_latest_payload = excluded.raw_latest_payload,
+           product_fingerprint = excluded.product_fingerprint,
+           last_seen_at = now(),
+           last_checked_at = now(),
+           updated_at = now()
+         returning id, source, external_product_id
+       )
+       insert into product_snapshots (
+         store_product_id, source, external_id, title, description, price, availability,
+         image_url, raw_payload, content_hash
+       )
+       select
+         us.id, i.source, i.external_id, i.title, i.description, i.price, i.available,
+         i.image_url, i.raw_payload::jsonb, i.content_hash
+       from input i
+       join upserted_store us on us.source = i.source and us.external_product_id = i.external_id
+       left join existing_source es on es.source = i.source and es.external_id = i.external_id
+       where es.old_content_hash is null or es.old_content_hash is distinct from i.content_hash`,
+      [payload]
+    );
   });
 
-  return statuses;
+  return products.map(product => {
+    const existingRow = existingByKey.get(sourceProductKey(product.source, product.externalId));
+    const isNew = !existingRow;
+    const changed = existingRow?.content_hash !== product.contentHash;
+    const alreadyMatched =
+      existingRow?.last_matched_hash === product.contentHash &&
+      existingRow?.last_matched_context_hash === matchContextHash;
+
+    return {
+      externalId: product.externalId,
+      contentHash: product.contentHash,
+      isNew,
+      changed,
+      shouldMatch: product.available && (isNew || changed || !alreadyMatched),
+    };
+  });
 }
 
 export async function markSourceProductsMatched(

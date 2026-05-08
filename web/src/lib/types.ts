@@ -43,6 +43,9 @@ export interface StoreRow {
   currency: string | null;
   is_active: boolean;
   scan_frequency_minutes: number;
+  scan_strategy: "incremental" | "full";
+  early_stop_enabled: boolean;
+  early_stop_unchanged_pages: number;
   last_successful_scan_at: string | null;
   last_failed_scan_at: string | null;
   created_at: string;
@@ -165,5 +168,10 @@ export interface StoreScanRunRow {
   products_processed: number;
   products_matched: number;
   products_marked_unavailable: number;
+  scan_strategy: "incremental" | "full" | null;
+  early_stop_enabled: boolean;
+  early_stop_unchanged_pages: number | null;
+  stopped_early: boolean;
+  pages_fetched: number;
   error_message: string | null;
 }

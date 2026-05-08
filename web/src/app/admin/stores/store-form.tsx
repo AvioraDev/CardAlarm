@@ -66,6 +66,29 @@ export function StoreForm({ action, store, submitLabel }: StoreFormProps) {
           />
         </label>
         <label className="block">
+          <span className="font-mono text-[10px] uppercase tracking-wider text-text-muted">Scan Strategy</span>
+          <select
+            name="scan_strategy"
+            defaultValue={store?.scan_strategy ?? "incremental"}
+            className="mt-1 w-full rounded-2xl border border-border bg-bg px-4 py-3 text-sm text-text outline-none transition-colors focus:border-accent"
+          >
+            <option value="incremental">Incremental</option>
+            <option value="full">Full</option>
+          </select>
+        </label>
+        <label className="block">
+          <span className="font-mono text-[10px] uppercase tracking-wider text-text-muted">Early-Stop Full Pages</span>
+          <input
+            name="early_stop_unchanged_pages"
+            type="number"
+            min="1"
+            max="50"
+            required
+            defaultValue={store?.early_stop_unchanged_pages ?? 2}
+            className="mt-1 w-full rounded-2xl border border-border bg-bg px-4 py-3 text-sm text-text outline-none transition-colors focus:border-accent"
+          />
+        </label>
+        <label className="block">
           <span className="font-mono text-[10px] uppercase tracking-wider text-text-muted">Country Code</span>
           <input
             name="country_code"
@@ -87,6 +110,10 @@ export function StoreForm({ action, store, submitLabel }: StoreFormProps) {
       <label className="mt-6 inline-flex items-center gap-2 rounded-full border border-border px-3 py-2 text-sm text-text-muted">
         <input name="is_active" type="checkbox" defaultChecked={store?.is_active ?? true} className="accent-[var(--color-accent)]" />
         Active for scans
+      </label>
+      <label className="mt-3 inline-flex items-center gap-2 rounded-full border border-border px-3 py-2 text-sm text-text-muted sm:ml-3">
+        <input name="early_stop_enabled" type="checkbox" defaultChecked={store?.early_stop_enabled ?? true} className="accent-[var(--color-accent)]" />
+        Enable incremental early stop
       </label>
       <div className="mt-8 flex flex-col gap-3 sm:flex-row">
         <button type="submit" className="rounded-full bg-accent px-6 py-3 font-mono text-xs font-bold uppercase tracking-wider text-bg transition-colors hover:bg-accent-hover">

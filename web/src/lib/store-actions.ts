@@ -35,8 +35,11 @@ export async function createStoreAction(formData: FormData): Promise<void> {
        country_code,
        currency,
        is_active,
-       scan_frequency_minutes
-     ) values ($1,$2,$3,$4,$5,$6,$7,$8)`,
+       scan_frequency_minutes,
+       scan_strategy,
+       early_stop_enabled,
+       early_stop_unchanged_pages
+     ) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)`,
     [
       store.slug,
       store.name,
@@ -46,6 +49,9 @@ export async function createStoreAction(formData: FormData): Promise<void> {
       store.currency,
       store.isActive,
       store.scanFrequencyMinutes,
+      store.scanStrategy,
+      store.earlyStopEnabled,
+      store.earlyStopUnchangedPages,
     ],
   );
 
@@ -74,8 +80,11 @@ export async function updateStoreAction(formData: FormData): Promise<void> {
          currency = $6,
          is_active = $7,
          scan_frequency_minutes = $8,
+         scan_strategy = $9,
+         early_stop_enabled = $10,
+         early_stop_unchanged_pages = $11,
          updated_at = now()
-     where id = $9`,
+     where id = $12`,
     [
       store.slug,
       store.name,
@@ -85,6 +94,9 @@ export async function updateStoreAction(formData: FormData): Promise<void> {
       store.currency,
       store.isActive,
       store.scanFrequencyMinutes,
+      store.scanStrategy,
+      store.earlyStopEnabled,
+      store.earlyStopUnchangedPages,
       id,
     ],
   );

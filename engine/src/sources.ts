@@ -15,6 +15,9 @@ type StoreRow = {
   source_type: string;
   country_code: string | null;
   currency: string | null;
+  scan_strategy: string | null;
+  early_stop_enabled: boolean | null;
+  early_stop_unchanged_pages: number | null;
 };
 
 type SourceJsonRow = {
@@ -24,6 +27,9 @@ type SourceJsonRow = {
   sourceType?: string;
   countryCode?: string;
   currency?: string;
+  scanStrategy?: string;
+  earlyStopEnabled?: boolean;
+  earlyStopUnchangedPages?: number;
 };
 
 type LoadScanSourcesOptions = {
@@ -43,6 +49,14 @@ function normalizeSourceType(value: string | null | undefined): 'shopify' | null
   return value?.toLowerCase() === 'shopify' ? 'shopify' : null;
 }
 
+function normalizeScanStrategy(value: string | null | undefined): 'incremental' | 'full' {
+  return value?.toLowerCase() === 'full' ? 'full' : 'incremental';
+}
+
+function normalizeEarlyStopPages(value: number | null | undefined): number {
+  return typeof value === 'number' && Number.isInteger(value) && value > 0 ? value : 2;
+}
+
 export function sourceFromStoreRow(row: StoreRow): SourceConfig | null {
   const sourceType = normalizeSourceType(row.source_type);
   if (!sourceType || !row.slug.trim() || !row.name.trim() || !row.base_url.trim()) return null;
@@ -55,6 +69,9 @@ export function sourceFromStoreRow(row: StoreRow): SourceConfig | null {
     sourceType,
     countryCode: row.country_code?.trim() || 'NZ',
     currency: row.currency?.trim() || 'NZD',
+    scanStrategy: normalizeScanStrategy(row.scan_strategy),
+    earlyStopEnabled: row.early_stop_enabled ?? true,
+    earlyStopUnchangedPages: normalizeEarlyStopPages(row.early_stop_unchanged_pages),
   };
 }
 
@@ -69,6 +86,9 @@ function sourceFromJsonRow(row: SourceJsonRow): SourceConfig | null {
     sourceType,
     countryCode: row.countryCode?.trim() || 'NZ',
     currency: row.currency?.trim() || 'NZD',
+    scanStrategy: normalizeScanStrategy(row.scanStrategy),
+    earlyStopEnabled: row.earlyStopEnabled ?? true,
+    earlyStopUnchangedPages: normalizeEarlyStopPages(row.earlyStopUnchangedPages),
   };
 }
 
@@ -80,7 +100,17 @@ export function loadSourceFallback(filePath = DEFAULT_SOURCES_PATH): SourceConfi
 
 export async function loadActiveStoreSources(db: DbClient): Promise<SourceConfig[]> {
   const result = await db.query<StoreRow>(
-    `select id, slug, name, base_url, source_type, country_code, currency
+    `select
+       id,
+       slug,
+       name,
+       base_url,
+       source_type,
+       country_code,
+       currency,
+       coalesce(scan_strategy, 'incremental') as scan_strategy,
+       coalesce(early_stop_enabled, true) as early_stop_enabled,
+       coalesce(early_stop_unchanged_pages, 2) as early_stop_unchanged_pages
      from public.stores
      where is_active = true
        and lower(source_type) = 'shopify'

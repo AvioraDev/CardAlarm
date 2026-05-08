@@ -29,6 +29,25 @@ const EARLY_STOP_UNCHANGED_PAGES = Number(process.env.CARDALARM_EARLY_STOP_UNCHA
 const FETCH_TIMEOUT_MS = Number(process.env.CARDALARM_FETCH_TIMEOUT_MS ?? 15000);
 const MATCHER_VERSION = 'matcher-v2-cache-v1';
 
+type EarlyStopConfig = {
+  enabled: boolean;
+  unchangedPageThreshold: number;
+};
+
+export function earlyStopConfigForSource(source: SourceConfig): EarlyStopConfig {
+  return {
+    enabled: source.scanStrategy === 'incremental' && source.earlyStopEnabled,
+    unchangedPageThreshold: Math.max(1, source.earlyStopUnchangedPages || EARLY_STOP_UNCHANGED_PAGES),
+  };
+}
+
+export function shouldStopForUnchangedPages(
+  config: EarlyStopConfig,
+  consecutiveUnchangedPages: number
+): boolean {
+  return config.enabled && consecutiveUnchangedPages >= config.unchangedPageThreshold;
+}
+
 function randomDelay(): Promise<void> {
   const minMs = Number(process.env.CARDALARM_SCAN_DELAY_MIN_MS ?? 2000);
   const maxMs = Number(process.env.CARDALARM_SCAN_DELAY_MAX_MS ?? 5000);
@@ -158,12 +177,16 @@ async function processSource(
   skipped: number;
   matched: number;
   markedOOS: number;
+  pagesFetched: number;
+  stoppedEarly: boolean;
 }> {
   console.log(`\n▶ Ingesting: ${source.name} (${source.baseUrl})`);
 
+  const earlyStopConfig = earlyStopConfigForSource(source);
   let page = 1;
   let consecutiveUnchangedPages = 0;
   let fetched = 0;
+  let pagesFetched = 0;
   let processed = 0;
   let skipped = 0;
   let matched = 0;
@@ -183,6 +206,8 @@ async function processSource(
         reachedEnd = true;
         continue;
       }
+
+      pagesFetched++;
 
       if (products.length === 0) {
         reachedEnd = true;
@@ -248,8 +273,9 @@ async function processSource(
       }
     }
 
-    if (reachedEnd || consecutiveUnchangedPages >= EARLY_STOP_UNCHANGED_PAGES) {
-      if (consecutiveUnchangedPages >= EARLY_STOP_UNCHANGED_PAGES) {
+    const shouldStopEarly = shouldStopForUnchangedPages(earlyStopConfig, consecutiveUnchangedPages);
+    if (reachedEnd || shouldStopEarly) {
+      if (shouldStopEarly) {
         stoppedEarlyFromCache = true;
         console.log(`  ↳ Early stop: ${consecutiveUnchangedPages} unchanged pages in a row`);
       }
@@ -274,7 +300,7 @@ async function processSource(
     `  ↳ Source done. Fetched: ${fetched}, Processed: ${processed}, Skipped cache: ${skipped}, Matched: ${matched}, Marked OOS: ${markedOOS}`
   );
 
-  return { fetched, processed, skipped, matched, markedOOS };
+  return { fetched, processed, skipped, matched, markedOOS, pagesFetched, stoppedEarly: stoppedEarlyFromCache };
 }
 
 interface ScanOptions {
@@ -322,7 +348,14 @@ export async function runIngestionCycle(
         productsProcessed: sourceResult.processed,
         productsMatched: sourceResult.matched,
         productsMarkedUnavailable: sourceResult.markedOOS,
-        metadata: { skipped: sourceResult.skipped },
+        metadata: {
+          skipped: sourceResult.skipped,
+          scanStrategy: source.scanStrategy,
+          earlyStopEnabled: earlyStopConfigForSource(source).enabled,
+          earlyStopUnchangedPages: earlyStopConfigForSource(source).unchangedPageThreshold,
+          stoppedEarly: sourceResult.stoppedEarly,
+          pagesFetched: sourceResult.pagesFetched,
+        },
       });
       await markStoreScanSucceeded(db, source.storeId);
 

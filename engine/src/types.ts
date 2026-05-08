@@ -34,6 +34,9 @@ export interface SourceConfig {
   sourceType: 'shopify';
   countryCode: string;
   currency: string;
+  scanStrategy: 'incremental' | 'full';
+  earlyStopEnabled: boolean;
+  earlyStopUnchangedPages: number;
 }
 
 // ─── Internal Pipeline Objects ─────────────────────────────────────

@@ -6,6 +6,9 @@ export type StoreFormInput = {
   countryCode: string;
   currency: string;
   scanFrequencyMinutes: number;
+  scanStrategy: "incremental" | "full";
+  earlyStopEnabled: boolean;
+  earlyStopUnchangedPages: number;
   isActive: boolean;
 };
 
@@ -33,6 +36,8 @@ export function parseStoreForm(formData: FormData): StoreFormResult {
   const countryCode = (field(formData, "country_code") || "NZ").toUpperCase();
   const currency = (field(formData, "currency") || "NZD").toUpperCase();
   const scanFrequency = Number.parseInt(field(formData, "scan_frequency_minutes") || "1440", 10);
+  const scanStrategy = field(formData, "scan_strategy") || "incremental";
+  const earlyStopPages = Number.parseInt(field(formData, "early_stop_unchanged_pages") || "2", 10);
 
   let parsedUrl: URL;
   try {
@@ -46,9 +51,15 @@ export function parseStoreForm(formData: FormData): StoreFormResult {
     return { ok: false, error: "Store slug must use letters, numbers, and hyphens." };
   }
   if (sourceType !== "shopify") return { ok: false, error: "Only Shopify stores are supported for MVP scanning." };
+  if (scanStrategy !== "incremental" && scanStrategy !== "full") {
+    return { ok: false, error: "Scan strategy must be incremental or full." };
+  }
   if (!["http:", "https:"].includes(parsedUrl.protocol)) return { ok: false, error: "Store URL must use http or https." };
   if (!Number.isInteger(scanFrequency) || scanFrequency < 15 || scanFrequency > 10080) {
     return { ok: false, error: "Scan frequency must be between 15 minutes and 7 days." };
+  }
+  if (!Number.isInteger(earlyStopPages) || earlyStopPages < 1 || earlyStopPages > 50) {
+    return { ok: false, error: "Early-stop unchanged pages must be between 1 and 50." };
   }
 
   parsedUrl.hash = "";
@@ -64,6 +75,9 @@ export function parseStoreForm(formData: FormData): StoreFormResult {
       countryCode,
       currency,
       scanFrequencyMinutes: scanFrequency,
+      scanStrategy,
+      earlyStopEnabled: formData.get("early_stop_enabled") === "on",
+      earlyStopUnchangedPages: earlyStopPages,
       isActive: formData.get("is_active") === "on",
     },
   };

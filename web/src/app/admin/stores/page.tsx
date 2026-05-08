@@ -69,7 +69,7 @@ export default async function AdminStoresPage({ searchParams }: AdminStoresPageP
           <span className="font-mono text-xs text-text-muted">{stores.length} stores</span>
         </div>
         <div className="overflow-x-auto">
-          <table className="min-w-[1200px] text-left text-sm">
+          <table className="min-w-[1360px] text-left text-sm">
             <thead className="border-b border-border bg-surface/80 font-mono text-[10px] uppercase tracking-wider text-text-muted">
               <tr>
                 <th className="px-4 py-3">Store</th>
@@ -79,6 +79,8 @@ export default async function AdminStoresPage({ searchParams }: AdminStoresPageP
                 <th className="px-4 py-3">Currency</th>
                 <th className="px-4 py-3">Active</th>
                 <th className="px-4 py-3">Frequency</th>
+                <th className="px-4 py-3">Strategy</th>
+                <th className="px-4 py-3">Early Stop</th>
                 <th className="px-4 py-3">Last Success</th>
                 <th className="px-4 py-3">Last Failure</th>
                 <th className="px-4 py-3 text-right">Actions</th>
@@ -118,6 +120,12 @@ export default async function AdminStoresPage({ searchParams }: AdminStoresPageP
                   <td className="px-4 py-4 font-mono text-xs text-text-muted">
                     {store.scan_frequency_minutes} min
                   </td>
+                  <td className="px-4 py-4 font-mono text-xs uppercase text-text-muted">
+                    {store.scan_strategy}
+                  </td>
+                  <td className="px-4 py-4 font-mono text-xs text-text-muted">
+                    {store.early_stop_enabled ? `${store.early_stop_unchanged_pages} pages` : "Off"}
+                  </td>
                   <td className="px-4 py-4 text-xs text-text-muted">{formatDate(store.last_successful_scan_at)}</td>
                   <td className="px-4 py-4 text-xs text-text-muted">{formatDate(store.last_failed_scan_at)}</td>
                   <td className="px-4 py-4">
@@ -143,7 +151,7 @@ export default async function AdminStoresPage({ searchParams }: AdminStoresPageP
               ))}
               {stores.length === 0 ? (
                 <tr>
-                  <td colSpan={10} className="px-4 py-10 text-center text-sm text-text-muted">
+                  <td colSpan={12} className="px-4 py-10 text-center text-sm text-text-muted">
                     No stores configured yet. Add a Shopify store to make database-backed scans available.
                   </td>
                 </tr>

@@ -72,7 +72,7 @@ export default async function AdminScansPage() {
           </div>
         ) : (
           <div className="mt-6 overflow-x-auto rounded-2xl border border-border">
-            <table className="w-full min-w-[980px] text-left text-sm">
+            <table className="w-full min-w-[1160px] text-left text-sm">
               <thead className="bg-bg/70 font-mono text-[10px] uppercase tracking-wider text-text-muted">
                 <tr>
                   <th className="px-4 py-3">Store</th>
@@ -81,6 +81,8 @@ export default async function AdminScansPage() {
                   <th className="px-4 py-3">Processed</th>
                   <th className="px-4 py-3">Matched</th>
                   <th className="px-4 py-3">Marked OOS</th>
+                  <th className="px-4 py-3">Pages</th>
+                  <th className="px-4 py-3">Early Stop</th>
                   <th className="px-4 py-3">Started</th>
                   <th className="px-4 py-3">Completed</th>
                   <th className="px-4 py-3">Error</th>
@@ -100,6 +102,12 @@ export default async function AdminScansPage() {
                     <td className="px-4 py-3 font-mono text-xs text-text">{run.products_processed.toLocaleString()}</td>
                     <td className="px-4 py-3 font-mono text-xs text-accent">{run.products_matched.toLocaleString()}</td>
                     <td className="px-4 py-3 font-mono text-xs text-text">{run.products_marked_unavailable.toLocaleString()}</td>
+                    <td className="px-4 py-3 font-mono text-xs text-text">{run.pages_fetched.toLocaleString()}</td>
+                    <td className="px-4 py-3 font-mono text-xs text-text-muted">
+                      {run.early_stop_enabled
+                        ? `${run.stopped_early ? "Stopped" : "On"} / ${run.early_stop_unchanged_pages ?? 2}`
+                        : "Off"}
+                    </td>
                     <td className="px-4 py-3 text-xs text-text-muted">{formatDate(run.started_at)}</td>
                     <td className="px-4 py-3 text-xs text-text-muted">{formatDate(run.completed_at)}</td>
                     <td className="max-w-[260px] truncate px-4 py-3 text-xs text-danger" title={run.error_message ?? undefined}>

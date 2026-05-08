@@ -23,6 +23,9 @@ describe("parseStoreForm", () => {
         country_code: "au",
         currency: "aud",
         scan_frequency_minutes: "60",
+        scan_strategy: "incremental",
+        early_stop_enabled: true,
+        early_stop_unchanged_pages: "3",
         is_active: true,
       }),
     );
@@ -37,6 +40,9 @@ describe("parseStoreForm", () => {
         countryCode: "AU",
         currency: "AUD",
         scanFrequencyMinutes: 60,
+        scanStrategy: "incremental",
+        earlyStopEnabled: true,
+        earlyStopUnchangedPages: 3,
         isActive: true,
       },
     });
@@ -80,5 +86,19 @@ describe("parseStoreForm", () => {
     );
 
     expect(result).toEqual({ ok: false, error: "Scan frequency must be between 15 minutes and 7 days." });
+  });
+
+  it("rejects unsafe early-stop thresholds", () => {
+    const result = parseStoreForm(
+      makeForm({
+        name: "Too Eager",
+        slug: "too-eager",
+        base_url: "https://example.com",
+        source_type: "shopify",
+        early_stop_unchanged_pages: "0",
+      }),
+    );
+
+    expect(result).toEqual({ ok: false, error: "Early-stop unchanged pages must be between 1 and 50." });
   });
 });

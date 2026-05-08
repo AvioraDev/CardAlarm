@@ -37,6 +37,9 @@ describe('scan source loading', () => {
       source_type: 'shopify',
       country_code: 'NZ',
       currency: 'NZD',
+      scan_strategy: null,
+      early_stop_enabled: null,
+      early_stop_unchanged_pages: null,
     });
 
     expect(source).toEqual({
@@ -47,6 +50,9 @@ describe('scan source loading', () => {
       sourceType: 'shopify',
       countryCode: 'NZ',
       currency: 'NZD',
+      scanStrategy: 'incremental',
+      earlyStopEnabled: true,
+      earlyStopUnchangedPages: 2,
     });
   });
 
@@ -59,6 +65,9 @@ describe('scan source loading', () => {
       source_type: 'manual',
       country_code: 'NZ',
       currency: 'NZD',
+      scan_strategy: null,
+      early_stop_enabled: null,
+      early_stop_unchanged_pages: null,
     })).toBeNull();
   });
 
@@ -72,6 +81,9 @@ describe('scan source loading', () => {
         source_type: 'shopify',
         country_code: null,
         currency: null,
+        scan_strategy: 'full',
+        early_stop_enabled: false,
+        early_stop_unchanged_pages: 5,
       },
     ]);
 
@@ -86,6 +98,9 @@ describe('scan source loading', () => {
       sourceType: 'shopify',
       countryCode: 'NZ',
       currency: 'NZD',
+      scanStrategy: 'full',
+      earlyStopEnabled: false,
+      earlyStopUnchangedPages: 5,
     }]);
   });
 
@@ -100,6 +115,9 @@ describe('scan source loading', () => {
         source_type: 'shopify',
         country_code: 'AU',
         currency: 'AUD',
+        scan_strategy: 'incremental',
+        early_stop_enabled: true,
+        early_stop_unchanged_pages: 4,
       },
     ]);
 
@@ -111,6 +129,9 @@ describe('scan source loading', () => {
       sourceType: 'shopify',
       countryCode: 'AU',
       currency: 'AUD',
+      scanStrategy: 'incremental',
+      earlyStopEnabled: true,
+      earlyStopUnchangedPages: 4,
     }]);
   });
 
@@ -136,6 +157,9 @@ describe('scan source loading', () => {
       sourceType: 'shopify',
       countryCode: 'NZ',
       currency: 'NZD',
+      scanStrategy: 'incremental',
+      earlyStopEnabled: true,
+      earlyStopUnchangedPages: 2,
     }]);
   });
 
@@ -166,6 +190,9 @@ describe('scan source loading', () => {
       sourceType: 'shopify',
       countryCode: 'NZ',
       currency: 'NZD',
+      scanStrategy: 'incremental',
+      earlyStopEnabled: true,
+      earlyStopUnchangedPages: 2,
     }]);
   });
 });

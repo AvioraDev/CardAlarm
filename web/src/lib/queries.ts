@@ -189,6 +189,11 @@ export async function getRecentStoreScanRuns(limit = 24): Promise<StoreScanRunRo
        coalesce(ssr.products_processed, 0) as products_processed,
        coalesce(ssr.products_matched, 0) as products_matched,
        ssr.products_marked_unavailable,
+       ssr.metadata->>'scanStrategy' as scan_strategy,
+       coalesce((ssr.metadata->>'earlyStopEnabled')::boolean, false) as early_stop_enabled,
+       (ssr.metadata->>'earlyStopUnchangedPages')::integer as early_stop_unchanged_pages,
+       coalesce((ssr.metadata->>'stoppedEarly')::boolean, false) as stopped_early,
+       coalesce((ssr.metadata->>'pagesFetched')::integer, 0) as pages_fetched,
        ssr.error_message
      from public.store_scan_runs ssr
      left join public.stores s on s.id = ssr.store_id
