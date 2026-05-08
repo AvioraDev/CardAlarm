@@ -12,10 +12,14 @@ import type {
 } from './types';
 import { processListingWithCache } from './match';
 import {
+  createStoreScanRun,
   getActiveWatchlistPlayers,
   getAllChecklistPlayerNames,
+  markStoreScanFailed,
+  markStoreScanSucceeded,
   markMissingSourceProductsOOS,
   markSourceProductsMatched,
+  updateStoreScanRun,
   upsertSourceProducts,
 } from './db';
 
@@ -262,6 +266,10 @@ async function processSource(
       ? await markMissingSourceProductsOOS(db, source.slug, scanToken)
       : 0;
 
+  if (hadFetchError && fetched === 0) {
+    throw new Error('Failed to fetch products from the store.');
+  }
+
   console.log(
     `  ↳ Source done. Fetched: ${fetched}, Processed: ${processed}, Skipped cache: ${skipped}, Matched: ${matched}, Marked OOS: ${markedOOS}`
   );
@@ -293,9 +301,12 @@ export async function runIngestionCycle(
   }
 
   const results = [];
+  const sourceErrors: string[] = [];
 
   for (const source of sources) {
-    const sourceResult = await processSource(
+    const storeScanRunId = await createStoreScanRun(db, source);
+    try {
+      const sourceResult = await processSource(
         db,
         source,
         `${runToken}-${source.slug}`,
@@ -304,16 +315,39 @@ export async function runIngestionCycle(
         watchlistNameSet,
         allPlayerNames
       );
-    results.push(sourceResult);
-
-    if (options.onProgress) {
-      await options.onProgress({
-        processed: results.reduce((sum, result) => sum + result.processed, 0),
-        matched: results.reduce((sum, result) => sum + result.matched, 0),
+      results.push(sourceResult);
+      await updateStoreScanRun(db, storeScanRunId, {
+        status: 'completed',
+        productsSeen: sourceResult.fetched,
+        productsProcessed: sourceResult.processed,
+        productsMatched: sourceResult.matched,
+        productsMarkedUnavailable: sourceResult.markedOOS,
+        metadata: { skipped: sourceResult.skipped },
       });
+      await markStoreScanSucceeded(db, source.storeId);
+
+      if (options.onProgress) {
+        await options.onProgress({
+          processed: results.reduce((sum, result) => sum + result.processed, 0),
+          matched: results.reduce((sum, result) => sum + result.matched, 0),
+        });
+      }
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : String(err);
+      sourceErrors.push(`${source.slug}: ${errorMessage}`);
+      await updateStoreScanRun(db, storeScanRunId, {
+        status: 'failed',
+        errorMessage,
+      });
+      await markStoreScanFailed(db, source.storeId);
+      console.error(`  Source failed: ${source.name} (${source.slug})`, errorMessage);
     }
 
     await randomDelay();
+  }
+
+  if (sourceErrors.length > 0) {
+    throw new Error(`One or more store scans failed: ${sourceErrors.join('; ')}`);
   }
 
   const totalFetched = results.reduce((sum, result) => sum + result.fetched, 0);

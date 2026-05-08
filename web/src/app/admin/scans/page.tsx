@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { requireAdmin } from "@/lib/auth";
-import { getLatestScanRun, getRecentScanRuns } from "@/lib/queries";
+import { getLatestScanRun, getRecentScanRuns, getRecentStoreScanRuns } from "@/lib/queries";
 import { ScanPanel } from "../../components/scan-panel";
 
 export const dynamic = "force-dynamic";
@@ -18,7 +18,11 @@ function statusClass(status: string): string {
 
 export default async function AdminScansPage() {
   await requireAdmin();
-  const [latestScanRun, recentRuns] = await Promise.all([getLatestScanRun(), getRecentScanRuns(12)]);
+  const [latestScanRun, recentRuns, recentStoreRuns] = await Promise.all([
+    getLatestScanRun(),
+    getRecentScanRuns(12),
+    getRecentStoreScanRuns(24),
+  ]);
 
   return (
     <div className="space-y-6">
@@ -48,6 +52,66 @@ export default async function AdminScansPage() {
       </section>
 
       <ScanPanel initialScanRun={latestScanRun} />
+
+      <section className="rounded-3xl border border-border bg-card p-6 shadow-card md:p-8">
+        <div className="flex items-center justify-between gap-4">
+          <div>
+            <p className="font-mono text-xs uppercase tracking-[0.24em] text-accent">
+              Per-Store Runs
+            </p>
+            <h2 className="mt-2 text-xl font-semibold text-text">Store scan history</h2>
+          </div>
+          <Link href="/admin/stores" className="font-mono text-[10px] uppercase tracking-wider text-text-muted hover:text-accent">
+            Manage stores
+          </Link>
+        </div>
+
+        {recentStoreRuns.length === 0 ? (
+          <div className="mt-6 rounded-2xl border border-border bg-bg/45 p-8 text-center">
+            <p className="text-sm text-text-muted">No per-store scan runs yet.</p>
+          </div>
+        ) : (
+          <div className="mt-6 overflow-x-auto rounded-2xl border border-border">
+            <table className="w-full min-w-[980px] text-left text-sm">
+              <thead className="bg-bg/70 font-mono text-[10px] uppercase tracking-wider text-text-muted">
+                <tr>
+                  <th className="px-4 py-3">Store</th>
+                  <th className="px-4 py-3">Status</th>
+                  <th className="px-4 py-3">Fetched</th>
+                  <th className="px-4 py-3">Processed</th>
+                  <th className="px-4 py-3">Matched</th>
+                  <th className="px-4 py-3">Marked OOS</th>
+                  <th className="px-4 py-3">Started</th>
+                  <th className="px-4 py-3">Completed</th>
+                  <th className="px-4 py-3">Error</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-border">
+                {recentStoreRuns.map((run) => (
+                  <tr key={run.id} className="bg-card/70">
+                    <td className="px-4 py-3">
+                      <div className="font-semibold text-text">{run.store_name ?? run.store_slug}</div>
+                      <div className="mt-1 font-mono text-xs text-text-muted">{run.store_slug}</div>
+                    </td>
+                    <td className="px-4 py-3">
+                      <span className={statusClass(run.status)}>{run.status}</span>
+                    </td>
+                    <td className="px-4 py-3 font-mono text-xs text-text">{run.products_seen.toLocaleString()}</td>
+                    <td className="px-4 py-3 font-mono text-xs text-text">{run.products_processed.toLocaleString()}</td>
+                    <td className="px-4 py-3 font-mono text-xs text-accent">{run.products_matched.toLocaleString()}</td>
+                    <td className="px-4 py-3 font-mono text-xs text-text">{run.products_marked_unavailable.toLocaleString()}</td>
+                    <td className="px-4 py-3 text-xs text-text-muted">{formatDate(run.started_at)}</td>
+                    <td className="px-4 py-3 text-xs text-text-muted">{formatDate(run.completed_at)}</td>
+                    <td className="max-w-[260px] truncate px-4 py-3 text-xs text-danger" title={run.error_message ?? undefined}>
+                      {run.error_message ?? "—"}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </section>
 
       <section className="rounded-3xl border border-border bg-card p-6 shadow-card md:p-8">
         <div className="flex items-center justify-between gap-4">

@@ -8,6 +8,7 @@ import type {
   WatchlistRow,
   ScanRunRow,
   ScanMode,
+  StoreScanRunUpdate,
   SourceProductCacheInput,
   SourceProductCacheStatus,
   SourceProductRow,
@@ -535,6 +536,75 @@ export async function getAllActiveListings(db: DbClient): Promise<ListingRow[]> 
 export async function createScanRun(db: DbClient, mode: ScanMode): Promise<number> {
   const result = await query<{ id: number }>(db, 'insert into scan_runs (mode, status) values ($1, $2) returning id', [mode, 'running']);
   return Number(result.rows[0]!.id);
+}
+
+export async function createStoreScanRun(
+  db: DbClient,
+  source: { storeId?: number | null; slug: string }
+): Promise<number> {
+  const result = await query<{ id: number }>(
+    db,
+    `insert into store_scan_runs (store_id, store_slug, status)
+     values ($1, $2, 'running')
+     returning id`,
+    [source.storeId ?? null, source.slug]
+  );
+  return Number(result.rows[0]!.id);
+}
+
+export async function updateStoreScanRun(
+  db: DbClient,
+  id: number,
+  update: StoreScanRunUpdate
+): Promise<void> {
+  const sets: string[] = [];
+  const params: unknown[] = [];
+
+  if (update.status !== undefined) {
+    params.push(update.status);
+    sets.push(`status = $${params.length}`);
+    if (update.status === 'completed' || update.status === 'failed' || update.status === 'cancelled') {
+      sets.push('completed_at = now()');
+    }
+  }
+  if (update.productsSeen !== undefined) {
+    params.push(update.productsSeen);
+    sets.push(`products_seen = $${params.length}`);
+  }
+  if (update.productsProcessed !== undefined) {
+    params.push(update.productsProcessed);
+    sets.push(`products_processed = $${params.length}`);
+  }
+  if (update.productsMatched !== undefined) {
+    params.push(update.productsMatched);
+    sets.push(`products_matched = $${params.length}`);
+  }
+  if (update.productsMarkedUnavailable !== undefined) {
+    params.push(update.productsMarkedUnavailable);
+    sets.push(`products_marked_unavailable = $${params.length}`);
+  }
+  if (update.errorMessage !== undefined) {
+    params.push(update.errorMessage);
+    sets.push(`error_message = $${params.length}`);
+  }
+  if (update.metadata !== undefined) {
+    params.push(JSON.stringify(update.metadata));
+    sets.push(`metadata = $${params.length}::jsonb`);
+  }
+
+  if (sets.length === 0) return;
+  params.push(id);
+  await query(db, `update store_scan_runs set ${sets.join(', ')} where id = $${params.length}`, params);
+}
+
+export async function markStoreScanSucceeded(db: DbClient, storeId: number | null | undefined): Promise<void> {
+  if (!storeId) return;
+  await query(db, 'update stores set last_successful_scan_at = now(), updated_at = now() where id = $1', [storeId]);
+}
+
+export async function markStoreScanFailed(db: DbClient, storeId: number | null | undefined): Promise<void> {
+  if (!storeId) return;
+  await query(db, 'update stores set last_failed_scan_at = now(), updated_at = now() where id = $1', [storeId]);
 }
 
 export async function updateScanRun(

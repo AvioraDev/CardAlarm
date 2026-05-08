@@ -152,3 +152,18 @@ export interface ScanRunRow {
   started_at: string;
   completed_at: string | null;
 }
+
+export interface StoreScanRunRow {
+  id: number;
+  store_id: number | null;
+  store_slug: string;
+  store_name: string | null;
+  status: "running" | "completed" | "failed" | "cancelled";
+  started_at: string;
+  completed_at: string | null;
+  products_seen: number;
+  products_processed: number;
+  products_matched: number;
+  products_marked_unavailable: number;
+  error_message: string | null;
+}

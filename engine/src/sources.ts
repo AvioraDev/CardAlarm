@@ -8,6 +8,7 @@ const SOURCES_JSON_FALLBACK_ENV = 'CARDALARM_ALLOW_SOURCES_JSON_FALLBACK';
 export const NO_SCAN_SOURCES_MESSAGE = 'No active scan sources configured. Add or activate Shopify stores under /admin/stores.';
 
 type StoreRow = {
+  id: number;
   slug: string;
   name: string;
   base_url: string;
@@ -48,6 +49,7 @@ export function sourceFromStoreRow(row: StoreRow): SourceConfig | null {
 
   return {
     slug: row.slug.trim(),
+    storeId: row.id,
     name: row.name.trim(),
     baseUrl: normalizeBaseUrl(row.base_url),
     sourceType,
@@ -78,7 +80,7 @@ export function loadSourceFallback(filePath = DEFAULT_SOURCES_PATH): SourceConfi
 
 export async function loadActiveStoreSources(db: DbClient): Promise<SourceConfig[]> {
   const result = await db.query<StoreRow>(
-    `select slug, name, base_url, source_type, country_code, currency
+    `select id, slug, name, base_url, source_type, country_code, currency
      from public.stores
      where is_active = true
        and lower(source_type) = 'shopify'

@@ -27,6 +27,7 @@ export interface ShopifyProductsResponse {
 
 // ─── Source Configuration ──────────────────────────────────────────
 export interface SourceConfig {
+  storeId?: number | null;
   name: string;
   slug: string;
   baseUrl: string;
@@ -201,4 +202,14 @@ export interface ScanRunRow {
   error: string | null;
   started_at: string;
   completed_at: string | null;
+}
+
+export interface StoreScanRunUpdate {
+  status?: 'running' | 'completed' | 'failed' | 'cancelled';
+  productsSeen?: number;
+  productsProcessed?: number;
+  productsMatched?: number;
+  productsMarkedUnavailable?: number;
+  errorMessage?: string | null;
+  metadata?: Record<string, unknown>;
 }

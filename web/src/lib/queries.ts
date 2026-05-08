@@ -7,6 +7,7 @@ import type {
   FilterFacets,
   FacetItem,
   ScanRunRow,
+  StoreScanRunRow,
   StoreRow,
 } from "./types";
 import {
@@ -169,6 +170,29 @@ export async function getRecentScanRuns(limit = 10): Promise<ScanRunRow[]> {
     `select *
      from scan_runs
      order by started_at desc
+     limit $1`,
+    [limit],
+  );
+}
+
+export async function getRecentStoreScanRuns(limit = 24): Promise<StoreScanRunRow[]> {
+  return query<StoreScanRunRow>(
+    `select
+       ssr.id,
+       ssr.store_id,
+       ssr.store_slug,
+       s.name as store_name,
+       ssr.status,
+       ssr.started_at,
+       ssr.completed_at,
+       ssr.products_seen,
+       coalesce(ssr.products_processed, 0) as products_processed,
+       coalesce(ssr.products_matched, 0) as products_matched,
+       ssr.products_marked_unavailable,
+       ssr.error_message
+     from public.store_scan_runs ssr
+     left join public.stores s on s.id = ssr.store_id
+     order by ssr.started_at desc
      limit $1`,
     [limit],
   );

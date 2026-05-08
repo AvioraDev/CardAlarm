@@ -30,6 +30,7 @@ describe('scan source loading', () => {
 
   it('maps active Shopify store rows to scan source config', () => {
     const source = sourceFromStoreRow({
+      id: 1,
       slug: 'topplay',
       name: 'TopPlay Sports Cards',
       base_url: 'https://topplaysportscards.co.nz/',
@@ -40,6 +41,7 @@ describe('scan source loading', () => {
 
     expect(source).toEqual({
       slug: 'topplay',
+      storeId: 1,
       name: 'TopPlay Sports Cards',
       baseUrl: 'https://topplaysportscards.co.nz',
       sourceType: 'shopify',
@@ -50,6 +52,7 @@ describe('scan source loading', () => {
 
   it('ignores non-Shopify store rows', () => {
     expect(sourceFromStoreRow({
+      id: 2,
       slug: 'manual',
       name: 'Manual Store',
       base_url: 'https://example.com',
@@ -62,6 +65,7 @@ describe('scan source loading', () => {
   it('loads active Shopify stores from the database', async () => {
     const db = mockDb([
       {
+        id: 3,
         slug: 'dime-city-cards',
         name: 'Dime City Cards',
         base_url: 'https://dimecitycards.com/',
@@ -76,6 +80,7 @@ describe('scan source loading', () => {
     expect(db.query).toHaveBeenCalledWith(expect.stringContaining('from public.stores'));
     expect(sources).toEqual([{
       slug: 'dime-city-cards',
+      storeId: 3,
       name: 'Dime City Cards',
       baseUrl: 'https://dimecitycards.com',
       sourceType: 'shopify',
@@ -88,6 +93,7 @@ describe('scan source loading', () => {
     process.env.CARDALARM_ALLOW_SOURCES_JSON_FALLBACK = 'false';
     const db = mockDb([
       {
+        id: 4,
         slug: 'db-store',
         name: 'Database Store',
         base_url: 'https://db.example',
@@ -99,6 +105,7 @@ describe('scan source loading', () => {
 
     await expect(loadScanSources(db)).resolves.toEqual([{
       slug: 'db-store',
+      storeId: 4,
       name: 'Database Store',
       baseUrl: 'https://db.example',
       sourceType: 'shopify',
