@@ -8,6 +8,7 @@ import type {
   FilterFacets,
   FacetItem,
   ScanRunRow,
+  StoreRow,
 } from "./types";
 import {
   buildInventoryWhereSql,
@@ -142,6 +143,25 @@ export async function getFilterFacets(filters: FilterOptions = {}): Promise<Filt
 
 export async function getWatchlist(): Promise<WatchlistRow[]> {
   return query<WatchlistRow>(`SELECT * FROM watchlist ORDER BY is_active DESC, player_name ASC`);
+}
+
+export async function getStores(): Promise<StoreRow[]> {
+  return query<StoreRow>(
+    `select *
+     from public.stores
+     order by is_active desc, name asc`,
+  );
+}
+
+export async function getStoreById(id: number): Promise<StoreRow | null> {
+  const rows = await query<StoreRow>(
+    `select *
+     from public.stores
+     where id = $1
+     limit 1`,
+    [id],
+  );
+  return rows[0] ?? null;
 }
 
 export async function getLatestScanRun(): Promise<ScanRunRow | null> {

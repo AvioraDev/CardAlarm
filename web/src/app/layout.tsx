@@ -62,6 +62,12 @@ export default async function RootLayout({
                     Admin
                   </Link>
                   <Link
+                    href="/admin/stores"
+                    className="font-mono text-xs uppercase tracking-wider text-text-muted transition-colors hover:text-text"
+                  >
+                    Stores
+                  </Link>
+                  <Link
                     href="/admin/scans"
                     className="font-mono text-xs uppercase tracking-wider text-text-muted transition-colors hover:text-text"
                   >

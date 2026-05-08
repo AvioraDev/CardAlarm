@@ -30,6 +30,9 @@ export interface SourceConfig {
   name: string;
   slug: string;
   baseUrl: string;
+  sourceType: 'shopify';
+  countryCode: string;
+  currency: string;
 }
 
 // ─── Internal Pipeline Objects ─────────────────────────────────────

@@ -24,12 +24,20 @@ export default async function AdminPage() {
               this legacy watchlist panel remains for compatibility during migration.
             </p>
           </div>
-          <Link
-            href="/admin/scans"
-            className="inline-flex items-center justify-center rounded-full bg-accent px-5 py-3 font-mono text-xs font-bold uppercase tracking-wider text-bg transition-colors hover:bg-accent-hover"
-          >
-            Open Scans
-          </Link>
+          <div className="flex flex-col gap-3 sm:flex-row">
+            <Link
+              href="/admin/stores"
+              className="inline-flex items-center justify-center rounded-full border border-border px-5 py-3 font-mono text-xs font-bold uppercase tracking-wider text-text transition-colors hover:border-accent"
+            >
+              Manage Stores
+            </Link>
+            <Link
+              href="/admin/scans"
+              className="inline-flex items-center justify-center rounded-full bg-accent px-5 py-3 font-mono text-xs font-bold uppercase tracking-wider text-bg transition-colors hover:bg-accent-hover"
+            >
+              Open Scans
+            </Link>
+          </div>
         </div>
       </section>
 

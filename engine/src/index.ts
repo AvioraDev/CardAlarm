@@ -1,21 +1,12 @@
 import cron from 'node-cron';
-import fs from 'fs';
-import path from 'path';
 import { getDb, closeDb } from './db';
 import { runIngestionCycle } from './ingest';
 import { runAvailabilityCheck } from './availability';
-import type { SourceConfig } from './types';
-
-const SOURCES_PATH = path.resolve(__dirname, '..', '..', 'sources.json');
-
-function loadSources(): SourceConfig[] {
-  const raw = fs.readFileSync(SOURCES_PATH, 'utf-8');
-  return JSON.parse(raw) as SourceConfig[];
-}
+import { loadScanSources } from './sources';
 
 async function ingest(): Promise<void> {
   const db = getDb();
-  const sources = loadSources();
+  const sources = await loadScanSources(db);
   console.log(`\n${'═'.repeat(60)}`);
   console.log(`  CardAlarm Ingestion — ${new Date().toLocaleString()}`);
   console.log(`  Sources: ${sources.map(s => s.name).join(', ')}`);
@@ -25,7 +16,7 @@ async function ingest(): Promise<void> {
 
 async function checkAvailability(): Promise<void> {
   const db = getDb();
-  const sources = loadSources();
+  const sources = await loadScanSources(db);
   console.log(`\n${'─'.repeat(60)}`);
   console.log(`  CardAlarm OOS Watchdog — ${new Date().toLocaleString()}`);
   console.log(`${'─'.repeat(60)}`);

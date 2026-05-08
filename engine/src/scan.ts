@@ -1,8 +1,7 @@
-import fs from 'fs';
-import path from 'path';
 import { getDb, closeDb, createScanRun, updateScanRun } from './db';
 import { runIngestionCycle } from './ingest';
-import type { SourceConfig, ScanMode } from './types';
+import { loadScanSources } from './sources';
+import type { ScanMode } from './types';
 
 /**
  * On-demand scan entrypoint.
@@ -15,13 +14,6 @@ import type { SourceConfig, ScanMode } from './types';
  * It writes progress to the scan_runs table so the UI can poll status.
  * Exits with code 0 on success, 1 on failure.
  */
-
-const SOURCES_PATH = path.resolve(__dirname, '..', '..', 'sources.json');
-
-function loadSources(): SourceConfig[] {
-  const raw = fs.readFileSync(SOURCES_PATH, 'utf-8');
-  return JSON.parse(raw) as SourceConfig[];
-}
 
 function parseMode(): ScanMode {
   const modeIndex = process.argv.indexOf('--mode');
@@ -40,7 +32,7 @@ function parseMode(): ScanMode {
 async function main(): Promise<void> {
   const mode = parseMode();
   const db = getDb();
-  const sources = loadSources();
+  const sources = await loadScanSources(db);
 
   console.log(`\n${'═'.repeat(60)}`);
   console.log(`  CardAlarm Scan — ${mode.toUpperCase()} mode`);

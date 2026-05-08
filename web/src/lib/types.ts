@@ -41,6 +41,22 @@ export interface WatchlistRow {
   is_active: boolean;
 }
 
+export interface StoreRow {
+  id: number;
+  slug: string;
+  name: string;
+  base_url: string;
+  source_type: string;
+  country_code: string | null;
+  currency: string | null;
+  is_active: boolean;
+  scan_frequency_minutes: number;
+  last_successful_scan_at: string | null;
+  last_failed_scan_at: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface UserWatchlistRuleRow {
   id: number;
   watchlist_id: number;
