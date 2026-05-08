@@ -50,6 +50,45 @@ export interface Database {
           completed_at: string | null;
         };
       };
+      stores: {
+        Row: {
+          id: number;
+          slug: string;
+          name: string;
+          base_url: string;
+          source_type: string;
+          country_code: string | null;
+          currency: string | null;
+          is_active: boolean;
+          scan_frequency_minutes: number;
+          scan_strategy: "incremental" | "full";
+          early_stop_enabled: boolean;
+          early_stop_unchanged_pages: number;
+          last_successful_scan_at: string | null;
+          last_failed_scan_at: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+      };
+      store_scan_runs: {
+        Row: {
+          id: number;
+          store_id: number | null;
+          store_slug: string;
+          status: string;
+          started_at: string;
+          completed_at: string | null;
+          products_seen: number;
+          products_created: number;
+          products_updated: number;
+          products_processed: number;
+          products_matched: number;
+          products_marked_unavailable: number;
+          error_message: string | null;
+          metadata: Json | null;
+          created_at: string;
+        };
+      };
       source_products: { Row: Record<string, unknown> };
       store_products: { Row: Record<string, unknown> };
       product_snapshots: { Row: Record<string, unknown> };
