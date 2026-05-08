@@ -33,14 +33,6 @@ export interface ListingRow {
   matcher_version: string | null;
 }
 
-export interface WatchlistRow {
-  id: number;
-  player_name: string;
-  variants: string;
-  target_numbers: string | null;
-  is_active: boolean;
-}
-
 export interface StoreRow {
   id: number;
   slug: string;

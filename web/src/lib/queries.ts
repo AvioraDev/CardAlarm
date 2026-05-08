@@ -1,7 +1,6 @@
 import { query } from "./db";
 import type {
   ListingRow,
-  WatchlistRow,
   FeedStats,
   WatchlistDashboardStats,
   FilterOptions,
@@ -139,10 +138,6 @@ export async function getFilterFacets(filters: FilterOptions = {}): Promise<Filt
   ]);
 
   return { sources, years: [], setNames: [], players, variants: [], categories: [] };
-}
-
-export async function getWatchlist(): Promise<WatchlistRow[]> {
-  return query<WatchlistRow>(`SELECT * FROM watchlist ORDER BY is_active DESC, player_name ASC`);
 }
 
 export async function getStores(): Promise<StoreRow[]> {

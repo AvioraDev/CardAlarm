@@ -19,35 +19,6 @@ export async function undoDismiss(id: number): Promise<void> {
   revalidatePath("/dashboard");
 }
 
-export async function addWatchlistEntry(formData: FormData): Promise<void> {
-  await requireAdmin();
-  const playerName = formData.get("playerName") as string;
-  const variants = (formData.get("variants") as string) || "";
-  const targetNumbers = (formData.get("targetNumbers") as string) || null;
-
-  if (!playerName?.trim()) return;
-
-  await execute(
-    `INSERT INTO watchlist (player_name, variants, target_numbers, is_active)
-     VALUES ($1, $2, $3, true)`,
-    [playerName.trim(), variants.trim(), targetNumbers?.trim() || null]
-  );
-
-  revalidatePath("/admin");
-}
-
-export async function removeWatchlistEntry(id: number): Promise<void> {
-  await requireAdmin();
-  await execute("DELETE FROM watchlist WHERE id = $1", [id]);
-  revalidatePath("/admin");
-}
-
-export async function toggleWatchlistActive(id: number): Promise<void> {
-  await requireAdmin();
-  await execute("UPDATE watchlist SET is_active = NOT is_active WHERE id = $1", [id]);
-  revalidatePath("/admin");
-}
-
 export async function startScan(mode: ScanMode): Promise<{ error?: string }> {
   await requireAdmin();
   const runningRows = await query<{ id: number; started_at: string; is_stale: boolean }>(
