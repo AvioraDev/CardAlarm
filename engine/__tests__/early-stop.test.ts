@@ -1,4 +1,10 @@
-import { earlyStopConfigForSource, shouldStopForUnchangedPages } from '../src/ingest';
+import {
+  earlyStopConfigForSource,
+  scanDelayConfig,
+  scanPageConcurrency,
+  shouldStopForUnchangedPages,
+  stopReasonForPageResult,
+} from '../src/ingest';
 import type { SourceConfig } from '../src/types';
 
 function source(overrides: Partial<SourceConfig> = {}): SourceConfig {
@@ -36,5 +42,29 @@ describe('incremental scan early stop', () => {
 
     expect(config.enabled).toBe(false);
     expect(shouldStopForUnchangedPages(config, 10)).toBe(false);
+  });
+});
+
+describe('scan performance controls', () => {
+  it('clamps page concurrency between one and five', () => {
+    expect(scanPageConcurrency('0')).toBe(1);
+    expect(scanPageConcurrency('3')).toBe(3);
+    expect(scanPageConcurrency('10')).toBe(5);
+    expect(scanPageConcurrency('invalid')).toBe(1);
+  });
+
+  it('allows zero scan delay values', () => {
+    expect(scanDelayConfig('0', '0')).toEqual({ minMs: 0, maxMs: 0 });
+  });
+
+  it('treats max scan delay lower than min as min', () => {
+    expect(scanDelayConfig('500', '100')).toEqual({ minMs: 500, maxMs: 500 });
+  });
+
+  it('maps feed page results to scan stop reasons', () => {
+    expect(stopReasonForPageResult(null)).toBe('fetch_error');
+    expect(stopReasonForPageResult([])).toBe('empty_page');
+    expect(stopReasonForPageResult([{} as never], 100)).toBe('partial_page');
+    expect(stopReasonForPageResult(Array.from({ length: 100 }, () => ({} as never)), 100)).toBeNull();
   });
 });

@@ -24,15 +24,73 @@ import {
 } from './db';
 
 const PAGE_SIZE = Number(process.env.CARDALARM_PAGE_SIZE ?? 100);
-const PAGE_CONCURRENCY = Number(process.env.CARDALARM_PAGE_CONCURRENCY ?? 1);
 const EARLY_STOP_UNCHANGED_PAGES = Number(process.env.CARDALARM_EARLY_STOP_UNCHANGED_PAGES ?? 2);
 const FETCH_TIMEOUT_MS = Number(process.env.CARDALARM_FETCH_TIMEOUT_MS ?? 15000);
 const MATCHER_VERSION = 'matcher-v2-cache-v1';
+const PAGE_CONCURRENCY = scanPageConcurrency();
+
+export type StopReason = 'empty_page' | 'partial_page' | 'early_stop' | 'fetch_error';
+
+type SourceScanMetadata = {
+  skipped: number;
+  scanStrategy: SourceConfig['scanStrategy'];
+  earlyStopEnabled: boolean;
+  earlyStopUnchangedPages: number;
+  stoppedEarly: boolean;
+  pagesFetched: number;
+  lastPageFetched: number | null;
+  stopReason: StopReason;
+  fetchDurationMs: number;
+  cacheDurationMs: number;
+  matchDurationMs: number;
+  postScanDurationMs: number;
+  totalDurationMs: number;
+};
+
+class SourceScanError extends Error {
+  constructor(message: string, readonly metadata: SourceScanMetadata) {
+    super(message);
+  }
+}
 
 type EarlyStopConfig = {
   enabled: boolean;
   unchangedPageThreshold: number;
 };
+
+type ScanDelayConfig = {
+  minMs: number;
+  maxMs: number;
+};
+
+function parseNonNegativeInteger(value: string | number | undefined, fallback: number): number {
+  const parsed = value === undefined ? fallback : Number(value);
+  return Number.isFinite(parsed) ? Math.max(0, Math.trunc(parsed)) : fallback;
+}
+
+export function scanPageConcurrency(value: string | number | undefined = process.env.CARDALARM_PAGE_CONCURRENCY): number {
+  const parsed = parseNonNegativeInteger(value, 1);
+  return Math.min(5, Math.max(1, parsed));
+}
+
+export function scanDelayConfig(
+  minValue: string | number | undefined = process.env.CARDALARM_SCAN_DELAY_MIN_MS,
+  maxValue: string | number | undefined = process.env.CARDALARM_SCAN_DELAY_MAX_MS
+): ScanDelayConfig {
+  const minMs = parseNonNegativeInteger(minValue, 2000);
+  const rawMaxMs = parseNonNegativeInteger(maxValue, 5000);
+  return {
+    minMs,
+    maxMs: Math.max(minMs, rawMaxMs),
+  };
+}
+
+export function stopReasonForPageResult(products: ShopifyProduct[] | null, pageSize = PAGE_SIZE): StopReason | null {
+  if (products === null) return 'fetch_error';
+  if (products.length === 0) return 'empty_page';
+  if (products.length < pageSize) return 'partial_page';
+  return null;
+}
 
 export function earlyStopConfigForSource(source: SourceConfig): EarlyStopConfig {
   return {
@@ -49,9 +107,8 @@ export function shouldStopForUnchangedPages(
 }
 
 function randomDelay(): Promise<void> {
-  const minMs = Number(process.env.CARDALARM_SCAN_DELAY_MIN_MS ?? 2000);
-  const maxMs = Number(process.env.CARDALARM_SCAN_DELAY_MAX_MS ?? 5000);
-  const ms = minMs + Math.floor(Math.random() * Math.max(0, maxMs - minMs));
+  const { minMs, maxMs } = scanDelayConfig();
+  const ms = minMs === maxMs ? minMs : minMs + Math.floor(Math.random() * (maxMs - minMs + 1));
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
@@ -179,39 +236,61 @@ async function processSource(
   matched: number;
   markedOOS: number;
   pagesFetched: number;
+  lastPageFetched: number | null;
   stoppedEarly: boolean;
+  stopReason: StopReason;
+  fetchDurationMs: number;
+  cacheDurationMs: number;
+  matchDurationMs: number;
+  postScanDurationMs: number;
+  totalDurationMs: number;
 }> {
   console.log(`\n▶ Ingesting: ${source.name} (${source.baseUrl})`);
 
+  const totalStartedAt = Date.now();
   const earlyStopConfig = earlyStopConfigForSource(source);
   let page = 1;
   let consecutiveUnchangedPages = 0;
   let fetched = 0;
   let pagesFetched = 0;
+  let lastPageFetched: number | null = null;
   let processed = 0;
   let skipped = 0;
   let matched = 0;
   let hadFetchError = false;
   let stoppedEarlyFromCache = false;
+  let stopReason: StopReason | null = null;
+  let fetchDurationMs = 0;
+  let cacheDurationMs = 0;
+  let matchDurationMs = 0;
+  let postScanDurationMs = 0;
   const matchedCacheRows: { externalId: string; contentHash: string }[] = [];
 
   while (true) {
     const pageNumbers = Array.from({ length: PAGE_CONCURRENCY }, (_, index) => page + index);
+    const fetchStartedAt = Date.now();
     const pages = await Promise.all(pageNumbers.map(pageNumber => fetchProductPage(source.baseUrl, pageNumber)));
+    fetchDurationMs += Date.now() - fetchStartedAt;
 
     let reachedEnd = false;
 
-    for (const products of pages) {
+    for (const [index, products] of pages.entries()) {
+      const pageNumber = pageNumbers[index]!;
+      const pageStopReason = stopReasonForPageResult(products);
+
       if (!products) {
         hadFetchError = true;
         reachedEnd = true;
+        stopReason = 'fetch_error';
         continue;
       }
 
       pagesFetched++;
+      lastPageFetched = pageNumber;
 
       if (products.length === 0) {
         reachedEnd = true;
+        stopReason = stopReason ?? pageStopReason;
         consecutiveUnchangedPages++;
         continue;
       }
@@ -222,6 +301,8 @@ async function processSource(
       const upsertStartedAt = Date.now();
       console.log(`  ↳ Caching page ${page}: ${cacheInputs.length} products`);
       const statuses = await upsertSourceProducts(db, cacheInputs, matchContextHash);
+      const pageCacheDurationMs = Date.now() - upsertStartedAt;
+      cacheDurationMs += pageCacheDurationMs;
       console.log(`  ↳ Cached page ${page} in ${Date.now() - upsertStartedAt}ms`);
       const statusById = new Map(statuses.map(status => [status.externalId, status]));
       const isUnchangedFullPage =
@@ -269,15 +350,20 @@ async function processSource(
       }
       console.log(`  ↳ Matched page ${page} in ${Date.now() - matchStartedAt}ms. Processed: ${pageProcessed}, matched: ${pageMatched}`);
 
+      const pageMatchDurationMs = Date.now() - matchStartedAt;
+      matchDurationMs += pageMatchDurationMs;
+
       if (products.length < PAGE_SIZE) {
         reachedEnd = true;
+        stopReason = stopReason ?? pageStopReason;
       }
     }
 
-    const shouldStopEarly = shouldStopForUnchangedPages(earlyStopConfig, consecutiveUnchangedPages);
+    const shouldStopEarly = !reachedEnd && shouldStopForUnchangedPages(earlyStopConfig, consecutiveUnchangedPages);
     if (reachedEnd || shouldStopEarly) {
       if (shouldStopEarly) {
         stoppedEarlyFromCache = true;
+        stopReason = 'early_stop';
         console.log(`  ↳ Early stop: ${consecutiveUnchangedPages} unchanged pages in a row`);
       }
       break;
@@ -287,21 +373,54 @@ async function processSource(
     await randomDelay();
   }
 
+  const postScanStartedAt = Date.now();
   await markSourceProductsMatched(db, source.slug, matchedCacheRows, matchContextHash);
   const markedOOS =
     !hadFetchError && !stoppedEarlyFromCache
       ? await markMissingSourceProductsOOS(db, source.slug, scanToken)
       : 0;
+  postScanDurationMs = Date.now() - postScanStartedAt;
+  const totalDurationMs = Date.now() - totalStartedAt;
+  const metadata: SourceScanMetadata = {
+    skipped,
+    scanStrategy: source.scanStrategy,
+    earlyStopEnabled: earlyStopConfig.enabled,
+    earlyStopUnchangedPages: earlyStopConfig.unchangedPageThreshold,
+    stoppedEarly: stoppedEarlyFromCache,
+    pagesFetched,
+    lastPageFetched,
+    stopReason: stopReason ?? 'empty_page',
+    fetchDurationMs,
+    cacheDurationMs,
+    matchDurationMs,
+    postScanDurationMs,
+    totalDurationMs,
+  };
 
   if (hadFetchError && fetched === 0) {
-    throw new Error('Failed to fetch products from the store.');
+    throw new SourceScanError('Failed to fetch products from the store.', metadata);
   }
 
   console.log(
     `  ↳ Source done. Fetched: ${fetched}, Processed: ${processed}, Skipped cache: ${skipped}, Matched: ${matched}, Marked OOS: ${markedOOS}`
   );
 
-  return { fetched, processed, skipped, matched, markedOOS, pagesFetched, stoppedEarly: stoppedEarlyFromCache };
+  return {
+    fetched,
+    processed,
+    skipped,
+    matched,
+    markedOOS,
+    pagesFetched,
+    lastPageFetched,
+    stoppedEarly: stoppedEarlyFromCache,
+    stopReason: metadata.stopReason,
+    fetchDurationMs,
+    cacheDurationMs,
+    matchDurationMs,
+    postScanDurationMs,
+    totalDurationMs,
+  };
 }
 
 interface ScanOptions {
@@ -356,6 +475,13 @@ export async function runIngestionCycle(
           earlyStopUnchangedPages: earlyStopConfigForSource(source).unchangedPageThreshold,
           stoppedEarly: sourceResult.stoppedEarly,
           pagesFetched: sourceResult.pagesFetched,
+          lastPageFetched: sourceResult.lastPageFetched,
+          stopReason: sourceResult.stopReason,
+          fetchDurationMs: sourceResult.fetchDurationMs,
+          cacheDurationMs: sourceResult.cacheDurationMs,
+          matchDurationMs: sourceResult.matchDurationMs,
+          postScanDurationMs: sourceResult.postScanDurationMs,
+          totalDurationMs: sourceResult.totalDurationMs,
         },
       });
       await markStoreScanSucceeded(db, source.storeId);
@@ -372,6 +498,7 @@ export async function runIngestionCycle(
       await updateStoreScanRun(db, storeScanRunId, {
         status: 'failed',
         errorMessage,
+        metadata: err instanceof SourceScanError ? err.metadata : { stopReason: 'fetch_error' },
       });
       await markStoreScanFailed(db, source.storeId);
       console.error(`  Source failed: ${source.name} (${source.slug})`, errorMessage);
