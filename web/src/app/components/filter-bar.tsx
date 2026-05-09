@@ -97,13 +97,21 @@ export function FilterBar({
               />
             ) : null}
 
-            {/* Year */}
-            <FilterSelect
-              label="Year"
-              value={activeFilters.year}
-              options={facets.years}
-              onChange={(v) => updateFilter("year", v)}
-            />
+            {isMatches ? (
+              <TextFilter
+                label="Year"
+                value={activeFilters.year}
+                placeholder="2023 or 2023-24"
+                onChange={(v) => updateFilter("year", v)}
+              />
+            ) : (
+              <FilterSelect
+                label="Year"
+                value={activeFilters.year}
+                options={facets.years}
+                onChange={(v) => updateFilter("year", v)}
+              />
+            )}
 
             {isMatches ? (
               <TextFilter
@@ -130,20 +138,28 @@ export function FilterBar({
               />
             ) : null}
 
-            {/* Variant */}
-            <FilterSelect
-              label="Variant"
-              value={activeFilters.variant}
-              options={facets.variants}
-              onChange={(v) => updateFilter("variant", v)}
-            />
+            {isMatches ? (
+              <TextFilter
+                label="Variant"
+                value={activeFilters.variant}
+                placeholder="Prizm, Silver, Gold..."
+                onChange={(v) => updateFilter("variant", v)}
+              />
+            ) : (
+              <FilterSelect
+                label="Variant"
+                value={activeFilters.variant}
+                options={facets.variants}
+                onChange={(v) => updateFilter("variant", v)}
+              />
+            )}
 
             {isMatches ? (
               <>
                 <TextFilter
                   label="Team"
                   value={activeFilters.team}
-                  placeholder="Title-derived"
+                  placeholder="Suns, Lakers..."
                   onChange={(v) => updateFilter("team", v)}
                 />
                 <FilterSelect
