@@ -51,22 +51,176 @@ function findCardNumberMarkerIndex(titleWithoutYear: string): number {
   return Math.min(hashIndex, noMatch.index);
 }
 
-function extractSetName(title: string): string | null {
+type TitleSignal = {
+  productLine: string | null;
+  parallel: string | null;
+  insert: string | null;
+  variation: string | null;
+  caseHit: string | null;
+  shortPrint: string | null;
+  variant: string | null;
+};
+
+const SEALED_PRODUCT_PATTERN = /\b(box|blaster|hobby\s+box|mega\s+box|retail\s+box|pack|break|case|poster|framed|frame|display|plaque|photo|photograph|jersey|shirt|tee|cap|hat)\b/i;
+
+const CASE_HIT_TERMS = [
+  'Kaboom',
+  'Color Blast',
+  'Stained Glass',
+  'Manga',
+  'Blank Slate',
+  'Micro Mosaic',
+];
+
+const INSERT_TERMS = [
+  ...CASE_HIT_TERMS,
+  'Downtown',
+  'Net Marvels',
+  'My House',
+  'Crunch Time',
+  'Starcade',
+];
+
+const VARIATION_TERMS = ['Image Variation', 'Rookie Variation', 'Variation'];
+const SHORT_PRINT_TERMS = ['SSP', 'SP'];
+const PARALLEL_TERMS = [
+  'Lime Green Prizm',
+  'Green Prizm',
+  'Blue Prizm',
+  'Red Prizm',
+  'Purple Prizm',
+  'Orange Prizm',
+  'Pink Prizm',
+  'Gold Prizm',
+  'Silver Prizm',
+  'Black Prizm',
+  'White Prizm',
+  'Cracked Ice',
+  'Fast Break',
+  'Tie-Dye',
+  'Blue Shimmer',
+  'Gold Shimmer',
+  'Green Shimmer',
+  'Red Shimmer',
+  'Mojo',
+  'Pulsar',
+  'Disco',
+  'Choice',
+  'Scope',
+  'Zebra',
+  'Tiger',
+  'Elephant',
+  'Genesis',
+  'Refractor',
+  'Sapphire',
+  'Shimmer',
+  'Silver',
+  'Gold',
+  'Blue',
+  'Red',
+  'Green',
+  'Purple',
+  'Orange',
+  'Pink',
+  'Black',
+  'White',
+  'Ice',
+  'Wave',
+  'Holo',
+  'Chrome',
+  'Prizm',
+];
+
+function escapeRegex(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+function findTerm(text: string, terms: string[]): string | null {
+  for (const term of terms) {
+    const pattern = new RegExp(`(^|[^A-Za-z0-9])${escapeRegex(term)}([^A-Za-z0-9]|$)`, 'i');
+    if (pattern.test(text)) return term;
+  }
+  return null;
+}
+
+function stripDetectedSignals(value: string, signals: Array<string | null>): string {
+  let cleaned = value;
+  for (const signal of signals.filter((item): item is string => Boolean(item))) {
+    cleaned = cleaned.replace(new RegExp(`(^|\\s+-\\s+|\\s+)${escapeRegex(signal)}(?=\\s+-\\s+|\\s+|$)`, 'ig'), ' ');
+  }
+  return cleaned.replace(/\s+-\s+$/g, '').replace(/\s{2,}/g, ' ').trim();
+}
+
+function candidateBeforeNumber(title: string): { noYear: string; beforeNumber: string; numberIndex: number } {
   const noYear = title.replace(/^\d{4}(?:-\d{2})?\s+/, '');
+  const numberIndex = findCardNumberMarkerIndex(noYear);
+  return {
+    noYear,
+    beforeNumber: numberIndex === -1 ? noYear.trim() : noYear.slice(0, numberIndex).trim(),
+    numberIndex,
+  };
+}
+
+export function classifyTitleSignals(title: string): TitleSignal {
+  const { beforeNumber, numberIndex } = candidateBeforeNumber(title);
+  if (numberIndex === -1 || SEALED_PRODUCT_PATTERN.test(title)) {
+    return {
+      productLine: null,
+      parallel: null,
+      insert: null,
+      variation: null,
+      caseHit: null,
+      shortPrint: null,
+      variant: null,
+    };
+  }
+
+  const dashParts = beforeNumber.split(/\s+-\s+/).map(part => part.trim()).filter(Boolean);
+  const rawProductLine = dashParts[0] ?? beforeNumber;
+  const signalText = dashParts.length >= 2 ? dashParts.slice(1).join(' ') : beforeNumber;
+  const dashVariantFallback = dashParts.length >= 2 ? dashParts.slice(1).join(' - ').trim() : null;
+  const caseHit = findTerm(signalText, CASE_HIT_TERMS);
+  const insert = findTerm(signalText, INSERT_TERMS);
+  const variation = findTerm(signalText, VARIATION_TERMS);
+  const shortPrint = findTerm(signalText, SHORT_PRINT_TERMS);
+  const rawParallel = findTerm(signalText, PARALLEL_TERMS);
+  const parallel =
+    rawParallel === 'Prizm' && /\bPrizm\b/i.test(rawProductLine) && !/\b(Optic|Donruss|Select|Mosaic|Chrome|Bowman|Topps)\b/i.test(rawProductLine)
+      ? null
+      : rawParallel;
+  const variant = caseHit ?? insert ?? variation ?? shortPrint ?? dashVariantFallback ?? parallel;
+
+  return {
+    productLine: stripDetectedSignals(rawProductLine, [caseHit, insert, variation, shortPrint, parallel]) || rawProductLine || null,
+    parallel,
+    insert,
+    variation,
+    caseHit,
+    shortPrint,
+    variant,
+  };
+}
+
+function extractSetName(title: string): string | null {
+  const { noYear, beforeNumber, numberIndex } = candidateBeforeNumber(title);
   if (!noYear) return null;
+  const signals = classifyTitleSignals(title);
 
   const dashIndex = noYear.indexOf(' - ');
-  const numberIndex = findCardNumberMarkerIndex(noYear);
 
   if (dashIndex !== -1 && (numberIndex === -1 || dashIndex < numberIndex)) {
-    return noYear.slice(0, dashIndex).trim() || null;
+    return signals.productLine ?? noYear.slice(0, dashIndex).trim() ?? null;
   }
 
   if (numberIndex !== -1) {
-    const raw = noYear.slice(0, numberIndex).trim();
-    const cleaned = raw
-      .replace(/\s+(Prizm|Holo|Chrome|Refractor|Shimmer|Sapphire|Hyper|Mosaic|Wave)\s*$/i, '')
-      .trim();
+    const raw = beforeNumber;
+    const cleaned = stripDetectedSignals(raw, [
+      signals.caseHit,
+      signals.insert,
+      signals.variation,
+      signals.shortPrint,
+      signals.parallel,
+    ]);
     return cleaned || raw || null;
   }
 
@@ -74,21 +228,7 @@ function extractSetName(title: string): string | null {
 }
 
 function extractVariant(title: string): string | null {
-  const noYear = title.replace(/^\d{4}(?:-\d{2})?\s+/, '');
-  const numberIndex = findCardNumberMarkerIndex(noYear);
-  if (numberIndex === -1) return null;
-
-  const beforeNumber = noYear.slice(0, numberIndex).trim();
-  const dashParts = beforeNumber.split(/\s+-\s+/);
-
-  if (dashParts.length >= 2) {
-    return dashParts.slice(1).join(' - ').trim() || null;
-  }
-
-  const inlineMatch = beforeNumber.match(
-    /\b((?:(?:Red|Blue|Green|Purple|Pink|Orange|Yellow|Gold|Silver|Black|White|Lime|Ice|Neon|Ruby|Sapphire|Hyper|Cosmic|Galactic)\s+)?(?:Prizm|Wave|Holo|Chrome|Refractor|Shimmer|Mosaic|Ice|Sapphire))\s*$/i
-  );
-  return inlineMatch?.[1]?.trim() ?? null;
+  return classifyTitleSignals(title).variant;
 }
 
 function extractCardNumber(title: string): string | null {

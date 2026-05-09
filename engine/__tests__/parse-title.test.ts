@@ -1,4 +1,4 @@
-import { parseTitleMetadata } from '../src/parse-title';
+import { classifyTitleSignals, parseTitleMetadata } from '../src/parse-title';
 
 describe('parseTitleMetadata', () => {
   it('parses standard NBA card title', () => {
@@ -145,5 +145,97 @@ describe('parseTitleMetadata', () => {
 
     expect(meta.year).toBe('2022');
     expect(meta.cardNumber).toBe('24');
+  });
+
+  it('does not classify Prizm product line as a Prizm parallel', () => {
+    const meta = parseTitleMetadata('2023-24 Panini Prizm Basketball #12 Kevin Durant');
+    const signals = classifyTitleSignals('2023-24 Panini Prizm Basketball #12 Kevin Durant');
+
+    expect(meta.setName).toBe('Panini Prizm Basketball');
+    expect(meta.variant).toBeNull();
+    expect(signals.productLine).toBe('Panini Prizm Basketball');
+    expect(signals.parallel).toBeNull();
+  });
+
+  it('classifies Prizm as a parallel in Donruss Optic titles', () => {
+    const meta = parseTitleMetadata('2023-24 Donruss Optic Prizm #12 Kevin Durant');
+    const signals = classifyTitleSignals('2023-24 Donruss Optic Prizm #12 Kevin Durant');
+
+    expect(meta.setName).toBe('Donruss Optic');
+    expect(meta.variant).toBe('Prizm');
+    expect(signals.parallel).toBe('Prizm');
+  });
+
+  it('keeps Prizm as product line and Silver as parallel', () => {
+    const meta = parseTitleMetadata('2023-24 Panini Prizm Silver #12 Kevin Durant');
+    const signals = classifyTitleSignals('2023-24 Panini Prizm Silver #12 Kevin Durant');
+
+    expect(meta.setName).toBe('Panini Prizm');
+    expect(meta.variant).toBe('Silver');
+    expect(signals.parallel).toBe('Silver');
+  });
+
+  it('detects Downtown as an insert', () => {
+    const meta = parseTitleMetadata('2023 Panini Donruss Football Downtown #D-12 Patrick Mahomes');
+    const signals = classifyTitleSignals('2023 Panini Donruss Football Downtown #D-12 Patrick Mahomes');
+
+    expect(meta.category).toBe('NFL');
+    expect(meta.variant).toBe('Downtown');
+    expect(signals.insert).toBe('Downtown');
+  });
+
+  it('detects Kaboom as a case hit', () => {
+    const meta = parseTitleMetadata('2023-24 Panini Crown Royale Kaboom #23 LeBron James');
+    const signals = classifyTitleSignals('2023-24 Panini Crown Royale Kaboom #23 LeBron James');
+
+    expect(meta.variant).toBe('Kaboom');
+    expect(signals.caseHit).toBe('Kaboom');
+  });
+
+  it('detects image variation and SSP signals', () => {
+    const imageVariation = classifyTitleSignals('2024 Topps Chrome Baseball Image Variation #17 Shohei Ohtani');
+    const shortPrint = classifyTitleSignals('2023 Panini Select UFC SSP #10 Jon Jones');
+
+    expect(imageVariation.variation).toBe('Image Variation');
+    expect(imageVariation.variant).toBe('Image Variation');
+    expect(shortPrint.shortPrint).toBe('SSP');
+    expect(shortPrint.variant).toBe('SSP');
+  });
+
+  it('recognises realistic parallels across sports', () => {
+    expect(parseTitleMetadata('2023 Panini Prizm Football Silver #15 Patrick Mahomes')).toMatchObject({
+      category: 'NFL',
+      setName: 'Panini Prizm Football',
+      variant: 'Silver',
+    });
+    expect(parseTitleMetadata('2024 Topps Chrome Baseball Refractor #17 Shohei Ohtani')).toMatchObject({
+      category: 'MLB',
+      setName: 'Topps Chrome Baseball',
+      variant: 'Refractor',
+    });
+    expect(parseTitleMetadata('2022 Panini Prizm WWE Mojo #37 Alexa Bliss')).toMatchObject({
+      category: 'WWE',
+      variant: 'Mojo',
+    });
+    expect(parseTitleMetadata('2025 Panini Prizm UFC Gold #10 Jon Jones /10')).toMatchObject({
+      category: 'MMA',
+      variant: 'Gold',
+      isSerial: true,
+    });
+  });
+
+  it('avoids sealed product and break false positives', () => {
+    expect(parseTitleMetadata('2023-24 Panini Prizm Basketball Hobby Box')).toMatchObject({
+      cardNumber: null,
+      variant: null,
+    });
+    expect(parseTitleMetadata('2023 Panini Prizm NBA Pack Break Kevin Durant')).toMatchObject({
+      cardNumber: null,
+      variant: null,
+    });
+    expect(classifyTitleSignals('2023-24 Panini Prizm Lakers Team Poster')).toMatchObject({
+      variant: null,
+      parallel: null,
+    });
   });
 });

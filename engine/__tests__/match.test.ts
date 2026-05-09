@@ -130,6 +130,62 @@ describe('Stealth Match Engine (US-2.3)', () => {
     expect(feed[0]!.match_reasons).toContain('Serial number 07/25');
   });
 
+  it('adds specific insert, case hit, short print, variation, and parallel reasons without changing confidence rules', () => {
+    const silver: RawListing = {
+      externalId: 'reason-silver',
+      source: 'test-store',
+      title: '2024-25 Panini Prizm Silver #100 LeBron James',
+      price: 50,
+      url: 'https://test.com/products/silver',
+      imageUrl: '',
+    };
+    const downtown: RawListing = {
+      externalId: 'reason-downtown',
+      source: 'test-store',
+      title: '2023 Panini Donruss Downtown #100 LeBron James',
+      price: 50,
+      url: 'https://test.com/products/downtown',
+      imageUrl: '',
+    };
+    const kaboom: RawListing = {
+      externalId: 'reason-kaboom',
+      source: 'test-store',
+      title: '2023-24 Panini Crown Royale Kaboom #100 LeBron James',
+      price: 50,
+      url: 'https://test.com/products/kaboom',
+      imageUrl: '',
+    };
+    const imageVariation: RawListing = {
+      externalId: 'reason-variation',
+      source: 'test-store',
+      title: '2024 Topps Chrome Baseball Image Variation #100 LeBron James',
+      price: 50,
+      url: 'https://test.com/products/variation',
+      imageUrl: '',
+    };
+    const shortPrint: RawListing = {
+      externalId: 'reason-ssp',
+      source: 'test-store',
+      title: '2024 Panini Select SSP #100 LeBron James',
+      price: 50,
+      url: 'https://test.com/products/ssp',
+      imageUrl: '',
+    };
+
+    const silverResult = processListing(db, silver);
+    const downtownResult = processListing(db, downtown);
+    const kaboomResult = processListing(db, kaboom);
+    const variationResult = processListing(db, imageVariation);
+    const shortPrintResult = processListing(db, shortPrint);
+
+    expect(silverResult.confidence).toBe(0.94);
+    expect(silverResult.reasons).toContain('Parallel detected: Silver');
+    expect(downtownResult.reasons).toContain('Insert detected: Downtown');
+    expect(kaboomResult.reasons).toContain('Case hit detected: Kaboom');
+    expect(variationResult.reasons).toContain('Variation detected: Image Variation');
+    expect(shortPrintResult.reasons).toContain('Short print detected: SSP');
+  });
+
   it('rejects Direct Match for non-card memorabilia', () => {
     const listing: RawListing = {
       externalId: 'test-poster-001',

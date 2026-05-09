@@ -1,7 +1,7 @@
 import type Database from 'better-sqlite3';
 import type { RawListing, MatchResult, ListingInsert, WatchlistRow } from './types';
 import { extractAll, extractDirectPlayerMatch } from './extract';
-import { parseTitleMetadata } from './parse-title';
+import { classifyTitleSignals, parseTitleMetadata } from './parse-title';
 import {
   getActiveWatchlistPlayers,
   getChecklistBySetAndNumber,
@@ -63,6 +63,17 @@ function uniqueChecklistPlayerName(hits: { player_name: string }[]): string | nu
 
 function confidenceStatus(confidence: number): 'confirmed' | 'possible' {
   return confidence >= 0.75 ? 'confirmed' : 'possible';
+}
+
+function titleSignalReasons(title: string): string[] {
+  const signals = classifyTitleSignals(title);
+  return [
+    signals.caseHit ? `Case hit detected: ${signals.caseHit}` : null,
+    !signals.caseHit && signals.insert ? `Insert detected: ${signals.insert}` : null,
+    signals.variation ? `Variation detected: ${signals.variation}` : null,
+    signals.shortPrint ? `Short print detected: ${signals.shortPrint}` : null,
+    signals.parallel ? `Parallel detected: ${signals.parallel}` : null,
+  ].filter((reason): reason is string => Boolean(reason));
 }
 
 function buildInsert(
@@ -135,7 +146,7 @@ export function processListingWithCache(
     meta.serialCurrent && meta.serialLimit ? `Serial number ${meta.serialCurrent}/${meta.serialLimit}` : null,
     meta.isRookie ? 'Rookie indicator detected' : null,
     meta.isAuto ? 'Autograph indicator detected' : null,
-    meta.variant ? `Parallel/variant detected: ${meta.variant}` : null,
+    ...titleSignalReasons(listing.title),
   ].filter((reason): reason is string => Boolean(reason));
 
   if (!hasSportsCardContext(listing.title, cardNumber)) {
