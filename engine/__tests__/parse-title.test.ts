@@ -238,4 +238,59 @@ describe('parseTitleMetadata', () => {
       parallel: null,
     });
   });
+
+  it('protects plain Chrome, Mosaic, Select, and Optic product lines from variant false positives', () => {
+    expect(parseTitleMetadata('2024 Topps Chrome Baseball #17 Shohei Ohtani')).toMatchObject({
+      setName: 'Topps Chrome Baseball',
+      variant: null,
+    });
+    expect(parseTitleMetadata('2023 Bowman Chrome Baseball #1 Jackson Holliday')).toMatchObject({
+      setName: 'Bowman Chrome Baseball',
+      variant: null,
+    });
+    expect(parseTitleMetadata('2023-24 Panini Mosaic Basketball #12 Kevin Durant')).toMatchObject({
+      setName: 'Panini Mosaic Basketball',
+      variant: null,
+    });
+    expect(parseTitleMetadata('2023-24 Panini Select Basketball #12 Kevin Durant')).toMatchObject({
+      setName: 'Panini Select Basketball',
+      variant: null,
+    });
+    expect(parseTitleMetadata('2023-24 Donruss Optic Basketball #12 Kevin Durant')).toMatchObject({
+      setName: 'Donruss Optic Basketball',
+      variant: null,
+    });
+  });
+
+  it('still detects actual parallels on protected product lines', () => {
+    expect(parseTitleMetadata('2024 Topps Chrome Baseball Refractor #17 Shohei Ohtani')).toMatchObject({
+      setName: 'Topps Chrome Baseball',
+      variant: 'Refractor',
+    });
+    expect(parseTitleMetadata('2024 Topps Chrome Baseball Sapphire #17 Shohei Ohtani')).toMatchObject({
+      setName: 'Topps Chrome Baseball',
+      variant: 'Sapphire',
+    });
+    expect(parseTitleMetadata('2024 Topps Chrome Sapphire Baseball #17 Shohei Ohtani')).toMatchObject({
+      setName: 'Topps Chrome Sapphire Baseball',
+      variant: null,
+    });
+    expect(parseTitleMetadata('2023-24 Donruss Optic Holo #12 Kevin Durant')).toMatchObject({
+      setName: 'Donruss Optic',
+      variant: 'Holo',
+    });
+    expect(parseTitleMetadata('2023-24 Panini Mosaic Genesis #12 Kevin Durant')).toMatchObject({
+      setName: 'Panini Mosaic',
+      variant: 'Genesis',
+    });
+  });
+
+  it('allows case hit wording on single-card case-hit titles', () => {
+    const meta = parseTitleMetadata('2023-24 Panini Crown Royale Kaboom Case Hit #23 LeBron James');
+    const signals = classifyTitleSignals('2023-24 Panini Crown Royale Kaboom Case Hit #23 LeBron James');
+
+    expect(meta.setName).toBe('Panini Crown Royale Case Hit');
+    expect(meta.variant).toBe('Kaboom');
+    expect(signals.caseHit).toBe('Kaboom');
+  });
 });

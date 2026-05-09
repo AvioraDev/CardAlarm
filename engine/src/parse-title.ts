@@ -61,7 +61,7 @@ type TitleSignal = {
   variant: string | null;
 };
 
-const SEALED_PRODUCT_PATTERN = /\b(box|blaster|hobby\s+box|mega\s+box|retail\s+box|pack|break|case|poster|framed|frame|display|plaque|photo|photograph|jersey|shirt|tee|cap|hat)\b/i;
+const SEALED_PRODUCT_PATTERN = /\b(box|blaster|hobby\s+box|mega\s+box|retail\s+box|pack|break|case(?!\s+hit)|poster|framed|frame|display|plaque|photo|photograph|jersey|shirt|tee|cap|hat)\b/i;
 
 const CASE_HIT_TERMS = [
   'Kaboom',
@@ -151,6 +151,25 @@ function stripDetectedSignals(value: string, signals: Array<string | null>): str
   return cleaned.replace(/\s+-\s+$/g, '').replace(/\s{2,}/g, ' ').trim();
 }
 
+function isProductLineProtectedParallel(parallel: string | null, productLine: string): boolean {
+  if (!parallel) return false;
+  const protectedProductLines = [
+    /\bTopps\s+Chrome\b/i,
+    /\bBowman\s+Chrome\b/i,
+    /\bPanini\s+Prizm\b/i,
+    /\bMosaic\b/i,
+    /\bSelect\b/i,
+    /\bDonruss\s+Optic\b/i,
+  ];
+  const appearsInProtectedProductLine = protectedProductLines.some(pattern => pattern.test(productLine));
+  if (!appearsInProtectedProductLine) return false;
+
+  if (parallel === 'Chrome') return /\b(Topps|Bowman)\s+Chrome\b/i.test(productLine);
+  if (parallel === 'Prizm') return /\bPanini\s+Prizm\b/i.test(productLine);
+  if (parallel === 'Sapphire') return /\b(Topps|Bowman)\s+Chrome\s+Sapphire\b/i.test(productLine);
+  return false;
+}
+
 function candidateBeforeNumber(title: string): { noYear: string; beforeNumber: string; numberIndex: number } {
   const noYear = title.replace(/^\d{4}(?:-\d{2})?\s+/, '');
   const numberIndex = findCardNumberMarkerIndex(noYear);
@@ -184,10 +203,7 @@ export function classifyTitleSignals(title: string): TitleSignal {
   const variation = findTerm(signalText, VARIATION_TERMS);
   const shortPrint = findTerm(signalText, SHORT_PRINT_TERMS);
   const rawParallel = findTerm(signalText, PARALLEL_TERMS);
-  const parallel =
-    rawParallel === 'Prizm' && /\bPrizm\b/i.test(rawProductLine) && !/\b(Optic|Donruss|Select|Mosaic|Chrome|Bowman|Topps)\b/i.test(rawProductLine)
-      ? null
-      : rawParallel;
+  const parallel = isProductLineProtectedParallel(rawParallel, rawProductLine) ? null : rawParallel;
   const variant = caseHit ?? insert ?? variation ?? shortPrint ?? dashVariantFallback ?? parallel;
 
   return {
