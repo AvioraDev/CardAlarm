@@ -1,4 +1,5 @@
 import {
+  buildSourceScanMetadata,
   earlyStopConfigForSource,
   scanDelayConfig,
   scanPageConcurrency,
@@ -6,6 +7,7 @@ import {
   stopReasonForPageResult,
 } from '../src/ingest';
 import type { SourceConfig } from '../src/types';
+import type { SourceScanProgress } from '../src/ingest';
 
 function source(overrides: Partial<SourceConfig> = {}): SourceConfig {
   return {
@@ -66,5 +68,51 @@ describe('scan performance controls', () => {
     expect(stopReasonForPageResult([])).toBe('empty_page');
     expect(stopReasonForPageResult([{} as never], 100)).toBe('partial_page');
     expect(stopReasonForPageResult(Array.from({ length: 100 }, () => ({} as never)), 100)).toBeNull();
+  });
+});
+
+describe('scan progress metadata', () => {
+  function progress(overrides: Partial<SourceScanProgress> = {}): SourceScanProgress {
+    return {
+      skipped: 2,
+      scanStrategy: 'incremental',
+      earlyStopEnabled: true,
+      earlyStopUnchangedPages: 2,
+      stoppedEarly: false,
+      pagesFetched: 4,
+      lastPageFetched: 4,
+      stopReason: null,
+      fetchDurationMs: 100,
+      cacheDurationMs: 200,
+      matchDurationMs: 300,
+      postScanDurationMs: 0,
+      totalDurationMs: 600,
+      ...overrides,
+    };
+  }
+
+  it('adds live phase without dropping known progress fields', () => {
+    expect(buildSourceScanMetadata('matching', progress())).toMatchObject({
+      phase: 'matching',
+      pagesFetched: 4,
+      lastPageFetched: 4,
+      fetchDurationMs: 100,
+      cacheDurationMs: 200,
+      matchDurationMs: 300,
+    });
+  });
+
+  it('preserves completed stop reason and post-scan timing', () => {
+    expect(
+      buildSourceScanMetadata(
+        'completed',
+        progress({ stopReason: 'partial_page', postScanDurationMs: 50, totalDurationMs: 650 })
+      )
+    ).toMatchObject({
+      phase: 'completed',
+      stopReason: 'partial_page',
+      postScanDurationMs: 50,
+      totalDurationMs: 650,
+    });
   });
 });
