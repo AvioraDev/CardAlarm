@@ -135,6 +135,7 @@ export interface ListingRow {
 }
 
 export interface SourceProductCacheInput {
+  storeId: number | null;
   source: string;
   externalId: string;
   handle: string;

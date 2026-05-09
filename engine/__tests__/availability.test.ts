@@ -139,6 +139,7 @@ describe('Source Product Cache', () => {
     overrides: Partial<SourceProductCacheInput> = {}
   ): SourceProductCacheInput {
     return {
+      storeId: null,
       source: 'test-store',
       externalId: 'product-001',
       handle: 'card-1',

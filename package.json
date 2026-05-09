@@ -10,7 +10,10 @@
     "test": "jest --config jest.config.js",
     "db:migrate:supabase": "node scripts/migrate-sqlite-to-supabase.js --apply-schema",
     "db:migrate:supabase:reset": "node scripts/migrate-sqlite-to-supabase.js --apply-schema --truncate",
-    "db:migrate:supabase:dry-run": "node scripts/migrate-sqlite-to-supabase.js --dry-run"
+    "db:migrate:supabase:dry-run": "node scripts/migrate-sqlite-to-supabase.js --dry-run",
+    "supabase:migrations:list": "node scripts/supabase-cli.js list",
+    "supabase:migrations:dry-run": "node scripts/supabase-cli.js dry-run",
+    "supabase:migrations:push": "node scripts/supabase-cli.js push"
   },
   "dependencies": {
     "better-sqlite3": "^12.9.0",

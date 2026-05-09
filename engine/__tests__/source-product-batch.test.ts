@@ -1,8 +1,11 @@
+import fs from 'node:fs';
+import path from 'node:path';
 import { buildSourceProductBatchRows } from '../src/db';
 import type { SourceProductCacheInput } from '../src/types';
 
 function product(overrides: Partial<SourceProductCacheInput> = {}): SourceProductCacheInput {
   return {
+    storeId: 42,
     source: 'topplay',
     externalId: '1',
     handle: 'kevin-durant-prizm',
@@ -24,6 +27,7 @@ describe('buildSourceProductBatchRows', () => {
     expect(buildSourceProductBatchRows([product()])).toEqual([
       {
         input_order: 0,
+        store_id: 42,
         source: 'topplay',
         external_id: '1',
         handle: 'kevin-durant-prizm',
@@ -55,5 +59,23 @@ describe('buildSourceProductBatchRows', () => {
       normalized_title: 'new title',
       content_hash: 'new',
     });
+  });
+
+  it('allows fallback sources to omit a database store id', () => {
+    expect(buildSourceProductBatchRows([product({ storeId: null })])).toMatchObject([
+      {
+        store_id: null,
+        source: 'topplay',
+        external_id: '1',
+      },
+    ]);
+  });
+
+  it('references store_id in the generated store product upsert SQL', () => {
+    const dbSource = fs.readFileSync(path.resolve(__dirname, '..', 'src', 'db.ts'), 'utf8');
+
+    expect(dbSource).toContain('store_id integer');
+    expect(dbSource).toContain('store_id, source, external_product_id');
+    expect(dbSource).toContain('store_id = coalesce(excluded.store_id, store_products.store_id)');
   });
 });

@@ -135,6 +135,7 @@ function toCacheInput(
   const baseUrl = normalizeBaseUrl(source.baseUrl);
 
   return {
+    storeId: source.storeId ?? null,
     source: source.slug,
     externalId: String(product.id),
     handle: product.handle,

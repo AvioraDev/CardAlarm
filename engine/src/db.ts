@@ -140,6 +140,7 @@ type ExistingSourceProductCacheRow = Pick<
 
 type SourceProductBatchRow = {
   input_order: number;
+  store_id: number | null;
   source: string;
   external_id: string;
   handle: string;
@@ -155,6 +156,11 @@ type SourceProductBatchRow = {
   scan_token: string;
 };
 
+export type MatchedSourceProductBatchRow = {
+  external_id: string;
+  content_hash: string;
+};
+
 function sourceProductKey(source: string, externalId: string): string {
   return `${source}\u0000${externalId}`;
 }
@@ -165,6 +171,7 @@ export function buildSourceProductBatchRows(products: SourceProductCacheInput[])
   products.forEach((product, inputOrder) => {
     uniqueRows.set(sourceProductKey(product.source, product.externalId), {
       input_order: inputOrder,
+      store_id: product.storeId,
       source: product.source,
       external_id: product.externalId,
       handle: product.handle,
@@ -182,6 +189,24 @@ export function buildSourceProductBatchRows(products: SourceProductCacheInput[])
   });
 
   return Array.from(uniqueRows.values()).sort((a, b) => a.input_order - b.input_order);
+}
+
+export function buildMatchedSourceProductBatchRows(
+  matches: { externalId: string; contentHash: string }[]
+): MatchedSourceProductBatchRow[] {
+  const uniqueRows = new Map<string, MatchedSourceProductBatchRow & { input_order: number }>();
+
+  matches.forEach((match, inputOrder) => {
+    uniqueRows.set(match.externalId, {
+      input_order: inputOrder,
+      external_id: match.externalId,
+      content_hash: match.contentHash,
+    });
+  });
+
+  return Array.from(uniqueRows.values())
+    .sort((a, b) => a.input_order - b.input_order)
+    .map(({ input_order: _inputOrder, ...row }) => row);
 }
 
 export async function upsertSourceProducts(
@@ -212,6 +237,7 @@ export async function upsertSourceProducts(
          select *
          from jsonb_to_recordset($1::jsonb) as x(
            input_order integer,
+           store_id integer,
            source text,
            external_id text,
            handle text,
@@ -261,16 +287,17 @@ export async function upsertSourceProducts(
        ),
        upserted_store as (
          insert into store_products (
-           source, external_product_id, handle, title, current_price, current_availability,
+           store_id, source, external_product_id, handle, title, current_price, current_availability,
            product_url, canonical_url, image_url, description, normalized_title,
            raw_latest_payload, product_fingerprint, last_checked_at
          )
          select
-           source, external_id, handle, title, price, available,
+           store_id, source, external_id, handle, title, price, available,
            url, url, image_url, description, normalized_title,
            raw_payload::jsonb, content_hash, now()
          from input
          on conflict (source, external_product_id) do update set
+           store_id = coalesce(excluded.store_id, store_products.store_id),
            handle = excluded.handle,
            title = excluded.title,
            current_price = excluded.current_price,
@@ -327,16 +354,24 @@ export async function markSourceProductsMatched(
   matchContextHash: string
 ): Promise<void> {
   if (matches.length === 0) return;
-  await withTransaction(async client => {
-    for (const row of matches) {
-      await client.query(
-        `update source_products
-         set last_matched_hash = $1, last_matched_context_hash = $2
-         where source = $3 and external_id = $4`,
-        [row.contentHash, matchContextHash, source, row.externalId]
-      );
-    }
-  });
+
+  const batchRows = buildMatchedSourceProductBatchRows(matches);
+  if (batchRows.length === 0) return;
+
+  await query(
+    db,
+    `with input as (
+       select external_id, content_hash
+       from jsonb_to_recordset($1::jsonb) as x(external_id text, content_hash text)
+     )
+     update source_products sp
+     set last_matched_hash = input.content_hash,
+         last_matched_context_hash = $2
+     from input
+     where sp.source = $3
+       and sp.external_id = input.external_id`,
+    [JSON.stringify(batchRows), matchContextHash, source]
+  );
 }
 
 export async function markMissingSourceProductsOOS(
