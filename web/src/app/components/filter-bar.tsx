@@ -97,37 +97,19 @@ export function FilterBar({
               />
             ) : null}
 
-            {isMatches ? (
-              <TextFilter
-                label="Year"
-                value={activeFilters.year}
-                placeholder="2023 or 2023-24"
-                onChange={(v) => updateFilter("year", v)}
-              />
-            ) : (
-              <FilterSelect
-                label="Year"
-                value={activeFilters.year}
-                options={facets.years}
-                onChange={(v) => updateFilter("year", v)}
-              />
-            )}
+            <FilterSelect
+              label="Year"
+              value={activeFilters.year}
+              options={facets.years}
+              onChange={(v) => updateFilter("year", v)}
+            />
 
-            {isMatches ? (
-              <TextFilter
-                label="Player"
-                value={activeFilters.player}
-                placeholder="Player or watchlist"
-                onChange={(v) => updateFilter("player", v)}
-              />
-            ) : (
-              <FilterSelect
-                label="Player"
-                value={activeFilters.player}
-                options={facets.players}
-                onChange={(v) => updateFilter("player", v)}
-              />
-            )}
+            <FilterSelect
+              label="Player"
+              value={activeFilters.player}
+              options={facets.players}
+              onChange={(v) => updateFilter("player", v)}
+            />
 
             {!isMatches ? (
               <FilterSelect
@@ -138,21 +120,12 @@ export function FilterBar({
               />
             ) : null}
 
-            {isMatches ? (
-              <TextFilter
-                label="Variant"
-                value={activeFilters.variant}
-                placeholder="Prizm, Silver, Gold..."
-                onChange={(v) => updateFilter("variant", v)}
-              />
-            ) : (
-              <FilterSelect
-                label="Variant"
-                value={activeFilters.variant}
-                options={facets.variants}
-                onChange={(v) => updateFilter("variant", v)}
-              />
-            )}
+            <FilterSelect
+              label="Variant"
+              value={activeFilters.variant}
+              options={facets.variants}
+              onChange={(v) => updateFilter("variant", v)}
+            />
 
             {isMatches ? (
               <>
@@ -188,7 +161,7 @@ export function FilterBar({
           </div>
           {isMatches ? (
             <p className="mt-3 text-xs leading-5 text-text-muted">
-              Year, team, and variant filters are title-derived for now. Structured team metadata belongs in the matcher later.
+              Year, player, and variant facets use deterministic cached-product classifications. Team remains text-derived until structured team metadata improves.
             </p>
           ) : null}
 

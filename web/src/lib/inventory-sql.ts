@@ -6,6 +6,10 @@ const WATCHLIST_MATCH_ACTIVE_WHERE = `
   AND w.is_active = true
   AND sp.is_active = true
   AND sp.current_availability = true`;
+const CLASSIFIER_VERSION = "deterministic-title-v1";
+const TITLE_SERIAL_SIGNAL = "coalesce(sp.title, '') ~* '\\m(\\d{1,4}\\s*/\\s*\\d{1,5}|#?/\\s*\\d{1,5})\\M'";
+const TITLE_AUTO_SIGNAL = "coalesce(sp.title, '') ~* '\\m(auto|autograph)\\M'";
+const TITLE_ROOKIE_SIGNAL = "coalesce(sp.title, '') ~* '\\m(rc|rookie)\\M'";
 
 function addParam(params: unknown[], value: unknown): string {
   params.push(value);
@@ -21,21 +25,49 @@ export function buildInventoryFilterClause(filters: FilterOptions): {
   const add = (value: unknown): string => addParam(params, value);
 
   if (filters.source) conditions.push(`sp.source = ${add(filters.source)}`);
-  if (filters.year) conditions.push(`sp.title ILIKE ${add(`%${filters.year}%`)}`);
-  if (filters.setName) conditions.push(`sp.title ILIKE ${add(`%${filters.setName}%`)}`);
-  if (filters.player) {
-    const placeholder = add(`%${filters.player}%`);
-    conditions.push(`(pcm.matched_player_name = ${add(filters.player)} OR sp.title ILIKE ${placeholder})`);
+  if (filters.year) {
+    const exact = add(filters.year);
+    const like = add(`%${filters.year}%`);
+    conditions.push(`(pc.year = ${exact} OR (pc.year IS NULL AND sp.title ILIKE ${like}))`);
   }
-  if (filters.variant) conditions.push(`sp.title ILIKE ${add(`%${filters.variant}%`)}`);
+  if (filters.setName) {
+    const exact = add(filters.setName);
+    const like = add(`%${filters.setName}%`);
+    conditions.push(`(
+      coalesce(pc.set_name, pc.product_line) = ${exact}
+      OR (coalesce(pc.set_name, pc.product_line) IS NULL AND sp.title ILIKE ${like})
+    )`);
+  }
+  if (filters.player) {
+    const exact = add(filters.player);
+    const like = add(`%${filters.player}%`);
+    conditions.push(`(
+      pcm.matched_player_name = ${exact}
+      OR pc.player_name = ${exact}
+      OR (pcm.matched_player_name IS NULL AND pc.player_name IS NULL AND sp.title ILIKE ${like})
+    )`);
+  }
+  if (filters.variant) {
+    const exact = add(filters.variant);
+    const like = add(`%${filters.variant}%`);
+    conditions.push(`(
+      coalesce(pc.variant_name, pc.parallel_name, pc.insert_name) = ${exact}
+      OR (coalesce(pc.variant_name, pc.parallel_name, pc.insert_name) IS NULL AND sp.title ILIKE ${like})
+    )`);
+  }
+  if (filters.category) {
+    const exact = add(filters.category);
+    const like = add(`%${filters.category}%`);
+    conditions.push(`(pc.category = ${exact} OR (pc.category IS NULL AND sp.title ILIKE ${like}))`);
+  }
   if (filters.matchType === "Matched") conditions.push("pcm.id IS NOT NULL");
   else if (filters.matchType === "Cached") conditions.push("pcm.id IS NULL");
-  if (filters.isSerial === "1") conditions.push("(coalesce(pcm.matched_fields, '[]'::jsonb) ? 'serial')");
-  else if (filters.isSerial === "0") conditions.push("not (coalesce(pcm.matched_fields, '[]'::jsonb) ? 'serial')");
-  if (filters.isAuto === "1") conditions.push("coalesce(sp.title, '') ~* '\\m(auto|autograph)\\M'");
-  else if (filters.isAuto === "0") conditions.push("not (coalesce(sp.title, '') ~* '\\m(auto|autograph)\\M')");
-  if (filters.isRookie === "1") conditions.push("coalesce(sp.title, '') ~* '\\m(rc|rookie)\\M'");
-  else if (filters.isRookie === "0") conditions.push("not (coalesce(sp.title, '') ~* '\\m(rc|rookie)\\M')");
+  if (filters.isSerial === "1") conditions.push(`coalesce(pc.is_serial, coalesce(pcm.matched_fields, '[]'::jsonb) ? 'serial', ${TITLE_SERIAL_SIGNAL}) = true`);
+  else if (filters.isSerial === "0") conditions.push(`coalesce(pc.is_serial, coalesce(pcm.matched_fields, '[]'::jsonb) ? 'serial', ${TITLE_SERIAL_SIGNAL}) = false`);
+  if (filters.isAuto === "1") conditions.push(`coalesce(pc.is_auto, ${TITLE_AUTO_SIGNAL}) = true`);
+  else if (filters.isAuto === "0") conditions.push(`coalesce(pc.is_auto, ${TITLE_AUTO_SIGNAL}) = false`);
+  if (filters.isRookie === "1") conditions.push(`coalesce(pc.is_rookie, ${TITLE_ROOKIE_SIGNAL}) = true`);
+  else if (filters.isRookie === "0") conditions.push(`coalesce(pc.is_rookie, ${TITLE_ROOKIE_SIGNAL}) = false`);
   if (filters.priceMin) {
     const min = Number.parseFloat(filters.priceMin);
     if (!Number.isNaN(min)) conditions.push(`sp.current_price >= ${add(min)}`);
@@ -50,6 +82,9 @@ export function buildInventoryFilterClause(filters: FilterOptions): {
       sp.title ILIKE ${placeholder}
       OR sp.description ILIKE ${placeholder}
       OR pcm.matched_player_name ILIKE ${placeholder}
+      OR pc.player_name ILIKE ${placeholder}
+      OR coalesce(pc.set_name, pc.product_line) ILIKE ${placeholder}
+      OR coalesce(pc.variant_name, pc.parallel_name, pc.insert_name) ILIKE ${placeholder}
     )`);
   }
 
@@ -68,18 +103,18 @@ export function inventoryListingSelectSql(): string {
        false as is_dismissed,
        (not sp.current_availability or not sp.is_active) as is_oos,
        sp.created_at,
-       null::text as year,
-       null::text as set_name,
-       null::text as card_number,
-       pcm.matched_player_name as player_name,
-       null::text as variant,
-       (coalesce(pcm.matched_fields, '[]'::jsonb) ? 'serial') as is_serial,
-       null::text as serial_number,
-       null::text as serial_current,
-       null::text as serial_limit,
-       (coalesce(sp.title, '') ~* '\\m(auto|autograph)\\M') as is_auto,
-       (coalesce(sp.title, '') ~* '\\m(rc|rookie)\\M') as is_rookie,
-       null::text as category,
+       pc.year,
+       coalesce(pc.set_name, pc.product_line) as set_name,
+       pc.card_number,
+       coalesce(pcm.matched_player_name, pc.player_name) as player_name,
+       coalesce(pc.variant_name, pc.parallel_name, pc.insert_name) as variant,
+       coalesce(pc.is_serial, coalesce(pcm.matched_fields, '[]'::jsonb) ? 'serial', false) as is_serial,
+       pc.serial_number,
+       pc.serial_current,
+       pc.serial_limit,
+       coalesce(pc.is_auto, false) as is_auto,
+       coalesce(pc.is_rookie, false) as is_rookie,
+       pc.category,
        pcm.confidence::float8 as match_confidence,
        case
          when pcm.status = 'possible' then 'possible'
@@ -103,23 +138,24 @@ export function watchlistInventoryListingSelectSql(): string {
        false as is_dismissed,
        (not sp.current_availability or not sp.is_active) as is_oos,
        sp.created_at,
-       null::text as year,
-       null::text as set_name,
-       null::text as card_number,
+       pc.year,
+       coalesce(pc.set_name, pc.product_line) as set_name,
+       pc.card_number,
        coalesce(
          pcm.matched_player_name,
          p.full_name,
          nullif(trim(split_part(coalesce(wr.include_terms, ''), ',', 1)), ''),
-         w.name
+         w.name,
+         pc.player_name
        ) as player_name,
-       null::text as variant,
-       (coalesce(pcm.matched_fields, '[]'::jsonb) ? 'serial') as is_serial,
-       null::text as serial_number,
-       null::text as serial_current,
-       null::text as serial_limit,
-       (coalesce(sp.title, '') ~* '\\m(auto|autograph)\\M') as is_auto,
-       (coalesce(sp.title, '') ~* '\\m(rc|rookie)\\M') as is_rookie,
-       null::text as category,
+       coalesce(pc.variant_name, pc.parallel_name, pc.insert_name) as variant,
+       coalesce(pc.is_serial, coalesce(pcm.matched_fields, '[]'::jsonb) ? 'serial', false) as is_serial,
+       pc.serial_number,
+       pc.serial_current,
+       pc.serial_limit,
+       coalesce(pc.is_auto, false) as is_auto,
+       coalesce(pc.is_rookie, false) as is_rookie,
+       pc.category,
        greatest(coalesce(wm.confidence, 0), coalesce(pcm.confidence, 0))::float8 as match_confidence,
        case
          when wm.status = 'possible' then 'possible'
@@ -141,6 +177,17 @@ export function inventoryMatchJoinSql(): string {
        order by pcm.confidence desc, pcm.updated_at desc
        limit 1
      ) pcm on true`;
+}
+
+export function inventoryClassificationJoinSql(): string {
+  return `left join lateral (
+       select *
+       from public.product_classifications pc
+       where pc.store_product_id = sp.id
+         and pc.classifier_type = 'deterministic'
+       order by (pc.classifier_version = '${CLASSIFIER_VERSION}') desc, pc.updated_at desc
+       limit 1
+     ) pc on true`;
 }
 
 export function watchlistInventoryMatchJoinSql(): string {
@@ -185,34 +232,59 @@ export function buildWatchlistMatchWhereSql(
 
   if (watchlistId) conditions.push(`w.id = ${add(watchlistId)}`);
   if (filters.source) conditions.push(`sp.source = ${add(filters.source)}`);
-  if (filters.year) conditions.push(`sp.title ILIKE ${add(`%${filters.year}%`)}`);
-  if (filters.team) {
-    // TODO: replace title-derived team filtering with structured matcher metadata.
-    conditions.push(`sp.title ILIKE ${add(`%${filters.team}%`)}`);
+  if (filters.year) {
+    const exact = add(filters.year);
+    const like = add(`%${filters.year}%`);
+    conditions.push(`(pc.year = ${exact} OR (pc.year IS NULL AND sp.title ILIKE ${like}))`);
   }
-  if (filters.variant) conditions.push(`sp.title ILIKE ${add(`%${filters.variant}%`)}`);
+  if (filters.team) {
+    const like = add(`%${filters.team}%`);
+    conditions.push(`(pc.team_name ILIKE ${like} OR (pc.team_name IS NULL AND sp.title ILIKE ${like}))`);
+  }
+  if (filters.setName) {
+    const exact = add(filters.setName);
+    const like = add(`%${filters.setName}%`);
+    conditions.push(`(
+      coalesce(pc.set_name, pc.product_line) = ${exact}
+      OR (coalesce(pc.set_name, pc.product_line) IS NULL AND sp.title ILIKE ${like})
+    )`);
+  }
+  if (filters.variant) {
+    const exact = add(filters.variant);
+    const like = add(`%${filters.variant}%`);
+    conditions.push(`(
+      coalesce(pc.variant_name, pc.parallel_name, pc.insert_name) = ${exact}
+      OR (coalesce(pc.variant_name, pc.parallel_name, pc.insert_name) IS NULL AND sp.title ILIKE ${like})
+    )`);
+  }
   if (filters.player) {
     const exactPlayer = add(filters.player);
     const likePlayer = add(`%${filters.player}%`);
     conditions.push(`(
       pcm.matched_player_name = ${exactPlayer}
+      OR pc.player_name = ${exactPlayer}
       OR p.full_name ILIKE ${likePlayer}
       OR wr.include_terms ILIKE ${likePlayer}
       OR w.name ILIKE ${likePlayer}
-      OR sp.title ILIKE ${likePlayer}
+      OR (pcm.matched_player_name IS NULL AND pc.player_name IS NULL AND sp.title ILIKE ${likePlayer})
     )`);
+  }
+  if (filters.category) {
+    const exact = add(filters.category);
+    const like = add(`%${filters.category}%`);
+    conditions.push(`(pc.category = ${exact} OR (pc.category IS NULL AND sp.title ILIKE ${like}))`);
   }
   if (filters.matchStatus === "confirmed") {
     conditions.push("(coalesce(wm.status, pcm.status, 'confirmed') != 'possible')");
   } else if (filters.matchStatus === "possible") {
     conditions.push("(wm.status = 'possible' OR pcm.status = 'possible')");
   }
-  if (filters.isSerial === "1") conditions.push("(coalesce(pcm.matched_fields, '[]'::jsonb) ? 'serial')");
-  else if (filters.isSerial === "0") conditions.push("not (coalesce(pcm.matched_fields, '[]'::jsonb) ? 'serial')");
-  if (filters.isAuto === "1") conditions.push("coalesce(sp.title, '') ~* '\\m(auto|autograph)\\M'");
-  else if (filters.isAuto === "0") conditions.push("not (coalesce(sp.title, '') ~* '\\m(auto|autograph)\\M')");
-  if (filters.isRookie === "1") conditions.push("coalesce(sp.title, '') ~* '\\m(rc|rookie)\\M'");
-  else if (filters.isRookie === "0") conditions.push("not (coalesce(sp.title, '') ~* '\\m(rc|rookie)\\M')");
+  if (filters.isSerial === "1") conditions.push(`coalesce(pc.is_serial, coalesce(pcm.matched_fields, '[]'::jsonb) ? 'serial', ${TITLE_SERIAL_SIGNAL}) = true`);
+  else if (filters.isSerial === "0") conditions.push(`coalesce(pc.is_serial, coalesce(pcm.matched_fields, '[]'::jsonb) ? 'serial', ${TITLE_SERIAL_SIGNAL}) = false`);
+  if (filters.isAuto === "1") conditions.push(`coalesce(pc.is_auto, ${TITLE_AUTO_SIGNAL}) = true`);
+  else if (filters.isAuto === "0") conditions.push(`coalesce(pc.is_auto, ${TITLE_AUTO_SIGNAL}) = false`);
+  if (filters.isRookie === "1") conditions.push(`coalesce(pc.is_rookie, ${TITLE_ROOKIE_SIGNAL}) = true`);
+  else if (filters.isRookie === "0") conditions.push(`coalesce(pc.is_rookie, ${TITLE_ROOKIE_SIGNAL}) = false`);
   if (filters.priceMin) {
     const min = Number.parseFloat(filters.priceMin);
     if (!Number.isNaN(min)) conditions.push(`sp.current_price >= ${add(min)}`);
@@ -227,6 +299,9 @@ export function buildWatchlistMatchWhereSql(
       sp.title ILIKE ${search}
       OR sp.description ILIKE ${search}
       OR pcm.matched_player_name ILIKE ${search}
+      OR pc.player_name ILIKE ${search}
+      OR coalesce(pc.set_name, pc.product_line) ILIKE ${search}
+      OR coalesce(pc.variant_name, pc.parallel_name, pc.insert_name) ILIKE ${search}
       OR w.name ILIKE ${search}
       OR wr.include_terms ILIKE ${search}
     )`);

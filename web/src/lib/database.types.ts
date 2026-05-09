@@ -93,6 +93,36 @@ export interface Database {
       store_products: { Row: Record<string, unknown> };
       product_snapshots: { Row: Record<string, unknown> };
       product_card_matches: { Row: Record<string, unknown> };
+      product_classifications: {
+        Row: {
+          id: number;
+          store_product_id: number;
+          classifier_version: string;
+          classifier_type: string;
+          status: string;
+          year: string | null;
+          category: string | null;
+          brand: string | null;
+          product_line: string | null;
+          set_name: string | null;
+          card_number: string | null;
+          player_name: string | null;
+          team_name: string | null;
+          variant_name: string | null;
+          parallel_name: string | null;
+          insert_name: string | null;
+          is_rookie: boolean;
+          is_auto: boolean;
+          is_serial: boolean;
+          serial_number: string | null;
+          serial_current: string | null;
+          serial_limit: string | null;
+          confidence: number | null;
+          raw_signals: Json | null;
+          created_at: string;
+          updated_at: string;
+        };
+      };
       reference_checklists: { Row: Record<string, unknown> };
     };
   };

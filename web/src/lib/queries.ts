@@ -12,6 +12,7 @@ import type {
   WatchlistChipRow,
 } from "./types";
 import {
+  inventoryClassificationJoinSql,
   buildInventoryWhereSql,
   buildWatchlistMatchWhereSql,
   inventoryListingSelectSql,
@@ -32,6 +33,7 @@ export async function getActiveFeed(
        ${inventoryListingSelectSql()}
      FROM public.store_products sp
      ${inventoryMatchJoinSql()}
+     ${inventoryClassificationJoinSql()}
      WHERE ${whereSql}
      ORDER BY sp.last_checked_at DESC NULLS LAST, sp.last_seen_at DESC, sp.created_at DESC
      LIMIT $${params.length + 1}
@@ -53,6 +55,7 @@ export async function getUserWatchlistFeed(userId: string, filters: FilterOption
        left join public.players p on p.id = wr.player_id
        join public.store_products sp on sp.id = wm.store_product_id
        ${watchlistInventoryMatchJoinSql()}
+       ${inventoryClassificationJoinSql()}
        where ${whereSql}
        order by sp.id, greatest(coalesce(wm.confidence, 0), coalesce(pcm.confidence, 0)) desc, wm.last_matched_at desc
      ) ranked_matches
@@ -68,7 +71,7 @@ async function count(sql: string, params: unknown[]): Promise<number> {
 
 export async function getFeedStats(filters: FilterOptions = {}): Promise<FeedStats> {
   const { whereSql, params } = buildInventoryWhereSql(filters);
-  const fromSql = `FROM public.store_products sp ${inventoryMatchJoinSql()} WHERE ${whereSql}`;
+  const fromSql = `FROM public.store_products sp ${inventoryMatchJoinSql()} ${inventoryClassificationJoinSql()} WHERE ${whereSql}`;
 
   const [total, direct, stealth, confirmed, possible, serialized] = await Promise.all([
     count(`SELECT COUNT(*) as c ${fromSql}`, params),
@@ -76,7 +79,7 @@ export async function getFeedStats(filters: FilterOptions = {}): Promise<FeedSta
     count(`SELECT COUNT(*) as c ${fromSql} AND pcm.id IS NULL`, params),
     count(`SELECT COUNT(*) as c ${fromSql} AND pcm.id IS NOT NULL AND COALESCE(pcm.status, 'confirmed') != 'possible'`, params),
     count(`SELECT COUNT(*) as c ${fromSql} AND pcm.status = 'possible'`, params),
-    count(`SELECT COUNT(*) as c ${fromSql} AND (coalesce(pcm.matched_fields, '[]'::jsonb) ? 'serial')`, params),
+    count(`SELECT COUNT(*) as c ${fromSql} AND coalesce(pc.is_serial, coalesce(pcm.matched_fields, '[]'::jsonb) ? 'serial', false) = true`, params),
   ]);
 
   return { total, direct, stealth, confirmed, possible, serialized };
@@ -91,6 +94,7 @@ export async function getUserWatchlistStats(userId: string, filters: FilterOptio
        left join public.players p on p.id = wr.player_id
        join public.store_products sp on sp.id = wm.store_product_id
        ${watchlistInventoryMatchJoinSql()}
+       ${inventoryClassificationJoinSql()}
        where ${whereSql}`;
   const [total, current, possible, watchlists, serialized] = await Promise.all([
     count(
@@ -114,7 +118,7 @@ export async function getUserWatchlistStats(userId: string, filters: FilterOptio
     count(
       `select count(distinct sp.id) as c
        ${watchlistInventoryFromSql}
-         and (coalesce(pcm.matched_fields, '[]'::jsonb) ? 'serial')`,
+         and coalesce(pc.is_serial, coalesce(pcm.matched_fields, '[]'::jsonb) ? 'serial', false) = true`,
       params,
     ),
   ]);
@@ -150,6 +154,7 @@ export async function getFilterFacets(filters: FilterOptions = {}): Promise<Filt
       `SELECT ${expression} as value, COUNT(*)::int as count
        FROM public.store_products sp
        ${inventoryMatchJoinSql()}
+       ${inventoryClassificationJoinSql()}
        WHERE ${whereSql} AND ${expression} IS NOT NULL AND ${expression} != ''
        GROUP BY ${expression}
        ORDER BY count DESC`,
@@ -157,12 +162,16 @@ export async function getFilterFacets(filters: FilterOptions = {}): Promise<Filt
     );
   }
 
-  const [sources, players] = await Promise.all([
+  const [sources, years, setNames, players, variants, categories] = await Promise.all([
     getFacet("sp.source"),
-    getFacet("pcm.matched_player_name"),
+    getFacet("pc.year"),
+    getFacet("coalesce(pc.set_name, pc.product_line)"),
+    getFacet("coalesce(pcm.matched_player_name, pc.player_name)"),
+    getFacet("coalesce(pc.variant_name, pc.parallel_name, pc.insert_name)"),
+    getFacet("pc.category"),
   ]);
 
-  return { sources, years: [], setNames: [], players, variants: [], categories: [] };
+  return { sources, years, setNames, players, variants, categories };
 }
 
 export async function getStores(): Promise<StoreRow[]> {

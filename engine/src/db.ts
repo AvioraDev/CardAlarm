@@ -13,6 +13,10 @@ import type {
   SourceProductCacheStatus,
   SourceProductRow,
 } from './types';
+import {
+  buildProductClassificationRows,
+  type ProductClassificationByIdRow,
+} from './product-classification';
 
 export type DbClient = Pool | PoolClient;
 
@@ -218,6 +222,7 @@ export async function upsertSourceProducts(
 
   const batchRows = buildSourceProductBatchRows(products);
   const payload = JSON.stringify(batchRows);
+  const classificationPayload = JSON.stringify(buildProductClassificationRows(products));
   const existing = await query<ExistingSourceProductCacheRow>(
     db,
     `with input as (
@@ -313,6 +318,75 @@ export async function upsertSourceProducts(
            last_checked_at = now(),
            updated_at = now()
          returning id, source, external_product_id
+       ),
+       classification_input as (
+         select *
+         from jsonb_to_recordset($2::jsonb) as x(
+           source text,
+           external_id text,
+           classifier_version text,
+           classifier_type text,
+           status text,
+           year text,
+           category text,
+           brand text,
+           product_line text,
+           set_name text,
+           card_number text,
+           player_name text,
+           team_name text,
+           variant_name text,
+           parallel_name text,
+           insert_name text,
+           is_rookie boolean,
+           is_auto boolean,
+           is_serial boolean,
+           serial_number text,
+           serial_current text,
+           serial_limit text,
+           confidence numeric,
+           raw_signals jsonb
+         )
+       ),
+       upserted_classifications as (
+         insert into product_classifications (
+           store_product_id, classifier_version, classifier_type, status,
+           year, category, brand, product_line, set_name, card_number,
+           player_name, team_name, variant_name, parallel_name, insert_name,
+           is_rookie, is_auto, is_serial, serial_number, serial_current,
+           serial_limit, confidence, raw_signals, updated_at
+         )
+         select
+           us.id, ci.classifier_version, ci.classifier_type, ci.status,
+           ci.year, ci.category, ci.brand, ci.product_line, ci.set_name, ci.card_number,
+           ci.player_name, ci.team_name, ci.variant_name, ci.parallel_name, ci.insert_name,
+           ci.is_rookie, ci.is_auto, ci.is_serial, ci.serial_number, ci.serial_current,
+           ci.serial_limit, ci.confidence, ci.raw_signals, now()
+         from classification_input ci
+         join upserted_store us on us.source = ci.source and us.external_product_id = ci.external_id
+         on conflict (store_product_id, classifier_version, classifier_type) do update set
+           status = excluded.status,
+           year = excluded.year,
+           category = excluded.category,
+           brand = excluded.brand,
+           product_line = excluded.product_line,
+           set_name = excluded.set_name,
+           card_number = excluded.card_number,
+           player_name = excluded.player_name,
+           team_name = excluded.team_name,
+           variant_name = excluded.variant_name,
+           parallel_name = excluded.parallel_name,
+           insert_name = excluded.insert_name,
+           is_rookie = excluded.is_rookie,
+           is_auto = excluded.is_auto,
+           is_serial = excluded.is_serial,
+           serial_number = excluded.serial_number,
+           serial_current = excluded.serial_current,
+           serial_limit = excluded.serial_limit,
+           confidence = excluded.confidence,
+           raw_signals = excluded.raw_signals,
+           updated_at = now()
+         returning id
        )
        insert into product_snapshots (
          store_product_id, source, external_id, title, description, price, availability,
@@ -325,7 +399,7 @@ export async function upsertSourceProducts(
        join upserted_store us on us.source = i.source and us.external_product_id = i.external_id
        left join existing_source es on es.source = i.source and es.external_id = i.external_id
        where es.old_content_hash is null or es.old_content_hash is distinct from i.content_hash`,
-      [payload]
+      [payload, classificationPayload]
     );
   });
 
@@ -345,6 +419,86 @@ export async function upsertSourceProducts(
       shouldMatch: product.available && (isNew || changed || !alreadyMatched),
     };
   });
+}
+
+export async function upsertProductClassificationsById(
+  db: DbClient,
+  rows: ProductClassificationByIdRow[]
+): Promise<number> {
+  if (rows.length === 0) return 0;
+
+  const result = await query(
+    db,
+    `with input as (
+       select *
+       from jsonb_to_recordset($1::jsonb) as x(
+         store_product_id integer,
+         source text,
+         external_id text,
+         classifier_version text,
+         classifier_type text,
+         status text,
+         year text,
+         category text,
+         brand text,
+         product_line text,
+         set_name text,
+         card_number text,
+         player_name text,
+         team_name text,
+         variant_name text,
+         parallel_name text,
+         insert_name text,
+         is_rookie boolean,
+         is_auto boolean,
+         is_serial boolean,
+         serial_number text,
+         serial_current text,
+         serial_limit text,
+         confidence numeric,
+         raw_signals jsonb
+       )
+     )
+     insert into product_classifications (
+       store_product_id, classifier_version, classifier_type, status,
+       year, category, brand, product_line, set_name, card_number,
+       player_name, team_name, variant_name, parallel_name, insert_name,
+       is_rookie, is_auto, is_serial, serial_number, serial_current,
+       serial_limit, confidence, raw_signals, updated_at
+     )
+     select
+       store_product_id, classifier_version, classifier_type, status,
+       year, category, brand, product_line, set_name, card_number,
+       player_name, team_name, variant_name, parallel_name, insert_name,
+       is_rookie, is_auto, is_serial, serial_number, serial_current,
+       serial_limit, confidence, raw_signals, now()
+     from input
+     on conflict (store_product_id, classifier_version, classifier_type) do update set
+       status = excluded.status,
+       year = excluded.year,
+       category = excluded.category,
+       brand = excluded.brand,
+       product_line = excluded.product_line,
+       set_name = excluded.set_name,
+       card_number = excluded.card_number,
+       player_name = excluded.player_name,
+       team_name = excluded.team_name,
+       variant_name = excluded.variant_name,
+       parallel_name = excluded.parallel_name,
+       insert_name = excluded.insert_name,
+       is_rookie = excluded.is_rookie,
+       is_auto = excluded.is_auto,
+       is_serial = excluded.is_serial,
+       serial_number = excluded.serial_number,
+       serial_current = excluded.serial_current,
+       serial_limit = excluded.serial_limit,
+       confidence = excluded.confidence,
+       raw_signals = excluded.raw_signals,
+       updated_at = now()`,
+    [JSON.stringify(rows)]
+  );
+
+  return result.rowCount ?? 0;
 }
 
 export async function markSourceProductsMatched(

@@ -1,6 +1,9 @@
+import fs from 'node:fs';
+import path from 'node:path';
 import {
   buildInventoryWhereSql,
   buildWatchlistMatchWhereSql,
+  inventoryClassificationJoinSql,
   inventoryListingSelectSql,
   inventoryMatchJoinSql,
   watchlistInventoryListingSelectSql,
@@ -11,10 +14,15 @@ describe('canonical inventory SQL helpers', () => {
   it('builds browse-all SQL from store_products without listings_feed', () => {
     const selectSql = inventoryListingSelectSql();
     const joinSql = inventoryMatchJoinSql();
+    const classificationJoinSql = inventoryClassificationJoinSql();
 
     expect(selectSql).toContain('sp.external_product_id as external_id');
+    expect(selectSql).toContain('coalesce(pcm.matched_player_name, pc.player_name) as player_name');
+    expect(selectSql).toContain('coalesce(pc.set_name, pc.product_line) as set_name');
+    expect(selectSql).toContain('coalesce(pc.variant_name, pc.parallel_name, pc.insert_name) as variant');
     expect(joinSql).toContain('public.product_card_matches');
-    expect(`${selectSql}\n${joinSql}`).not.toContain('listings_feed');
+    expect(classificationJoinSql).toContain('public.product_classifications');
+    expect(`${selectSql}\n${joinSql}\n${classificationJoinSql}`).not.toContain('listings_feed');
   });
 
   it('builds My Matches SQL shape from watchlist_matches and store_products without listings_feed', () => {
@@ -26,6 +34,8 @@ describe('canonical inventory SQL helpers', () => {
     expect(selectSql).toContain('p.full_name');
     expect(selectSql).toContain("nullif(trim(split_part(coalesce(wr.include_terms, ''), ',', 1)), '')");
     expect(selectSql).toContain('w.name');
+    expect(selectSql).toContain('pc.player_name');
+    expect(selectSql).toContain('pc.card_number');
     expect(selectSql).toContain("when wm.status = 'possible' then 'possible'");
     expect(selectSql).toContain('greatest(coalesce(wm.confidence, 0), coalesce(pcm.confidence, 0))');
     expect(joinSql).toContain('public.product_card_matches');
@@ -48,7 +58,7 @@ describe('canonical inventory SQL helpers', () => {
     expect(whereSql).toContain('sp.current_price >= $2');
     expect(whereSql).toContain('sp.current_price <= $3');
     expect(whereSql).toContain('pcm.id IS NOT NULL');
-    expect(whereSql).toContain("coalesce(pcm.matched_fields, '[]'::jsonb) ? 'serial'");
+    expect(whereSql).toContain('coalesce(pc.is_serial');
     expect(whereSql).toContain('sp.title ILIKE $4');
     expect(params).toEqual(['TopPlay Sports Cards', 10, 50, '%Wembanyama%']);
   });
@@ -76,17 +86,20 @@ describe('canonical inventory SQL helpers', () => {
     expect(whereSql).toContain('sp.current_availability = true');
     expect(whereSql).toContain('w.id = $2');
     expect(whereSql).toContain("wm.status = 'possible' OR pcm.status = 'possible'");
-    expect(whereSql).toContain("coalesce(sp.title, '') ~* '\\m(rc|rookie)\\M'");
-    expect(whereSql).toContain("not (coalesce(sp.title, '') ~* '\\m(auto|autograph)\\M')");
-    expect(whereSql).toContain("coalesce(pcm.matched_fields, '[]'::jsonb) ? 'serial'");
+    expect(whereSql).toContain('coalesce(pc.is_rookie');
+    expect(whereSql).toContain('coalesce(pc.is_auto');
+    expect(whereSql).toContain('coalesce(pc.is_serial');
+    expect(whereSql).toContain('pc.player_name');
     expect(whereSql).toContain('wr.include_terms ILIKE');
     expect(whereSql).not.toContain('listings_feed');
     expect(params).toEqual([
       'user-1',
       42,
       'TopPlay Sports Cards',
+      '2023',
       '%2023%',
       '%Suns%',
+      'Prizm',
       '%Prizm%',
       'Kevin Durant',
       '%Kevin Durant%',
@@ -102,5 +115,16 @@ describe('canonical inventory SQL helpers', () => {
     expect(whereSql).toContain('w.user_id = $1');
     expect(whereSql).not.toContain('w.id = $2');
     expect(params).toEqual(['user-1']);
+  });
+
+  it('builds facets from product_classifications while preserving product_card_matches', () => {
+    const queriesSource = fs.readFileSync(path.resolve(__dirname, '..', '..', 'web', 'src', 'lib', 'queries.ts'), 'utf8');
+
+    expect(queriesSource).toContain('getFacet("pc.year")');
+    expect(queriesSource).toContain('getFacet("coalesce(pc.set_name, pc.product_line)")');
+    expect(queriesSource).toContain('getFacet("coalesce(pcm.matched_player_name, pc.player_name)")');
+    expect(queriesSource).toContain('getFacet("coalesce(pc.variant_name, pc.parallel_name, pc.insert_name)")');
+    expect(queriesSource).toContain('getFacet("pc.category")');
+    expect(queriesSource).toContain('inventoryClassificationJoinSql()');
   });
 });
