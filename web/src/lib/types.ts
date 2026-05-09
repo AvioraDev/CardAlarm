@@ -111,12 +111,15 @@ export interface WatchlistDashboardStats {
 // ─── Filter Types ──────────────────────────────────────────────────
 
 export interface FilterOptions {
+  watchlistId?: string;
   source?: string;
   year?: string;
   setName?: string;
   player?: string;
+  team?: string;
   variant?: string;
   matchType?: string;
+  matchStatus?: string;
   category?: string;
   isSerial?: string;    // "1" or "0"
   isAuto?: string;      // "1" or "0"
@@ -125,6 +128,12 @@ export interface FilterOptions {
   priceMin?: string;
   priceMax?: string;
   search?: string;
+}
+
+export interface WatchlistChipRow {
+  id: number;
+  name: string;
+  match_count: number;
 }
 
 export interface FilterFacets {

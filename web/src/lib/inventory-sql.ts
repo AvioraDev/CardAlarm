@@ -1,6 +1,11 @@
 import type { FilterOptions } from "./types";
 
 const INVENTORY_ACTIVE_WHERE = "sp.is_active = true AND sp.current_availability = true";
+const WATCHLIST_MATCH_ACTIVE_WHERE = `
+  w.user_id = $1
+  AND w.is_active = true
+  AND sp.is_active = true
+  AND sp.current_availability = true`;
 
 function addParam(params: unknown[], value: unknown): string {
   params.push(value);
@@ -156,6 +161,79 @@ export function buildInventoryWhereSql(filters: FilterOptions): {
   const { conditions, params } = buildInventoryFilterClause(filters);
   return {
     whereSql: [INVENTORY_ACTIVE_WHERE, ...conditions].join(" AND "),
+    params,
+  };
+}
+
+function parsePositiveInteger(value: string | undefined): number | null {
+  if (!value) return null;
+  const parsed = Number.parseInt(value, 10);
+  return Number.isInteger(parsed) && parsed > 0 && String(parsed) === value ? parsed : null;
+}
+
+export function buildWatchlistMatchWhereSql(
+  userId: string,
+  filters: FilterOptions = {}
+): {
+  whereSql: string;
+  params: unknown[];
+} {
+  const conditions: string[] = [WATCHLIST_MATCH_ACTIVE_WHERE];
+  const params: unknown[] = [userId];
+  const add = (value: unknown): string => addParam(params, value);
+  const watchlistId = parsePositiveInteger(filters.watchlistId);
+
+  if (watchlistId) conditions.push(`w.id = ${add(watchlistId)}`);
+  if (filters.source) conditions.push(`sp.source = ${add(filters.source)}`);
+  if (filters.year) conditions.push(`sp.title ILIKE ${add(`%${filters.year}%`)}`);
+  if (filters.team) {
+    // TODO: replace title-derived team filtering with structured matcher metadata.
+    conditions.push(`sp.title ILIKE ${add(`%${filters.team}%`)}`);
+  }
+  if (filters.variant) conditions.push(`sp.title ILIKE ${add(`%${filters.variant}%`)}`);
+  if (filters.player) {
+    const exactPlayer = add(filters.player);
+    const likePlayer = add(`%${filters.player}%`);
+    conditions.push(`(
+      pcm.matched_player_name = ${exactPlayer}
+      OR p.full_name ILIKE ${likePlayer}
+      OR wr.include_terms ILIKE ${likePlayer}
+      OR w.name ILIKE ${likePlayer}
+      OR sp.title ILIKE ${likePlayer}
+    )`);
+  }
+  if (filters.matchStatus === "confirmed") {
+    conditions.push("(coalesce(wm.status, pcm.status, 'confirmed') != 'possible')");
+  } else if (filters.matchStatus === "possible") {
+    conditions.push("(wm.status = 'possible' OR pcm.status = 'possible')");
+  }
+  if (filters.isSerial === "1") conditions.push("(coalesce(pcm.matched_fields, '[]'::jsonb) ? 'serial')");
+  else if (filters.isSerial === "0") conditions.push("not (coalesce(pcm.matched_fields, '[]'::jsonb) ? 'serial')");
+  if (filters.isAuto === "1") conditions.push("coalesce(sp.title, '') ~* '\\m(auto|autograph)\\M'");
+  else if (filters.isAuto === "0") conditions.push("not (coalesce(sp.title, '') ~* '\\m(auto|autograph)\\M')");
+  if (filters.isRookie === "1") conditions.push("coalesce(sp.title, '') ~* '\\m(rc|rookie)\\M'");
+  else if (filters.isRookie === "0") conditions.push("not (coalesce(sp.title, '') ~* '\\m(rc|rookie)\\M')");
+  if (filters.priceMin) {
+    const min = Number.parseFloat(filters.priceMin);
+    if (!Number.isNaN(min)) conditions.push(`sp.current_price >= ${add(min)}`);
+  }
+  if (filters.priceMax) {
+    const max = Number.parseFloat(filters.priceMax);
+    if (!Number.isNaN(max)) conditions.push(`sp.current_price <= ${add(max)}`);
+  }
+  if (filters.search) {
+    const search = add(`%${filters.search}%`);
+    conditions.push(`(
+      sp.title ILIKE ${search}
+      OR sp.description ILIKE ${search}
+      OR pcm.matched_player_name ILIKE ${search}
+      OR w.name ILIKE ${search}
+      OR wr.include_terms ILIKE ${search}
+    )`);
+  }
+
+  return {
+    whereSql: conditions.join(" AND "),
     params,
   };
 }

@@ -5,6 +5,7 @@ import {
   getFeedStats,
   getFilterFacets,
   getLatestScanRun,
+  getActiveUserWatchlistChips,
   getUserWatchlistFeed,
   getUserWatchlistStats,
 } from "@/lib/queries";
@@ -34,11 +35,14 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
   // Extract filters from URL search params
   const filters: FilterOptions = {
     source: typeof params.source === "string" ? params.source : undefined,
+    watchlistId: typeof params.watchlistId === "string" ? params.watchlistId : undefined,
     year: typeof params.year === "string" ? params.year : undefined,
     setName: typeof params.setName === "string" ? params.setName : undefined,
     player: typeof params.player === "string" ? params.player : undefined,
+    team: typeof params.team === "string" ? params.team : undefined,
     variant: typeof params.variant === "string" ? params.variant : undefined,
     matchType: typeof params.matchType === "string" ? params.matchType : undefined,
+    matchStatus: typeof params.matchStatus === "string" ? params.matchStatus : undefined,
     category: typeof params.category === "string" ? params.category : undefined,
     isSerial: typeof params.isSerial === "string" ? params.isSerial : undefined,
     isAuto: typeof params.isAuto === "string" ? params.isAuto : undefined,
@@ -52,15 +56,23 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
   // Strip undefined values
   const cleanFilters = Object.fromEntries(
     Object.entries(filters).filter(([key, value]) => {
-      if (isBrowseAll && key === "watchlistOnly") return false;
+      if (isBrowseAll && ["watchlistOnly", "watchlistId", "team", "matchStatus"].includes(key)) return false;
+      if (!isBrowseAll && ["watchlistOnly", "matchType", "category", "setName"].includes(key)) return false;
       return value !== undefined && value !== "";
     })
   ) as FilterOptions;
+  const nonWatchlistFilters = Object.fromEntries(
+    Object.entries(cleanFilters).filter(([key]) => key !== "watchlistId")
+  ) as FilterOptions;
+  const hasNonWatchlistFilters = Object.keys(nonWatchlistFilters).length > 0;
+  const selectedWatchlistId = cleanFilters.watchlistId;
 
-  const [scanRun, watchlistFeed, watchlistStats] = await Promise.all([
+  const [scanRun, watchlistFeed, watchlistStats, unfilteredWatchlistStats, watchlistChips] = await Promise.all([
     getLatestScanRun(),
-    getUserWatchlistFeed(user.id),
+    isBrowseAll ? Promise.resolve([]) : getUserWatchlistFeed(user.id, cleanFilters),
+    getUserWatchlistStats(user.id, isBrowseAll ? {} : cleanFilters),
     getUserWatchlistStats(user.id),
+    getActiveUserWatchlistChips(user.id),
   ]);
   const emptyStats: FeedStats = { total: 0, direct: 0, stealth: 0, confirmed: 0, possible: 0, serialized: 0 };
   const emptyFacets: FilterFacets = { sources: [], years: [], setNames: [], players: [], variants: [], categories: [] };
@@ -76,6 +88,9 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
       Object.keys(cleanFilters).length > 0 ? getFeedStats() : getFeedStats(cleanFilters),
       getFilterFacets(),
     ]);
+  }
+  if (!isBrowseAll) {
+    facets = await getFilterFacets();
   }
   const feed = isBrowseAll ? allFeed : watchlistFeed;
   const stats = isBrowseAll
@@ -100,6 +115,25 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
     if (page > 1) nextParams.set("page", String(page));
     return `/dashboard?${nextParams.toString()}`;
   }
+
+  function matchesHref(nextWatchlistId?: string): string {
+    const nextParams = new URLSearchParams();
+    for (const [key, value] of Object.entries(cleanFilters)) {
+      if (key !== "watchlistId" && value) nextParams.set(key, value);
+    }
+    if (nextWatchlistId) nextParams.set("watchlistId", nextWatchlistId);
+    const query = nextParams.toString();
+    return query ? `/dashboard?${query}` : "/dashboard";
+  }
+
+  const emptyTitle = (() => {
+    if (feed.length > 0) return "";
+    if (isBrowseAll) return "No cached listings yet";
+    if (hasNonWatchlistFilters) return "No watchlist matches for these filters";
+    if (selectedWatchlistId) return "No matches for this watchlist yet";
+    if (unfilteredWatchlistStats.total === 0) return "No watchlist matches yet";
+    return "No watchlist matches for these filters";
+  })();
 
   return (
     <div className="space-y-5">
@@ -213,17 +247,66 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
             </span>
           </div>
         </div>
-      ) : null}
+      ) : (
+        <div className="space-y-3">
+          <section className="rounded-3xl border border-border bg-card p-4 shadow-card">
+            <div className="mb-3 flex items-center justify-between gap-3">
+              <div>
+                <h2 className="font-mono text-xs font-bold uppercase tracking-wider text-text">
+                  Watchlists
+                </h2>
+                <p className="mt-1 text-xs text-text-muted">
+                  Switch inbox context without leaving the dashboard.
+                </p>
+              </div>
+              <Link href="/watchlists" className="font-mono text-[10px] uppercase tracking-wider text-accent hover:underline">
+                Manage
+              </Link>
+            </div>
+            <div className="flex gap-2 overflow-x-auto pb-1">
+              <Link
+                href={matchesHref()}
+                className={`shrink-0 rounded-full px-4 py-2 font-mono text-xs font-bold uppercase tracking-wider transition-colors ${
+                  !selectedWatchlistId ? "bg-accent text-bg" : "border border-border text-text-muted hover:border-accent hover:text-text"
+                }`}
+              >
+                All Watchlists
+                <span className="ml-2 text-[10px] opacity-70">{unfilteredWatchlistStats.total}</span>
+              </Link>
+              {watchlistChips.map((watchlist) => {
+                const isSelected = selectedWatchlistId === String(watchlist.id);
+                return (
+                  <Link
+                    key={watchlist.id}
+                    href={matchesHref(String(watchlist.id))}
+                    className={`shrink-0 rounded-full px-4 py-2 font-mono text-xs font-bold uppercase tracking-wider transition-colors ${
+                      isSelected ? "bg-accent text-bg" : "border border-border text-text-muted hover:border-accent hover:text-text"
+                    }`}
+                  >
+                    {watchlist.name}
+                    <span className="ml-2 text-[10px] opacity-70">{watchlist.match_count}</span>
+                  </Link>
+                );
+              })}
+            </div>
+          </section>
+          <Suspense fallback={null}>
+            <FilterBar
+              facets={facets}
+              activeFilters={cleanFilters}
+              totalUnfiltered={unfilteredWatchlistStats.total}
+              totalFiltered={stats.total}
+              variant="matches"
+            />
+          </Suspense>
+        </div>
+      )}
 
       {/* Feed Grid */}
       {feed.length === 0 ? (
         <div className="rounded-3xl border border-border bg-card px-6 py-16 text-center shadow-card">
           <p className="text-lg font-semibold text-text">
-            {Object.keys(cleanFilters).length > 0
-              ? "No matches for these filters"
-              : isBrowseAll
-                ? "No cached listings yet"
-                : "No watchlist matches yet"}
+            {emptyTitle}
           </p>
           <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-text-muted">
             {isBrowseAll

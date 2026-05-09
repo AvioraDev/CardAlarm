@@ -1,5 +1,6 @@
 import {
   buildInventoryWhereSql,
+  buildWatchlistMatchWhereSql,
   inventoryListingSelectSql,
   inventoryMatchJoinSql,
   watchlistInventoryListingSelectSql,
@@ -50,5 +51,56 @@ describe('canonical inventory SQL helpers', () => {
     expect(whereSql).toContain("coalesce(pcm.matched_fields, '[]'::jsonb) ? 'serial'");
     expect(whereSql).toContain('sp.title ILIKE $4');
     expect(params).toEqual(['TopPlay Sports Cards', 10, 50, '%Wembanyama%']);
+  });
+
+  it('builds user-scoped My Matches filters without listings_feed', () => {
+    const { whereSql, params } = buildWatchlistMatchWhereSql('user-1', {
+      watchlistId: '42',
+      source: 'TopPlay Sports Cards',
+      player: 'Kevin Durant',
+      team: 'Suns',
+      year: '2023',
+      variant: 'Prizm',
+      matchStatus: 'possible',
+      isRookie: '1',
+      isAuto: '0',
+      isSerial: '1',
+      priceMin: '5',
+      priceMax: '100',
+      search: 'gold',
+    });
+
+    expect(whereSql).toContain('w.user_id = $1');
+    expect(whereSql).toContain('w.is_active = true');
+    expect(whereSql).toContain('sp.is_active = true');
+    expect(whereSql).toContain('sp.current_availability = true');
+    expect(whereSql).toContain('w.id = $2');
+    expect(whereSql).toContain("wm.status = 'possible' OR pcm.status = 'possible'");
+    expect(whereSql).toContain("coalesce(sp.title, '') ~* '\\m(rc|rookie)\\M'");
+    expect(whereSql).toContain("not (coalesce(sp.title, '') ~* '\\m(auto|autograph)\\M')");
+    expect(whereSql).toContain("coalesce(pcm.matched_fields, '[]'::jsonb) ? 'serial'");
+    expect(whereSql).toContain('wr.include_terms ILIKE');
+    expect(whereSql).not.toContain('listings_feed');
+    expect(params).toEqual([
+      'user-1',
+      42,
+      'TopPlay Sports Cards',
+      '%2023%',
+      '%Suns%',
+      '%Prizm%',
+      'Kevin Durant',
+      '%Kevin Durant%',
+      5,
+      100,
+      '%gold%',
+    ]);
+  });
+
+  it('ignores unsafe watchlist ids while preserving user scope', () => {
+    const { whereSql, params } = buildWatchlistMatchWhereSql('user-1', { watchlistId: '42abc' });
+
+    expect(whereSql).toContain('w.user_id = $1');
+    expect(whereSql).not.toContain('w.id = $2');
+    expect(params).toEqual(['user-1']);
   });
 });

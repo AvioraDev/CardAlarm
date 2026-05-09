@@ -9,9 +9,11 @@ import type {
   ScanRunRow,
   StoreScanRunRow,
   StoreRow,
+  WatchlistChipRow,
 } from "./types";
 import {
   buildInventoryWhereSql,
+  buildWatchlistMatchWhereSql,
   inventoryListingSelectSql,
   inventoryMatchJoinSql,
   watchlistInventoryListingSelectSql,
@@ -38,22 +40,24 @@ export async function getActiveFeed(
   );
 }
 
-export async function getUserWatchlistFeed(userId: string): Promise<ListingRow[]> {
+export async function getUserWatchlistFeed(userId: string, filters: FilterOptions = {}): Promise<ListingRow[]> {
+  const { whereSql, params } = buildWatchlistMatchWhereSql(userId, filters);
   return query<ListingRow>(
-    `select distinct on (sp.id)
-       ${watchlistInventoryListingSelectSql()}
-     from public.watchlist_matches wm
-     join public.watchlists w on w.id = wm.watchlist_id
-     left join public.watchlist_rules wr on wr.id = wm.watchlist_rule_id
-     left join public.players p on p.id = wr.player_id
-     join public.store_products sp on sp.id = wm.store_product_id
-     ${watchlistInventoryMatchJoinSql()}
-     where w.user_id = $1
-       and w.is_active = true
-       and sp.is_active = true
-       and sp.current_availability = true
-     order by sp.id, wm.confidence desc, wm.last_matched_at desc`,
-    [userId],
+    `select *
+     from (
+       select distinct on (sp.id)
+         ${watchlistInventoryListingSelectSql()}
+       from public.watchlist_matches wm
+       join public.watchlists w on w.id = wm.watchlist_id
+       left join public.watchlist_rules wr on wr.id = wm.watchlist_rule_id
+       left join public.players p on p.id = wr.player_id
+       join public.store_products sp on sp.id = wm.store_product_id
+       ${watchlistInventoryMatchJoinSql()}
+       where ${whereSql}
+       order by sp.id, greatest(coalesce(wm.confidence, 0), coalesce(pcm.confidence, 0)) desc, wm.last_matched_at desc
+     ) ranked_matches
+     order by match_confidence desc nulls last, created_at desc`,
+    params,
   );
 }
 
@@ -78,44 +82,64 @@ export async function getFeedStats(filters: FilterOptions = {}): Promise<FeedSta
   return { total, direct, stealth, confirmed, possible, serialized };
 }
 
-export async function getUserWatchlistStats(userId: string): Promise<WatchlistDashboardStats> {
+export async function getUserWatchlistStats(userId: string, filters: FilterOptions = {}): Promise<WatchlistDashboardStats> {
+  const { whereSql, params } = buildWatchlistMatchWhereSql(userId, filters);
   const watchlistInventoryFromSql = `
        from public.watchlist_matches wm
        join public.watchlists w on w.id = wm.watchlist_id
+       left join public.watchlist_rules wr on wr.id = wm.watchlist_rule_id
+       left join public.players p on p.id = wr.player_id
        join public.store_products sp on sp.id = wm.store_product_id
        ${watchlistInventoryMatchJoinSql()}
-       where w.user_id = $1
-         and w.is_active = true
-         and sp.is_active = true
-         and sp.current_availability = true`;
+       where ${whereSql}`;
   const [total, current, possible, watchlists, serialized] = await Promise.all([
     count(
       `select count(distinct sp.id) as c
        ${watchlistInventoryFromSql}`,
-      [userId],
+      params,
     ),
     count(
       `select count(distinct sp.id) as c
        ${watchlistInventoryFromSql}
-         and wm.status != 'possible'`,
-      [userId],
+         and coalesce(wm.status, pcm.status, 'confirmed') != 'possible'`,
+      params,
     ),
     count(
       `select count(distinct sp.id) as c
        ${watchlistInventoryFromSql}
-         and wm.status = 'possible'`,
-      [userId],
+         and (wm.status = 'possible' or pcm.status = 'possible')`,
+      params,
     ),
     count("select count(*) as c from public.watchlists where user_id = $1 and is_active = true", [userId]),
     count(
       `select count(distinct sp.id) as c
        ${watchlistInventoryFromSql}
          and (coalesce(pcm.matched_fields, '[]'::jsonb) ? 'serial')`,
-      [userId],
+      params,
     ),
   ]);
 
   return { total, current, possible, watchlists, serialized };
+}
+
+export async function getActiveUserWatchlistChips(userId: string): Promise<WatchlistChipRow[]> {
+  return query<WatchlistChipRow>(
+    `select
+       w.id,
+       w.name,
+       count(distinct sp.id)::int as match_count
+     from public.watchlists w
+     left join public.watchlist_matches wm on wm.watchlist_id = w.id
+     left join public.store_products sp
+       on sp.id = wm.store_product_id
+      and sp.is_active = true
+      and sp.current_availability = true
+     where w.user_id = $1
+       and w.is_active = true
+     group by w.id, w.name
+     order by w.updated_at desc, w.name asc`,
+    [userId],
+  );
 }
 
 export async function getFilterFacets(filters: FilterOptions = {}): Promise<FilterFacets> {

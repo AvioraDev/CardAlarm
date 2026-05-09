@@ -9,6 +9,7 @@ interface FilterBarProps {
   activeFilters: FilterOptions;
   totalUnfiltered: number;
   totalFiltered: number;
+  variant?: "inventory" | "matches";
 }
 
 export function FilterBar({
@@ -16,6 +17,7 @@ export function FilterBar({
   activeFilters,
   totalUnfiltered,
   totalFiltered,
+  variant = "inventory",
 }: FilterBarProps) {
   const router = useRouter();
   const pathname = usePathname();
@@ -45,6 +47,7 @@ export function FilterBar({
 
   const activeCount = Object.values(activeFilters).filter(Boolean).length;
   const isFiltered = activeCount > 0;
+  const isMatches = variant === "matches";
 
   return (
     <div className="rounded-3xl border border-border bg-card shadow-card">
@@ -85,13 +88,14 @@ export function FilterBar({
               onChange={(v) => updateFilter("source", v)}
             />
 
-            {/* Category */}
-            <FilterSelect
-              label="Category"
-              value={activeFilters.category}
-              options={facets.categories}
-              onChange={(v) => updateFilter("category", v)}
-            />
+            {!isMatches ? (
+              <FilterSelect
+                label="Category"
+                value={activeFilters.category}
+                options={facets.categories}
+                onChange={(v) => updateFilter("category", v)}
+              />
+            ) : null}
 
             {/* Year */}
             <FilterSelect
@@ -101,21 +105,30 @@ export function FilterBar({
               onChange={(v) => updateFilter("year", v)}
             />
 
-            {/* Player */}
-            <FilterSelect
-              label="Player"
-              value={activeFilters.player}
-              options={facets.players}
-              onChange={(v) => updateFilter("player", v)}
-            />
+            {isMatches ? (
+              <TextFilter
+                label="Player"
+                value={activeFilters.player}
+                placeholder="Player or watchlist"
+                onChange={(v) => updateFilter("player", v)}
+              />
+            ) : (
+              <FilterSelect
+                label="Player"
+                value={activeFilters.player}
+                options={facets.players}
+                onChange={(v) => updateFilter("player", v)}
+              />
+            )}
 
-            {/* Set */}
-            <FilterSelect
-              label="Set"
-              value={activeFilters.setName}
-              options={facets.setNames}
-              onChange={(v) => updateFilter("setName", v)}
-            />
+            {!isMatches ? (
+              <FilterSelect
+                label="Set"
+                value={activeFilters.setName}
+                options={facets.setNames}
+                onChange={(v) => updateFilter("setName", v)}
+              />
+            ) : null}
 
             {/* Variant */}
             <FilterSelect
@@ -125,18 +138,43 @@ export function FilterBar({
               onChange={(v) => updateFilter("variant", v)}
             />
 
-            {/* Match Type */}
-            <FilterSelect
-              label="Match Type"
-              value={activeFilters.matchType}
-              options={[
-                { value: "Matched", count: 0 },
-                { value: "Cached", count: 0 },
-              ]}
-              onChange={(v) => updateFilter("matchType", v)}
-              hideCounts
-            />
+            {isMatches ? (
+              <>
+                <TextFilter
+                  label="Team"
+                  value={activeFilters.team}
+                  placeholder="Title-derived"
+                  onChange={(v) => updateFilter("team", v)}
+                />
+                <FilterSelect
+                  label="Status"
+                  value={activeFilters.matchStatus}
+                  options={[
+                    { value: "confirmed", count: 0 },
+                    { value: "possible", count: 0 },
+                  ]}
+                  onChange={(v) => updateFilter("matchStatus", v)}
+                  hideCounts
+                />
+              </>
+            ) : (
+              <FilterSelect
+                label="Match Type"
+                value={activeFilters.matchType}
+                options={[
+                  { value: "Matched", count: 0 },
+                  { value: "Cached", count: 0 },
+                ]}
+                onChange={(v) => updateFilter("matchType", v)}
+                hideCounts
+              />
+            )}
           </div>
+          {isMatches ? (
+            <p className="mt-3 text-xs leading-5 text-text-muted">
+              Year, team, and variant filters are title-derived for now. Structured team metadata belongs in the matcher later.
+            </p>
+          ) : null}
 
           {/* Toggle Row */}
           <div className="mt-3 flex flex-wrap items-center gap-3 border-t border-border pt-3">
@@ -248,6 +286,33 @@ function FilterSelect({
           </option>
         ))}
       </select>
+    </div>
+  );
+}
+
+interface TextFilterProps {
+  label: string;
+  value?: string;
+  placeholder: string;
+  onChange: (value: string) => void;
+}
+
+function TextFilter({ label, value, placeholder, onChange }: TextFilterProps) {
+  return (
+    <div>
+      <label className="block font-mono text-[10px] uppercase tracking-wider text-text-muted mb-1">
+        {label}
+      </label>
+      <input
+        type="text"
+        defaultValue={value || ""}
+        placeholder={placeholder}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") onChange((e.target as HTMLInputElement).value);
+        }}
+        onBlur={(e) => onChange(e.target.value)}
+        className="w-full bg-bg border border-border px-2 py-1.5 font-mono text-xs text-text placeholder:text-text-muted/50 focus:border-accent focus:outline-none"
+      />
     </div>
   );
 }
