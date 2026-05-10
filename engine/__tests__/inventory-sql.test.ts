@@ -126,5 +126,8 @@ describe('canonical inventory SQL helpers', () => {
     expect(queriesSource).toContain('getFacet("coalesce(pc.variant_name, pc.parallel_name, pc.insert_name)")');
     expect(queriesSource).toContain('getFacet("pc.category")');
     expect(queriesSource).toContain('inventoryClassificationJoinSql()');
+    expect(queriesSource).toContain(') facets');
+    expect(queriesSource).toContain('order by lower(value) asc, value asc');
+    expect(queriesSource).not.toContain('ORDER BY count DESC');
   });
 });

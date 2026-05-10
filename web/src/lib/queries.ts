@@ -151,13 +151,18 @@ export async function getFilterFacets(filters: FilterOptions = {}): Promise<Filt
 
   async function getFacet(expression: string): Promise<FacetItem[]> {
     return query<FacetItem>(
-      `SELECT ${expression} as value, COUNT(*)::int as count
-       FROM public.store_products sp
-       ${inventoryMatchJoinSql()}
-       ${inventoryClassificationJoinSql()}
-       WHERE ${whereSql} AND ${expression} IS NOT NULL AND ${expression} != ''
-       GROUP BY ${expression}
-       ORDER BY count DESC`,
+      `select value, count
+       from (
+         select ${expression} as value, count(*)::int as count
+         from public.store_products sp
+         ${inventoryMatchJoinSql()}
+         ${inventoryClassificationJoinSql()}
+         where ${whereSql}
+           and ${expression} is not null
+           and ${expression} != ''
+         group by ${expression}
+       ) facets
+       order by lower(value) asc, value asc`,
       params
     );
   }
