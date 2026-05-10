@@ -36,11 +36,10 @@ export default async function AdminScansPage() {
         <div className="mt-3 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
           <div>
             <h1 className="text-3xl font-semibold tracking-tight text-text md:text-4xl">
-              Scan cached store inventory
+              Scan store products
             </h1>
             <p className="mt-3 max-w-2xl text-sm leading-6 text-text-muted">
-              Trigger a scan, track progress, and review recent scan status. Daily scans
-              populate cached listings; watchlists then backfill against that cache.
+              Trigger a scan, track progress, and review recent scan status for store product discovery.
             </p>
           </div>
           <div className="rounded-2xl border border-border bg-bg/60 px-4 py-3 font-mono text-[11px] uppercase tracking-wider text-text-muted">
@@ -63,6 +62,9 @@ export default async function AdminScansPage() {
           </div>
           <Link href="/admin/stores" className="font-mono text-[10px] uppercase tracking-wider text-text-muted hover:text-accent">
             Manage stores
+          </Link>
+          <Link href="/admin/inventory" className="font-mono text-[10px] uppercase tracking-wider text-text-muted hover:text-accent">
+            Inventory
           </Link>
         </div>
 

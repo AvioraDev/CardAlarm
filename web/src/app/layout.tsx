@@ -20,7 +20,7 @@ const jetbrains = JetBrains_Mono({
 export const metadata: Metadata = {
   title: "CardAlarm — Watchlist Discovery",
   description:
-    "Watchlist-driven sports card discovery across cached hobby-store inventory.",
+    "Watchlist-driven sports card discovery for cards found across hobby stores.",
 };
 
 export default async function RootLayout({
@@ -43,7 +43,7 @@ export default async function RootLayout({
                 href="/dashboard"
                 className="font-mono text-xs uppercase tracking-wider text-text-muted transition-colors hover:text-text"
               >
-                Dashboard
+                For You
               </Link>
               {profile ? (
                 <Link
@@ -54,26 +54,12 @@ export default async function RootLayout({
                 </Link>
               ) : null}
               {profile?.role === "admin" ? (
-                <>
-                  <Link
-                    href="/admin"
-                    className="font-mono text-xs uppercase tracking-wider text-text-muted transition-colors hover:text-text"
-                  >
-                    Admin
-                  </Link>
-                  <Link
-                    href="/admin/stores"
-                    className="font-mono text-xs uppercase tracking-wider text-text-muted transition-colors hover:text-text"
-                  >
-                    Stores
-                  </Link>
-                  <Link
-                    href="/admin/scans"
-                    className="font-mono text-xs uppercase tracking-wider text-text-muted transition-colors hover:text-text"
-                  >
-                    Scans
-                  </Link>
-                </>
+                <Link
+                  href="/admin"
+                  className="font-mono text-xs uppercase tracking-wider text-text-muted transition-colors hover:text-text"
+                >
+                  Admin
+                </Link>
               ) : null}
               {profile ? (
                 <form action={signOutAction}>

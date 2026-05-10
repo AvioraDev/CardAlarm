@@ -28,8 +28,8 @@ export default async function WatchlistsPage() {
             </h1>
             <p className="mt-3 max-w-2xl text-sm leading-6 text-text-muted">
               Create broad or specific watchlists for players, sets, cards, parallels,
-              serials, autos, relics, and price ranges. Backfill against cached inventory
-              is the next MVP phase.
+              serials, autos, relics, and price ranges. CardAlarm uses them to find
+              available cards for you.
             </p>
           </div>
           <Link
@@ -46,7 +46,7 @@ export default async function WatchlistsPage() {
           <h2 className="text-xl font-semibold text-text">No watchlists yet</h2>
           <p className="mx-auto mt-3 max-w-xl text-sm leading-6 text-text-muted">
             Start simple. Add a player name, set, card number, or a few terms.
-            CardAlarm will use these structured rules to match cached store inventory.
+            CardAlarm will use these structured rules to find relevant cards.
           </p>
           <Link
             href="/watchlists/new"
@@ -67,7 +67,7 @@ export default async function WatchlistsPage() {
                     </Link>
                   </h2>
                   <p className="mt-1 font-mono text-[10px] uppercase tracking-[0.18em] text-text-muted">
-                    {ruleSummary(watchlist.rules.length)} · {watchlist.match_count} cached matches
+                    {ruleSummary(watchlist.rules.length)} · {watchlist.match_count} found cards
                   </p>
                 </div>
                 <span className={watchlist.is_active ? "tag tag-accent" : "tag"}>

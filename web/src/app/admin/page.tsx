@@ -33,11 +33,17 @@ export default async function AdminPage() {
             >
               Open Scans
             </Link>
+            <Link
+              href="/admin/inventory"
+              className="inline-flex items-center justify-center rounded-full border border-border px-5 py-3 font-mono text-xs font-bold uppercase tracking-wider text-text transition-colors hover:border-accent"
+            >
+              Open Inventory
+            </Link>
           </div>
         </div>
       </section>
 
-      <section className="grid gap-4 md:grid-cols-2">
+      <section className="grid gap-4 md:grid-cols-3">
         <Link
           href="/admin/stores"
           className="rounded-3xl border border-border bg-card p-6 shadow-card transition-colors hover:border-accent"
@@ -56,6 +62,16 @@ export default async function AdminPage() {
           <h2 className="mt-3 text-xl font-semibold text-text">Run and monitor scans</h2>
           <p className="mt-2 text-sm leading-6 text-text-muted">
             Start explicit manual scans and review current scan status away from the dashboard.
+          </p>
+        </Link>
+        <Link
+          href="/admin/inventory"
+          className="rounded-3xl border border-border bg-card p-6 shadow-card transition-colors hover:border-accent"
+        >
+          <p className="font-mono text-xs uppercase tracking-[0.18em] text-accent">Inventory</p>
+          <h2 className="mt-3 text-xl font-semibold text-text">Review scanned products</h2>
+          <p className="mt-2 text-sm leading-6 text-text-muted">
+            Inspect available products for QA and matching validation.
           </p>
         </Link>
       </section>

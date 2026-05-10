@@ -49,6 +49,9 @@ export function ListingCard({ listing, allowDismiss = true }: ListingCardProps) 
     : listing.serial_limit
       ? `/${listing.serial_limit}`
       : listing.serial_number;
+  const primaryTitle = listing.player_name ?? listing.title;
+  const secondaryTitle = listing.player_name ? listing.title : listing.set_name ?? listing.source;
+  const matchTypeLabel = listing.match_type === "Cached" ? "Found" : listing.match_type;
 
   return (
     <article className="group overflow-hidden rounded-3xl border border-border bg-card shadow-card transition duration-200 hover:-translate-y-0.5 hover:border-border-strong hover:shadow-card-hover">
@@ -73,7 +76,7 @@ export function ListingCard({ listing, allowDismiss = true }: ListingCardProps) 
             {listing.match_status ?? "confirmed"}
           </span>
           <span className="rounded-full border border-border bg-bg/85 px-2.5 py-1 font-mono text-[10px] uppercase tracking-wider text-text-muted backdrop-blur">
-            {listing.match_type}
+            {matchTypeLabel}
           </span>
         </div>
 
@@ -88,14 +91,14 @@ export function ListingCard({ listing, allowDismiss = true }: ListingCardProps) 
         <div>
           <div className="flex items-start justify-between gap-3">
             <h2 className="line-clamp-1 text-base font-semibold tracking-tight text-text">
-              {listing.player_name ?? "Unknown player"}
+              {primaryTitle}
             </h2>
             <span className="shrink-0 font-mono text-lg font-bold text-text">
               {formatPrice(listing.price)}
             </span>
           </div>
           <p className="mt-1 line-clamp-2 text-sm leading-5 text-text-muted" title={listing.title}>
-            {listing.title}
+            {secondaryTitle}
           </p>
         </div>
 
@@ -136,7 +139,7 @@ export function ListingCard({ listing, allowDismiss = true }: ListingCardProps) 
               rel="noopener noreferrer"
               className="rounded-full bg-accent px-4 py-2 text-xs font-bold uppercase tracking-wider text-bg transition hover:bg-accent-hover"
             >
-              View
+              Open store
             </a>
             {allowDismiss ? (
               <button

@@ -161,7 +161,7 @@ export function FilterBar({
           </div>
           {isMatches ? (
             <p className="mt-3 text-xs leading-5 text-text-muted">
-              Year, player, and variant facets use deterministic cached-product classifications. Team remains text-derived until structured team metadata improves.
+              Year, player, and variant filters use CardAlarm&apos;s current card details. Team remains text-derived for now.
             </p>
           ) : null}
 

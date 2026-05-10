@@ -16,9 +16,8 @@ export default async function HomePage() {
               Never miss the card you&apos;re chasing.
             </h1>
             <p className="mt-5 max-w-2xl text-base leading-7 text-text-muted md:text-lg">
-              CardAlarm scans hobby-store inventory, caches every listing, and
-              surfaces the cards that match your watchlists with confidence and
-              clear reasons.
+              Tell CardAlarm what cards you are chasing. It watches hobby stores
+              and surfaces cards found for your watchlists with confidence and clear reasons.
             </p>
           </div>
           <div className="rounded-3xl border border-border bg-bg/60 p-5">
@@ -26,10 +25,10 @@ export default async function HomePage() {
               Current build focus
             </p>
             <ul className="mt-4 space-y-3 text-sm leading-6 text-text-muted">
-              <li>Cached Shopify inventory</li>
+              <li>Cards found for your watchlists</li>
               <li>Confidence-based matching</li>
               <li>User-owned watchlists</li>
-              <li>Fast dashboard workflow</li>
+              <li>Focused discovery workflow</li>
             </ul>
           </div>
         </div>
@@ -38,7 +37,7 @@ export default async function HomePage() {
             href={user ? "/dashboard" : "/signup"}
             className="inline-flex items-center justify-center rounded-full bg-accent px-6 py-3 font-mono text-xs font-bold uppercase tracking-wider text-bg transition-colors hover:bg-accent-hover"
           >
-            {user ? "Open Dashboard" : "Create Watchlist"}
+            {user ? "Open For You" : "Create Watchlist"}
           </Link>
           <Link
             href={user ? "/watchlists" : "/login"}
@@ -51,9 +50,9 @@ export default async function HomePage() {
 
       <section className="grid gap-4 md:grid-cols-3">
         {[
-          ["Scan", "Store inventory is cached first, so dashboards never depend on live scraping."],
-          ["Match", "Catalogue matches are confidence-scored with reasons and uncertainty labels."],
-          ["Backfill", "New watchlists can be evaluated against existing cached products immediately."],
+          ["Watch", "CardAlarm keeps checking supported stores for cards on your watchlists."],
+          ["Match", "Found cards are confidence-scored with reasons and uncertainty labels."],
+          ["Refine", "Update watchlists over time as your collecting goals change."],
         ].map(([title, body]) => (
           <article key={title} className="rounded-3xl border border-border bg-card p-5 shadow-card">
             <h2 className="font-mono text-xs font-bold uppercase tracking-[0.18em] text-text">

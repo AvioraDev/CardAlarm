@@ -34,7 +34,7 @@ export default async function AdminStoresPage({ searchParams }: AdminStoresPageP
           <div>
             <h1 className="text-3xl font-semibold tracking-tight text-text">Store Management</h1>
             <p className="mt-2 max-w-3xl text-sm leading-6 text-text-muted">
-              Manage the canonical store records used by scanner runtime. Active Shopify stores are scanned from the
+              Manage the store records used for scan operations. Active Shopify stores are scanned from the
               database before the local fallback source list is considered.
             </p>
           </div>
@@ -44,6 +44,18 @@ export default async function AdminStoresPage({ searchParams }: AdminStoresPageP
               className="inline-flex items-center justify-center rounded-full border border-border px-5 py-3 font-mono text-xs font-bold uppercase tracking-wider text-text transition-colors hover:border-accent"
             >
               Admin Home
+            </Link>
+            <Link
+              href="/admin/scans"
+              className="inline-flex items-center justify-center rounded-full border border-border px-5 py-3 font-mono text-xs font-bold uppercase tracking-wider text-text transition-colors hover:border-accent"
+            >
+              Scans
+            </Link>
+            <Link
+              href="/admin/inventory"
+              className="inline-flex items-center justify-center rounded-full border border-border px-5 py-3 font-mono text-xs font-bold uppercase tracking-wider text-text transition-colors hover:border-accent"
+            >
+              Inventory
             </Link>
             <Link
               href="/admin/stores/new"

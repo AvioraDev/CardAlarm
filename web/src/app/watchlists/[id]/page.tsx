@@ -43,7 +43,7 @@ export default async function WatchlistDetailPage({ params }: WatchlistDetailPag
               {watchlist.name}
             </h1>
             <p className="mt-2 font-mono text-[10px] uppercase tracking-[0.18em] text-text-muted">
-              Created {new Date(watchlist.created_at).toLocaleDateString()} · {watchlist.match_count} cached matches
+              Created {new Date(watchlist.created_at).toLocaleDateString()} · {watchlist.match_count} found cards
             </p>
           </div>
           <span className={watchlist.is_active ? "tag tag-accent" : "tag"}>
@@ -104,14 +104,13 @@ export default async function WatchlistDetailPage({ params }: WatchlistDetailPag
       ) : null}
 
       <section className="rounded-3xl border border-border bg-card p-6 shadow-card md:p-8">
-        <p className="font-mono text-xs uppercase tracking-[0.24em] text-accent">Cached Matches</p>
+        <p className="font-mono text-xs uppercase tracking-[0.24em] text-accent">Found Cards</p>
         <h2 className="mt-3 text-xl font-semibold text-text">
-          {watchlist.match_count} listings currently match this watchlist
+          {watchlist.match_count} cards currently match this watchlist
         </h2>
         <p className="mt-2 max-w-2xl text-sm leading-6 text-text-muted">
-          CardAlarm backfills this watchlist against cached store inventory when it is
-          created or refreshed. Dashboard match display will move onto these user-owned
-          matches in the next MVP phase.
+          CardAlarm refreshes this watchlist when it is created or updated, then shows
+          matching cards in For You.
         </p>
       </section>
     </div>
