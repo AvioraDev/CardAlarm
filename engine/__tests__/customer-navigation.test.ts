@@ -25,6 +25,8 @@ describe('customer navigation focus', () => {
 
     expect(layout).toContain('For You');
     expect(layout).toContain('Watchlists');
+    expect(layout).toContain('href="/saved"');
+    expect(layout).toContain('Saved');
     expect(layout).toContain('href="/admin"');
     expect(layout).not.toContain('href="/admin/stores"');
     expect(layout).not.toContain('href="/admin/scans"');
@@ -44,5 +46,39 @@ describe('customer navigation focus', () => {
     expect(admin).toContain('Scan Runs');
     expect(admin).toContain('Inventory QA');
     expect(admin).not.toContain('legacy admin watchlist management');
+  });
+
+  it('adds customer saved cards and card feedback controls', () => {
+    const savedPage = readWebFile('app', 'saved', 'page.tsx');
+    const listingCard = readWebFile('app', 'components', 'listing-card.tsx');
+    const dashboard = readWebFile('app', 'dashboard', 'page.tsx');
+
+    expect(savedPage).toContain('getUserSavedCards');
+    expect(savedPage).toContain('await requireUser()');
+    expect(savedPage).toContain('Saved');
+    expect(dashboard).toContain('showFeedbackControls');
+    expect(listingCard).toContain('saveCardAction');
+    expect(listingCard).toContain('unsaveCardAction');
+    expect(listingCard).toContain('dismissCardAction');
+    expect(listingCard).toContain('notMatchCardAction');
+    expect(listingCard).toContain('Not a match');
+    expect(listingCard).toContain('Open store');
+  });
+
+  it('records feedback only after verifying user watchlist ownership', () => {
+    const actions = readWebFile('lib', 'actions.ts');
+
+    expect(actions).toContain('assertUserCanAccessProduct');
+    expect(actions).toContain('from public.watchlist_matches wm');
+    expect(actions).toContain('join public.watchlists w on w.id = wm.watchlist_id');
+    expect(actions).toContain('w.user_id = $1');
+    expect(actions).toContain('insert into public.match_feedback');
+    expect(actions).toContain('"save"');
+    expect(actions).toContain('"unsave"');
+    expect(actions).toContain('"dismiss"');
+    expect(actions).toContain('"undo_dismiss"');
+    expect(actions).toContain('"not_match"');
+    expect(actions).toContain('revalidatePath("/dashboard")');
+    expect(actions).toContain('revalidatePath("/saved")');
   });
 });

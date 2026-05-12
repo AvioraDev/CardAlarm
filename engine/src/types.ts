@@ -113,6 +113,9 @@ export interface ListingRow {
   image_url: string;
   match_type: string;
   is_dismissed: boolean;
+  is_saved: boolean;
+  is_dismissed_for_user: boolean;
+  is_not_match_for_user: boolean;
   is_oos: boolean;
   created_at: string;
   year: string | null;

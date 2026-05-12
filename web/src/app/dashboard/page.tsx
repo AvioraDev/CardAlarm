@@ -194,7 +194,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
       ) : (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
           {feed.map((listing) => (
-            <ListingCard key={listing.id} listing={listing} allowDismiss={false} />
+            <ListingCard key={listing.id} listing={listing} showFeedbackControls />
           ))}
         </div>
       )}

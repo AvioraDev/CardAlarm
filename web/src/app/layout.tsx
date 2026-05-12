@@ -53,6 +53,14 @@ export default async function RootLayout({
                   Watchlists
                 </Link>
               ) : null}
+              {profile ? (
+                <Link
+                  href="/saved"
+                  className="font-mono text-xs uppercase tracking-wider text-text-muted transition-colors hover:text-text"
+                >
+                  Saved
+                </Link>
+              ) : null}
               {profile?.role === "admin" ? (
                 <Link
                   href="/admin"

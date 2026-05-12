@@ -101,6 +101,9 @@ export function inventoryListingSelectSql(): string {
        coalesce(sp.image_url, '') as image_url,
        case when pcm.id is null then 'Cached' else 'Matched' end as match_type,
        false as is_dismissed,
+       false as is_saved,
+       false as is_dismissed_for_user,
+       false as is_not_match_for_user,
        (not sp.current_availability or not sp.is_active) as is_oos,
        sp.created_at,
        pc.year,
@@ -136,6 +139,9 @@ export function watchlistInventoryListingSelectSql(): string {
        coalesce(sp.image_url, '') as image_url,
        case when pcm.id is null then 'Cached' else 'Matched' end as match_type,
        false as is_dismissed,
+       coalesce(ufs.is_saved, false) as is_saved,
+       coalesce(ufs.is_dismissed, false) as is_dismissed_for_user,
+       coalesce(ufs.is_not_match, false) as is_not_match_for_user,
        (not sp.current_availability or not sp.is_active) as is_oos,
        sp.created_at,
        pc.year,
@@ -199,6 +205,36 @@ export function watchlistInventoryMatchJoinSql(): string {
        order by (pcm.id = wm.product_card_match_id) desc, pcm.confidence desc, pcm.updated_at desc
        limit 1
      ) pcm on true`;
+}
+
+export function userFeedbackStateJoinSql(): string {
+  return `left join lateral (
+       select
+         coalesce(
+           (
+             array_agg(mf.feedback_type order by mf.created_at desc, mf.id desc)
+             filter (where mf.feedback_type in ('save', 'unsave'))
+           )[1] = 'save',
+           false
+         ) as is_saved,
+         coalesce(
+           (
+             array_agg(mf.feedback_type order by mf.created_at desc, mf.id desc)
+             filter (where mf.feedback_type in ('dismiss', 'undo_dismiss'))
+           )[1] = 'dismiss',
+           false
+         ) as is_dismissed,
+         coalesce(
+           (
+             array_agg(mf.feedback_type order by mf.created_at desc, mf.id desc)
+             filter (where mf.feedback_type = 'not_match')
+           )[1] = 'not_match',
+           false
+         ) as is_not_match
+       from public.match_feedback mf
+       where mf.user_id = $1
+         and mf.store_product_id = sp.id
+     ) ufs on true`;
 }
 
 export function buildInventoryWhereSql(filters: FilterOptions): {

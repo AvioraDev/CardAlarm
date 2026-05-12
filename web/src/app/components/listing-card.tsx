@@ -1,12 +1,12 @@
 "use client";
 
-import { useMemo, useTransition } from "react";
-import { dismissListing } from "@/lib/actions";
+import { useMemo } from "react";
+import { dismissCardAction, notMatchCardAction, saveCardAction, unsaveCardAction } from "@/lib/actions";
 import type { ListingRow } from "@/lib/types";
 
 interface ListingCardProps {
   listing: ListingRow;
-  allowDismiss?: boolean;
+  showFeedbackControls?: boolean;
 }
 
 function parseReasons(value: string[] | null): string[] {
@@ -27,19 +27,8 @@ function formatPrice(value: number | string | null): string {
   return `$${price.toFixed(2)}`;
 }
 
-export function ListingCard({ listing, allowDismiss = true }: ListingCardProps) {
-  const [isPending, startTransition] = useTransition();
+export function ListingCard({ listing, showFeedbackControls = false }: ListingCardProps) {
   const reasons = useMemo(() => parseReasons(listing.match_reasons).slice(0, 3), [listing.match_reasons]);
-
-  function handleDismiss() {
-    startTransition(() => {
-      dismissListing(listing.id);
-    });
-  }
-
-  if (isPending) {
-    return <div className="h-[460px] rounded-3xl border border-border bg-card opacity-30" />;
-  }
 
   const confidence = listing.match_confidence;
   const isPossible = listing.match_status === "possible";
@@ -128,11 +117,46 @@ export function ListingCard({ listing, allowDismiss = true }: ListingCardProps) 
           )}
         </div>
 
-        <div className="mt-auto flex items-center justify-between gap-3 pt-1">
+        <div className="mt-auto flex flex-col gap-3 pt-1">
+          {showFeedbackControls ? (
+            <div className="flex flex-wrap gap-2">
+              <form action={listing.is_saved ? unsaveCardAction : saveCardAction}>
+                <input type="hidden" name="storeProductId" value={listing.id} />
+                <button
+                  type="submit"
+                  className={`rounded-full border px-3 py-2 text-[10px] font-bold uppercase tracking-wider transition ${
+                    listing.is_saved
+                      ? "border-accent bg-accent text-bg hover:bg-accent-hover"
+                      : "border-border text-text-muted hover:border-accent hover:text-text"
+                  }`}
+                >
+                  {listing.is_saved ? "Saved" : "Save"}
+                </button>
+              </form>
+              <form action={dismissCardAction}>
+                <input type="hidden" name="storeProductId" value={listing.id} />
+                <button
+                  type="submit"
+                  className="rounded-full border border-border px-3 py-2 text-[10px] font-bold uppercase tracking-wider text-text-muted transition hover:border-danger/60 hover:text-danger"
+                >
+                  Dismiss
+                </button>
+              </form>
+              <form action={notMatchCardAction}>
+                <input type="hidden" name="storeProductId" value={listing.id} />
+                <button
+                  type="submit"
+                  className="rounded-full border border-border px-3 py-2 text-[10px] font-bold uppercase tracking-wider text-text-muted transition hover:border-stealth/60 hover:text-stealth"
+                >
+                  Not a match
+                </button>
+              </form>
+            </div>
+          ) : null}
+          <div className="flex items-center justify-between gap-3">
           <span className="font-mono text-[10px] uppercase tracking-[0.18em] text-text-muted">
             {listing.source}
           </span>
-          <div className="flex gap-2">
             <a
               href={listing.url}
               target="_blank"
@@ -141,14 +165,6 @@ export function ListingCard({ listing, allowDismiss = true }: ListingCardProps) 
             >
               Open store
             </a>
-            {allowDismiss ? (
-              <button
-                onClick={handleDismiss}
-                className="rounded-full border border-danger/40 px-4 py-2 text-xs font-bold uppercase tracking-wider text-danger transition hover:bg-danger hover:text-bg"
-              >
-                Dismiss
-              </button>
-            ) : null}
           </div>
         </div>
       </div>

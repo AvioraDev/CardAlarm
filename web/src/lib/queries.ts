@@ -17,9 +17,14 @@ import {
   buildWatchlistMatchWhereSql,
   inventoryListingSelectSql,
   inventoryMatchJoinSql,
+  userFeedbackStateJoinSql,
   watchlistInventoryListingSelectSql,
   watchlistInventoryMatchJoinSql,
 } from "./inventory-sql";
+
+const HIDDEN_USER_FEEDBACK_WHERE = `
+       coalesce(ufs.is_dismissed, false) = false
+       and coalesce(ufs.is_not_match, false) = false`;
 
 export async function getActiveFeed(
   filters: FilterOptions = {},
@@ -56,7 +61,9 @@ export async function getUserWatchlistFeed(userId: string, filters: FilterOption
        join public.store_products sp on sp.id = wm.store_product_id
        ${watchlistInventoryMatchJoinSql()}
        ${inventoryClassificationJoinSql()}
+       ${userFeedbackStateJoinSql()}
        where ${whereSql}
+         and ${HIDDEN_USER_FEEDBACK_WHERE}
        order by sp.id, greatest(coalesce(wm.confidence, 0), coalesce(pcm.confidence, 0)) desc, wm.last_matched_at desc
      ) ranked_matches
      order by match_confidence desc nulls last, created_at desc`,
@@ -95,7 +102,9 @@ export async function getUserWatchlistStats(userId: string, filters: FilterOptio
        join public.store_products sp on sp.id = wm.store_product_id
        ${watchlistInventoryMatchJoinSql()}
        ${inventoryClassificationJoinSql()}
-       where ${whereSql}`;
+       ${userFeedbackStateJoinSql()}
+       where ${whereSql}
+         and ${HIDDEN_USER_FEEDBACK_WHERE}`;
   const [total, current, possible, watchlists, serialized] = await Promise.all([
     count(
       `select count(distinct sp.id) as c
@@ -131,13 +140,19 @@ export async function getActiveUserWatchlistChips(userId: string): Promise<Watch
     `select
        w.id,
        w.name,
-       count(distinct sp.id)::int as match_count
+       (
+         count(distinct sp.id) filter (
+           where coalesce(ufs.is_dismissed, false) = false
+             and coalesce(ufs.is_not_match, false) = false
+         )
+       )::int as match_count
      from public.watchlists w
      left join public.watchlist_matches wm on wm.watchlist_id = w.id
      left join public.store_products sp
        on sp.id = wm.store_product_id
       and sp.is_active = true
       and sp.current_availability = true
+     ${userFeedbackStateJoinSql()}
      where w.user_id = $1
        and w.is_active = true
      group by w.id, w.name
@@ -201,7 +216,9 @@ export async function getUserWatchlistFilterFacets(
            join public.store_products sp on sp.id = wm.store_product_id
            ${watchlistInventoryMatchJoinSql()}
            ${inventoryClassificationJoinSql()}
+           ${userFeedbackStateJoinSql()}
            where ${whereSql}
+             and ${HIDDEN_USER_FEEDBACK_WHERE}
          ) scoped
          where value is not null
            and value != ''
@@ -222,6 +239,30 @@ export async function getUserWatchlistFilterFacets(
   ]);
 
   return { sources, years, setNames, players, variants, categories };
+}
+
+export async function getUserSavedCards(userId: string): Promise<ListingRow[]> {
+  const { whereSql, params } = buildWatchlistMatchWhereSql(userId);
+  return query<ListingRow>(
+    `select *
+     from (
+       select distinct on (sp.id)
+         ${watchlistInventoryListingSelectSql()}
+       from public.watchlist_matches wm
+       join public.watchlists w on w.id = wm.watchlist_id
+       left join public.watchlist_rules wr on wr.id = wm.watchlist_rule_id
+       left join public.players p on p.id = wr.player_id
+       join public.store_products sp on sp.id = wm.store_product_id
+       ${watchlistInventoryMatchJoinSql()}
+       ${inventoryClassificationJoinSql()}
+       ${userFeedbackStateJoinSql()}
+       where ${whereSql}
+         and coalesce(ufs.is_saved, false) = true
+       order by sp.id, greatest(coalesce(wm.confidence, 0), coalesce(pcm.confidence, 0)) desc, wm.last_matched_at desc
+     ) saved_matches
+     order by created_at desc`,
+    params,
+  );
 }
 
 export async function getStores(): Promise<StoreRow[]> {

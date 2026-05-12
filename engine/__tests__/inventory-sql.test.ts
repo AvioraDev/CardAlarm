@@ -8,6 +8,7 @@ import {
   inventoryMatchJoinSql,
   watchlistInventoryListingSelectSql,
   watchlistInventoryMatchJoinSql,
+  userFeedbackStateJoinSql,
 } from '../../web/src/lib/inventory-sql';
 
 describe('canonical inventory SQL helpers', () => {
@@ -30,6 +31,9 @@ describe('canonical inventory SQL helpers', () => {
     const joinSql = watchlistInventoryMatchJoinSql();
 
     expect(selectSql).toContain('sp.external_product_id as external_id');
+    expect(selectSql).toContain('coalesce(ufs.is_saved, false) as is_saved');
+    expect(selectSql).toContain('coalesce(ufs.is_dismissed, false) as is_dismissed_for_user');
+    expect(selectSql).toContain('coalesce(ufs.is_not_match, false) as is_not_match_for_user');
     expect(selectSql).toContain('pcm.matched_player_name');
     expect(selectSql).toContain('p.full_name');
     expect(selectSql).toContain("nullif(trim(split_part(coalesce(wr.include_terms, ''), ',', 1)), '')");
@@ -41,6 +45,20 @@ describe('canonical inventory SQL helpers', () => {
     expect(joinSql).toContain('public.product_card_matches');
     expect(joinSql).toContain('pcm.id = wm.product_card_match_id');
     expect(`${selectSql}\n${joinSql}`).not.toContain('listings_feed');
+  });
+
+  it('derives user feedback state from the append-only match_feedback log', () => {
+    const joinSql = userFeedbackStateJoinSql();
+
+    expect(joinSql).toContain('public.match_feedback mf');
+    expect(joinSql).toContain('mf.user_id = $1');
+    expect(joinSql).toContain('mf.store_product_id = sp.id');
+    expect(joinSql).toContain("mf.feedback_type in ('save', 'unsave')");
+    expect(joinSql).toContain("mf.feedback_type in ('dismiss', 'undo_dismiss')");
+    expect(joinSql).toContain("mf.feedback_type = 'not_match'");
+    expect(joinSql).toContain("as is_saved");
+    expect(joinSql).toContain("as is_dismissed");
+    expect(joinSql).toContain("as is_not_match");
   });
 
   it('builds practical filters against canonical cached inventory fields', () => {
@@ -146,8 +164,33 @@ describe('canonical inventory SQL helpers', () => {
     expect(functionSource).toContain('join public.store_products sp on sp.id = wm.store_product_id');
     expect(functionSource).toContain('watchlistInventoryMatchJoinSql()');
     expect(functionSource).toContain('inventoryClassificationJoinSql()');
+    expect(functionSource).toContain('userFeedbackStateJoinSql()');
+    expect(functionSource).toContain('HIDDEN_USER_FEEDBACK_WHERE');
+    expect(queriesSource).toContain('coalesce(ufs.is_dismissed, false) = false');
+    expect(queriesSource).toContain('coalesce(ufs.is_not_match, false) = false');
     expect(functionSource).toContain('count(distinct store_product_id)::int as count');
     expect(functionSource).toContain("getFacet(\"coalesce(pcm.matched_player_name, pc.player_name, p.full_name, nullif(trim(split_part(coalesce(wr.include_terms, ''), ',', 1)), ''), w.name)\")");
     expect(functionSource).toContain('order by lower(value) asc, value asc');
+  });
+
+  it('keeps For You queries feedback-scoped while admin inventory remains global', () => {
+    const queriesSource = fs.readFileSync(path.resolve(__dirname, '..', '..', 'web', 'src', 'lib', 'queries.ts'), 'utf8');
+    const feedStart = queriesSource.indexOf('export async function getUserWatchlistFeed');
+    const feedEnd = queriesSource.indexOf('async function count');
+    const feedSource = queriesSource.slice(feedStart, feedEnd);
+    const savedStart = queriesSource.indexOf('export async function getUserSavedCards');
+    const savedEnd = queriesSource.indexOf('export async function getStores');
+    const savedSource = queriesSource.slice(savedStart, savedEnd);
+    const inventoryStart = queriesSource.indexOf('export async function getActiveFeed');
+    const inventoryEnd = queriesSource.indexOf('export async function getUserWatchlistFeed');
+    const inventorySource = queriesSource.slice(inventoryStart, inventoryEnd);
+
+    expect(feedSource).toContain('userFeedbackStateJoinSql()');
+    expect(feedSource).toContain('HIDDEN_USER_FEEDBACK_WHERE');
+    expect(queriesSource).toContain('coalesce(ufs.is_dismissed, false) = false');
+    expect(queriesSource).toContain('coalesce(ufs.is_not_match, false) = false');
+    expect(savedSource).toContain('coalesce(ufs.is_saved, false) = true');
+    expect(inventorySource).not.toContain('userFeedbackStateJoinSql');
+    expect(inventorySource).not.toContain('match_feedback');
   });
 });
