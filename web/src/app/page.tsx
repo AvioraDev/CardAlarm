@@ -8,7 +8,7 @@ export default async function HomePage() {
     <div className="mx-auto flex max-w-6xl flex-col gap-10 py-10 md:py-16">
       <section className="rounded-[2rem] border border-border bg-card p-6 shadow-card md:p-10">
         <p className="font-mono text-xs uppercase tracking-[0.26em] text-accent">
-          CardAlarm MVP
+          CardAlarm Watchlists
         </p>
         <div className="mt-5 grid gap-8 lg:grid-cols-[1.2fr_0.8fr] lg:items-end">
           <div>
@@ -22,7 +22,7 @@ export default async function HomePage() {
           </div>
           <div className="rounded-3xl border border-border bg-bg/60 p-5">
             <p className="font-mono text-[11px] uppercase tracking-[0.2em] text-text-muted">
-              Current build focus
+              How it works
             </p>
             <ul className="mt-4 space-y-3 text-sm leading-6 text-text-muted">
               <li>Cards found for your watchlists</li>

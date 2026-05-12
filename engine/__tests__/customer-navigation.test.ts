@@ -11,6 +11,10 @@ describe('customer navigation focus', () => {
 
     expect(dashboard).toContain('For You');
     expect(dashboard).toContain('Cards found for you');
+    expect(dashboard).toContain('Numbered');
+    expect(dashboard).toContain('getUserWatchlistFilterFacets');
+    expect(dashboard).toContain('getUserWatchlistFilterFacets(user.id, cleanFilters)');
+    expect(dashboard).not.toContain('getFilterFacets');
     expect(dashboard).toContain('redirect(profile.role === "admin" ? "/admin/inventory" : "/dashboard")');
     expect(dashboard).not.toContain('Browse All');
     expect(dashboard).not.toContain('cached listings');
@@ -33,6 +37,12 @@ describe('customer navigation focus', () => {
 
     expect(inventory).toContain('await requireAdmin()');
     expect(inventory).toContain('Scanned product inventory');
+    expect(inventory).toContain('getFilterFacets');
     expect(admin).toContain('href="/admin/inventory"');
+    expect(admin).toContain('Admin Console');
+    expect(admin).toContain('Store Sources');
+    expect(admin).toContain('Scan Runs');
+    expect(admin).toContain('Inventory QA');
+    expect(admin).not.toContain('legacy admin watchlist management');
   });
 });

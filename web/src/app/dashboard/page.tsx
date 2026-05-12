@@ -3,7 +3,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import {
   getActiveUserWatchlistChips,
-  getFilterFacets,
+  getUserWatchlistFilterFacets,
   getUserWatchlistFeed,
   getUserWatchlistStats,
 } from "@/lib/queries";
@@ -57,7 +57,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
     getUserWatchlistStats(user.id, cleanFilters),
     getUserWatchlistStats(user.id),
     getActiveUserWatchlistChips(user.id),
-    getFilterFacets(),
+    getUserWatchlistFilterFacets(user.id, cleanFilters),
   ]);
 
   function matchesHref(nextWatchlistId?: string): string {
@@ -120,7 +120,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
           <p className="metric-value">{stats.watchlists}</p>
         </div>
         <div className="metric-card">
-          <p className="metric-label">Serialized</p>
+          <p className="metric-label">Numbered</p>
           <p className="metric-value">{stats.serialized}</p>
         </div>
       </div>

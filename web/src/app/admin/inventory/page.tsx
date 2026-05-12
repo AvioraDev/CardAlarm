@@ -102,7 +102,7 @@ export default async function AdminInventoryPage({ searchParams }: AdminInventor
           <p className="metric-value">{stats.possible}</p>
         </div>
         <div className="metric-card">
-          <p className="metric-label">Serialized</p>
+          <p className="metric-label">Numbered</p>
           <p className="metric-value">{stats.serialized}</p>
         </div>
       </div>

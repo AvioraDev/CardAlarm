@@ -179,6 +179,51 @@ export async function getFilterFacets(filters: FilterOptions = {}): Promise<Filt
   return { sources, years, setNames, players, variants, categories };
 }
 
+export async function getUserWatchlistFilterFacets(
+  userId: string,
+  filters: FilterOptions = {},
+): Promise<FilterFacets> {
+  const { whereSql, params } = buildWatchlistMatchWhereSql(userId, filters);
+
+  async function getFacet(expression: string): Promise<FacetItem[]> {
+    return query<FacetItem>(
+      `select value, count
+       from (
+         select value, count(distinct store_product_id)::int as count
+         from (
+           select
+             sp.id as store_product_id,
+             ${expression} as value
+           from public.watchlist_matches wm
+           join public.watchlists w on w.id = wm.watchlist_id
+           left join public.watchlist_rules wr on wr.id = wm.watchlist_rule_id
+           left join public.players p on p.id = wr.player_id
+           join public.store_products sp on sp.id = wm.store_product_id
+           ${watchlistInventoryMatchJoinSql()}
+           ${inventoryClassificationJoinSql()}
+           where ${whereSql}
+         ) scoped
+         where value is not null
+           and value != ''
+         group by value
+       ) facets
+       order by lower(value) asc, value asc`,
+      params,
+    );
+  }
+
+  const [sources, years, setNames, players, variants, categories] = await Promise.all([
+    getFacet("sp.source"),
+    getFacet("pc.year"),
+    getFacet("coalesce(pc.set_name, pc.product_line)"),
+    getFacet("coalesce(pcm.matched_player_name, pc.player_name, p.full_name, nullif(trim(split_part(coalesce(wr.include_terms, ''), ',', 1)), ''), w.name)"),
+    getFacet("coalesce(pc.variant_name, pc.parallel_name, pc.insert_name)"),
+    getFacet("pc.category"),
+  ]);
+
+  return { sources, years, setNames, players, variants, categories };
+}
+
 export async function getStores(): Promise<StoreRow[]> {
   return query<StoreRow>(
     `select *

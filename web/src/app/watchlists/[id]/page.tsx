@@ -75,7 +75,7 @@ export default async function WatchlistDetailPage({ params }: WatchlistDetailPag
 
       {rule ? (
         <section className="rounded-3xl border border-border bg-card p-6 shadow-card md:p-8">
-          <p className="font-mono text-xs uppercase tracking-[0.24em] text-accent">Structured Rule</p>
+        <p className="font-mono text-xs uppercase tracking-[0.24em] text-accent">Watchlist Filter</p>
           <div className="mt-5 grid gap-3 md:grid-cols-2">
             {[
               ["Include terms", rule.include_terms ?? "Any"],

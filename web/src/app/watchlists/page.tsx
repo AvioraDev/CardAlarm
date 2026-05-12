@@ -6,9 +6,9 @@ import { deleteUserWatchlistAction, toggleUserWatchlistAction } from "@/lib/watc
 export const dynamic = "force-dynamic";
 
 function ruleSummary(ruleCount: number): string {
-  if (ruleCount === 0) return "No structured rules yet";
-  if (ruleCount === 1) return "1 structured rule";
-  return `${ruleCount} structured rules`;
+  if (ruleCount === 0) return "No filters yet";
+  if (ruleCount === 1) return "1 watchlist filter";
+  return `${ruleCount} watchlist filters`;
 }
 
 export default async function WatchlistsPage() {
@@ -24,7 +24,7 @@ export default async function WatchlistsPage() {
               Watchlists
             </p>
             <h1 className="mt-3 text-3xl font-semibold tracking-tight text-text md:text-4xl">
-              Tell CardAlarm what matters
+              Cards you&apos;re chasing
             </h1>
             <p className="mt-3 max-w-2xl text-sm leading-6 text-text-muted">
               Create broad or specific watchlists for players, sets, cards, parallels,
@@ -46,7 +46,7 @@ export default async function WatchlistsPage() {
           <h2 className="text-xl font-semibold text-text">No watchlists yet</h2>
           <p className="mx-auto mt-3 max-w-xl text-sm leading-6 text-text-muted">
             Start simple. Add a player name, set, card number, or a few terms.
-            CardAlarm will use these structured rules to find relevant cards.
+            CardAlarm will use these watchlist filters to find relevant cards.
           </p>
           <Link
             href="/watchlists/new"

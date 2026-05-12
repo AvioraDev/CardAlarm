@@ -130,4 +130,24 @@ describe('canonical inventory SQL helpers', () => {
     expect(queriesSource).toContain('order by lower(value) asc, value asc');
     expect(queriesSource).not.toContain('ORDER BY count DESC');
   });
+
+  it('builds user watchlist-scoped facets from watchlist matches', () => {
+    const queriesSource = fs.readFileSync(path.resolve(__dirname, '..', '..', 'web', 'src', 'lib', 'queries.ts'), 'utf8');
+    const functionStart = queriesSource.indexOf('export async function getUserWatchlistFilterFacets');
+    const functionEnd = queriesSource.indexOf('export async function getStores');
+    const functionSource = queriesSource.slice(functionStart, functionEnd);
+
+    expect(functionSource).toContain('buildWatchlistMatchWhereSql(userId, filters)');
+    expect(functionSource).not.toContain('buildInventoryWhereSql');
+    expect(functionSource).toContain('from public.watchlist_matches wm');
+    expect(functionSource).toContain('join public.watchlists w on w.id = wm.watchlist_id');
+    expect(functionSource).toContain('left join public.watchlist_rules wr on wr.id = wm.watchlist_rule_id');
+    expect(functionSource).toContain('left join public.players p on p.id = wr.player_id');
+    expect(functionSource).toContain('join public.store_products sp on sp.id = wm.store_product_id');
+    expect(functionSource).toContain('watchlistInventoryMatchJoinSql()');
+    expect(functionSource).toContain('inventoryClassificationJoinSql()');
+    expect(functionSource).toContain('count(distinct store_product_id)::int as count');
+    expect(functionSource).toContain("getFacet(\"coalesce(pcm.matched_player_name, pc.player_name, p.full_name, nullif(trim(split_part(coalesce(wr.include_terms, ''), ',', 1)), ''), w.name)\")");
+    expect(functionSource).toContain('order by lower(value) asc, value asc');
+  });
 });

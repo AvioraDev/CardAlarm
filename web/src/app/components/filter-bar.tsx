@@ -168,7 +168,7 @@ export function FilterBar({
           {/* Toggle Row */}
           <div className="mt-3 flex flex-wrap items-center gap-3 border-t border-border pt-3">
             <FilterToggle
-              label="Serialized"
+              label="Numbered"
               paramKey="isSerial"
               value={activeFilters.isSerial}
               onChange={(v) => updateFilter("isSerial", v)}
