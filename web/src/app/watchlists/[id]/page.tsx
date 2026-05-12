@@ -6,6 +6,7 @@ import {
   backfillUserWatchlistAction,
   deleteUserWatchlistAction,
   toggleUserWatchlistAction,
+  toggleWatchlistNotificationsAction,
 } from "@/lib/watchlist-actions";
 
 interface WatchlistDetailPageProps {
@@ -43,7 +44,7 @@ export default async function WatchlistDetailPage({ params }: WatchlistDetailPag
               {watchlist.name}
             </h1>
             <p className="mt-2 font-mono text-[10px] uppercase tracking-[0.18em] text-text-muted">
-              Created {new Date(watchlist.created_at).toLocaleDateString()} · {watchlist.match_count} found cards
+              Created {new Date(watchlist.created_at).toLocaleDateString()} · {watchlist.match_count} found cards · Alerts {watchlist.notification_enabled ? "on" : "off"}
             </p>
           </div>
           <span className={watchlist.is_active ? "tag tag-accent" : "tag"}>
@@ -62,6 +63,13 @@ export default async function WatchlistDetailPage({ params }: WatchlistDetailPag
             <input type="hidden" name="watchlistId" value={watchlist.id} />
             <button type="submit" className="rounded-full border border-danger/40 px-4 py-2 font-mono text-xs font-bold uppercase tracking-wider text-danger transition-colors hover:bg-danger hover:text-bg">
               Delete
+            </button>
+          </form>
+          <form action={toggleWatchlistNotificationsAction}>
+            <input type="hidden" name="watchlistId" value={watchlist.id} />
+            <input type="hidden" name="notificationsEnabled" value={String(watchlist.notification_enabled)} />
+            <button type="submit" className="rounded-full border border-border px-4 py-2 font-mono text-xs font-bold uppercase tracking-wider text-text transition-colors hover:border-accent">
+              {watchlist.notification_enabled ? "Turn Alerts Off" : "Turn Alerts On"}
             </button>
           </form>
           <form action={backfillUserWatchlistAction}>

@@ -10,6 +10,7 @@ import type {
   SourceProductCacheStatus,
   WatchlistRow,
 } from './types';
+import { enqueueAlertCandidates, processPendingAlerts } from './alerts';
 import { processListingWithCache } from './match';
 import {
   createStoreScanRun,
@@ -22,6 +23,7 @@ import {
   updateStoreScanRun,
   upsertSourceProducts,
 } from './db';
+import { reconcileActiveWatchlistMatches } from './watchlist-reconciliation';
 
 const PAGE_SIZE = Number(process.env.CARDALARM_PAGE_SIZE ?? 100);
 const EARLY_STOP_UNCHANGED_PAGES = Number(process.env.CARDALARM_EARLY_STOP_UNCHANGED_PAGES ?? 2);
@@ -563,6 +565,18 @@ export async function runIngestionCycle(
   const totalSkipped = results.reduce((sum, result) => sum + result.skipped, 0);
   const totalMatched = results.reduce((sum, result) => sum + result.matched, 0);
   const totalMarkedOOS = results.reduce((sum, result) => sum + result.markedOOS, 0);
+
+  try {
+    const reconciled = await reconcileActiveWatchlistMatches(db);
+    const alertsQueued = await enqueueAlertCandidates(db);
+    const alertsProcessed = await processPendingAlerts(db);
+    console.log(
+      `  Watchlist reconciliation: ${reconciled} matches, ${alertsQueued} alerts queued/promoted, ${alertsProcessed} alerts processed.`
+    );
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    console.error('  Alert reconciliation failed:', message);
+  }
 
   console.log(
     `\n✅ Ingestion complete. Fetched: ${totalFetched}, Processed: ${totalProcessed}, Skipped cache: ${totalSkipped}, Matched: ${totalMatched}, Marked OOS: ${totalMarkedOOS}`

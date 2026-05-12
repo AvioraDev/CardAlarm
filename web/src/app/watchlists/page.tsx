@@ -1,7 +1,11 @@
 import Link from "next/link";
 import { requireUser } from "@/lib/auth";
 import { getUserWatchlists } from "@/lib/watchlists";
-import { deleteUserWatchlistAction, toggleUserWatchlistAction } from "@/lib/watchlist-actions";
+import {
+  deleteUserWatchlistAction,
+  toggleUserWatchlistAction,
+  toggleWatchlistNotificationsAction,
+} from "@/lib/watchlist-actions";
 
 export const dynamic = "force-dynamic";
 
@@ -67,7 +71,7 @@ export default async function WatchlistsPage() {
                     </Link>
                   </h2>
                   <p className="mt-1 font-mono text-[10px] uppercase tracking-[0.18em] text-text-muted">
-                    {ruleSummary(watchlist.rules.length)} · {watchlist.match_count} found cards
+                    {ruleSummary(watchlist.rules.length)} · {watchlist.match_count} found cards · Alerts {watchlist.notification_enabled ? "on" : "off"}
                   </p>
                 </div>
                 <span className={watchlist.is_active ? "tag tag-accent" : "tag"}>
@@ -100,6 +104,16 @@ export default async function WatchlistsPage() {
                     className="rounded-full border border-border px-4 py-2 font-mono text-xs font-bold uppercase tracking-wider text-text-muted transition-colors hover:border-accent hover:text-text"
                   >
                     {watchlist.is_active ? "Pause" : "Activate"}
+                  </button>
+                </form>
+                <form action={toggleWatchlistNotificationsAction}>
+                  <input type="hidden" name="watchlistId" value={watchlist.id} />
+                  <input type="hidden" name="notificationsEnabled" value={String(watchlist.notification_enabled)} />
+                  <button
+                    type="submit"
+                    className="rounded-full border border-border px-4 py-2 font-mono text-xs font-bold uppercase tracking-wider text-text-muted transition-colors hover:border-accent hover:text-text"
+                  >
+                    {watchlist.notification_enabled ? "Alerts On" : "Alerts Off"}
                   </button>
                 </form>
                 <form action={deleteUserWatchlistAction}>

@@ -110,6 +110,16 @@ export default async function NewWatchlistPage({ searchParams }: NewWatchlistPag
           </div>
         </fieldset>
 
+        <label className="mt-6 flex items-start gap-3 rounded-2xl border border-border bg-bg/45 p-4 text-sm text-text-muted">
+          <input name="notification_enabled" type="checkbox" className="mt-1 accent-[var(--color-accent)]" />
+          <span>
+            <span className="block font-mono text-[10px] uppercase tracking-wider text-text">Email alerts</span>
+            <span className="mt-1 block leading-6">
+              Email me when CardAlarm finds a new card for this watchlist. You can turn this on later.
+            </span>
+          </span>
+        </label>
+
         <div className="mt-8 flex flex-col gap-3 sm:flex-row">
           <button type="submit" className="rounded-full bg-accent px-6 py-3 font-mono text-xs font-bold uppercase tracking-wider text-bg transition-colors hover:bg-accent-hover">
             Create Watchlist

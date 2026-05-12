@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireUser } from "./auth";
+import { enqueueAndProcessWatchlistAlerts } from "./alerts";
 import { backfillWatchlist } from "./watchlist-backfill";
 import { createClient } from "./supabase/server";
 
@@ -37,7 +38,7 @@ export async function createWatchlistAction(formData: FormData): Promise<void> {
       user_id: user.id,
       name,
       is_active: true,
-      notification_enabled: false,
+      notification_enabled: formBoolean(formData, "notification_enabled"),
     })
     .select("id")
     .single<{ id: number }>();
@@ -69,6 +70,7 @@ export async function createWatchlistAction(formData: FormData): Promise<void> {
   if (ruleError) redirect(`/watchlists/new?error=${encodeURIComponent(ruleError.message)}`);
 
   await backfillWatchlist(user.id, watchlist.id);
+  await enqueueAndProcessWatchlistAlerts(watchlist.id);
   revalidatePath("/watchlists");
   revalidatePath("/dashboard");
   redirect(`/watchlists/${watchlist.id}`);
@@ -89,7 +91,32 @@ export async function toggleUserWatchlistAction(formData: FormData): Promise<voi
     .eq("user_id", user.id);
 
   if (error) throw new Error(error.message);
-  if (isActive === false) await backfillWatchlist(user.id, watchlistId);
+  if (isActive === false) {
+    await backfillWatchlist(user.id, watchlistId);
+    await enqueueAndProcessWatchlistAlerts(watchlistId);
+  }
+
+  revalidatePath("/watchlists");
+  revalidatePath(`/watchlists/${watchlistId}`);
+  revalidatePath("/dashboard");
+}
+
+export async function toggleWatchlistNotificationsAction(formData: FormData): Promise<void> {
+  const user = await requireUser();
+  const supabase = await createClient();
+  const watchlistId = Number(formData.get("watchlistId"));
+  const notificationsEnabled = formData.get("notificationsEnabled") === "true";
+
+  if (!Number.isInteger(watchlistId)) return;
+
+  const { error } = await supabase
+    .from("watchlists")
+    .update({ notification_enabled: !notificationsEnabled })
+    .eq("id", watchlistId)
+    .eq("user_id", user.id);
+
+  if (error) throw new Error(error.message);
+  if (!notificationsEnabled) await enqueueAndProcessWatchlistAlerts(watchlistId);
 
   revalidatePath("/watchlists");
   revalidatePath(`/watchlists/${watchlistId}`);
@@ -103,6 +130,7 @@ export async function backfillUserWatchlistAction(formData: FormData): Promise<v
   if (!Number.isInteger(watchlistId)) return;
 
   await backfillWatchlist(user.id, watchlistId);
+  await enqueueAndProcessWatchlistAlerts(watchlistId);
   revalidatePath("/watchlists");
   revalidatePath(`/watchlists/${watchlistId}`);
   revalidatePath("/dashboard");

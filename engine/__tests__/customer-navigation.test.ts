@@ -81,4 +81,21 @@ describe('customer navigation focus', () => {
     expect(actions).toContain('revalidatePath("/dashboard")');
     expect(actions).toContain('revalidatePath("/saved")');
   });
+
+  it('exposes conservative watchlist email alert controls', () => {
+    const newWatchlist = readWebFile('app', 'watchlists', 'new', 'page.tsx');
+    const watchlistsPage = readWebFile('app', 'watchlists', 'page.tsx');
+    const watchlistDetail = readWebFile('app', 'watchlists', '[id]', 'page.tsx');
+    const watchlistActions = readWebFile('lib', 'watchlist-actions.ts');
+
+    expect(newWatchlist).toContain('name="notification_enabled"');
+    expect(newWatchlist).toContain('Email alerts');
+    expect(watchlistsPage).toContain('toggleWatchlistNotificationsAction');
+    expect(watchlistsPage).toContain('Alerts {watchlist.notification_enabled ? "on" : "off"}');
+    expect(watchlistDetail).toContain('Turn Alerts On');
+    expect(watchlistDetail).toContain('Turn Alerts Off');
+    expect(watchlistActions).toContain('notification_enabled: formBoolean(formData, "notification_enabled")');
+    expect(watchlistActions).toContain('toggleWatchlistNotificationsAction');
+    expect(watchlistActions).toContain('enqueueAndProcessWatchlistAlerts');
+  });
 });

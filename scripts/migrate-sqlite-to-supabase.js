@@ -84,6 +84,7 @@ const tableOrder = [
 
 const truncationOrder = [
   'admin_audit_log',
+  'alerts',
   'match_feedback',
   'watchlist_matches',
   'product_card_matches',
