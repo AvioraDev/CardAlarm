@@ -78,4 +78,12 @@ describe('buildSourceProductBatchRows', () => {
     expect(dbSource).toContain('store_id, source, external_product_id');
     expect(dbSource).toContain('store_id = coalesce(excluded.store_id, store_products.store_id)');
   });
+
+  it('keeps scanner event creation idempotent inside the batched upsert SQL', () => {
+    const dbSource = fs.readFileSync(path.resolve(__dirname, '..', 'src', 'db.ts'), 'utf8');
+
+    expect(dbSource).toContain('event_candidates as');
+    expect(dbSource).toContain('insert into product_availability_events');
+    expect(dbSource).toContain('on conflict (dedupe_key) do nothing');
+  });
 });

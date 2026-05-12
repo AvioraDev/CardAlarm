@@ -263,6 +263,18 @@ export async function upsertSourceProducts(
          from input i
          left join source_products sp on sp.source = i.source and sp.external_id = i.external_id
        ),
+       existing_store as (
+         select
+           i.source,
+           i.external_id,
+           sp.id as store_product_id,
+           sp.store_id,
+           sp.current_availability as old_availability,
+           sp.current_price as old_price,
+           sp.product_fingerprint as old_product_fingerprint
+         from input i
+         left join store_products sp on sp.source = i.source and sp.external_product_id = i.external_id
+       ),
        upserted_source as (
          insert into source_products (
            source, external_id, handle, title, price, available, url, image_url,
@@ -317,7 +329,7 @@ export async function upsertSourceProducts(
            last_seen_at = now(),
            last_checked_at = now(),
            updated_at = now()
-         returning id, source, external_product_id
+         returning id, store_id, source, external_product_id, current_price, current_availability, product_fingerprint
        ),
        classification_input as (
          select *
@@ -386,6 +398,80 @@ export async function upsertSourceProducts(
            confidence = excluded.confidence,
            raw_signals = excluded.raw_signals,
            updated_at = now()
+         returning id
+       ),
+       event_candidates as (
+         select
+           us.id as store_product_id,
+           coalesce(us.store_id, es.store_id, i.store_id) as store_id,
+           i.source,
+           i.external_id,
+           case
+             when es.store_product_id is null then 'first_seen'
+             when es.old_availability = false and i.available = true then 'restocked'
+             when es.old_availability = true and i.available = false then 'sold_out'
+             when es.old_price is distinct from i.price then 'price_changed'
+             when es.old_product_fingerprint is distinct from i.content_hash then 'product_updated'
+             else null
+           end as event_type,
+           i.scan_token,
+           es.old_availability as previous_availability,
+           i.available as current_availability,
+           es.old_price as previous_price,
+           i.price as current_price,
+           es.old_product_fingerprint as previous_product_fingerprint,
+           i.content_hash as current_product_fingerprint,
+           jsonb_build_object(
+             'handle', i.handle,
+             'title', i.title,
+             'source', i.source,
+             'externalId', i.external_id
+           ) as metadata
+         from input i
+         join upserted_store us on us.source = i.source and us.external_product_id = i.external_id
+         left join existing_store es on es.source = i.source and es.external_id = i.external_id
+         where es.store_product_id is null
+           or es.old_availability is distinct from i.available
+           or es.old_price is distinct from i.price
+           or es.old_product_fingerprint is distinct from i.content_hash
+       ),
+       inserted_events as (
+         insert into product_availability_events (
+           store_product_id,
+           store_id,
+           source,
+           external_id,
+           event_type,
+           detection_source,
+           scan_token,
+           previous_availability,
+           current_availability,
+           previous_price,
+           current_price,
+           previous_product_fingerprint,
+           current_product_fingerprint,
+           dedupe_key,
+           metadata
+         )
+         select
+           store_product_id,
+           store_id,
+           source,
+           external_id,
+           event_type,
+           'scanner',
+           scan_token,
+           previous_availability,
+           current_availability,
+           previous_price,
+           current_price,
+           previous_product_fingerprint,
+           current_product_fingerprint,
+           event_type || ':' || store_product_id || ':' || scan_token,
+           metadata
+         from event_candidates
+         where event_type is not null
+         on conflict (dedupe_key) do nothing
          returning id
        )
        insert into product_snapshots (
@@ -541,11 +627,68 @@ export async function markMissingSourceProductsOOS(
       [source, scanToken]
     );
     await client.query(
-      `update store_products
-       set current_availability = false, is_active = false, updated_at = now()
-       where source = $1 and current_availability = true
-         and external_product_id in (select external_id from source_products where source = $1 and available = false)`,
-      [source]
+      `with candidates as (
+         select
+           sp.id,
+           sp.store_id,
+           sp.source,
+           sp.external_product_id,
+           sp.current_availability,
+           sp.current_price,
+           sp.product_fingerprint
+         from store_products sp
+         where sp.source = $1
+           and sp.current_availability = true
+           and sp.external_product_id in (
+             select external_id
+             from source_products
+             where source = $1 and available = false
+           )
+       ),
+       updated as (
+         update store_products sp
+         set current_availability = false, is_active = false, updated_at = now()
+         from candidates c
+         where sp.id = c.id
+         returning sp.id
+       )
+       insert into product_availability_events (
+         store_product_id,
+         store_id,
+         source,
+         external_id,
+         event_type,
+         detection_source,
+         scan_token,
+         previous_availability,
+         current_availability,
+         previous_price,
+         current_price,
+         previous_product_fingerprint,
+         current_product_fingerprint,
+         dedupe_key,
+         metadata
+       )
+       select
+         c.id,
+         c.store_id,
+         c.source,
+         c.external_product_id,
+         'sold_out',
+         'scanner',
+         $2,
+         c.current_availability,
+         false,
+         c.current_price,
+         c.current_price,
+         c.product_fingerprint,
+         c.product_fingerprint,
+         'sold_out:' || c.id || ':' || $2,
+         jsonb_build_object('source', c.source, 'externalId', c.external_product_id, 'reason', 'missing_from_scan')
+       from candidates c
+       join updated u on u.id = c.id
+       on conflict (dedupe_key) do nothing`,
+      [source, scanToken]
     );
     const result = await client.query(
       `update listings_feed
