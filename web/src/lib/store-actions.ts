@@ -18,6 +18,12 @@ async function slugExists(slug: string, excludeId?: number): Promise<boolean> {
   return rows.length > 0;
 }
 
+function parseStoreId(formData: FormData): number | null {
+  const value = formData.get("id");
+  if (typeof value !== "string" || !/^[1-9]\d*$/.test(value.trim())) return null;
+  return Number.parseInt(value, 10);
+}
+
 export async function createStoreAction(formData: FormData): Promise<void> {
   await requireAdmin();
   const parsed = parseStoreForm(formData);
@@ -61,8 +67,8 @@ export async function createStoreAction(formData: FormData): Promise<void> {
 
 export async function updateStoreAction(formData: FormData): Promise<void> {
   await requireAdmin();
-  const id = Number(formData.get("id"));
-  if (!Number.isInteger(id)) redirect(errorPath("/admin/stores", "Invalid store id."));
+  const id = parseStoreId(formData);
+  if (id === null) redirect(errorPath("/admin/stores", "Invalid store id."));
 
   const parsed = parseStoreForm(formData);
   if (!parsed.ok) redirect(errorPath(`/admin/stores/${id}/edit`, parsed.error));
@@ -107,8 +113,8 @@ export async function updateStoreAction(formData: FormData): Promise<void> {
 
 export async function toggleStoreActiveAction(formData: FormData): Promise<void> {
   await requireAdmin();
-  const id = Number(formData.get("id"));
-  if (!Number.isInteger(id)) return;
+  const id = parseStoreId(formData);
+  if (id === null) redirect(errorPath("/admin/stores", "Invalid store id."));
 
   await execute(
     `update public.stores

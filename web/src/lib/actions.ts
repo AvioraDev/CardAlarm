@@ -11,24 +11,26 @@ type MatchFeedbackType = "save" | "unsave" | "dismiss" | "undo_dismiss" | "not_m
 
 function parseFormId(formData: FormData, key: string): number {
   const rawValue = formData.get(key);
-  const parsed = typeof rawValue === "string" ? Number.parseInt(rawValue, 10) : Number.NaN;
-  if (!Number.isInteger(parsed) || parsed <= 0) {
-    throw new Error(`Invalid ${key}`);
+  if (typeof rawValue !== "string" || !/^[1-9]\d*$/.test(rawValue.trim())) {
+    throw new Error("Invalid card action request.");
   }
-  return parsed;
+  return Number.parseInt(rawValue, 10);
 }
 
 function parseOptionalFormId(formData: FormData, key: string): number | null {
   const rawValue = formData.get(key);
   if (typeof rawValue !== "string" || rawValue.trim() === "") return null;
-  const parsed = Number.parseInt(rawValue, 10);
-  if (!Number.isInteger(parsed) || parsed <= 0) {
-    throw new Error(`Invalid ${key}`);
+  if (!/^[1-9]\d*$/.test(rawValue.trim())) {
+    throw new Error("Invalid card action request.");
   }
-  return parsed;
+  return Number.parseInt(rawValue, 10);
 }
 
-async function assertUserCanAccessProduct(userId: string, storeProductId: number): Promise<void> {
+async function assertUserCanAccessFeedbackTarget(
+  userId: string,
+  storeProductId: number,
+  productCardMatchId: number | null,
+): Promise<void> {
   const rows = await query<{ exists: number }>(
     `select 1 as exists
      from public.watchlist_matches wm
@@ -39,32 +41,22 @@ async function assertUserCanAccessProduct(userId: string, storeProductId: number
        and sp.is_active = true
        and sp.current_availability = true
        and sp.id = $2
+       and (
+         $3::bigint is null
+         or exists (
+           select 1
+           from public.product_card_matches pcm
+           where pcm.id = $3::bigint
+             and pcm.store_product_id = sp.id
+             and (wm.product_card_match_id = pcm.id or wm.product_card_match_id is null)
+         )
+       )
      limit 1`,
-    [userId, storeProductId],
+    [userId, storeProductId, productCardMatchId],
   );
 
   if (!rows[0]) {
     throw new Error("Card is not available in your watchlist matches.");
-  }
-}
-
-async function assertProductCardMatchBelongsToProduct(
-  productCardMatchId: number | null,
-  storeProductId: number,
-): Promise<void> {
-  if (productCardMatchId === null) return;
-
-  const rows = await query<{ exists: number }>(
-    `select 1 as exists
-     from public.product_card_matches
-     where id = $1
-       and store_product_id = $2
-     limit 1`,
-    [productCardMatchId, storeProductId],
-  );
-
-  if (!rows[0]) {
-    throw new Error("Match does not belong to this card.");
   }
 }
 
@@ -73,8 +65,7 @@ async function writeMatchFeedback(formData: FormData, feedbackType: MatchFeedbac
   const storeProductId = parseFormId(formData, "storeProductId");
   const productCardMatchId = parseOptionalFormId(formData, "productCardMatchId");
 
-  await assertUserCanAccessProduct(user.id, storeProductId);
-  await assertProductCardMatchBelongsToProduct(productCardMatchId, storeProductId);
+  await assertUserCanAccessFeedbackTarget(user.id, storeProductId, productCardMatchId);
   await execute(
     `insert into public.match_feedback (
        user_id,
@@ -114,6 +105,7 @@ export async function startScan(mode: ScanMode): Promise<{ error?: string }> {
   // Customer actions update watchlists and backfill against cached store_products;
   // they must never spawn scanner processes or call external storefronts.
   await requireAdmin();
+  if (mode !== "watchlist" && mode !== "full") return { error: "Invalid scan mode." };
   const runningRows = await query<{ id: number; started_at: string; is_stale: boolean }>(
     `SELECT id, started_at, started_at < now() - interval '30 minutes' as is_stale
      FROM scan_runs

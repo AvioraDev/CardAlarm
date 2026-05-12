@@ -68,7 +68,7 @@ describe('customer navigation focus', () => {
   it('records feedback only after verifying user watchlist ownership', () => {
     const actions = readWebFile('lib', 'actions.ts');
 
-    expect(actions).toContain('assertUserCanAccessProduct');
+    expect(actions).toContain('assertUserCanAccessFeedbackTarget');
     expect(actions).toContain('from public.watchlist_matches wm');
     expect(actions).toContain('join public.watchlists w on w.id = wm.watchlist_id');
     expect(actions).toContain('w.user_id = $1');
@@ -94,7 +94,7 @@ describe('customer navigation focus', () => {
     expect(watchlistsPage).toContain('Alerts {watchlist.notification_enabled ? "on" : "off"}');
     expect(watchlistDetail).toContain('Turn Alerts On');
     expect(watchlistDetail).toContain('Turn Alerts Off');
-    expect(watchlistActions).toContain('notification_enabled: formBoolean(formData, "notification_enabled")');
+    expect(watchlistActions).toContain('notification_enabled: watchlistInput.notificationEnabled');
     expect(watchlistActions).toContain('toggleWatchlistNotificationsAction');
     expect(watchlistActions).toContain('enqueueAndProcessWatchlistAlerts');
   });

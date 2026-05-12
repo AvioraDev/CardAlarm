@@ -5,72 +5,79 @@ import { redirect } from "next/navigation";
 import { requireUser } from "./auth";
 import { enqueueAndProcessWatchlistAlerts } from "./alerts";
 import { backfillWatchlist } from "./watchlist-backfill";
+import {
+  parseBooleanState,
+  parsePositiveFormId,
+  parseWatchlistForm,
+} from "./watchlist-form";
 import { createClient } from "./supabase/server";
 
 // Architecture boundary: user watchlist mutations only reconcile against cached
 // store_products. They do not trigger store scans or external storefront calls.
 
-function formString(formData: FormData, key: string): string | null {
-  const value = formData.get(key);
-  if (typeof value !== "string") return null;
-  const trimmed = value.trim();
-  return trimmed.length > 0 ? trimmed : null;
+function actionErrorPath(path: string, message: string): string {
+  return `${path}?error=${encodeURIComponent(message)}`;
 }
 
-function formBoolean(formData: FormData, key: string): boolean {
-  return formData.get(key) === "on";
-}
+async function requireOwnedWatchlist(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  userId: string,
+  watchlistId: number,
+): Promise<void> {
+  const { data, error } = await supabase
+    .from("watchlists")
+    .select("id")
+    .eq("id", watchlistId)
+    .eq("user_id", userId)
+    .maybeSingle<{ id: number }>();
 
-function formNumber(formData: FormData, key: string): number | null {
-  const value = formString(formData, key);
-  if (!value) return null;
-  const parsed = Number(value);
-  return Number.isFinite(parsed) ? parsed : null;
+  if (error || !data) redirect(actionErrorPath("/watchlists", "Watchlist not found."));
 }
 
 export async function createWatchlistAction(formData: FormData): Promise<void> {
   const user = await requireUser();
   const supabase = await createClient();
-  const name = formString(formData, "name");
+  const parsed = parseWatchlistForm(formData);
 
-  if (!name) redirect("/watchlists/new?error=missing-name");
+  if (!parsed.ok) redirect(actionErrorPath("/watchlists/new", parsed.error));
+
+  const watchlistInput = parsed.value;
 
   const { data: watchlist, error: watchlistError } = await supabase
     .from("watchlists")
     .insert({
       user_id: user.id,
-      name,
+      name: watchlistInput.name,
       is_active: true,
-      notification_enabled: formBoolean(formData, "notification_enabled"),
+      notification_enabled: watchlistInput.notificationEnabled,
     })
     .select("id")
     .single<{ id: number }>();
 
-  if (watchlistError) redirect(`/watchlists/new?error=${encodeURIComponent(watchlistError.message)}`);
+  if (watchlistError) redirect(actionErrorPath("/watchlists/new", "Unable to create watchlist."));
 
-  const minimumConfidence = formNumber(formData, "minimum_match_confidence") ?? 0.75;
   const { error: ruleError } = await supabase.from("watchlist_rules").insert({
     watchlist_id: watchlist.id,
-    brand: formString(formData, "brand"),
-    product_line: formString(formData, "product_line"),
-    season: formString(formData, "season"),
-    card_number: formString(formData, "card_number"),
-    parallel: formString(formData, "parallel"),
-    rookie_only: formBoolean(formData, "rookie_only"),
-    autograph_only: formBoolean(formData, "autograph_only"),
-    relic_only: formBoolean(formData, "relic_only"),
-    serial_numbered_only: formBoolean(formData, "serial_numbered_only"),
-    graded_only: formBoolean(formData, "graded_only"),
-    raw_only: formBoolean(formData, "raw_only"),
-    min_price: formNumber(formData, "min_price"),
-    max_price: formNumber(formData, "max_price"),
-    currency: formString(formData, "currency") ?? "NZD",
-    include_terms: formString(formData, "include_terms") ?? name,
-    exclude_terms: formString(formData, "exclude_terms"),
-    minimum_match_confidence: Math.min(1, Math.max(0, minimumConfidence)),
+    brand: watchlistInput.brand,
+    product_line: watchlistInput.productLine,
+    season: watchlistInput.season,
+    card_number: watchlistInput.cardNumber,
+    parallel: watchlistInput.parallel,
+    rookie_only: watchlistInput.rookieOnly,
+    autograph_only: watchlistInput.autographOnly,
+    relic_only: watchlistInput.relicOnly,
+    serial_numbered_only: watchlistInput.serialNumberedOnly,
+    graded_only: watchlistInput.gradedOnly,
+    raw_only: watchlistInput.rawOnly,
+    min_price: watchlistInput.minPrice,
+    max_price: watchlistInput.maxPrice,
+    currency: watchlistInput.currency,
+    include_terms: watchlistInput.includeTerms ?? watchlistInput.name,
+    exclude_terms: watchlistInput.excludeTerms,
+    minimum_match_confidence: watchlistInput.minimumMatchConfidence,
   });
 
-  if (ruleError) redirect(`/watchlists/new?error=${encodeURIComponent(ruleError.message)}`);
+  if (ruleError) redirect(actionErrorPath("/watchlists/new", "Unable to create watchlist filter."));
 
   await backfillWatchlist(user.id, watchlist.id);
   await enqueueAndProcessWatchlistAlerts(watchlist.id);
@@ -82,10 +89,11 @@ export async function createWatchlistAction(formData: FormData): Promise<void> {
 export async function toggleUserWatchlistAction(formData: FormData): Promise<void> {
   const user = await requireUser();
   const supabase = await createClient();
-  const watchlistId = Number(formData.get("watchlistId"));
-  const isActive = formData.get("isActive") === "true";
+  const watchlistId = parsePositiveFormId(formData, "watchlistId");
+  const isActive = parseBooleanState(formData, "isActive");
 
-  if (!Number.isInteger(watchlistId)) return;
+  if (watchlistId === null || isActive === null) redirect(actionErrorPath("/watchlists", "Invalid watchlist request."));
+  await requireOwnedWatchlist(supabase, user.id, watchlistId);
 
   const { error } = await supabase
     .from("watchlists")
@@ -93,7 +101,7 @@ export async function toggleUserWatchlistAction(formData: FormData): Promise<voi
     .eq("id", watchlistId)
     .eq("user_id", user.id);
 
-  if (error) throw new Error(error.message);
+  if (error) redirect(actionErrorPath("/watchlists", "Unable to update watchlist."));
   if (isActive === false) {
     await backfillWatchlist(user.id, watchlistId);
     await enqueueAndProcessWatchlistAlerts(watchlistId);
@@ -107,10 +115,11 @@ export async function toggleUserWatchlistAction(formData: FormData): Promise<voi
 export async function toggleWatchlistNotificationsAction(formData: FormData): Promise<void> {
   const user = await requireUser();
   const supabase = await createClient();
-  const watchlistId = Number(formData.get("watchlistId"));
-  const notificationsEnabled = formData.get("notificationsEnabled") === "true";
+  const watchlistId = parsePositiveFormId(formData, "watchlistId");
+  const notificationsEnabled = parseBooleanState(formData, "notificationsEnabled");
 
-  if (!Number.isInteger(watchlistId)) return;
+  if (watchlistId === null || notificationsEnabled === null) redirect(actionErrorPath("/watchlists", "Invalid watchlist request."));
+  await requireOwnedWatchlist(supabase, user.id, watchlistId);
 
   const { error } = await supabase
     .from("watchlists")
@@ -118,7 +127,7 @@ export async function toggleWatchlistNotificationsAction(formData: FormData): Pr
     .eq("id", watchlistId)
     .eq("user_id", user.id);
 
-  if (error) throw new Error(error.message);
+  if (error) redirect(actionErrorPath("/watchlists", "Unable to update alert setting."));
   if (!notificationsEnabled) await enqueueAndProcessWatchlistAlerts(watchlistId);
 
   revalidatePath("/watchlists");
@@ -128,9 +137,11 @@ export async function toggleWatchlistNotificationsAction(formData: FormData): Pr
 
 export async function backfillUserWatchlistAction(formData: FormData): Promise<void> {
   const user = await requireUser();
-  const watchlistId = Number(formData.get("watchlistId"));
+  const supabase = await createClient();
+  const watchlistId = parsePositiveFormId(formData, "watchlistId");
 
-  if (!Number.isInteger(watchlistId)) return;
+  if (watchlistId === null) redirect(actionErrorPath("/watchlists", "Invalid watchlist request."));
+  await requireOwnedWatchlist(supabase, user.id, watchlistId);
 
   await backfillWatchlist(user.id, watchlistId);
   await enqueueAndProcessWatchlistAlerts(watchlistId);
@@ -142,12 +153,13 @@ export async function backfillUserWatchlistAction(formData: FormData): Promise<v
 export async function deleteUserWatchlistAction(formData: FormData): Promise<void> {
   const user = await requireUser();
   const supabase = await createClient();
-  const watchlistId = Number(formData.get("watchlistId"));
+  const watchlistId = parsePositiveFormId(formData, "watchlistId");
 
-  if (!Number.isInteger(watchlistId)) return;
+  if (watchlistId === null) redirect(actionErrorPath("/watchlists", "Invalid watchlist request."));
+  await requireOwnedWatchlist(supabase, user.id, watchlistId);
 
   const { error } = await supabase.from("watchlists").delete().eq("id", watchlistId).eq("user_id", user.id);
-  if (error) throw new Error(error.message);
+  if (error) redirect(actionErrorPath("/watchlists", "Unable to delete watchlist."));
 
   revalidatePath("/watchlists");
   redirect("/watchlists");
