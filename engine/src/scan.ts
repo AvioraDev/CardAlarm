@@ -32,9 +32,11 @@ function parseMode(): ScanMode {
 async function main(): Promise<void> {
   const mode = parseMode();
   const db = getDb();
-  const runId = await createScanRun(db, mode);
+  let runId: number | null = null;
 
   try {
+    runId = await createScanRun(db, mode);
+    const activeRunId = runId;
     const sources = await loadScanSources(db);
     if (sources.length === 0) throw new Error(NO_SCAN_SOURCES_MESSAGE);
 
@@ -47,24 +49,26 @@ async function main(): Promise<void> {
     const result = await runIngestionCycle(db, sources, {
       mode,
       onProgress: async progress => {
-        await updateScanRun(db, runId, progress);
+        await updateScanRun(db, activeRunId, progress);
       },
     });
 
-    await updateScanRun(db, runId, {
+    await updateScanRun(db, activeRunId, {
       processed: result.processed,
       matched: result.matched,
       status: 'completed',
     });
 
-    console.log(`\nScan run #${runId} completed.`);
+    console.log(`\nScan run #${activeRunId} completed.`);
   } catch (err) {
     const errorMessage = err instanceof Error ? err.message : String(err);
-    await updateScanRun(db, runId, {
-      status: 'failed',
-      error: errorMessage,
-    });
-    console.error(`\nScan run #${runId} failed:`, errorMessage);
+    if (runId !== null) {
+      await updateScanRun(db, runId, {
+        status: 'failed',
+        error: errorMessage,
+      });
+    }
+    console.error(`\nScan run ${runId === null ? '' : `#${runId} `}failed:`, errorMessage);
     process.exitCode = 1;
   } finally {
     await closeDb();

@@ -913,8 +913,40 @@ export async function getAllActiveListings(db: DbClient): Promise<ListingRow[]> 
 }
 
 export async function createScanRun(db: DbClient, mode: ScanMode): Promise<number> {
-  const result = await query<{ id: number }>(db, 'insert into scan_runs (mode, status) values ($1, $2) returning id', [mode, 'running']);
-  return Number(result.rows[0]!.id);
+  const result = await query<{ id: number }>(
+    db,
+    `with lock as (
+       select pg_advisory_xact_lock(hashtext('cardalarm:scan_runs'))
+     ),
+     stale as (
+       update scan_runs
+       set status = 'failed',
+           error = coalesce(error, 'Timed out: stale running scan cleared before new scan'),
+           completed_at = now()
+       where status = 'running'
+         and started_at < now() - interval '30 minutes'
+       returning id
+     ),
+     running as (
+       select id
+       from scan_runs
+       where status = 'running'
+       limit 1
+     ),
+     inserted as (
+       insert into scan_runs (mode, status)
+       select $1, 'running'
+       from lock
+       where not exists (select 1 from running)
+       returning id
+     )
+     select id from inserted`,
+    [mode]
+  );
+
+  const row = result.rows[0];
+  if (!row) throw new Error('A scan is already running.');
+  return Number(row.id);
 }
 
 export async function createStoreScanRun(
@@ -923,12 +955,47 @@ export async function createStoreScanRun(
 ): Promise<number> {
   const result = await query<{ id: number }>(
     db,
-    `insert into store_scan_runs (store_id, store_slug, status)
-     values ($1, $2, 'running')
-     returning id`,
+    `with lock as (
+       select pg_advisory_xact_lock(hashtext('cardalarm:store_scan_runs:' || $2))
+     ),
+     stale as (
+       update store_scan_runs
+       set status = 'failed',
+           error_message = coalesce(error_message, 'Timed out: stale running store scan cleared before new scan'),
+           completed_at = now(),
+           metadata = coalesce(metadata, '{}'::jsonb) || jsonb_build_object('phase', 'failed', 'rejectedReason', 'stale_running_store_scan')
+       where status = 'running'
+         and started_at < now() - interval '30 minutes'
+         and (
+           ($1::bigint is not null and store_id = $1::bigint)
+           or store_slug = $2
+         )
+       returning id
+     ),
+     running as (
+       select id
+       from store_scan_runs
+       where status = 'running'
+         and (
+           ($1::bigint is not null and store_id = $1::bigint)
+           or store_slug = $2
+         )
+       limit 1
+     ),
+     inserted as (
+       insert into store_scan_runs (store_id, store_slug, status)
+       select $1, $2, 'running'
+       from lock
+       where not exists (select 1 from running)
+       returning id
+     )
+     select id from inserted`,
     [source.storeId ?? null, source.slug]
   );
-  return Number(result.rows[0]!.id);
+
+  const row = result.rows[0];
+  if (!row) throw new Error(`A scan is already running for store ${source.slug}.`);
+  return Number(row.id);
 }
 
 export async function updateStoreScanRun(

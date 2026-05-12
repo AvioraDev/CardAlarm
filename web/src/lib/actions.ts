@@ -110,6 +110,9 @@ export async function notMatchCardAction(formData: FormData): Promise<void> {
 }
 
 export async function startScan(mode: ScanMode): Promise<{ error?: string }> {
+  // Architecture boundary: external store scans are admin/system controlled only.
+  // Customer actions update watchlists and backfill against cached store_products;
+  // they must never spawn scanner processes or call external storefronts.
   await requireAdmin();
   const runningRows = await query<{ id: number; started_at: string; is_stale: boolean }>(
     `SELECT id, started_at, started_at < now() - interval '30 minutes' as is_stale
@@ -142,6 +145,6 @@ export async function startScan(mode: ScanMode): Promise<{ error?: string }> {
   });
 
   child.unref();
-  revalidatePath("/dashboard");
+  revalidatePath("/admin/scans");
   return {};
 }

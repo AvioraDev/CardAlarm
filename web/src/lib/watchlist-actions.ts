@@ -7,6 +7,9 @@ import { enqueueAndProcessWatchlistAlerts } from "./alerts";
 import { backfillWatchlist } from "./watchlist-backfill";
 import { createClient } from "./supabase/server";
 
+// Architecture boundary: user watchlist mutations only reconcile against cached
+// store_products. They do not trigger store scans or external storefront calls.
+
 function formString(formData: FormData, key: string): string | null {
   const value = formData.get(key);
   if (typeof value !== "string") return null;
