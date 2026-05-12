@@ -1,5 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import { createHash } from 'node:crypto';
 import { Pool, PoolClient, type QueryResult, type QueryResultRow } from 'pg';
 import type {
   ChecklistRow,
@@ -29,6 +30,8 @@ const localDbEnvKeys = new Set([
   'POSTGRES_SSL_REJECT_UNAUTHORIZED',
   'PGSSLMODE',
   'POSTGRES_POOL_MAX',
+  'CARDALARM_DB_QUERY_TIMING',
+  'CARDALARM_DB_QUERY_TIMING_MIN_MS',
 ]);
 
 function loadLocalEnvFile(): void {
@@ -78,6 +81,42 @@ function sslConfig(): { rejectUnauthorized: boolean } | undefined {
   };
 }
 
+function dbTarget(value: string): string {
+  try {
+    const parsed = new URL(value);
+    return `${parsed.username}@${parsed.hostname}${parsed.pathname}`;
+  } catch {
+    return 'invalid database url';
+  }
+}
+
+function queryFingerprint(sql: string): string {
+  return createHash('sha256').update(sql.replace(/\s+/g, ' ').trim()).digest('hex').slice(0, 12);
+}
+
+function shouldLogQueryTiming(durationMs: number): boolean {
+  loadLocalEnvFile();
+  if (process.env.CARDALARM_DB_QUERY_TIMING !== 'true') return false;
+  const minMs = Number(process.env.CARDALARM_DB_QUERY_TIMING_MIN_MS ?? 0);
+  return durationMs >= (Number.isFinite(minMs) ? minMs : 0);
+}
+
+function logQueryTiming(sql: string, durationMs: number, rowCount: number | null, ok: boolean): void {
+  if (!shouldLogQueryTiming(durationMs)) return;
+  console.info('CardAlarm database query timing', {
+    target: dbTarget(connectionString()),
+    operation: sql.trim().split(/\s+/, 1)[0]?.toLowerCase() ?? 'unknown',
+    fingerprint: queryFingerprint(sql),
+    durationMs,
+    rowCount,
+    ok,
+  });
+}
+
+function elapsedMs(startedAt: bigint): number {
+  return Number(process.hrtime.bigint() - startedAt) / 1_000_000;
+}
+
 export function getDb(): Pool {
   if (pool) return pool;
   pool = new Pool({
@@ -115,7 +154,15 @@ async function query<T extends QueryResultRow = QueryResultRow>(
   sql: string,
   params: unknown[] = []
 ): Promise<QueryResult<T>> {
-  return db.query<T>(sql, params);
+  const startedAt = process.hrtime.bigint();
+  try {
+    const result = await db.query<T>(sql, params);
+    logQueryTiming(sql, elapsedMs(startedAt), result.rowCount, true);
+    return result;
+  } catch (error) {
+    logQueryTiming(sql, elapsedMs(startedAt), null, false);
+    throw error;
+  }
 }
 
 function parseJson(value: string): unknown {

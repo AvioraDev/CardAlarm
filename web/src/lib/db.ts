@@ -1,4 +1,5 @@
 import 'server-only';
+import { createHash } from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 import { Pool, type PoolClient, type QueryResultRow } from 'pg';
@@ -12,6 +13,8 @@ const localDbEnvKeys = new Set([
   'POSTGRES_SSL_REJECT_UNAUTHORIZED',
   'PGSSLMODE',
   'POSTGRES_POOL_MAX',
+  'CARDALARM_DB_QUERY_TIMING',
+  'CARDALARM_DB_QUERY_TIMING_MIN_MS',
 ]);
 
 function loadLocalEnvFile(): void {
@@ -62,6 +65,33 @@ function dbTarget(value: string): string {
   }
 }
 
+function queryFingerprint(sql: string): string {
+  return createHash('sha256').update(sql.replace(/\s+/g, ' ').trim()).digest('hex').slice(0, 12);
+}
+
+function shouldLogQueryTiming(durationMs: number): boolean {
+  loadLocalEnvFile();
+  if (process.env.CARDALARM_DB_QUERY_TIMING !== 'true') return false;
+  const minMs = Number(process.env.CARDALARM_DB_QUERY_TIMING_MIN_MS ?? 0);
+  return durationMs >= (Number.isFinite(minMs) ? minMs : 0);
+}
+
+function logQueryTiming(sql: string, durationMs: number, rowCount: number | null, ok: boolean): void {
+  if (!shouldLogQueryTiming(durationMs)) return;
+  console.info('CardAlarm database query timing', {
+    target: dbTarget(connectionString()),
+    operation: sql.trim().split(/\s+/, 1)[0]?.toLowerCase() ?? 'unknown',
+    fingerprint: queryFingerprint(sql),
+    durationMs,
+    rowCount,
+    ok,
+  });
+}
+
+function elapsedMs(startedAt: bigint): number {
+  return Number(process.hrtime.bigint() - startedAt) / 1_000_000;
+}
+
 export function getDb(): Pool {
   if (pool) return pool;
   const selectedConnectionString = connectionString();
@@ -82,20 +112,26 @@ export async function query<T extends QueryResultRow = QueryResultRow>(
   sql: string,
   params: unknown[] = []
 ): Promise<T[]> {
+  const startedAt = process.hrtime.bigint();
   try {
     const result = await getDb().query<T>(sql, params);
+    logQueryTiming(sql, elapsedMs(startedAt), result.rowCount, true);
     return result.rows;
   } catch (error) {
+    logQueryTiming(sql, elapsedMs(startedAt), null, false);
     const message = error instanceof Error ? error.message : String(error);
     throw new Error(`CardAlarm database query failed for ${dbTarget(connectionString())}: ${message}`);
   }
 }
 
 export async function execute(sql: string, params: unknown[] = []): Promise<number> {
+  const startedAt = process.hrtime.bigint();
   try {
     const result = await getDb().query(sql, params);
+    logQueryTiming(sql, elapsedMs(startedAt), result.rowCount, true);
     return result.rowCount ?? 0;
   } catch (error) {
+    logQueryTiming(sql, elapsedMs(startedAt), null, false);
     const message = error instanceof Error ? error.message : String(error);
     throw new Error(`CardAlarm database mutation failed for ${dbTarget(connectionString())}: ${message}`);
   }
