@@ -798,6 +798,20 @@ export async function getChecklistByNumber(db: DbClient, cardNumber: string): Pr
   return result.rows;
 }
 
+export async function getChecklistsByNumbers(db: DbClient, cardNumbers: string[]): Promise<ChecklistRow[]> {
+  const uniqueCardNumbers = [...new Set(cardNumbers.map(value => value.trim()).filter(Boolean))];
+  if (uniqueCardNumbers.length === 0) return [];
+
+  const result = await query<ChecklistRow>(
+    db,
+    `select *
+     from reference_checklists
+     where card_number = any($1::text[])`,
+    [uniqueCardNumbers]
+  );
+  return result.rows;
+}
+
 export async function getAllChecklistPlayerNames(db: DbClient): Promise<string[]> {
   const result = await query<{ player_name: string }>(db, 'select distinct player_name from reference_checklists where player_name is not null');
   return result.rows.map(row => row.player_name);

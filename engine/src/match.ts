@@ -1,5 +1,5 @@
 import type { DbClient } from './db';
-import type { RawListing, MatchResult, ListingInsert, WatchlistRow } from './types';
+import type { RawListing, MatchResult, ListingInsert, WatchlistRow, ChecklistRow } from './types';
 import { extractAll, extractDirectPlayerMatch } from './extract';
 import { classifyTitleSignals, parseTitleMetadata } from './parse-title';
 import {
@@ -59,6 +59,67 @@ function uniqueChecklistPlayerName(hits: { player_name: string }[]): string | nu
   const names = new Set(hits.map(hit => hit.player_name.toLowerCase()));
   if (names.size !== 1) return null;
   return hits[0]?.player_name ?? null;
+}
+
+function normalizeChecklistText(value: string): string {
+  return value
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, ' ')
+    .trim()
+    .replace(/\s+/g, ' ');
+}
+
+export class ChecklistLookupCache {
+  private readonly byNumber = new Map<string, ChecklistRow[]>();
+  private readonly loadedNumbers = new Set<string>();
+
+  constructor(rows: ChecklistRow[] = []) {
+    this.addRows(rows);
+  }
+
+  addRows(rows: ChecklistRow[]): void {
+    for (const row of rows) {
+      const cardNumber = row.card_number?.trim();
+      if (!cardNumber) continue;
+      this.loadedNumbers.add(cardNumber);
+      const existing = this.byNumber.get(cardNumber) ?? [];
+      existing.push(row);
+      this.byNumber.set(cardNumber, existing);
+    }
+  }
+
+  markLoaded(cardNumbers: string[]): void {
+    for (const cardNumber of cardNumbers.map(value => value.trim()).filter(Boolean)) {
+      this.loadedNumbers.add(cardNumber);
+    }
+  }
+
+  hasCardNumber(cardNumber: string): boolean {
+    return this.loadedNumbers.has(cardNumber);
+  }
+
+  missingCardNumbers(cardNumbers: string[]): string[] {
+    return [...new Set(cardNumbers.map(value => value.trim()).filter(Boolean))]
+      .filter(cardNumber => !this.hasCardNumber(cardNumber));
+  }
+
+  getByNumber(cardNumber: string): ChecklistRow[] {
+    return this.byNumber.get(cardNumber) ?? [];
+  }
+
+  getBySetAndNumber(setNameFragment: string, cardNumber: string): ChecklistRow | undefined {
+    const normalizedFragment = normalizeChecklistText(setNameFragment);
+    if (!normalizedFragment) return undefined;
+
+    return this.getByNumber(cardNumber).find(row => {
+      const normalizedSetName = normalizeChecklistText(row.set_name ?? '');
+      return normalizedSetName.includes(normalizedFragment) || normalizedFragment.includes(normalizedSetName);
+    });
+  }
+}
+
+export function createChecklistLookup(rows: ChecklistRow[] = []): ChecklistLookupCache {
+  return new ChecklistLookupCache(rows);
 }
 
 function confidenceStatus(confidence: number): 'confirmed' | 'possible' {
@@ -136,7 +197,8 @@ export async function processListingWithCache(
   listing: RawListing,
   watchlistEntries: WatchlistRow[],
   watchlistNameSet: Set<string>,
-  allPlayerNames: string[]
+  allPlayerNames: string[],
+  checklistLookup?: ChecklistLookupCache
 ): Promise<MatchResult> {
   const watchlistNames = watchlistEntries.map(w => w.player_name);
   const { cardNumber, setContext } = extractAll(listing.title);
@@ -186,7 +248,9 @@ export async function processListingWithCache(
   }
 
   if (setContext) {
-    const checklistHit = await getChecklistBySetAndNumber(db, setContext, cardNumber);
+    const checklistHit = checklistLookup
+      ? checklistLookup.getBySetAndNumber(setContext, cardNumber)
+      : await getChecklistBySetAndNumber(db, setContext, cardNumber);
     if (checklistHit && watchlistNameSet.has(checklistHit.player_name.toLowerCase())) {
       return await completeMatch(db, listing, 'Stealth', checklistHit.player_name, 0.86, [
         'Checklist matched by set context and card number',
@@ -196,7 +260,9 @@ export async function processListingWithCache(
     }
   }
 
-  const broadHits = await getChecklistByNumber(db, cardNumber);
+  const broadHits = checklistLookup
+    ? checklistLookup.getByNumber(cardNumber)
+    : await getChecklistByNumber(db, cardNumber);
   const broadPlayerName = uniqueChecklistPlayerName(broadHits);
   if (broadPlayerName && watchlistNameSet.has(broadPlayerName.toLowerCase())) {
     return await completeMatch(db, listing, 'Stealth', broadPlayerName, 0.76, [

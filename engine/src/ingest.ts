@@ -11,11 +11,13 @@ import type {
   WatchlistRow,
 } from './types';
 import { enqueueAlertCandidates, processPendingAlerts } from './alerts';
-import { processListingWithCache } from './match';
+import { extractAll } from './extract';
+import { createChecklistLookup, processListingWithCache } from './match';
 import {
   createStoreScanRun,
   getActiveWatchlistPlayers,
   getAllChecklistPlayerNames,
+  getChecklistsByNumbers,
   markStoreScanFailed,
   markStoreScanSucceeded,
   markMissingSourceProductsOOS,
@@ -290,6 +292,7 @@ async function processSource(
   let matchDurationMs = 0;
   let postScanDurationMs = 0;
   const matchedCacheRows: { externalId: string; contentHash: string }[] = [];
+  const checklistLookup = createChecklistLookup();
   const currentProgress = (): SourceScanProgress => ({
     skipped,
     scanStrategy: source.scanStrategy,
@@ -358,6 +361,15 @@ async function processSource(
       await publishProgress('caching');
       console.log(`  ↳ Cached page ${page} in ${Date.now() - upsertStartedAt}ms`);
       const statusById = new Map(statuses.map(status => [status.externalId, status]));
+      const pageCardNumbers = cacheInputs
+        .filter(cacheInput => statusById.get(cacheInput.externalId)?.shouldMatch)
+        .map(cacheInput => extractAll(cacheInput.title).cardNumber)
+        .filter((cardNumber): cardNumber is string => Boolean(cardNumber));
+      const missingChecklistNumbers = checklistLookup.missingCardNumbers(pageCardNumbers);
+      if (missingChecklistNumbers.length > 0) {
+        checklistLookup.addRows(await getChecklistsByNumbers(db, missingChecklistNumbers));
+        checklistLookup.markLoaded(missingChecklistNumbers);
+      }
       const isUnchangedFullPage =
         products.length === PAGE_SIZE &&
         statuses.every(status => !status.isNew && !status.changed && !status.shouldMatch);
@@ -387,7 +399,8 @@ async function processSource(
           raw,
           watchlistEntries,
           watchlistNameSet,
-          allPlayerNames
+          allPlayerNames,
+          checklistLookup
         );
 
         matchedCacheRows.push({
