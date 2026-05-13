@@ -27,6 +27,21 @@ export type StoreScanJobRow = {
   metadata: Record<string, unknown>;
 };
 
+export async function markScanJobRunProjectionRunning(
+  db: DbClient,
+  scanRunId: number | null,
+): Promise<number> {
+  if (scanRunId === null) return 0;
+  const result = await db.query(
+    `update public.scan_runs
+     set status = 'running',
+         error = null
+     where id = $1`,
+    [scanRunId]
+  );
+  return result.rowCount ?? 0;
+}
+
 export async function claimNextScanJob(db: DbClient, workerId: string): Promise<ScanJobRow | null> {
   const result = await db.query<ScanJobRow>(
     `with next_job as (
@@ -89,6 +104,76 @@ export async function claimNextStoreScanJob(db: DbClient, workerId: string): Pro
     [workerId]
   );
   return result.rows[0] ?? null;
+}
+
+export async function completeScanJob(
+  db: DbClient,
+  job: Pick<ScanJobRow, 'id' | 'scan_run_id'>,
+  workerId: string,
+  result: { processed: number; matched: number }
+): Promise<void> {
+  await db.query(
+    `update public.scan_jobs
+     set status = 'completed',
+         processed = $3,
+         matched = $4,
+         error = null,
+         completed_at = now(),
+         heartbeat_at = now(),
+         locked_by = null,
+         locked_at = null,
+         metadata = coalesce(metadata, '{}'::jsonb) || jsonb_build_object('completedAt', now())
+     where id = $1
+       and locked_by = $2
+       and status = 'running'`,
+    [job.id, workerId, result.processed, result.matched]
+  );
+
+  if (job.scan_run_id !== null) {
+    await db.query(
+      `update public.scan_runs
+       set status = 'completed',
+           processed = $2,
+           matched = $3,
+           error = null,
+           completed_at = now()
+       where id = $1`,
+      [job.scan_run_id, result.processed, result.matched]
+    );
+  }
+}
+
+export async function failScanJob(
+  db: DbClient,
+  job: Pick<ScanJobRow, 'id' | 'scan_run_id'>,
+  workerId: string,
+  errorMessage: string
+): Promise<void> {
+  await db.query(
+    `update public.scan_jobs
+     set status = 'failed',
+         error = $3,
+         completed_at = now(),
+         heartbeat_at = now(),
+         locked_by = null,
+         locked_at = null,
+         metadata = coalesce(metadata, '{}'::jsonb) || jsonb_build_object('failedAt', now())
+     where id = $1
+       and locked_by = $2
+       and status = 'running'`,
+    [job.id, workerId, errorMessage]
+  );
+
+  if (job.scan_run_id !== null) {
+    await db.query(
+      `update public.scan_runs
+       set status = 'failed',
+           error = $2,
+           completed_at = now()
+       where id = $1`,
+      [job.scan_run_id, errorMessage]
+    );
+  }
 }
 
 export async function heartbeatScanJob(

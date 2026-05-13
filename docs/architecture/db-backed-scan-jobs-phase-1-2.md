@@ -9,11 +9,12 @@ Implemented in this phase:
 - `public.scan_jobs` and `public.store_scan_jobs` queue tables.
 - Engine helper functions for atomic job claim, heartbeat, stale recovery, and cancellation request.
 - Admin scan action now enqueues a queued `scan_jobs` row and a compatible queued `scan_runs` projection.
+- `engine/src/worker.ts` can claim one queued job and execute the existing scan internals as a compatibility bridge.
 - Admin scan UI understands queued scan runs.
 
 Not implemented in this phase:
 
-- No worker loop executes queued scan jobs yet.
+- No long-running worker loop or scheduler.
 - No per-store parallelism.
 - No adaptive shallow scan behavior.
 - No `page_fetch_tasks`.
@@ -27,10 +28,10 @@ The current scanner internals remain unchanged. OOS behavior is unchanged: missi
 
 ## Next Phase
 
-The next implementation should add a worker entrypoint that:
+Run one worker cycle locally with:
 
-1. claims one queued `scan_jobs` row with `FOR UPDATE SKIP LOCKED`;
-2. heartbeats while running;
-3. calls the current scan internals;
-4. updates `scan_jobs` and `scan_runs` together;
-5. recovers stale jobs safely.
+```bash
+npm run worker:once
+```
+
+The next implementation should add a deployed loop/scheduler around this one-cycle worker and then fan out parent jobs into per-store jobs.

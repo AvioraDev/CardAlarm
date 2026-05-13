@@ -29,6 +29,9 @@ describe('CAR-28 DB-backed scan job queue', () => {
   it('adds claim, heartbeat, stale recovery, and cancellation helpers', () => {
     expect(engineHelpers).toContain('export async function claimNextScanJob');
     expect(engineHelpers).toContain('export async function claimNextStoreScanJob');
+    expect(engineHelpers).toContain('export async function markScanJobRunProjectionRunning');
+    expect(engineHelpers).toContain('export async function completeScanJob');
+    expect(engineHelpers).toContain('export async function failScanJob');
     expect(engineHelpers).toContain('for update skip locked');
     expect(engineHelpers).toContain("set status = 'running'");
     expect(engineHelpers).toContain('heartbeat_at = now()');
