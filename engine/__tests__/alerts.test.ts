@@ -4,6 +4,7 @@ import {
   alertMaxAttempts,
   alertProcessLimit,
   buildAlertDedupeKey,
+  claimPendingAlerts,
   emailMode,
   sendAlertEmail,
 } from '../src/alerts';
@@ -14,6 +15,8 @@ describe('watchlist email alerts', () => {
   const ingestSource = fs.readFileSync(path.resolve(__dirname, '..', 'src', 'ingest.ts'), 'utf8');
   const reconciliationSource = fs.readFileSync(path.resolve(__dirname, '..', 'src', 'watchlist-reconciliation.ts'), 'utf8');
   const migrationSource = fs.readFileSync(path.resolve(__dirname, '..', '..', 'supabase', 'migrations', '20260513000000_alerts.sql'), 'utf8');
+  const processingMigrationSource = fs.readFileSync(path.resolve(__dirname, '..', '..', 'supabase', 'migrations', '20260513006000_alert_processing_status.sql'), 'utf8');
+  const webAlertsSource = fs.readFileSync(path.resolve(__dirname, '..', '..', 'web', 'src', 'lib', 'alerts.ts'), 'utf8');
 
   beforeEach(() => {
     process.env = { ...originalEnv };
@@ -73,6 +76,12 @@ describe('watchlist email alerts', () => {
     expect(migrationSource).not.toContain('for insert to authenticated');
   });
 
+  it('adds a processing status for transaction-safe alert claims', () => {
+    expect(processingMigrationSource).toContain("check (status in ('pending', 'processing', 'sent', 'failed', 'suppressed'))");
+    expect(processingMigrationSource).toContain('idx_alerts_claimable');
+    expect(processingMigrationSource).toContain('idx_alerts_processing_stale');
+  });
+
   it('enqueues pending or suppressed alerts and promotes suppressed records only when enabled', () => {
     expect(alertsSource).toContain("case when w.notification_enabled then 'pending' else 'suppressed' end");
     expect(alertsSource).toContain("'new_watchlist_match:email:' || w.user_id || ':' || w.id || ':' || sp.id");
@@ -80,7 +89,27 @@ describe('watchlist email alerts', () => {
     expect(alertsSource).toContain("public.alerts.status = 'suppressed'");
     expect(alertsSource).toContain("excluded.status = 'pending'");
     expect(alertsSource).toContain("status = 'sent'");
+    expect(alertsSource).toContain("status = 'processing'");
     expect(alertsSource).toContain('for update skip locked');
+    expect(alertsSource).toContain("where id = $1\n           and status = 'processing'");
+    expect(webAlertsSource).toContain("status = 'processing'");
+    expect(webAlertsSource).toContain('for update skip locked');
+  });
+
+  it('claims pending alerts with one atomic update before sending', async () => {
+    const query = jest.fn().mockResolvedValue({ rows: [] });
+
+    await claimPendingAlerts({ query } as never, 10, 4);
+
+    expect(query).toHaveBeenCalledWith(
+      expect.stringContaining("update public.alerts a\n     set status = 'processing'"),
+      [10, 4]
+    );
+    const sql = query.mock.calls[0][0] as string;
+    expect(sql).toContain("where status in ('pending', 'failed')");
+    expect(sql).toContain('for update skip locked');
+    expect(sql).toContain('attempts = a.attempts + 1');
+    expect(sql).toContain('returning a.id, a.recipient_email, a.subject, a.payload, a.attempts');
   });
 
   it('reconciles watchlist matches after scans before alert enqueue', () => {

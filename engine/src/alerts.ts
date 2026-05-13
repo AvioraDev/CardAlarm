@@ -1,9 +1,9 @@
 import type { DbClient } from './db';
 
-export type AlertStatus = 'pending' | 'sent' | 'failed' | 'suppressed';
+export type AlertStatus = 'pending' | 'processing' | 'sent' | 'failed' | 'suppressed';
 export type EmailMode = 'log' | 'resend' | 'off';
 
-type AlertRow = {
+export type AlertRow = {
   id: number;
   recipient_email: string | null;
   subject: string;
@@ -205,21 +205,53 @@ export async function enqueueAlertCandidates(db: DbClient, watchlistId?: number)
   return result.rowCount ?? 0;
 }
 
-export async function processPendingAlerts(db: DbClient, limit = alertProcessLimit()): Promise<number> {
-  const rows = await db.query<AlertRow>(
-    `select id, recipient_email, subject, payload, attempts
-     from public.alerts
-     where status in ('pending', 'failed')
-       and next_attempt_at <= now()
-       and attempts < $2
-     order by created_at asc
-     limit $1
-     for update skip locked`,
-    [limit, alertMaxAttempts()]
+export async function releaseStaleProcessingAlerts(db: DbClient): Promise<number> {
+  const result = await db.query(
+    `update public.alerts
+     set status = 'failed',
+         error_message = coalesce(error_message, 'Alert processing timed out before completion'),
+         next_attempt_at = now(),
+         updated_at = now()
+     where status = 'processing'
+       and updated_at < now() - interval '15 minutes'`
   );
+  return result.rowCount ?? 0;
+}
+
+export async function claimPendingAlerts(
+  db: DbClient,
+  limit = alertProcessLimit(),
+  maxAttempts = alertMaxAttempts()
+): Promise<AlertRow[]> {
+  const result = await db.query<AlertRow>(
+    `with claimed as (
+       select id
+       from public.alerts
+       where status in ('pending', 'failed')
+         and next_attempt_at <= now()
+         and attempts < $2
+       order by created_at asc
+       limit $1
+       for update skip locked
+     )
+     update public.alerts a
+     set status = 'processing',
+         attempts = a.attempts + 1,
+         updated_at = now()
+     from claimed
+     where a.id = claimed.id
+     returning a.id, a.recipient_email, a.subject, a.payload, a.attempts`,
+    [limit, maxAttempts]
+  );
+  return result.rows;
+}
+
+export async function processPendingAlerts(db: DbClient, limit = alertProcessLimit()): Promise<number> {
+  await releaseStaleProcessingAlerts(db);
+  const rows = await claimPendingAlerts(db, limit);
 
   let processed = 0;
-  for (const row of rows.rows) {
+  for (const row of rows) {
     try {
       const result = await sendAlertEmail(row);
       await db.query(
@@ -227,27 +259,25 @@ export async function processPendingAlerts(db: DbClient, limit = alertProcessLim
          set status = 'sent',
              provider = $2,
              provider_message_id = $3,
-             attempts = attempts + 1,
              error_message = null,
              sent_at = now(),
              updated_at = now()
-         where id = $1`,
+         where id = $1
+           and status = 'processing'`,
         [row.id, result.provider, result.providerMessageId]
       );
       processed += 1;
     } catch (error) {
-      const attempts = row.attempts + 1;
-      const failedPermanently = attempts >= alertMaxAttempts();
       const message = error instanceof Error ? error.message : String(error);
       await db.query(
         `update public.alerts
-         set status = $2,
-             attempts = attempts + 1,
-             error_message = $3,
+         set status = 'failed',
+             error_message = $2,
              next_attempt_at = now() + interval '15 minutes',
              updated_at = now()
-         where id = $1`,
-        [row.id, failedPermanently ? 'failed' : 'pending', message]
+         where id = $1
+           and status = 'processing'`,
+        [row.id, message]
       );
     }
   }

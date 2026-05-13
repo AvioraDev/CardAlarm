@@ -1,10 +1,10 @@
 import "server-only";
-import { transaction } from "./db";
+import { query, transaction } from "./db";
 
-export type AlertStatus = "pending" | "sent" | "failed" | "suppressed";
+export type AlertStatus = "pending" | "processing" | "sent" | "failed" | "suppressed";
 export type EmailMode = "log" | "resend" | "off";
 
-type AlertRow = {
+export type AlertRow = {
   id: number;
   recipient_email: string | null;
   subject: string;
@@ -202,56 +202,86 @@ export async function enqueueWatchlistAlerts(watchlistId: number): Promise<numbe
   });
 }
 
-export async function processPendingAlerts(limit = alertProcessLimit()): Promise<number> {
-  return transaction(async (client) => {
-    const rows = await client.query<AlertRow>(
-      `select id, recipient_email, subject, payload, attempts
+export async function releaseStaleProcessingAlerts(): Promise<number> {
+  const rows = await query<{ count: number }>(
+    `with released as (
+       update public.alerts
+       set status = 'failed',
+           error_message = coalesce(error_message, 'Alert processing timed out before completion'),
+           next_attempt_at = now(),
+           updated_at = now()
+       where status = 'processing'
+         and updated_at < now() - interval '15 minutes'
+       returning id
+     )
+     select count(*)::int as count from released`,
+  );
+  return rows[0]?.count ?? 0;
+}
+
+export async function claimPendingAlerts(
+  limit = alertProcessLimit(),
+  maxAttempts = alertMaxAttempts(),
+): Promise<AlertRow[]> {
+  return query<AlertRow>(
+    `with claimed as (
+       select id
        from public.alerts
        where status in ('pending', 'failed')
          and next_attempt_at <= now()
          and attempts < $2
        order by created_at asc
        limit $1
-       for update skip locked`,
-      [limit, alertMaxAttempts()],
-    );
+       for update skip locked
+     )
+     update public.alerts a
+     set status = 'processing',
+         attempts = a.attempts + 1,
+         updated_at = now()
+     from claimed
+     where a.id = claimed.id
+     returning a.id, a.recipient_email, a.subject, a.payload, a.attempts`,
+    [limit, maxAttempts],
+  );
+}
 
-    let processed = 0;
-    for (const row of rows.rows) {
-      try {
-        const result = await sendAlertEmail(row);
-        await client.query(
-          `update public.alerts
-           set status = 'sent',
-               provider = $2,
-               provider_message_id = $3,
-               attempts = attempts + 1,
-               error_message = null,
-               sent_at = now(),
-               updated_at = now()
-           where id = $1`,
-          [row.id, result.provider, result.providerMessageId],
-        );
-        processed += 1;
-      } catch (error) {
-        const attempts = row.attempts + 1;
-        const failedPermanently = attempts >= alertMaxAttempts();
-        const message = error instanceof Error ? error.message : String(error);
-        await client.query(
-          `update public.alerts
-           set status = $2,
-               attempts = attempts + 1,
-               error_message = $3,
-               next_attempt_at = now() + interval '15 minutes',
-               updated_at = now()
-           where id = $1`,
-          [row.id, failedPermanently ? "failed" : "pending", message],
-        );
-      }
+export async function processPendingAlerts(limit = alertProcessLimit()): Promise<number> {
+  await releaseStaleProcessingAlerts();
+  const rows = await claimPendingAlerts(limit);
+
+  let processed = 0;
+  for (const row of rows) {
+    try {
+      const result = await sendAlertEmail(row);
+      await query(
+        `update public.alerts
+         set status = 'sent',
+             provider = $2,
+             provider_message_id = $3,
+             error_message = null,
+             sent_at = now(),
+             updated_at = now()
+         where id = $1
+           and status = 'processing'`,
+        [row.id, result.provider, result.providerMessageId],
+      );
+      processed += 1;
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      await query(
+        `update public.alerts
+         set status = 'failed',
+             error_message = $2,
+             next_attempt_at = now() + interval '15 minutes',
+             updated_at = now()
+         where id = $1
+           and status = 'processing'`,
+        [row.id, message],
+      );
     }
+  }
 
-    return processed;
-  });
+  return processed;
 }
 
 export async function enqueueAndProcessWatchlistAlerts(watchlistId: number): Promise<void> {
