@@ -160,7 +160,7 @@ export type ScanMode = "watchlist" | "full";
 export interface ScanRunRow {
   id: number;
   mode: ScanMode;
-  status: "running" | "completed" | "failed";
+  status: "queued" | "running" | "completed" | "failed" | "cancelled" | "timed_out";
   processed: number;
   matched: number;
   error: string | null;

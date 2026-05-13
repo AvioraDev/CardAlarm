@@ -12,7 +12,8 @@ function formatDate(value: string | null): string {
 
 function statusClass(status: string): string {
   if (status === "completed") return "tag tag-accent";
-  if (status === "failed") return "tag border-danger/40 bg-danger/10 text-danger";
+  if (status === "failed" || status === "timed_out") return "tag border-danger/40 bg-danger/10 text-danger";
+  if (status === "cancelled") return "tag border-border bg-bg/60 text-text-muted";
   return "tag border-accent/40 bg-accent/10 text-accent scan-pulse";
 }
 

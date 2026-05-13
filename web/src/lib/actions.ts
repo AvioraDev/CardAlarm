@@ -1,10 +1,9 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { spawn } from "child_process";
-import path from "path";
 import { requireAdmin, requireUser } from "./auth";
 import { execute, query } from "./db";
+import { enqueueScanJob, hasActiveScanJob } from "./scan-jobs";
 import type { ScanMode } from "./types";
 
 type MatchFeedbackType = "save" | "unsave" | "dismiss" | "undo_dismiss" | "not_match";
@@ -104,39 +103,13 @@ export async function startScan(mode: ScanMode): Promise<{ error?: string }> {
   // Architecture boundary: external store scans are admin/system controlled only.
   // Customer actions update watchlists and backfill against cached store_products;
   // they must never spawn scanner processes or call external storefronts.
-  await requireAdmin();
+  const admin = await requireAdmin();
   if (mode !== "watchlist" && mode !== "full") return { error: "Invalid scan mode." };
-  const runningRows = await query<{ id: number; started_at: string; is_stale: boolean }>(
-    `SELECT id, started_at, started_at < now() - interval '30 minutes' as is_stale
-     FROM scan_runs
-     WHERE status = 'running'
-     ORDER BY started_at DESC
-     LIMIT 1`
-  );
-  const running = runningRows[0];
-
-  if (running) {
-    if (running.is_stale) {
-      await execute(
-        "UPDATE scan_runs SET status = 'failed', error = 'Timed out: stale running scan cleared before new scan', completed_at = now() WHERE id = $1",
-        [running.id]
-      );
-    } else {
-      return { error: "A scan is already running." };
-    }
+  if (await hasActiveScanJob()) {
+    return { error: "A scan is already queued or running." };
   }
 
-  const projectRoot = path.resolve(process.cwd(), "..");
-  const scanScript = path.join("engine", "src", "scan.ts");
-  const child = spawn("npx", ["tsx", scanScript, "--mode", mode], {
-    cwd: projectRoot,
-    detached: true,
-    stdio: "ignore",
-    shell: true,
-    env: process.env,
-  });
-
-  child.unref();
+  await enqueueScanJob(mode, admin.user_id);
   revalidatePath("/admin/scans");
   return {};
 }

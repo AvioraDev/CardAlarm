@@ -29,15 +29,18 @@ describe('admin/system-controlled scan architecture', () => {
     expect(watchlistDetailPage).not.toContain('startScan');
   });
 
-  it('requires admin access before spawning the scan process', () => {
+  it('requires admin access before enqueueing a scan job', () => {
     const actions = readWebFile('lib', 'actions.ts');
     const startScanBody = actions.slice(actions.indexOf('export async function startScan'));
 
-    expect(startScanBody).toContain('await requireAdmin()');
-    expect(startScanBody.indexOf('await requireAdmin()')).toBeLessThan(startScanBody.indexOf('spawn('));
+    expect(startScanBody).toContain('const admin = await requireAdmin()');
+    expect(startScanBody.indexOf('await requireAdmin()')).toBeLessThan(startScanBody.indexOf('enqueueScanJob'));
+    expect(startScanBody).toContain('await enqueueScanJob(mode, admin.user_id)');
     expect(startScanBody).toContain('external store scans are admin/system controlled only');
     expect(startScanBody).toContain('revalidatePath("/admin/scans")');
     expect(startScanBody).not.toContain('revalidatePath("/dashboard")');
+    expect(startScanBody).not.toContain('spawn(');
+    expect(startScanBody).not.toContain('child.unref()');
   });
 
   it('keeps customer watchlist actions scoped to cached inventory backfill only', () => {

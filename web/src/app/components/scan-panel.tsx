@@ -29,11 +29,11 @@ export function ScanPanel({ initialScanRun }: ScanPanelProps) {
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
 
-  const isRunning = scanRun?.status === "running";
+  const isActive = scanRun?.status === "queued" || scanRun?.status === "running";
 
-  // Poll for status updates while a scan is running
+  // Poll for status updates while a scan is queued or running.
   useEffect(() => {
-    if (!isRunning && !isPending) return;
+    if (!isActive && !isPending) return;
 
     const interval = setInterval(async () => {
       try {
@@ -42,7 +42,7 @@ export function ScanPanel({ initialScanRun }: ScanPanelProps) {
         setScanRun(data.scanRun);
 
         // If scan just completed, stop polling
-        if (data.scanRun?.status !== "running") {
+        if (data.scanRun?.status !== "queued" && data.scanRun?.status !== "running") {
           clearInterval(interval);
           router.refresh(); // Refresh the feed below
         }
@@ -52,7 +52,7 @@ export function ScanPanel({ initialScanRun }: ScanPanelProps) {
     }, 3000);
 
     return () => clearInterval(interval);
-  }, [isRunning, isPending, router]);
+  }, [isActive, isPending, router]);
 
   function handleScan(mode: ScanMode) {
     setError(null);
@@ -84,7 +84,7 @@ export function ScanPanel({ initialScanRun }: ScanPanelProps) {
           <button
             id="scan-watchlist-btn"
             onClick={() => handleScan("watchlist")}
-            disabled={isRunning || isPending}
+            disabled={isActive || isPending}
             className="group flex items-center gap-2 px-4 py-2 font-mono text-xs font-bold uppercase tracking-wider bg-accent text-bg hover:bg-accent-hover transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
           >
             <span className="inline-block w-2 h-2 bg-bg rounded-full group-disabled:animate-none" />
@@ -94,7 +94,7 @@ export function ScanPanel({ initialScanRun }: ScanPanelProps) {
           <button
             id="scan-all-btn"
             onClick={() => handleScan("full")}
-            disabled={isRunning || isPending}
+            disabled={isActive || isPending}
             className="px-4 py-2 font-mono text-xs font-bold uppercase tracking-wider border border-border-strong text-text-muted hover:text-text hover:border-text transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
           >
             Scan All
@@ -109,11 +109,11 @@ export function ScanPanel({ initialScanRun }: ScanPanelProps) {
             </span>
           )}
 
-          {isRunning && (
+          {isActive && (
             <div className="flex items-center gap-2">
               <span className="scan-pulse inline-block w-2 h-2 rounded-full bg-accent" />
               <span className="font-mono text-[10px] text-accent uppercase tracking-wider">
-                Scanning ({scanRun.mode})…
+                {scanRun.status === "queued" ? "Queued" : "Scanning"} ({scanRun.mode})…
               </span>
               {scanRun.processed > 0 && (
                 <span className="font-mono text-[10px] text-text-muted">
@@ -141,6 +141,20 @@ export function ScanPanel({ initialScanRun }: ScanPanelProps) {
               <span className="inline-block w-2 h-2 rounded-full bg-danger" />
               <span className="font-mono text-[10px] text-danger uppercase tracking-wider">
                 Scan failed
+              </span>
+              {scanRun.error && (
+                <span className="font-mono text-[10px] text-text-muted truncate max-w-[300px]">
+                  {scanRun.error}
+                </span>
+              )}
+            </div>
+          )}
+
+          {scanRun && (scanRun.status === "cancelled" || scanRun.status === "timed_out") && (
+            <div className="flex items-center gap-2">
+              <span className="inline-block w-2 h-2 rounded-full bg-danger" />
+              <span className="font-mono text-[10px] text-danger uppercase tracking-wider">
+                Scan {scanRun.status === "timed_out" ? "timed out" : "cancelled"}
               </span>
               {scanRun.error && (
                 <span className="font-mono text-[10px] text-text-muted truncate max-w-[300px]">
