@@ -4,20 +4,13 @@ import type {
   SourceConfig,
   ShopifyProduct,
   ShopifyProductsResponse,
-  RawListing,
   ScanMode,
   SourceProductCacheInput,
   SourceProductCacheStatus,
-  WatchlistRow,
 } from './types';
 import { enqueueAlertCandidates, processPendingAlerts } from './alerts';
-import { extractAll } from './extract';
-import { createChecklistLookup, processListingWithCache } from './match';
 import {
   createStoreScanRun,
-  getActiveWatchlistPlayers,
-  getAllChecklistPlayerNames,
-  getChecklistsByNumbers,
   markStoreScanFailed,
   markStoreScanSucceeded,
   markMissingSourceProductsOOS,
@@ -30,7 +23,7 @@ import { reconcileActiveWatchlistMatches } from './watchlist-reconciliation';
 const PAGE_SIZE = Number(process.env.CARDALARM_PAGE_SIZE ?? 100);
 const EARLY_STOP_UNCHANGED_PAGES = Number(process.env.CARDALARM_EARLY_STOP_UNCHANGED_PAGES ?? 2);
 const FETCH_TIMEOUT_MS = Number(process.env.CARDALARM_FETCH_TIMEOUT_MS ?? 15000);
-const MATCHER_VERSION = 'matcher-v2-cache-v1';
+const IDENTITY_EVALUATION_VERSION = 'deterministic-title-v1';
 const PAGE_CONCURRENCY = scanPageConcurrency();
 
 export type StopReason = 'empty_page' | 'partial_page' | 'early_stop' | 'fetch_error';
@@ -146,17 +139,8 @@ function hashJson(value: unknown): string {
   return crypto.createHash('sha256').update(JSON.stringify(value)).digest('hex');
 }
 
-function buildMatchContextHash(watchlistEntries: WatchlistRow[]): string {
-  const watchlistContext = watchlistEntries
-    .map(entry => ({
-      playerName: entry.player_name,
-      variants: entry.variants,
-      targetNumbers: entry.target_numbers,
-      isActive: entry.is_active,
-    }))
-    .sort((a, b) => a.playerName.localeCompare(b.playerName));
-
-  return hashJson({ matcherVersion: MATCHER_VERSION, watchlistContext });
+function buildIdentityContextHash(): string {
+  return hashJson({ classifierVersion: IDENTITY_EVALUATION_VERSION });
 }
 
 async function fetchProductPage(
@@ -234,28 +218,12 @@ function toCacheInput(
   };
 }
 
-function toRawListing(product: SourceProductCacheInput): RawListing | null {
-  if (!product.available) return null;
-
-  return {
-    externalId: product.externalId,
-    source: product.source,
-    title: product.title,
-    price: product.price,
-    url: product.url,
-    imageUrl: product.imageUrl,
-  };
-}
-
 async function processSource(
   db: DbClient,
   storeScanRunId: number,
   source: SourceConfig,
   scanToken: string,
-  matchContextHash: string,
-  watchlistEntries: WatchlistRow[],
-  watchlistNameSet: Set<string>,
-  allPlayerNames: string[]
+  identityContextHash: string
 ): Promise<{
   fetched: number;
   processed: number;
@@ -291,8 +259,7 @@ async function processSource(
   let cacheDurationMs = 0;
   let matchDurationMs = 0;
   let postScanDurationMs = 0;
-  const matchedCacheRows: { externalId: string; contentHash: string }[] = [];
-  const checklistLookup = createChecklistLookup();
+  const evaluatedCacheRows: { externalId: string; contentHash: string }[] = [];
   const currentProgress = (): SourceScanProgress => ({
     skipped,
     scanStrategy: source.scanStrategy,
@@ -355,21 +322,12 @@ async function processSource(
       const cacheInputs = products.map(product => toCacheInput(product, source, scanToken));
       const upsertStartedAt = Date.now();
       console.log(`  ↳ Caching page ${page}: ${cacheInputs.length} products`);
-      const statuses = await upsertSourceProducts(db, cacheInputs, matchContextHash);
+      const statuses = await upsertSourceProducts(db, cacheInputs, identityContextHash);
       const pageCacheDurationMs = Date.now() - upsertStartedAt;
       cacheDurationMs += pageCacheDurationMs;
       await publishProgress('caching');
       console.log(`  ↳ Cached page ${page} in ${Date.now() - upsertStartedAt}ms`);
       const statusById = new Map(statuses.map(status => [status.externalId, status]));
-      const pageCardNumbers = cacheInputs
-        .filter(cacheInput => statusById.get(cacheInput.externalId)?.shouldMatch)
-        .map(cacheInput => extractAll(cacheInput.title).cardNumber)
-        .filter((cardNumber): cardNumber is string => Boolean(cardNumber));
-      const missingChecklistNumbers = checklistLookup.missingCardNumbers(pageCardNumbers);
-      if (missingChecklistNumbers.length > 0) {
-        checklistLookup.addRows(await getChecklistsByNumbers(db, missingChecklistNumbers));
-        checklistLookup.markLoaded(missingChecklistNumbers);
-      }
       const isUnchangedFullPage =
         products.length === PAGE_SIZE &&
         statuses.every(status => !status.isNew && !status.changed && !status.shouldMatch);
@@ -378,7 +336,6 @@ async function processSource(
 
       const matchStartedAt = Date.now();
       let pageProcessed = 0;
-      let pageMatched = 0;
       for (const cacheInput of cacheInputs) {
         const status = statusById.get(cacheInput.externalId) as SourceProductCacheStatus | undefined;
         if (!status?.shouldMatch) {
@@ -386,35 +343,15 @@ async function processSource(
           continue;
         }
 
-        const raw = toRawListing(cacheInput);
-        if (!raw) {
-          skipped++;
-          continue;
-        }
-
         processed++;
         pageProcessed++;
-        const result = await processListingWithCache(
-          db,
-          raw,
-          watchlistEntries,
-          watchlistNameSet,
-          allPlayerNames,
-          checklistLookup
-        );
 
-        matchedCacheRows.push({
+        evaluatedCacheRows.push({
           externalId: cacheInput.externalId,
           contentHash: cacheInput.contentHash,
         });
-
-        if (result.matched) {
-          matched++;
-          pageMatched++;
-          console.log(`  ★ ${result.matchType} Match: "${raw.title}" → ${result.playerName}`);
-        }
       }
-      console.log(`  ↳ Matched page ${page} in ${Date.now() - matchStartedAt}ms. Processed: ${pageProcessed}, matched: ${pageMatched}`);
+      console.log(`  ↳ Evaluated identity for page ${page} in ${Date.now() - matchStartedAt}ms. Processed: ${pageProcessed}`);
 
       const pageMatchDurationMs = Date.now() - matchStartedAt;
       matchDurationMs += pageMatchDurationMs;
@@ -442,7 +379,7 @@ async function processSource(
 
   const postScanStartedAt = Date.now();
   await publishProgress('post_scan_mark_matched');
-  await markSourceProductsMatched(db, source.slug, matchedCacheRows, matchContextHash);
+  await markSourceProductsMatched(db, source.slug, evaluatedCacheRows, identityContextHash);
   let markedOOS = 0;
   if (!hadFetchError && !stoppedEarlyFromCache) {
     await publishProgress('post_scan_mark_oos');
@@ -459,7 +396,7 @@ async function processSource(
   }
 
   console.log(
-    `  ↳ Source done. Fetched: ${fetched}, Processed: ${processed}, Skipped cache: ${skipped}, Matched: ${matched}, Marked OOS: ${markedOOS}`
+    `  ↳ Source done. Fetched: ${fetched}, Identity processed: ${processed}, Skipped cache: ${skipped}, Matched: ${matched}, Marked OOS: ${markedOOS}`
   );
 
   return {
@@ -490,18 +427,10 @@ export async function runIngestionCycle(
   sources: SourceConfig[],
   options: ScanOptions = { mode: 'full' }
 ): Promise<{ processed: number; matched: number }> {
-  const watchlistEntries = await getActiveWatchlistPlayers(db);
-  const watchlistNameSet = new Set(watchlistEntries.map(w => w.player_name.toLowerCase()));
-  const allPlayerNames = await getAllChecklistPlayerNames(db);
-  const matchContextHash = buildMatchContextHash(watchlistEntries);
+  const identityContextHash = buildIdentityContextHash();
   const runToken = `${Date.now()}-${crypto.randomUUID()}`;
 
-  console.log(`  Mode: ${options.mode} | User watchlist targets: ${watchlistEntries.length}`);
-
-  if (options.mode === 'watchlist' && watchlistEntries.length === 0) {
-    console.log('  ⚠ No active user watchlists. Add targets at /watchlists first.');
-    return { processed: 0, matched: 0 };
-  }
+  console.log(`  Mode: ${options.mode} | Scan updates cached inventory and deterministic card identity`);
 
   const results = [];
   const sourceErrors: string[] = [];
@@ -514,10 +443,7 @@ export async function runIngestionCycle(
         storeScanRunId,
         source,
         `${runToken}-${source.slug}`,
-        matchContextHash,
-        watchlistEntries,
-        watchlistNameSet,
-        allPlayerNames
+        identityContextHash
       );
       results.push(sourceResult);
       await updateStoreScanRun(db, storeScanRunId, {
@@ -578,14 +504,21 @@ export async function runIngestionCycle(
   const totalSkipped = results.reduce((sum, result) => sum + result.skipped, 0);
   const totalMatched = results.reduce((sum, result) => sum + result.matched, 0);
   const totalMarkedOOS = results.reduce((sum, result) => sum + result.markedOOS, 0);
+  let reconciledMatches = 0;
 
   try {
-    const reconciled = await reconcileActiveWatchlistMatches(db);
+    reconciledMatches = await reconcileActiveWatchlistMatches(db);
     const alertsQueued = await enqueueAlertCandidates(db);
     const alertsProcessed = await processPendingAlerts(db);
     console.log(
-      `  Watchlist reconciliation: ${reconciled} matches, ${alertsQueued} alerts queued/promoted, ${alertsProcessed} alerts processed.`
+      `  Watchlist reconciliation: ${reconciledMatches} matches, ${alertsQueued} alerts queued/promoted, ${alertsProcessed} alerts processed.`
     );
+    if (options.onProgress) {
+      await options.onProgress({
+        processed: totalProcessed,
+        matched: reconciledMatches,
+      });
+    }
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     console.error('  Alert reconciliation failed:', message);
@@ -595,5 +528,5 @@ export async function runIngestionCycle(
     `\n✅ Ingestion complete. Fetched: ${totalFetched}, Processed: ${totalProcessed}, Skipped cache: ${totalSkipped}, Matched: ${totalMatched}, Marked OOS: ${totalMarkedOOS}`
   );
 
-  return { processed: totalProcessed, matched: totalMatched };
+  return { processed: totalProcessed, matched: reconciledMatches || totalMatched };
 }

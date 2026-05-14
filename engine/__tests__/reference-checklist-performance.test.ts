@@ -7,7 +7,6 @@ function readRootFile(...segments: string[]): string {
 
 describe('CAR-25 reference checklist performance', () => {
   const dbSource = readRootFile('engine', 'src', 'db.ts');
-  const ingestSource = readRootFile('engine', 'src', 'ingest.ts');
   const migration = readRootFile(
     'supabase',
     'migrations',
@@ -28,12 +27,14 @@ describe('CAR-25 reference checklist performance', () => {
     expect(dbSource).toContain('uniqueCardNumbers.length === 0');
   });
 
-  it('primes a page-level checklist cache before matching products', () => {
-    expect(ingestSource).toContain('const checklistLookup = createChecklistLookup()');
-    expect(ingestSource).toContain('checklistLookup.missingCardNumbers(pageCardNumbers)');
-    expect(ingestSource).toContain('getChecklistsByNumbers(db, missingChecklistNumbers)');
-    expect(ingestSource).toContain('checklistLookup.markLoaded(missingChecklistNumbers)');
-    expect(ingestSource).toContain('checklistLookup');
+  it('keeps batched checklist lookup available for legacy dry-run matching without scan-loop use', () => {
+    const matchSource = readRootFile('engine', 'src', 'match.ts');
+    const ingestSource = readRootFile('engine', 'src', 'ingest.ts');
+
+    expect(matchSource).toContain('ChecklistLookupCache');
+    expect(matchSource).toContain('getBySetAndNumber');
+    expect(matchSource).toContain('getByNumber');
+    expect(ingestSource).not.toContain('getChecklistsByNumbers');
   });
 
   it('documents the before and after query profile', () => {

@@ -76,6 +76,10 @@ export function parseBooleanState(formData: FormData, key: string): boolean | nu
   return null;
 }
 
+export function isGenericRookieWatchlistTerm(value: string | null): boolean {
+  return /^(rookie|rookies|rc)$/i.test((value ?? "").trim());
+}
+
 export function parseWatchlistForm(formData: FormData): WatchlistFormResult {
   const name = field(formData, "name");
   if (!name) return { ok: false, error: "Watchlist name is required." };
@@ -124,6 +128,9 @@ export function parseWatchlistForm(formData: FormData): WatchlistFormResult {
   if (typeof rawOnly !== "boolean") return rawOnly;
   const notificationEnabled = checkbox(formData, "notification_enabled", "Email alerts");
   if (typeof notificationEnabled !== "boolean") return notificationEnabled;
+  const genericRookieWatchlist =
+    isGenericRookieWatchlistTerm(name) &&
+    (includeTerms === null || isGenericRookieWatchlistTerm(includeTerms));
 
   return {
     ok: true,
@@ -134,7 +141,7 @@ export function parseWatchlistForm(formData: FormData): WatchlistFormResult {
       season,
       cardNumber,
       parallel,
-      rookieOnly,
+      rookieOnly: rookieOnly || genericRookieWatchlist,
       autographOnly,
       relicOnly,
       serialNumberedOnly,
@@ -143,7 +150,7 @@ export function parseWatchlistForm(formData: FormData): WatchlistFormResult {
       minPrice,
       maxPrice,
       currency,
-      includeTerms,
+      includeTerms: genericRookieWatchlist ? null : includeTerms,
       excludeTerms,
       minimumMatchConfidence,
       notificationEnabled,

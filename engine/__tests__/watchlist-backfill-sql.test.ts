@@ -1,6 +1,7 @@
 import {
   buildCanonicalBackfillSql,
   hasCanonicalBackfillPositiveFilter,
+  productClassificationLateralJoinSql,
   productCardMatchLateralJoinSql,
   type CanonicalBackfillRule,
 } from '../../web/src/lib/watchlist-backfill-sql';
@@ -54,6 +55,8 @@ describe('canonical watchlist backfill SQL', () => {
     expect(built).not.toBeNull();
     expect(built?.sql).toContain('from public.store_products sp');
     expect(built?.sql).toContain('public.product_card_matches pcm');
+    expect(built?.sql).toContain('public.product_classifications pc');
+    expect(built?.sql).toContain("pc.category = 'NBA'");
     expect(built?.sql).toContain('sp.is_active = true');
     expect(built?.sql).toContain('sp.current_availability = true');
     expect(built?.sql).toContain('sp.id');
@@ -71,7 +74,9 @@ describe('canonical watchlist backfill SQL', () => {
 
     expect(built?.sql).toContain("coalesce(sp.title, '') ilike $3");
     expect(built?.sql).toContain("coalesce(sp.description, '') ilike $3");
+    expect(built?.sql).toContain("coalesce(pc.player_name, '') ilike $3");
     expect(built?.sql).toContain("coalesce(pcm.matched_player_name, '') ilike $3");
+    expect(built?.sql).not.toContain('coalesce(pcm.match_reasons::text');
     expect(built?.sql).toContain('not (');
     expect(built?.params).toEqual([10, 20, '%LeBron James%', '%break%', '%spot%', '%graded%', 0.75]);
   });
@@ -82,5 +87,24 @@ describe('canonical watchlist backfill SQL', () => {
     expect(joinSql).toContain('where pcm.store_product_id = sp.id');
     expect(joinSql).toContain('order by pcm.confidence desc');
     expect(joinSql).toContain('limit 1');
+  });
+
+  it('uses a single latest deterministic product classification lateral join', () => {
+    const joinSql = productClassificationLateralJoinSql();
+
+    expect(joinSql).toContain('where pc.store_product_id = sp.id');
+    expect(joinSql).toContain("pc.classifier_type = 'deterministic'");
+    expect(joinSql).toContain("pc.classifier_version = 'deterministic-title-v1'");
+    expect(joinSql).toContain('limit 1');
+  });
+
+  it('treats generic rookie include terms as rookie attributes, not identity terms', () => {
+    const built = buildCanonicalBackfillSql(rule({
+      include_terms: 'Rookie',
+    }));
+
+    expect(built?.sql).toContain("coalesce(pc.is_rookie, coalesce(sp.title, '') ~* '\\m(rc|rookie|rookies)\\M') = true");
+    expect(built?.params).toEqual([10, 20, 0.75]);
+    expect(built?.sql).not.toContain('%Rookie%');
   });
 });

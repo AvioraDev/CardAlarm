@@ -1,4 +1,5 @@
 import {
+  isGenericRookieWatchlistTerm,
   parseBooleanState,
   parsePositiveFormId,
   parseWatchlistForm,
@@ -87,5 +88,34 @@ describe("watchlist form validation", () => {
     expect(parseBooleanState(makeForm({ isActive: "true" }), "isActive")).toBe(true);
     expect(parseBooleanState(makeForm({ isActive: "false" }), "isActive")).toBe(false);
     expect(parseBooleanState(makeForm({ isActive: "on" }), "isActive")).toBeNull();
+  });
+
+  it("normalizes exact generic rookie watchlists to rookie-only filters", () => {
+    for (const name of ["Rookie", "Rookies", "RC"]) {
+      const result = parseWatchlistForm(makeForm({ name }));
+
+      expect(result).toEqual({
+        ok: true,
+        value: expect.objectContaining({
+          name,
+          rookieOnly: true,
+          includeTerms: null,
+        }),
+      });
+    }
+  });
+
+  it("does not strip player intent from specific rookie watchlists", () => {
+    const result = parseWatchlistForm(makeForm({ name: "Anthony Edwards", rookie_only: true }));
+
+    expect(result).toEqual({
+      ok: true,
+      value: expect.objectContaining({
+        name: "Anthony Edwards",
+        rookieOnly: true,
+        includeTerms: null,
+      }),
+    });
+    expect(isGenericRookieWatchlistTerm("Anthony Edwards")).toBe(false);
   });
 });

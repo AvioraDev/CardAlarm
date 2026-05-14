@@ -25,12 +25,18 @@ export type BackfillSql = {
   params: unknown[];
 };
 
+const CLASSIFIER_VERSION = "deterministic-title-v1";
+
 function terms(value: string | null): string[] {
   if (!value) return [];
   return value
     .split(/[,\n]/)
     .map((term) => term.trim())
     .filter(Boolean);
+}
+
+function isGenericRookieTerm(value: string): boolean {
+  return /^(rookie|rookies|rc)$/i.test(value.trim());
 }
 
 function numeric(value: string | number | null, fallback: number): number {
@@ -48,9 +54,11 @@ function textSearchSql(placeholder: string): string {
   return `(
     coalesce(sp.title, '') ilike ${placeholder}
     or coalesce(sp.description, '') ilike ${placeholder}
+    or coalesce(pc.player_name, '') ilike ${placeholder}
+    or coalesce(pc.set_name, pc.product_line, '') ilike ${placeholder}
+    or coalesce(pc.card_number, '') ilike trim(both '%' from ${placeholder})
+    or coalesce(pc.variant_name, pc.parallel_name, pc.insert_name, '') ilike ${placeholder}
     or coalesce(pcm.matched_player_name, '') ilike ${placeholder}
-    or coalesce(pcm.match_reasons::text, '') ilike ${placeholder}
-    or coalesce(pcm.matched_fields::text, '') ilike ${placeholder}
   )`;
 }
 
@@ -90,6 +98,17 @@ export function productCardMatchLateralJoinSql(): string {
      ) pcm on true`;
 }
 
+export function productClassificationLateralJoinSql(): string {
+  return `join lateral (
+       select *
+       from public.product_classifications pc
+       where pc.store_product_id = sp.id
+         and pc.classifier_type = 'deterministic'
+       order by (pc.classifier_version = '${CLASSIFIER_VERSION}') desc, pc.updated_at desc
+       limit 1
+     ) pc on true`;
+}
+
 export function buildCanonicalBackfillSql(rule: CanonicalBackfillRule): BackfillSql | null {
   if (!hasCanonicalBackfillPositiveFilter(rule)) return null;
 
@@ -97,11 +116,25 @@ export function buildCanonicalBackfillSql(rule: CanonicalBackfillRule): Backfill
   const conditions = [
     "sp.is_active = true",
     "sp.current_availability = true",
+    "pc.category = 'NBA'",
   ];
 
-  if (rule.player_id) conditions.push(`pcm.matched_player_id = ${addParam(params, rule.player_id)}`);
+  if (rule.player_id) {
+    const playerId = addParam(params, rule.player_id);
+    conditions.push(`(
+      pcm.matched_player_id = ${playerId}
+      or exists (
+        select 1
+        from public.players p
+        where p.id = ${playerId}
+          and pc.player_name ilike p.full_name
+      )
+    )`);
+  }
 
-  for (const term of terms(rule.include_terms)) addTextMatch(conditions, params, term);
+  const includeTerms = terms(rule.include_terms);
+  const hasGenericRookieIncludeTerm = includeTerms.some(isGenericRookieTerm);
+  for (const term of includeTerms.filter(term => !isGenericRookieTerm(term))) addTextMatch(conditions, params, term);
   for (const term of terms(rule.exclude_terms)) addTextExclusion(conditions, params, term);
 
   if (rule.brand) addTextMatch(conditions, params, rule.brand);
@@ -118,14 +151,13 @@ export function buildCanonicalBackfillSql(rule: CanonicalBackfillRule): Backfill
   }
   if (rule.parallel) addTextMatch(conditions, params, rule.parallel);
 
-  if (rule.rookie_only) conditions.push("coalesce(sp.title, '') ~* '\\m(rc|rookie)\\M'");
-  if (rule.autograph_only) conditions.push("coalesce(sp.title, '') ~* '\\m(auto|autograph)\\M'");
+  if (rule.rookie_only || hasGenericRookieIncludeTerm) {
+    conditions.push("coalesce(pc.is_rookie, coalesce(sp.title, '') ~* '\\m(rc|rookie|rookies)\\M') = true");
+  }
+  if (rule.autograph_only) conditions.push("coalesce(pc.is_auto, coalesce(sp.title, '') ~* '\\m(auto|autograph)\\M') = true");
   if (rule.relic_only) addTextMatch(conditions, params, "relic");
   if (rule.serial_numbered_only) {
-    conditions.push(`(
-      coalesce(pcm.matched_fields, '[]'::jsonb) ? 'serial'
-      or coalesce(sp.title, '') ~ '/[0-9]+'
-    )`);
+    conditions.push("coalesce(pc.is_serial, coalesce(pcm.matched_fields, '[]'::jsonb) ? 'serial', coalesce(sp.title, '') ~ '/[0-9]+') = true");
   }
   if (rule.graded_only) addTextMatch(conditions, params, "graded");
   if (rule.raw_only) addTextExclusion(conditions, params, "graded");
@@ -166,6 +198,7 @@ export function buildCanonicalBackfillSql(rule: CanonicalBackfillRule): Backfill
        now()
      from public.store_products sp
      ${productCardMatchLateralJoinSql()}
+     ${productClassificationLateralJoinSql()}
      where ${conditions.join("\n       and ")}
      on conflict (watchlist_id, watchlist_rule_id, source, external_id)
        where source is not null and external_id is not null
