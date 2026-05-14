@@ -45,7 +45,7 @@ describe('Stealth Match Engine (US-2.3)', () => {
     const listing: RawListing = {
       externalId: 'test-001',
       source: 'test-store',
-      title: 'Panini Prizm Silver #241 Mint',
+      title: '2024-25 Panini Prizm Basketball Silver #241 Mint',
       price: 50.0,
       url: 'https://test.com/products/prizm-241',
       imageUrl: 'https://test.com/img.jpg',
@@ -72,7 +72,7 @@ describe('Stealth Match Engine (US-2.3)', () => {
     const listing: RawListing = {
       externalId: 'test-002',
       source: 'test-store',
-      title: 'Panini Prizm Silver #15',
+      title: '2024-25 Panini Prizm Basketball Silver #15',
       price: 10.0,
       url: 'https://test.com/products/prizm-15',
       imageUrl: 'https://test.com/img.jpg',
@@ -158,7 +158,7 @@ describe('Stealth Match Engine (US-2.3)', () => {
     const imageVariation: RawListing = {
       externalId: 'reason-variation',
       source: 'test-store',
-      title: '2024 Topps Chrome Baseball Image Variation #100 LeBron James',
+      title: '2024 Panini Prizm Basketball Image Variation #100 LeBron James',
       price: 50,
       url: 'https://test.com/products/variation',
       imageUrl: '',
@@ -207,7 +207,7 @@ describe('Stealth Match Engine (US-2.3)', () => {
     const listing: RawListing = {
       externalId: 'test-004',
       source: 'test-store',
-      title: 'Panini Prizm Silver #241 Mint',
+      title: '2024-25 Panini Prizm Basketball Silver #241 Mint',
       price: 50.0,
       url: 'https://test.com/products/prizm-241',
       imageUrl: 'https://test.com/img.jpg',
@@ -225,7 +225,7 @@ describe('Stealth Match Engine (US-2.3)', () => {
 
 describe('checkMatch (dry-run)', () => {
   it('returns Stealth match without inserting', () => {
-    const result = checkMatch(db, 'Panini Prizm Silver #241 Mint');
+    const result = checkMatch(db, '2024-25 Panini Prizm Basketball Silver #241 Mint');
     expect(result.matched).toBe(true);
     expect(result.matchType).toBe('Stealth');
     expect(result.playerName).toBe('Victor Wembanyama');
@@ -236,7 +236,7 @@ describe('checkMatch (dry-run)', () => {
   });
 
   it('returns no match for unknown player', () => {
-    const result = checkMatch(db, 'Panini Prizm Silver #15');
+    const result = checkMatch(db, '2024-25 Panini Prizm Basketball Silver #15');
     expect(result.matched).toBe(false);
   });
 });
@@ -288,13 +288,122 @@ describe('Stealth gate: named non-watchlist player', () => {
     const listing: RawListing = {
       externalId: 'gate-002',
       source: 'test-store',
-      title: 'Panini Prizm Silver #241 Mint',
+      title: '2024-25 Panini Prizm Basketball Silver #241 Mint',
       price: 50.0,
       url: 'https://test.com/products/prizm-241',
       imageUrl: 'https://test.com/img.jpg',
     };
 
     const result = processListing(db, listing);
+    expect(result.matched).toBe(true);
+    expect(result.matchType).toBe('Stealth');
+    expect(result.playerName).toBe('Victor Wembanyama');
+  });
+
+  it('rejects soccer rookie listings for NBA watchlists', () => {
+    const listing: RawListing = {
+      externalId: 'gate-soccer-rookie',
+      source: 'test-store',
+      title: '2023-24 Panini Prizm Premier League Rookie #241',
+      price: 20.0,
+      url: 'https://test.com/products/soccer-rookie',
+      imageUrl: 'https://test.com/img.jpg',
+    };
+
+    const result = processListing(db, listing);
+
+    expect(result.matched).toBe(false);
+    expect(getActiveFeed(db)).toHaveLength(0);
+  });
+
+  it('rejects NFL rookie listings for NBA watchlists', () => {
+    const listing: RawListing = {
+      externalId: 'gate-nfl-rookie',
+      source: 'test-store',
+      title: '2023 Panini Donruss Football Rated Rookie #241',
+      price: 20.0,
+      url: 'https://test.com/products/nfl-rookie',
+      imageUrl: 'https://test.com/img.jpg',
+    };
+
+    const result = processListing(db, listing);
+
+    expect(result.matched).toBe(false);
+    expect(getActiveFeed(db)).toHaveLength(0);
+  });
+
+  it('rejects WWE, MMA, Pokemon, and Marvel card listings for NBA watchlists', () => {
+    const titles = [
+      '2022 Panini Prizm WWE Rookie #241',
+      '2023 Panini Select UFC Rookie Octagonside #241',
+      'Pokemon Scarlet Violet Pikachu Holo #241',
+      '2023 Marvel Spider-Man Prizm #241',
+    ];
+
+    for (const [index, title] of titles.entries()) {
+      const result = processListing(db, {
+        externalId: `gate-non-nba-${index}`,
+        source: 'test-store',
+        title,
+        price: 20.0,
+        url: `https://test.com/products/non-nba-${index}`,
+        imageUrl: 'https://test.com/img.jpg',
+      });
+
+      expect(result.matched).toBe(false);
+    }
+
+    expect(getActiveFeed(db)).toHaveLength(0);
+  });
+
+  it('rejects ambiguous generic Donruss, Prizm, and Optic rookie listings without NBA evidence', () => {
+    const titles = [
+      '2023 Panini Donruss Rated Rookie #241',
+      '2023 Panini Prizm RC #241',
+      '2023 Donruss Optic Rookie #241',
+    ];
+
+    for (const [index, title] of titles.entries()) {
+      const result = processListing(db, {
+        externalId: `gate-ambiguous-${index}`,
+        source: 'test-store',
+        title,
+        price: 20.0,
+        url: `https://test.com/products/ambiguous-${index}`,
+        imageUrl: 'https://test.com/img.jpg',
+      });
+
+      expect(result.matched).toBe(false);
+    }
+
+    expect(getActiveFeed(db)).toHaveLength(0);
+  });
+
+  it('preserves valid NBA rookie player-name matches', () => {
+    const result = processListing(db, {
+      externalId: 'gate-nba-player-rookie',
+      source: 'test-store',
+      title: '2024-25 Panini Prizm #241 Victor Wembanyama Rookie RC',
+      price: 150.0,
+      url: 'https://test.com/products/nba-player-rookie',
+      imageUrl: 'https://test.com/img.jpg',
+    });
+
+    expect(result.matched).toBe(true);
+    expect(result.matchType).toBe('Direct');
+    expect(result.playerName).toBe('Victor Wembanyama');
+  });
+
+  it('preserves checklist matches when set context has NBA evidence', () => {
+    const result = processListing(db, {
+      externalId: 'gate-nba-checklist',
+      source: 'test-store',
+      title: '2024-25 Panini Prizm Basketball Silver #241',
+      price: 150.0,
+      url: 'https://test.com/products/nba-checklist',
+      imageUrl: 'https://test.com/img.jpg',
+    });
+
     expect(result.matched).toBe(true);
     expect(result.matchType).toBe('Stealth');
     expect(result.playerName).toBe('Victor Wembanyama');

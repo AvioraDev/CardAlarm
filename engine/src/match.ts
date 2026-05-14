@@ -2,6 +2,7 @@ import type { DbClient } from './db';
 import type { RawListing, MatchResult, ListingInsert, WatchlistRow, ChecklistRow } from './types';
 import { extractAll, extractDirectPlayerMatch } from './extract';
 import { classifyTitleSignals, parseTitleMetadata } from './parse-title';
+import { hasNonNbaCategorySignal, hasPositiveNbaEvidence } from './match-eligibility';
 import {
   getActiveWatchlistPlayers,
   getChecklistBySetAndNumber,
@@ -48,6 +49,12 @@ function hasSportsCardContext(title: string, cardNumber: string | null): boolean
     /\b(poster|framed|frame|display|plaque|photo|photograph|jersey|shirt|tee|cap|hat|box|pack|break|case)\b/i.test(title);
 
   return hasPositiveSignal && !hasNonCardProductSignal;
+}
+
+function hasSetLevelNbaEvidence(title: string, setContext: string | null): boolean {
+  if (hasPositiveNbaEvidence(title)) return true;
+  if (!setContext) return false;
+  return hasPositiveNbaEvidence(setContext);
 }
 
 function titleContainsKnownPlayer(title: string, playerNames: string[]): boolean {
@@ -215,6 +222,10 @@ export async function processListingWithCache(
     return noMatch();
   }
 
+  if (hasNonNbaCategorySignal(listing.title)) {
+    return noMatch();
+  }
+
   const directMatch = extractDirectPlayerMatch(listing.title, watchlistNames);
   if (directMatch) {
     const confidence = meta.cardNumber ? 0.94 : 0.88;
@@ -240,6 +251,10 @@ export async function processListingWithCache(
   });
 
   if (targetNumberMatch) {
+    if (!hasSetLevelNbaEvidence(listing.title, setContext)) {
+      return noMatch();
+    }
+
     return await completeMatch(db, listing, 'Stealth', targetNumberMatch.player_name, 0.8, [
       'Watchlist target card number matched',
       `Card number ${cardNumber} extracted`,
@@ -252,6 +267,10 @@ export async function processListingWithCache(
       ? checklistLookup.getBySetAndNumber(setContext, cardNumber)
       : await getChecklistBySetAndNumber(db, setContext, cardNumber);
     if (checklistHit && watchlistNameSet.has(checklistHit.player_name.toLowerCase())) {
+      if (!hasSetLevelNbaEvidence(listing.title, setContext)) {
+        return noMatch();
+      }
+
       return await completeMatch(db, listing, 'Stealth', checklistHit.player_name, 0.86, [
         'Checklist matched by set context and card number',
         `Card number ${cardNumber} resolved to ${checklistHit.player_name}`,
@@ -265,6 +284,10 @@ export async function processListingWithCache(
     : await getChecklistByNumber(db, cardNumber);
   const broadPlayerName = uniqueChecklistPlayerName(broadHits);
   if (broadPlayerName && watchlistNameSet.has(broadPlayerName.toLowerCase())) {
+    if (!hasPositiveNbaEvidence(listing.title, [broadPlayerName])) {
+      return noMatch();
+    }
+
     return await completeMatch(db, listing, 'Stealth', broadPlayerName, 0.76, [
       'Card number resolved to one unique checklist player',
       `Card number ${cardNumber} resolved to ${broadPlayerName}`,
