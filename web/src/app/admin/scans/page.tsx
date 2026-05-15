@@ -54,19 +54,24 @@ export default async function AdminScansPage() {
       <ScanPanel initialScanRun={latestScanRun} />
 
       <section className="rounded-3xl border border-border bg-card p-6 shadow-card md:p-8">
-        <div className="flex items-center justify-between gap-4">
+        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div>
             <p className="font-mono text-xs uppercase tracking-[0.24em] text-accent">
               Per-Store Runs
             </p>
             <h2 className="mt-2 text-xl font-semibold text-text">Store scan history</h2>
           </div>
-          <Link href="/admin/stores" className="font-mono text-[10px] uppercase tracking-wider text-text-muted hover:text-accent">
-            Manage stores
-          </Link>
-          <Link href="/admin/inventory" className="font-mono text-[10px] uppercase tracking-wider text-text-muted hover:text-accent">
-            Inventory
-          </Link>
+          <div className="flex gap-4">
+            <Link href="/admin/scan-qa" className="font-mono text-[10px] uppercase tracking-wider text-text-muted hover:text-accent">
+              Scan QA
+            </Link>
+            <Link href="/admin/stores" className="font-mono text-[10px] uppercase tracking-wider text-text-muted hover:text-accent">
+              Manage stores
+            </Link>
+            <Link href="/admin/inventory" className="font-mono text-[10px] uppercase tracking-wider text-text-muted hover:text-accent">
+              Inventory
+            </Link>
+          </div>
         </div>
 
         {recentStoreRuns.length === 0 ? (

@@ -9,6 +9,7 @@ import {
 } from "@/lib/queries";
 import { ensureProfile, requireUser } from "@/lib/auth";
 import type { FilterOptions } from "@/lib/types";
+import { refreshAllUserWatchlistsAction } from "@/lib/watchlist-actions";
 import { ListingCard } from "../components/listing-card";
 import { FilterBar } from "../components/filter-bar";
 
@@ -93,12 +94,23 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
               CardAlarm watches your active watchlists and brings matching cards here when they are available now.
             </p>
           </div>
-          <Link
-            href="/watchlists/new"
-            className="inline-flex items-center justify-center rounded-full bg-accent px-5 py-3 font-mono text-xs font-bold uppercase tracking-wider text-bg transition-colors hover:bg-accent-hover"
-          >
-            Create Watchlist
-          </Link>
+          <div className="flex flex-col gap-2 sm:flex-row">
+            <form action={refreshAllUserWatchlistsAction}>
+              <button
+                type="submit"
+                className="inline-flex w-full items-center justify-center rounded-full border border-border px-5 py-3 font-mono text-xs font-bold uppercase tracking-wider text-text transition-colors hover:border-accent sm:w-auto"
+                title="Re-check available cards against every active watchlist."
+              >
+                Refresh Matches
+              </button>
+            </form>
+            <Link
+              href="/watchlists/new"
+              className="inline-flex items-center justify-center rounded-full bg-accent px-5 py-3 font-mono text-xs font-bold uppercase tracking-wider text-bg transition-colors hover:bg-accent-hover"
+            >
+              Create Watchlist
+            </Link>
+          </div>
         </div>
       </section>
 

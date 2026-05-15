@@ -155,6 +155,29 @@ export async function backfillUserWatchlistAction(formData: FormData): Promise<v
   revalidatePath("/dashboard");
 }
 
+export async function refreshAllUserWatchlistsAction(): Promise<void> {
+  const user = await requireUser();
+  const supabase = await createClient();
+
+  const { data: watchlists, error } = await supabase
+    .from("watchlists")
+    .select("id")
+    .eq("user_id", user.id)
+    .eq("is_active", true)
+    .order("updated_at", { ascending: false })
+    .returns<{ id: number }[]>();
+
+  if (error) redirect(actionErrorPath("/dashboard", "Unable to refresh watchlists."));
+
+  for (const watchlist of watchlists ?? []) {
+    await backfillWatchlist(user.id, watchlist.id);
+    await enqueueAndProcessWatchlistAlerts(watchlist.id);
+  }
+
+  revalidatePath("/watchlists");
+  revalidatePath("/dashboard");
+}
+
 export async function deleteUserWatchlistAction(formData: FormData): Promise<void> {
   const user = await requireUser();
   const supabase = await createClient();

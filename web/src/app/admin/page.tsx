@@ -33,6 +33,12 @@ export default async function AdminPage() {
               Scan Runs
             </Link>
             <Link
+              href="/admin/scan-qa"
+              className="inline-flex items-center justify-center rounded-full border border-border px-5 py-3 font-mono text-xs font-bold uppercase tracking-wider text-text transition-colors hover:border-accent"
+            >
+              Scan QA
+            </Link>
+            <Link
               href="/admin/inventory"
               className="inline-flex items-center justify-center rounded-full border border-border px-5 py-3 font-mono text-xs font-bold uppercase tracking-wider text-text transition-colors hover:border-accent"
             >
@@ -42,7 +48,7 @@ export default async function AdminPage() {
         </div>
       </section>
 
-      <section className="grid gap-4 md:grid-cols-3">
+      <section className="grid gap-4 md:grid-cols-4">
         <Link
           href="/admin/stores"
           className="rounded-3xl border border-border bg-card p-6 shadow-card transition-colors hover:border-accent"
@@ -71,6 +77,16 @@ export default async function AdminPage() {
           <h2 className="mt-3 text-xl font-semibold text-text">Review scanned products</h2>
           <p className="mt-2 text-sm leading-6 text-text-muted">
             Inspect available products for QA and matching validation.
+          </p>
+        </Link>
+        <Link
+          href="/admin/scan-qa"
+          className="rounded-3xl border border-border bg-card p-6 shadow-card transition-colors hover:border-accent"
+        >
+          <p className="font-mono text-xs uppercase tracking-[0.18em] text-accent">Scan QA</p>
+          <h2 className="mt-3 text-xl font-semibold text-text">Review scan evidence</h2>
+          <p className="mt-2 text-sm leading-6 text-text-muted">
+            Inspect per-store progress and recent watchlist match output without terminal logs.
           </p>
         </Link>
       </section>

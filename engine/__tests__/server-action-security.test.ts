@@ -29,6 +29,19 @@ describe('server action validation and ownership checks', () => {
     expect(actions).not.toContain('throw new Error(error.message)');
   });
 
+  it('refreshes all watchlists only for the signed-in user and active watchlists', () => {
+    const actions = readWebFile('lib', 'watchlist-actions.ts');
+    const dashboard = readWebFile('app', 'dashboard', 'page.tsx');
+
+    expect(actions).toContain('export async function refreshAllUserWatchlistsAction');
+    expect(actions).toContain('.eq("user_id", user.id)');
+    expect(actions).toContain('.eq("is_active", true)');
+    expect(actions).toContain('await backfillWatchlist(user.id, watchlist.id)');
+    expect(actions).toContain('await enqueueAndProcessWatchlistAlerts(watchlist.id)');
+    expect(dashboard).toContain('refreshAllUserWatchlistsAction');
+    expect(dashboard).toContain('Refresh Matches');
+  });
+
   it('validates match feedback ids and visible match ownership', () => {
     const actions = readWebFile('lib', 'actions.ts');
 
