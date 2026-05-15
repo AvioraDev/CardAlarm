@@ -82,6 +82,37 @@ export function scanPageConcurrency(value: string | number | undefined = process
   return Math.min(5, Math.max(1, parsed));
 }
 
+export function scanStoreConcurrency(value: string | number | undefined = process.env.CARDALARM_STORE_SCAN_CONCURRENCY): number {
+  const parsed = parseNonNegativeInteger(value, 2);
+  return Math.min(4, Math.max(1, parsed));
+}
+
+export async function runWithConcurrency<T, R>(
+  items: T[],
+  concurrency: number,
+  worker: (item: T, index: number) => Promise<R>
+): Promise<PromiseSettledResult<R>[]> {
+  const limit = Math.max(1, Math.min(concurrency, items.length || 1));
+  const results: PromiseSettledResult<R>[] = new Array(items.length);
+  let nextIndex = 0;
+
+  async function runNext(): Promise<void> {
+    while (nextIndex < items.length) {
+      const index = nextIndex;
+      nextIndex++;
+
+      try {
+        results[index] = { status: 'fulfilled', value: await worker(items[index]!, index) };
+      } catch (reason) {
+        results[index] = { status: 'rejected', reason };
+      }
+    }
+  }
+
+  await Promise.all(Array.from({ length: limit }, () => runNext()));
+  return results;
+}
+
 export function scanDelayConfig(
   minValue: string | number | undefined = process.env.CARDALARM_SCAN_DELAY_MIN_MS,
   maxValue: string | number | undefined = process.env.CARDALARM_SCAN_DELAY_MAX_MS
@@ -93,6 +124,23 @@ export function scanDelayConfig(
     maxMs: Math.max(minMs, rawMaxMs),
   };
 }
+
+type SourceScanResult = {
+  fetched: number;
+  processed: number;
+  skipped: number;
+  matched: number;
+  markedOOS: number;
+  pagesFetched: number;
+  lastPageFetched: number | null;
+  stoppedEarly: boolean;
+  stopReason: StopReason;
+  fetchDurationMs: number;
+  cacheDurationMs: number;
+  matchDurationMs: number;
+  postScanDurationMs: number;
+  totalDurationMs: number;
+};
 
 export function stopReasonForPageResult(products: ShopifyProduct[] | null, pageSize = PAGE_SIZE): StopReason | null {
   if (products === null) return 'fetch_error';
@@ -224,22 +272,7 @@ async function processSource(
   source: SourceConfig,
   scanToken: string,
   identityContextHash: string
-): Promise<{
-  fetched: number;
-  processed: number;
-  skipped: number;
-  matched: number;
-  markedOOS: number;
-  pagesFetched: number;
-  lastPageFetched: number | null;
-  stoppedEarly: boolean;
-  stopReason: StopReason;
-  fetchDurationMs: number;
-  cacheDurationMs: number;
-  matchDurationMs: number;
-  postScanDurationMs: number;
-  totalDurationMs: number;
-}> {
+): Promise<SourceScanResult> {
   console.log(`\n▶ Ingesting: ${source.name} (${source.baseUrl})`);
 
   const totalStartedAt = Date.now();
@@ -429,14 +462,29 @@ export async function runIngestionCycle(
 ): Promise<{ processed: number; matched: number }> {
   const identityContextHash = buildIdentityContextHash();
   const runToken = `${Date.now()}-${crypto.randomUUID()}`;
+  const storeConcurrency = scanStoreConcurrency();
 
-  console.log(`  Mode: ${options.mode} | Scan updates cached inventory and deterministic card identity`);
+  console.log(
+    `  Mode: ${options.mode} | Store concurrency: ${storeConcurrency} | Page concurrency per store: ${PAGE_CONCURRENCY}`
+  );
+  console.log(`  Scan updates cached inventory and deterministic card identity`);
 
-  const results = [];
+  const results: SourceScanResult[] = [];
   const sourceErrors: string[] = [];
+  let completedStoreCount = 0;
+  let failedStoreCount = 0;
 
-  for (const source of sources) {
+  async function publishAggregateProgress(): Promise<void> {
+    if (!options.onProgress) return;
+    await options.onProgress({
+      processed: results.reduce((sum, result) => sum + result.processed, 0),
+      matched: results.reduce((sum, result) => sum + result.matched, 0),
+    });
+  }
+
+  async function processStore(source: SourceConfig): Promise<SourceScanResult> {
     const storeScanRunId = await createStoreScanRun(db, source);
+
     try {
       const sourceResult = await processSource(
         db,
@@ -446,6 +494,7 @@ export async function runIngestionCycle(
         identityContextHash
       );
       results.push(sourceResult);
+      completedStoreCount++;
       await updateStoreScanRun(db, storeScanRunId, {
         status: 'completed',
         productsSeen: sourceResult.fetched,
@@ -470,16 +519,12 @@ export async function runIngestionCycle(
         },
       });
       await markStoreScanSucceeded(db, source.storeId);
-
-      if (options.onProgress) {
-        await options.onProgress({
-          processed: results.reduce((sum, result) => sum + result.processed, 0),
-          matched: results.reduce((sum, result) => sum + result.matched, 0),
-        });
-      }
+      await publishAggregateProgress();
+      return sourceResult;
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : String(err);
       sourceErrors.push(`${source.slug}: ${errorMessage}`);
+      failedStoreCount++;
       await updateStoreScanRun(db, storeScanRunId, {
         status: 'failed',
         errorMessage,
@@ -490,14 +535,13 @@ export async function runIngestionCycle(
       });
       await markStoreScanFailed(db, source.storeId);
       console.error(`  Source failed: ${source.name} (${source.slug})`, errorMessage);
+      throw err;
+    } finally {
+      await randomDelay();
     }
-
-    await randomDelay();
   }
 
-  if (sourceErrors.length > 0) {
-    throw new Error(`One or more store scans failed: ${sourceErrors.join('; ')}`);
-  }
+  await runWithConcurrency(sources, storeConcurrency, processStore);
 
   const totalFetched = results.reduce((sum, result) => sum + result.fetched, 0);
   const totalProcessed = results.reduce((sum, result) => sum + result.processed, 0);
@@ -525,8 +569,12 @@ export async function runIngestionCycle(
   }
 
   console.log(
-    `\n✅ Ingestion complete. Fetched: ${totalFetched}, Processed: ${totalProcessed}, Skipped cache: ${totalSkipped}, Matched: ${totalMatched}, Marked OOS: ${totalMarkedOOS}`
+    `\n✅ Ingestion complete. Fetched: ${totalFetched}, Processed: ${totalProcessed}, Skipped cache: ${totalSkipped}, Matched: ${totalMatched}, Marked OOS: ${totalMarkedOOS}, Completed stores: ${completedStoreCount}, Failed stores: ${failedStoreCount}`
   );
+
+  if (sourceErrors.length > 0) {
+    throw new Error(`One or more store scans failed after all stores settled: ${sourceErrors.join('; ')}`);
+  }
 
   return { processed: totalProcessed, matched: reconciledMatches || totalMatched };
 }

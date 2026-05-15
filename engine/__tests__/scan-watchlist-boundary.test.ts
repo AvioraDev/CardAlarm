@@ -30,6 +30,16 @@ describe('CAR-33 scan and watchlist relevance boundary', () => {
     expect(ingestSource).toContain('matched: reconciledMatches');
   });
 
+  it('runs stores through bounded concurrency before one downstream reconciliation pass', () => {
+    expect(ingestSource).toContain('export async function runWithConcurrency');
+    expect(ingestSource).toContain('export function scanStoreConcurrency');
+    expect(ingestSource).toContain('await runWithConcurrency(sources, storeConcurrency, processStore)');
+    expect(ingestSource).not.toContain('Promise.all(sources');
+    expect(ingestSource.match(/reconcileActiveWatchlistMatches\(db\)/g)).toHaveLength(1);
+    expect(ingestSource.match(/enqueueAlertCandidates\(db\)/g)).toHaveLength(1);
+    expect(ingestSource.match(/processPendingAlerts\(db\)/g)).toHaveLength(1);
+  });
+
   it('requires deterministic classifications for scan-triggered watchlist reconciliation', () => {
     expect(reconciliationSource).toContain('from public.product_classifications pc');
     expect(reconciliationSource).toContain("pc.category = 'NBA'");

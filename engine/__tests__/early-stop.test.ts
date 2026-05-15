@@ -1,8 +1,10 @@
 import {
   buildSourceScanMetadata,
   earlyStopConfigForSource,
+  runWithConcurrency,
   scanDelayConfig,
   scanPageConcurrency,
+  scanStoreConcurrency,
   shouldStopForUnchangedPages,
   stopReasonForPageResult,
 } from '../src/ingest';
@@ -55,6 +57,15 @@ describe('scan performance controls', () => {
     expect(scanPageConcurrency('invalid')).toBe(1);
   });
 
+  it('clamps store concurrency between one and four with a conservative default', () => {
+    expect(scanStoreConcurrency(undefined)).toBe(2);
+    expect(scanStoreConcurrency('invalid')).toBe(2);
+    expect(scanStoreConcurrency('0')).toBe(1);
+    expect(scanStoreConcurrency('-3')).toBe(1);
+    expect(scanStoreConcurrency('2')).toBe(2);
+    expect(scanStoreConcurrency('10')).toBe(4);
+  });
+
   it('allows zero scan delay values', () => {
     expect(scanDelayConfig('0', '0')).toEqual({ minMs: 0, maxMs: 0 });
   });
@@ -68,6 +79,43 @@ describe('scan performance controls', () => {
     expect(stopReasonForPageResult([])).toBe('empty_page');
     expect(stopReasonForPageResult([{} as never], 100)).toBe('partial_page');
     expect(stopReasonForPageResult(Array.from({ length: 100 }, () => ({} as never)), 100)).toBeNull();
+  });
+});
+
+describe('bounded store concurrency utility', () => {
+  it('never exceeds the configured concurrency limit', async () => {
+    let active = 0;
+    let maxActive = 0;
+
+    const results = await runWithConcurrency([1, 2, 3, 4, 5], 2, async item => {
+      active++;
+      maxActive = Math.max(maxActive, active);
+      await new Promise(resolve => setTimeout(resolve, 5));
+      active--;
+      return item * 2;
+    });
+
+    expect(maxActive).toBe(2);
+    expect(results).toEqual([
+      { status: 'fulfilled', value: 2 },
+      { status: 'fulfilled', value: 4 },
+      { status: 'fulfilled', value: 6 },
+      { status: 'fulfilled', value: 8 },
+      { status: 'fulfilled', value: 10 },
+    ]);
+  });
+
+  it('settles every item even when one worker fails', async () => {
+    const completed: number[] = [];
+
+    const results = await runWithConcurrency([1, 2, 3], 2, async item => {
+      if (item === 2) throw new Error('store failed');
+      completed.push(item);
+      return item;
+    });
+
+    expect(results.map(result => result.status)).toEqual(['fulfilled', 'rejected', 'fulfilled']);
+    expect(completed.sort()).toEqual([1, 3]);
   });
 });
 
