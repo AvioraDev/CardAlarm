@@ -19,6 +19,7 @@ type WorkerLogger = Pick<Console, 'info' | 'error'>;
 type WorkerDeps = {
   workerId?: string;
   heartbeatIntervalMs?: number;
+  idlePollIntervalMs?: number;
   logger?: WorkerLogger;
   loadSources?: (db: DbClient) => Promise<SourceConfig[]>;
   runCycle?: typeof runIngestionCycle;
@@ -38,6 +39,19 @@ function defaultWorkerId(): string {
 function jobMode(job: ScanJobRow): ScanMode {
   if (job.mode === 'watchlist' || job.mode === 'full') return job.mode;
   throw new Error(`Unsupported scan job mode: ${job.mode}`);
+}
+
+function parsePositiveInteger(value: string | undefined, fallback: number): number {
+  const parsed = Number(value);
+  return Number.isFinite(parsed) && parsed > 0 ? Math.trunc(parsed) : fallback;
+}
+
+function delay(ms: number): Promise<void> {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+function shouldRunLoop(args = process.argv.slice(2)): boolean {
+  return args.includes('--loop') || process.env.CARDALARM_WORKER_MODE === 'loop';
 }
 
 function startHeartbeat(
@@ -127,9 +141,30 @@ export async function runWorkerOnce(
   }
 }
 
+export async function runWorkerLoop(
+  db: DbClient,
+  deps: WorkerDeps = {}
+): Promise<void> {
+  const logger = deps.logger ?? console;
+  const idlePollIntervalMs =
+    deps.idlePollIntervalMs ??
+    parsePositiveInteger(process.env.CARDALARM_WORKER_POLL_INTERVAL_MS, 30_000);
+
+  logger.info(`Scan worker loop started. Idle poll interval: ${idlePollIntervalMs}ms.`);
+
+  while (true) {
+    const result = await runWorkerOnce(db, deps);
+    if (!result.claimed) await delay(idlePollIntervalMs);
+  }
+}
+
 async function main(): Promise<void> {
   const db = getDb();
   try {
+    if (shouldRunLoop()) {
+      await runWorkerLoop(db);
+      return;
+    }
     const result = await runWorkerOnce(db);
     if (result.claimed && !result.succeeded) process.exitCode = 1;
   } finally {

@@ -6,6 +6,7 @@
     "engine:dev": "tsx watch engine/src/index.ts",
     "engine:start": "tsx engine/src/index.ts",
     "worker:once": "tsx engine/src/worker.ts",
+    "worker:loop": "tsx engine/src/worker.ts --loop",
     "web:dev": "cd web && npm run dev",
     "web:build": "cd web && npm run build",
     "test": "jest --config jest.config.js",
