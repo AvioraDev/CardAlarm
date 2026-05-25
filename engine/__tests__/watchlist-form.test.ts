@@ -22,6 +22,10 @@ describe("watchlist form validation", () => {
     const result = parseWatchlistForm(
       makeForm({
         name: "  Kevin Durant Prizm  ",
+        player_id: "12",
+        set_id: "34",
+        catalogue_card_id: "56",
+        catalogue_variant_id: "78",
         include_terms: "Kevin Durant, KD",
         exclude_terms: "break, spot",
         brand: "Panini",
@@ -44,6 +48,11 @@ describe("watchlist form validation", () => {
       ok: true,
       value: expect.objectContaining({
         name: "Kevin Durant Prizm",
+        intentType: "variant",
+        playerId: 12,
+        setId: 34,
+        catalogueCardId: 56,
+        catalogueVariantId: 78,
         includeTerms: "Kevin Durant, KD",
         excludeTerms: "break, spot",
         brand: "Panini",
@@ -78,6 +87,10 @@ describe("watchlist form validation", () => {
     expect(parseWatchlistForm(makeForm({ name: "KD", rookie_only: "yes" }))).toEqual({
       ok: false,
       error: "Rookie only is invalid.",
+    });
+    expect(parseWatchlistForm(makeForm({ name: "KD", player_id: "abc" }))).toEqual({
+      ok: false,
+      error: "Player is invalid.",
     });
   });
 

@@ -25,7 +25,7 @@ describe('server action validation and ownership checks', () => {
     expect(actions).toContain('parsePositiveFormId(formData, "watchlistId")');
     expect(actions).toContain('parseBooleanState(formData, "isActive")');
     expect(actions).toContain('parseBooleanState(formData, "notificationsEnabled")');
-    expect((actions.match(/await requireOwnedWatchlist/g) ?? []).length).toBe(4);
+    expect((actions.match(/await requireOwnedWatchlist/g) ?? []).length).toBe(5);
     expect(actions).not.toContain('throw new Error(error.message)');
   });
 

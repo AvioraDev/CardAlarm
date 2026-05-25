@@ -59,6 +59,12 @@ export async function createWatchlistAction(formData: FormData): Promise<void> {
 
   const { error: ruleError } = await supabase.from("watchlist_rules").insert({
     watchlist_id: watchlist.id,
+    intent_type: watchlistInput.intentType,
+    player_id: watchlistInput.playerId,
+    team_id: watchlistInput.teamId,
+    set_id: watchlistInput.setId,
+    catalogue_card_id: watchlistInput.catalogueCardId,
+    catalogue_variant_id: watchlistInput.catalogueVariantId,
     brand: watchlistInput.brand,
     product_line: watchlistInput.productLine,
     season: watchlistInput.season,
@@ -89,6 +95,74 @@ export async function createWatchlistAction(formData: FormData): Promise<void> {
   revalidatePath("/watchlists");
   revalidatePath("/dashboard");
   redirect(`/watchlists/${watchlist.id}`);
+}
+
+export async function updateWatchlistAction(formData: FormData): Promise<void> {
+  const user = await requireUser();
+  const supabase = await createClient();
+  const watchlistId = parsePositiveFormId(formData, "watchlistId");
+  const ruleId = parsePositiveFormId(formData, "ruleId");
+  const parsed = parseWatchlistForm(formData);
+
+  if (watchlistId === null || ruleId === null) redirect(actionErrorPath("/watchlists", "Invalid watchlist request."));
+  if (!parsed.ok) redirect(actionErrorPath(`/watchlists/${watchlistId}`, parsed.error));
+
+  await requireOwnedWatchlist(supabase, user.id, watchlistId);
+  const watchlistInput = parsed.value;
+
+  const { error: watchlistError } = await supabase
+    .from("watchlists")
+    .update({
+      name: watchlistInput.name,
+      notification_enabled: watchlistInput.notificationEnabled,
+    })
+    .eq("id", watchlistId)
+    .eq("user_id", user.id);
+
+  if (watchlistError) redirect(actionErrorPath(`/watchlists/${watchlistId}`, "Unable to update watchlist."));
+
+  const { error: ruleError } = await supabase
+    .from("watchlist_rules")
+    .update({
+      intent_type: watchlistInput.intentType,
+      player_id: watchlistInput.playerId,
+      team_id: watchlistInput.teamId,
+      set_id: watchlistInput.setId,
+      catalogue_card_id: watchlistInput.catalogueCardId,
+      catalogue_variant_id: watchlistInput.catalogueVariantId,
+      brand: watchlistInput.brand,
+      product_line: watchlistInput.productLine,
+      season: watchlistInput.season,
+      card_number: watchlistInput.cardNumber,
+      parallel: watchlistInput.parallel,
+      rookie_only: watchlistInput.rookieOnly,
+      autograph_only: watchlistInput.autographOnly,
+      relic_only: watchlistInput.relicOnly,
+      serial_numbered_only: watchlistInput.serialNumberedOnly,
+      graded_only: watchlistInput.gradedOnly,
+      raw_only: watchlistInput.rawOnly,
+      min_price: watchlistInput.minPrice,
+      max_price: watchlistInput.maxPrice,
+      currency: watchlistInput.currency,
+      include_terms:
+        watchlistInput.includeTerms ??
+        (watchlistInput.rookieOnly && isGenericRookieWatchlistTerm(watchlistInput.name)
+          ? null
+          : watchlistInput.name),
+      exclude_terms: watchlistInput.excludeTerms,
+      minimum_match_confidence: watchlistInput.minimumMatchConfidence,
+    })
+    .eq("id", ruleId)
+    .eq("watchlist_id", watchlistId);
+
+  if (ruleError) redirect(actionErrorPath(`/watchlists/${watchlistId}`, "Unable to update watchlist filter."));
+
+  await backfillWatchlist(user.id, watchlistId);
+  await enqueueAndProcessWatchlistAlerts(watchlistId);
+  revalidatePath("/watchlists");
+  revalidatePath(`/watchlists/${watchlistId}`);
+  revalidatePath("/dashboard");
+  redirect(`/watchlists/${watchlistId}`);
 }
 
 export async function toggleUserWatchlistAction(formData: FormData): Promise<void> {

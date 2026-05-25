@@ -1,5 +1,11 @@
 export type WatchlistFormInput = {
   name: string;
+  intentType: "custom" | "player" | "team" | "set" | "card" | "variant";
+  playerId: number | null;
+  teamId: number | null;
+  setId: number | null;
+  catalogueCardId: number | null;
+  catalogueVariantId: number | null;
   brand: string | null;
   productLine: string | null;
   season: string | null;
@@ -53,6 +59,13 @@ function optionalMoney(formData: FormData, key: string, label: string): Watchlis
   return Math.round(parsed * 100) / 100;
 }
 
+function optionalPositiveId(formData: FormData, key: string, label: string): WatchlistFormResult | number | null {
+  const value = field(formData, key);
+  if (!value) return null;
+  if (!/^[1-9]\d*$/.test(value)) return { ok: false, error: `${label} is invalid.` };
+  return Number.parseInt(value, 10);
+}
+
 function confidence(formData: FormData): WatchlistFormResult | number {
   const value = field(formData, "minimum_match_confidence");
   if (!value) return 0.75;
@@ -80,10 +93,36 @@ export function isGenericRookieWatchlistTerm(value: string | null): boolean {
   return /^(rookie|rookies|rc)$/i.test((value ?? "").trim());
 }
 
+function intentType(input: {
+  playerId: number | null;
+  teamId: number | null;
+  setId: number | null;
+  catalogueCardId: number | null;
+  catalogueVariantId: number | null;
+}): WatchlistFormInput["intentType"] {
+  if (input.catalogueVariantId) return "variant";
+  if (input.catalogueCardId) return "card";
+  if (input.setId) return "set";
+  if (input.teamId) return "team";
+  if (input.playerId) return "player";
+  return "custom";
+}
+
 export function parseWatchlistForm(formData: FormData): WatchlistFormResult {
   const name = field(formData, "name");
   if (!name) return { ok: false, error: "Watchlist name is required." };
   if (name.length > 120) return { ok: false, error: "Watchlist name is too long." };
+
+  const playerId = optionalPositiveId(formData, "player_id", "Player");
+  if (typeof playerId !== "number" && playerId !== null) return playerId;
+  const teamId = optionalPositiveId(formData, "team_id", "Team");
+  if (typeof teamId !== "number" && teamId !== null) return teamId;
+  const setId = optionalPositiveId(formData, "set_id", "Catalogue set");
+  if (typeof setId !== "number" && setId !== null) return setId;
+  const catalogueCardId = optionalPositiveId(formData, "catalogue_card_id", "Catalogue card");
+  if (typeof catalogueCardId !== "number" && catalogueCardId !== null) return catalogueCardId;
+  const catalogueVariantId = optionalPositiveId(formData, "catalogue_variant_id", "Catalogue variant");
+  if (typeof catalogueVariantId !== "number" && catalogueVariantId !== null) return catalogueVariantId;
 
   const brand = optionalText(formData, "brand", "Brand", 80);
   if (typeof brand !== "string" && brand !== null) return brand;
@@ -136,6 +175,12 @@ export function parseWatchlistForm(formData: FormData): WatchlistFormResult {
     ok: true,
     value: {
       name,
+      intentType: intentType({ playerId, teamId, setId, catalogueCardId, catalogueVariantId }),
+      playerId,
+      teamId,
+      setId,
+      catalogueCardId,
+      catalogueVariantId,
       brand,
       productLine,
       season,

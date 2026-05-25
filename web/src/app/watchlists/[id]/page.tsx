@@ -1,16 +1,20 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { requireUser } from "@/lib/auth";
+import { getWatchlistCatalogueOptions } from "@/lib/catalogue-options";
 import { getUserWatchlist } from "@/lib/watchlists";
 import {
   backfillUserWatchlistAction,
   deleteUserWatchlistAction,
   toggleUserWatchlistAction,
   toggleWatchlistNotificationsAction,
+  updateWatchlistAction,
 } from "@/lib/watchlist-actions";
+import { WatchlistFormFields } from "../watchlist-form-fields";
 
 interface WatchlistDetailPageProps {
   params: Promise<{ id: string }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 }
 
 function yesNo(value: boolean): string {
@@ -22,13 +26,18 @@ function formatPrice(value: number | null): string {
   return `$${value.toFixed(2)}`;
 }
 
-export default async function WatchlistDetailPage({ params }: WatchlistDetailPageProps) {
+export default async function WatchlistDetailPage({ params, searchParams }: WatchlistDetailPageProps) {
   const user = await requireUser();
   const { id } = await params;
+  const query = await searchParams;
+  const error = typeof query.error === "string" ? query.error : undefined;
   const watchlistId = Number(id);
   if (!Number.isInteger(watchlistId)) notFound();
 
-  const watchlist = await getUserWatchlist(user.id, watchlistId);
+  const [watchlist, catalogueOptions] = await Promise.all([
+    getUserWatchlist(user.id, watchlistId),
+    getWatchlistCatalogueOptions(),
+  ]);
   if (!watchlist) notFound();
   const rule = watchlist.rules[0];
 
@@ -51,6 +60,11 @@ export default async function WatchlistDetailPage({ params }: WatchlistDetailPag
             {watchlist.is_active ? "Active" : "Paused"}
           </span>
         </div>
+        {error ? (
+          <div className="mt-5 rounded-2xl border border-danger/30 bg-danger/10 px-4 py-3 text-sm text-text">
+            {decodeURIComponent(error)}
+          </div>
+        ) : null}
         <div className="mt-6 flex flex-wrap gap-2">
           <form action={toggleUserWatchlistAction}>
             <input type="hidden" name="watchlistId" value={watchlist.id} />
@@ -88,6 +102,12 @@ export default async function WatchlistDetailPage({ params }: WatchlistDetailPag
             {[
               ["Include terms", rule.include_terms ?? "Any"],
               ["Exclude terms", rule.exclude_terms ?? "None"],
+              ["Intent", rule.intent_type],
+              ["Player ID", rule.player_id ?? "Any"],
+              ["Team ID", rule.team_id ?? "Any"],
+              ["Set ID", rule.set_id ?? "Any"],
+              ["Catalogue card ID", rule.catalogue_card_id ?? "Any"],
+              ["Catalogue variant ID", rule.catalogue_variant_id ?? "Any"],
               ["Brand", rule.brand ?? "Any"],
               ["Product line", rule.product_line ?? "Any"],
               ["Season", rule.season ?? "Any"],
@@ -108,6 +128,21 @@ export default async function WatchlistDetailPage({ params }: WatchlistDetailPag
               </div>
             ))}
           </div>
+        </section>
+      ) : null}
+
+      {rule ? (
+        <section className="rounded-3xl border border-border bg-card p-6 shadow-card md:p-8">
+          <p className="font-mono text-xs uppercase tracking-[0.24em] text-accent">Edit Watchlist</p>
+          <h2 className="mt-3 text-xl font-semibold text-text">Catalogue-backed filter details</h2>
+          <form action={updateWatchlistAction} className="mt-5">
+            <WatchlistFormFields
+              options={catalogueOptions}
+              watchlist={watchlist}
+              rule={rule}
+              submitLabel="Save Watchlist"
+            />
+          </form>
         </section>
       ) : null}
 

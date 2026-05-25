@@ -84,12 +84,14 @@ describe('customer navigation focus', () => {
 
   it('exposes conservative watchlist email alert controls', () => {
     const newWatchlist = readWebFile('app', 'watchlists', 'new', 'page.tsx');
+    const watchlistFormFields = readWebFile('app', 'watchlists', 'watchlist-form-fields.tsx');
     const watchlistsPage = readWebFile('app', 'watchlists', 'page.tsx');
     const watchlistDetail = readWebFile('app', 'watchlists', '[id]', 'page.tsx');
     const watchlistActions = readWebFile('lib', 'watchlist-actions.ts');
 
-    expect(newWatchlist).toContain('name="notification_enabled"');
-    expect(newWatchlist).toContain('Email alerts');
+    expect(newWatchlist).toContain('WatchlistFormFields');
+    expect(watchlistFormFields).toContain('name="notification_enabled"');
+    expect(watchlistFormFields).toContain('Email alerts');
     expect(watchlistsPage).toContain('toggleWatchlistNotificationsAction');
     expect(watchlistsPage).toContain('Alerts {watchlist.notification_enabled ? "on" : "off"}');
     expect(watchlistDetail).toContain('Turn Alerts On');

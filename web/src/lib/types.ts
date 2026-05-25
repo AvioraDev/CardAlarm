@@ -58,12 +58,15 @@ export interface StoreRow {
 export interface UserWatchlistRuleRow {
   id: number;
   watchlist_id: number;
+  intent_type: "custom" | "player" | "team" | "set" | "card" | "variant";
   player_id: number | null;
   team_id: number | null;
   brand: string | null;
   product_line: string | null;
   season: string | null;
   set_id: number | null;
+  catalogue_card_id: number | null;
+  catalogue_variant_id: number | null;
   card_number: string | null;
   parallel: string | null;
   rookie_only: boolean;

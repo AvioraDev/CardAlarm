@@ -35,8 +35,8 @@ export async function getUserWatchlists(userId: string): Promise<UserWatchlistRo
   const { data: rules, error: rulesError } = await supabase
     .from("watchlist_rules")
     .select(
-      `id, watchlist_id, player_id, team_id, brand, product_line, season, set_id,
-       card_number, parallel, rookie_only, autograph_only, relic_only,
+      `id, watchlist_id, intent_type, player_id, team_id, brand, product_line, season, set_id,
+       catalogue_card_id, catalogue_variant_id, card_number, parallel, rookie_only, autograph_only, relic_only,
        serial_numbered_only, graded_only, raw_only, min_price, max_price,
        currency, include_terms, exclude_terms, minimum_match_confidence,
        created_at, updated_at`,
