@@ -1,11 +1,18 @@
-import type { WatchlistCatalogueOptions } from "@/lib/catalogue-options";
+import type { WatchlistCatalogueOptionFilters, WatchlistCatalogueOptions } from "@/lib/catalogue-options";
 import type { UserWatchlistRow, UserWatchlistRuleRow } from "@/lib/types";
 
 type WatchlistFormFieldsProps = {
   options: WatchlistCatalogueOptions;
+  selected: WatchlistCatalogueOptionFilters;
   watchlist?: UserWatchlistRow;
   rule?: UserWatchlistRuleRow;
   submitLabel: string;
+};
+
+type CatalogueRefineFormProps = {
+  action: string;
+  options: WatchlistCatalogueOptions;
+  selected: WatchlistCatalogueOptionFilters;
 };
 
 function textValue(value: string | number | null | undefined): string {
@@ -31,8 +38,45 @@ function Datalist({ id, values }: { id: string; values: string[] }) {
   );
 }
 
-export function WatchlistFormFields({ options, watchlist, rule, submitLabel }: WatchlistFormFieldsProps) {
+export function CatalogueRefineForm({ action, options, selected }: CatalogueRefineFormProps) {
+  return (
+    <form method="get" action={action} className="rounded-3xl border border-border bg-card p-5 shadow-card">
+      <div className="grid gap-4 md:grid-cols-[1fr_1fr_auto] md:items-end">
+        <label className="block">
+          <span className="font-mono text-[10px] uppercase tracking-wider text-text-muted">Catalogue player</span>
+          <select name="playerId" defaultValue={selectedId(selected.playerId)} className="mt-1 w-full rounded-2xl border border-border bg-bg px-4 py-3 text-sm text-text outline-none transition-colors focus:border-accent">
+            <option value="">Select a player</option>
+            {options.players.map((player) => (
+              <option key={player.id} value={player.id}>{player.label}</option>
+            ))}
+          </select>
+        </label>
+        <label className="block">
+          <span className="font-mono text-[10px] uppercase tracking-wider text-text-muted">Catalogue set</span>
+          <select name="setId" defaultValue={selectedId(selected.setId)} className="mt-1 w-full rounded-2xl border border-border bg-bg px-4 py-3 text-sm text-text outline-none transition-colors focus:border-accent">
+            <option value="">Select a set</option>
+            {options.sets.map((set) => (
+              <option key={set.id} value={set.id}>{optionLabel(set.label, `Set ${set.id}`)}</option>
+            ))}
+          </select>
+        </label>
+        <button type="submit" className="rounded-full border border-border px-5 py-3 font-mono text-xs font-bold uppercase tracking-wider text-text transition-colors hover:border-accent">
+          Refine Cards
+        </button>
+      </div>
+      <p className="mt-3 text-sm leading-6 text-text-muted">
+        Choose a player first, then narrow by set. Card choices are loaded only after a player or set is selected.
+      </p>
+    </form>
+  );
+}
+
+export function WatchlistFormFields({ options, selected, watchlist, rule, submitLabel }: WatchlistFormFieldsProps) {
   const listPrefix = watchlist ? `watchlist-${watchlist.id}` : "new-watchlist";
+  const selectedPlayerId = selected.playerId ?? rule?.player_id ?? null;
+  const selectedSetId = selected.setId ?? rule?.set_id ?? null;
+  const selectedCardId = selected.cardId ?? rule?.catalogue_card_id ?? null;
+  const canSelectCard = Boolean(selectedPlayerId || selectedSetId || selectedCardId);
 
   return (
     <>
@@ -51,9 +95,16 @@ export function WatchlistFormFields({ options, watchlist, rule, submitLabel }: W
           />
         </label>
 
+        <div className="rounded-2xl border border-border bg-bg/45 p-4 md:col-span-2">
+          <p className="font-mono text-[10px] uppercase tracking-wider text-accent">Catalogue fields</p>
+          <p className="mt-1 text-sm leading-6 text-text-muted">
+            Catalogue fields are preferred. Include terms are fallback only.
+          </p>
+        </div>
+
         <label className="block">
           <span className="font-mono text-[10px] uppercase tracking-wider text-text-muted">Catalogue player</span>
-          <select name="player_id" defaultValue={selectedId(rule?.player_id)} className="mt-1 w-full rounded-2xl border border-border bg-bg px-4 py-3 text-sm text-text outline-none transition-colors focus:border-accent">
+          <select name="player_id" defaultValue={selectedId(selectedPlayerId)} className="mt-1 w-full rounded-2xl border border-border bg-bg px-4 py-3 text-sm text-text outline-none transition-colors focus:border-accent">
             <option value="">Any player</option>
             {options.players.map((player) => (
               <option key={player.id} value={player.id}>{player.label}</option>
@@ -73,7 +124,7 @@ export function WatchlistFormFields({ options, watchlist, rule, submitLabel }: W
 
         <label className="block md:col-span-2">
           <span className="font-mono text-[10px] uppercase tracking-wider text-text-muted">Catalogue set</span>
-          <select name="set_id" defaultValue={selectedId(rule?.set_id)} className="mt-1 w-full rounded-2xl border border-border bg-bg px-4 py-3 text-sm text-text outline-none transition-colors focus:border-accent">
+          <select name="set_id" defaultValue={selectedId(selectedSetId)} className="mt-1 w-full rounded-2xl border border-border bg-bg px-4 py-3 text-sm text-text outline-none transition-colors focus:border-accent">
             <option value="">Any set</option>
             {options.sets.map((set) => (
               <option key={set.id} value={set.id}>{optionLabel(set.label, `Set ${set.id}`)}</option>
@@ -81,15 +132,23 @@ export function WatchlistFormFields({ options, watchlist, rule, submitLabel }: W
           </select>
         </label>
 
-        <label className="block">
-          <span className="font-mono text-[10px] uppercase tracking-wider text-text-muted">Catalogue card</span>
-          <select name="catalogue_card_id" defaultValue={selectedId(rule?.catalogue_card_id)} className="mt-1 w-full rounded-2xl border border-border bg-bg px-4 py-3 text-sm text-text outline-none transition-colors focus:border-accent">
-            <option value="">Any card</option>
-            {options.cards.map((card) => (
-              <option key={card.id} value={card.id}>{optionLabel(card.label, `Card ${card.id}`)}</option>
-            ))}
-          </select>
-        </label>
+        {canSelectCard ? (
+          <label className="block">
+            <span className="font-mono text-[10px] uppercase tracking-wider text-text-muted">Catalogue card</span>
+            <select name="catalogue_card_id" defaultValue={selectedId(selectedCardId)} className="mt-1 w-full rounded-2xl border border-border bg-bg px-4 py-3 text-sm text-text outline-none transition-colors focus:border-accent">
+              <option value="">Any card</option>
+              {options.cards.map((card) => (
+                <option key={card.id} value={card.id}>{optionLabel(card.label, `Card ${card.id}`)}</option>
+              ))}
+            </select>
+          </label>
+        ) : (
+          <div className="rounded-2xl border border-border bg-bg/45 p-4">
+            <p className="font-mono text-[10px] uppercase tracking-wider text-text-muted">Catalogue card</p>
+            <p className="mt-1 text-sm leading-6 text-text-muted">Select a player or set first.</p>
+            <input type="hidden" name="catalogue_card_id" value="" />
+          </div>
+        )}
 
         <label className="block">
           <span className="font-mono text-[10px] uppercase tracking-wider text-text-muted">Catalogue variant</span>
@@ -100,6 +159,13 @@ export function WatchlistFormFields({ options, watchlist, rule, submitLabel }: W
             ))}
           </select>
         </label>
+
+        <div className="rounded-2xl border border-border bg-bg/45 p-4 md:col-span-2">
+          <p className="font-mono text-[10px] uppercase tracking-wider text-accent">Advanced fallback filters</p>
+          <p className="mt-1 text-sm leading-6 text-text-muted">
+            Use these when the catalogue does not have the exact player, set, card, or wording yet.
+          </p>
+        </div>
 
         <label className="block">
           <span className="font-mono text-[10px] uppercase tracking-wider text-text-muted">Include terms</span>

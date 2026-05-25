@@ -30,6 +30,7 @@ describe('CAR-37 Stage 1 catalogue-backed watchlist foundation', () => {
 
   it('queries catalogue-backed options from existing catalogue tables', () => {
     expect(catalogueOptions).toContain('export async function getWatchlistCatalogueOptions');
+    expect(catalogueOptions).toContain('filters: WatchlistCatalogueOptionFilters = {}');
     expect(catalogueOptions).toContain('from public.players');
     expect(catalogueOptions).toContain('from public.teams');
     expect(catalogueOptions).toContain('from public.card_catalogue_sets');
@@ -67,12 +68,26 @@ describe('CAR-37 Stage 1 catalogue-backed watchlist foundation', () => {
     expect(catalogueOptions).toContain("group by lower(regexp_replace(trim(product_line), '\\\\s+', ' ', 'g'))");
   });
 
+  it('filters catalogue card options by selected player and set instead of loading global cards', () => {
+    expect(catalogueOptions).toContain('function cardFilterSql');
+    expect(catalogueOptions).toContain('if (filters.playerId)');
+    expect(catalogueOptions).toContain('if (filters.setId)');
+    expect(catalogueOptions).toContain('if (filters.cardId)');
+    expect(catalogueOptions).toContain('function hasCardFilter');
+    expect(catalogueOptions).toContain('if (!hasCardFilter(filters)) return [];');
+    expect(catalogueOptions).toContain('c.player_id =');
+    expect(catalogueOptions).toContain('c.set_id =');
+  });
+
   it('wires create and edit forms to structured fields while preserving include_terms', () => {
     expect(watchlistFormFields).toContain('name="player_id"');
     expect(watchlistFormFields).toContain('name="set_id"');
     expect(watchlistFormFields).toContain('name="catalogue_card_id"');
     expect(watchlistFormFields).toContain('name="catalogue_variant_id"');
     expect(watchlistFormFields).toContain('name="include_terms"');
+    expect(watchlistFormFields).toContain('Catalogue fields are preferred. Include terms are fallback only.');
+    expect(watchlistFormFields).toContain('Select a player or set first.');
+    expect(watchlistFormFields).toContain('CatalogueRefineForm');
     expect(watchlistFormFields).toContain('<datalist');
     expect(detailPage).toContain('updateWatchlistAction');
     expect(detailPage).toContain('Edit Watchlist');

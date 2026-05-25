@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { requireUser } from "@/lib/auth";
+import type { WatchlistCatalogueOptionFilters } from "@/lib/catalogue-options";
 import { getWatchlistCatalogueOptions } from "@/lib/catalogue-options";
 import { getUserWatchlist } from "@/lib/watchlists";
 import {
@@ -10,7 +11,7 @@ import {
   toggleWatchlistNotificationsAction,
   updateWatchlistAction,
 } from "@/lib/watchlist-actions";
-import { WatchlistFormFields } from "../watchlist-form-fields";
+import { CatalogueRefineForm, WatchlistFormFields } from "../watchlist-form-fields";
 
 interface WatchlistDetailPageProps {
   params: Promise<{ id: string }>;
@@ -26,6 +27,18 @@ function formatPrice(value: number | null): string {
   return `$${value.toFixed(2)}`;
 }
 
+function positiveQueryId(value: string | string[] | undefined): number | null {
+  const raw = Array.isArray(value) ? value[0] : value;
+  if (!raw || !/^[1-9]\d*$/.test(raw)) return null;
+  return Number.parseInt(raw, 10);
+}
+
+function queryText(value: string | string[] | undefined): string | null {
+  const raw = Array.isArray(value) ? value[0] : value;
+  const trimmed = raw?.trim();
+  return trimmed || null;
+}
+
 export default async function WatchlistDetailPage({ params, searchParams }: WatchlistDetailPageProps) {
   const user = await requireUser();
   const { id } = await params;
@@ -34,12 +47,17 @@ export default async function WatchlistDetailPage({ params, searchParams }: Watc
   const watchlistId = Number(id);
   if (!Number.isInteger(watchlistId)) notFound();
 
-  const [watchlist, catalogueOptions] = await Promise.all([
-    getUserWatchlist(user.id, watchlistId),
-    getWatchlistCatalogueOptions(),
-  ]);
+  const watchlist = await getUserWatchlist(user.id, watchlistId);
   if (!watchlist) notFound();
   const rule = watchlist.rules[0];
+  const selected: WatchlistCatalogueOptionFilters = {
+    playerId: positiveQueryId(query.playerId) ?? rule?.player_id ?? null,
+    setId: positiveQueryId(query.setId) ?? rule?.set_id ?? null,
+    cardId: rule?.catalogue_card_id ?? null,
+    season: queryText(query.season) ?? rule?.season ?? null,
+    productLine: queryText(query.productLine) ?? rule?.product_line ?? null,
+  };
+  const catalogueOptions = await getWatchlistCatalogueOptions(selected);
 
   return (
     <div className="mx-auto max-w-5xl space-y-6">
@@ -135,9 +153,13 @@ export default async function WatchlistDetailPage({ params, searchParams }: Watc
         <section className="rounded-3xl border border-border bg-card p-6 shadow-card md:p-8">
           <p className="font-mono text-xs uppercase tracking-[0.24em] text-accent">Edit Watchlist</p>
           <h2 className="mt-3 text-xl font-semibold text-text">Catalogue-backed filter details</h2>
+          <div className="mt-5">
+            <CatalogueRefineForm action={`/watchlists/${watchlist.id}`} options={catalogueOptions} selected={selected} />
+          </div>
           <form action={updateWatchlistAction} className="mt-5">
             <WatchlistFormFields
               options={catalogueOptions}
+              selected={selected}
               watchlist={watchlist}
               rule={rule}
               submitLabel="Save Watchlist"
