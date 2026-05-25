@@ -11,6 +11,7 @@ function readWebFile(...segments: string[]): string {
 
 describe('CAR-37 Stage 1 catalogue-backed watchlist foundation', () => {
   const migration = readRootFile('supabase', 'migrations', '20260525000000_stage1_catalogue_watchlist_foundation.sql');
+  const referenceBackfillMigration = readRootFile('supabase', 'migrations', '20260525001000_backfill_catalogue_from_reference_checklists.sql');
   const catalogueOptions = readWebFile('lib', 'catalogue-options.ts');
   const watchlistActions = readWebFile('lib', 'watchlist-actions.ts');
   const watchlistFormFields = readWebFile('app', 'watchlists', 'watchlist-form-fields.tsx');
@@ -34,6 +35,36 @@ describe('CAR-37 Stage 1 catalogue-backed watchlist foundation', () => {
     expect(catalogueOptions).toContain('from public.card_catalogue_sets');
     expect(catalogueOptions).toContain('from public.card_catalogue_cards');
     expect(catalogueOptions).toContain('from public.card_catalogue_variants');
+  });
+
+  it('backfills catalogue tables from reference_checklists idempotently', () => {
+    expect(referenceBackfillMigration).toContain('from public.reference_checklists');
+    expect(referenceBackfillMigration).toContain('insert into public.players');
+    expect(referenceBackfillMigration).toContain('insert into public.card_catalogue_sets');
+    expect(referenceBackfillMigration).toContain('insert into public.card_catalogue_cards');
+    expect(referenceBackfillMigration).toContain("source,\n  verification_status");
+    expect(referenceBackfillMigration).toContain("'reference_checklists'");
+    expect(referenceBackfillMigration).toContain("'imported'");
+    expect(referenceBackfillMigration).toContain("substring(trim(set_name) from '^((?:19|20)[0-9]{2}-[0-9]{2})')");
+    expect(referenceBackfillMigration).toContain('on conflict (normalized_name) do update');
+    expect(referenceBackfillMigration).toContain('where not exists');
+    expect(referenceBackfillMigration).not.toContain('insert into public.teams');
+    expect(referenceBackfillMigration).not.toContain('insert into public.card_catalogue_variants');
+  });
+
+  it('adds uniqueness protection for reference-backed catalogue identities', () => {
+    expect(referenceBackfillMigration).toContain('create unique index if not exists idx_players_sport_league_normalized_name');
+    expect(referenceBackfillMigration).toContain('create unique index if not exists idx_card_catalogue_sets_sport_league_season_product_line');
+    expect(referenceBackfillMigration).toContain('create unique index if not exists idx_card_catalogue_cards_set_player_card_number');
+  });
+
+  it('keeps dropdown option queries distinct and NBA-scoped', () => {
+    expect(catalogueOptions).toContain('distinct on (normalized_name)');
+    expect(catalogueOptions).toContain("sport = 'basketball'");
+    expect(catalogueOptions).toContain("league = 'NBA'");
+    expect(catalogueOptions).toContain('group by lower(c.label)');
+    expect(catalogueOptions).toContain('function uniqueOptions');
+    expect(catalogueOptions).toContain("group by lower(regexp_replace(trim(product_line), '\\\\s+', ' ', 'g'))");
   });
 
   it('wires create and edit forms to structured fields while preserving include_terms', () => {
