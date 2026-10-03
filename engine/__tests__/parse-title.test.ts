@@ -61,6 +61,14 @@ describe('parseTitleMetadata', () => {
     expect(meta.cardNumber).toBe('8B-8');
   });
 
+  it('extracts player names beginning with an accented letter', () => {
+    const meta = parseTitleMetadata(
+      '2025-26 Topps UEFA Club Competitions - 8-Bit Shots #8B-8 Étienne Capoue'
+    );
+
+    expect(meta.playerName).toBe('Étienne Capoue');
+  });
+
   it('detects MMA/Combat category', () => {
     const meta = parseTitleMetadata(
       '2025 Panini Combat Anthology - Ring Royalty - Red Fireworks #10 Kenta /275'

@@ -262,7 +262,7 @@ function extractPlayerName(title: string): string | null {
     .replace(/,\s*$/, '')
     .trim();
 
-  if (cleaned.length < 2 || !/^[A-Za-z]/.test(cleaned)) return null;
+  if (cleaned.length < 2 || !/^\p{L}/u.test(cleaned)) return null;
   return cleaned || null;
 }
 

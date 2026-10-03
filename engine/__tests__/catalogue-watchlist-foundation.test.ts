@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 function readRootFile(...segments: string[]): string {
-  return fs.readFileSync(path.resolve(__dirname, '..', '..', ...segments), 'utf8');
+  return fs.readFileSync(path.resolve(__dirname, '..', '..', ...segments), 'utf8').replace(/\r\n/g, '\n');
 }
 
 function readWebFile(...segments: string[]): string {

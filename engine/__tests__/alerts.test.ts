@@ -11,7 +11,7 @@ import {
 
 describe('watchlist email alerts', () => {
   const originalEnv = process.env;
-  const alertsSource = fs.readFileSync(path.resolve(__dirname, '..', 'src', 'alerts.ts'), 'utf8');
+  const alertsSource = fs.readFileSync(path.resolve(__dirname, '..', 'src', 'alerts.ts'), 'utf8').replace(/\r\n/g, '\n');
   const ingestSource = fs.readFileSync(path.resolve(__dirname, '..', 'src', 'ingest.ts'), 'utf8');
   const reconciliationSource = fs.readFileSync(path.resolve(__dirname, '..', 'src', 'watchlist-reconciliation.ts'), 'utf8');
   const migrationSource = fs.readFileSync(path.resolve(__dirname, '..', '..', 'supabase', 'migrations', '20260513000000_alerts.sql'), 'utf8');

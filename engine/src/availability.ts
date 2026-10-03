@@ -22,14 +22,23 @@ async function fetchProductPage(
   console.log(`  ↳ Availability page ${page}: ${url}`);
 
   try {
-    const response = await fetch(url);
+    const response = await fetch(url, { signal: AbortSignal.timeout(15000) });
     if (!response.ok) {
       console.error(`  ✗ HTTP ${response.status} from ${url}`);
       return null;
     }
 
-    const data = (await response.json()) as ShopifyProductsResponse;
-    return data.products ?? [];
+    const data = (await response.json()) as ShopifyProductsResponse | null;
+    if (!data || !Array.isArray(data.products) || data.products.some(product =>
+      !product || typeof product.id !== 'number' || !Number.isSafeInteger(product.id) ||
+      !Array.isArray(product.variants) || product.variants.some(variant =>
+        !variant || typeof variant.available !== 'boolean'
+      )
+    )) {
+      console.error(`  ✗ Invalid product inventory from ${url}`);
+      return null;
+    }
+    return data.products;
   } catch (err) {
     console.error(`  ✗ Network error fetching ${url}:`, err);
     return null;
