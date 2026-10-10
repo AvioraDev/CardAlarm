@@ -1,0 +1,31 @@
+diff --git a/web/src/lib/auth.ts b/web/src/lib/auth.ts
+index d41825f..a6c1edc 100644
+--- a/web/src/lib/auth.ts
++++ b/web/src/lib/auth.ts
+@@ -9,6 +9,8 @@ export type AuthProfile = {
+ };
+ 
+ export async function getCurrentUser() {
++  // TEMP LOCAL-RENDER STUB (never commit)
++  return { id: "11111111-1111-1111-1111-111111111111", email: "a@x" } as { id: string; email: string };
+   const supabase = await createClient();
+   const {
+     data: { user },
+@@ -20,6 +22,8 @@ export async function getCurrentUser() {
+ }
+ 
+ export async function ensureProfile(userId: string, email?: string | null): Promise<AuthProfile> {
++  // TEMP LOCAL-RENDER STUB (never commit)
++  if (userId) return { user_id: userId, display_name: "Harry", role: "admin" };
+   const supabase = await createClient();
+   const existing = await getProfileByUserId(userId);
+   if (existing) return existing;
+@@ -36,6 +40,8 @@ export async function ensureProfile(userId: string, email?: string | null): Prom
+ }
+ 
+ async function getProfileByUserId(userId: string): Promise<AuthProfile | null> {
++  // TEMP LOCAL-RENDER STUB (never commit)
++  if (userId) return { user_id: userId, display_name: "Harry", role: "admin" };
+   const supabase = await createClient();
+   const { data, error } = await supabase
+     .from("profiles")
