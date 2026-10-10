@@ -5,13 +5,15 @@ description: Pre-merge UX and accessibility checklist for CardAlarm customer pag
 
 # CardAlarm UX review checklist
 
-Run this on every customer-facing change, alongside the four required commands from `anthropic-skills:cardalarm-delivery`. Where the app can be run, check at **360px and 1280px**; where it cannot, say so in the summary rather than implying it was seen.
+Run this on every customer-facing change, alongside the four required commands from `anthropic-skills:cardalarm-delivery`. Render it with `cardalarm-visual-verification` and **look at light and dark at 360px and 1280px**; where something cannot be rendered, say so in the summary rather than implying it was seen. A green test run is not a visual check: the watchlist detail page passed every test while a real id-type bug hid rows, and only the screenshot exposed it.
 
 ## Structure and states
 - [ ] Content before chrome on the dashboard/saved pages; first card visible on a phone without scrolling past stat tiles.
 - [ ] Loading (`loading.tsx` or Suspense), empty and error states exist; each empty state names its cause (no watchlists / no matches yet / filters hide everything / nothing saved) and offers the next action.
 - [ ] Errors from actions are shown (`role="alert"`) with friendly copy, never raw slugs or decoded input echoed back (`friendlyError`).
 - [ ] Destructive actions confirm (`ConfirmSubmitButton`); form submits show pending (`SubmitButton`).
+
+- [ ] At 1280x900 the first card's Open store button is above the fold; no database IDs shown as labels (resolve to names or drop the row).
 
 ## Trust and honesty
 - [ ] Possible matches are visibly different from confirmed (dashed border + badge + caution line + separate section).
