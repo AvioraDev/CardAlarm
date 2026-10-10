@@ -19,14 +19,14 @@ export function ErrorPanel({ title, message, onRetry }: ErrorPanelProps) {
           <button
             type="button"
             onClick={onRetry}
-            className="rounded-full bg-accent px-5 py-3 font-mono text-xs font-bold uppercase tracking-wider text-bg transition-colors hover:bg-accent-hover"
+            className="btn btn-primary"
           >
             Try again
           </button>
         ) : null}
         <Link
           href="/"
-          className="rounded-full border border-border px-5 py-3 font-mono text-xs font-bold uppercase tracking-wider text-text transition-colors hover:border-accent"
+          className="btn btn-secondary"
         >
           Go home
         </Link>

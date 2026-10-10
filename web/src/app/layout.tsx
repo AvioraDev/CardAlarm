@@ -18,9 +18,9 @@ const jetbrains = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "CardAlarm — Watchlist Discovery",
+  title: "CardAlarm: never miss the card you're chasing",
   description:
-    "Watchlist-driven sports card discovery for cards found across hobby stores.",
+    "Watchlists for NBA card collectors. CardAlarm checks hobby stores and shows matching singles that are in stock, with how sure we are that each one is right.",
 };
 
 export const viewport: Viewport = {
@@ -39,57 +39,42 @@ export default async function RootLayout({
     <html lang="en" className={`${inter.variable} ${jetbrains.variable}`}>
       <body className="min-h-screen">
         <header className="sticky top-0 z-50 border-b border-border bg-bg/95 backdrop-blur-sm">
-          <div className="mx-auto flex h-12 max-w-[1600px] items-center justify-between px-4">
-            <Link href="/" className="font-mono text-sm font-bold uppercase tracking-[0.2em] text-text">
+          <div className="mx-auto flex h-14 max-w-[1600px] items-center justify-between px-4">
+            <Link href="/" className="text-base font-semibold tracking-tight text-text">
               Card<span className="text-accent">Alarm</span>
             </Link>
-            <nav aria-label="Main" className="flex items-center gap-3 overflow-x-auto sm:gap-6 [&_a]:whitespace-nowrap [&_button]:whitespace-nowrap">
-              <Link
-                href="/dashboard"
-                className="font-mono text-xs uppercase tracking-wider text-text-muted transition-colors hover:text-text"
-              >
-                For You
-              </Link>
+            <nav aria-label="Main" className="flex items-center gap-4 overflow-x-auto sm:gap-6 [&_a]:whitespace-nowrap [&_button]:whitespace-nowrap">
               {profile ? (
-                <Link
-                  href="/watchlists"
-                  className="font-mono text-xs uppercase tracking-wider text-text-muted transition-colors hover:text-text"
-                >
-                  Watchlists
-                </Link>
-              ) : null}
-              {profile ? (
-                <Link
-                  href="/saved"
-                  className="font-mono text-xs uppercase tracking-wider text-text-muted transition-colors hover:text-text"
-                >
-                  Saved
-                </Link>
-              ) : null}
-              {profile?.role === "admin" ? (
-                <Link
-                  href="/admin"
-                  className="font-mono text-xs uppercase tracking-wider text-text-muted transition-colors hover:text-text"
-                >
-                  Admin
-                </Link>
-              ) : null}
-              {profile ? (
-                <form action={signOutAction}>
-                  <button
-                    type="submit"
-                    className="font-mono text-xs uppercase tracking-wider text-text-muted transition-colors hover:text-text"
-                  >
-                    Sign out
-                  </button>
-                </form>
+                <>
+                  <Link href="/dashboard" className="nav-link">
+                    For You
+                  </Link>
+                  <Link href="/watchlists" className="nav-link">
+                    Watchlists
+                  </Link>
+                  <Link href="/saved" className="nav-link">
+                    Saved
+                  </Link>
+                  {profile.role === "admin" ? (
+                    <Link href="/admin" className="nav-link">
+                      Admin
+                    </Link>
+                  ) : null}
+                  <form action={signOutAction}>
+                    <button type="submit" className="nav-link">
+                      Sign out
+                    </button>
+                  </form>
+                </>
               ) : (
-                <Link
-                  href="/login"
-                  className="font-mono text-xs uppercase tracking-wider text-text-muted transition-colors hover:text-text"
-                >
-                  Sign in
-                </Link>
+                <>
+                  <Link href="/login" className="nav-link">
+                    Sign in
+                  </Link>
+                  <Link href="/signup" className="btn btn-primary btn-sm">
+                    Get started
+                  </Link>
+                </>
               )}
             </nav>
           </div>

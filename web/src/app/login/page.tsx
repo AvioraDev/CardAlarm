@@ -14,8 +14,8 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
   const next = typeof params.next === "string" ? params.next : "/dashboard";
 
   return (
-    <div className="mx-auto max-w-md rounded-3xl border border-border bg-card p-6 shadow-card">
-      <p className="font-mono text-xs uppercase tracking-[0.24em] text-accent">Sign in</p>
+    <div className="panel mx-auto max-w-md p-6">
+      <p className="eyebrow">Sign in</p>
       <h1 className="mt-3 text-3xl font-semibold tracking-tight text-text">Welcome back</h1>
       <p className="mt-2 text-sm leading-6 text-text-muted">
         Sign in to view your CardAlarm dashboard and manage watchlists.
@@ -35,28 +35,28 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
       <form action={signInAction} className="mt-6 space-y-4">
         <input type="hidden" name="next" value={next} />
         <label className="block">
-          <span className="font-mono text-[10px] uppercase tracking-wider text-text-muted">Email</span>
+          <span className="field-label">Email</span>
           <input
             name="email"
             type="email"
             required
             autoComplete="email"
-            className="mt-1 w-full rounded-2xl border border-border bg-bg px-4 py-3 text-sm text-text outline-none transition-colors focus:border-accent"
+            className="field mt-1"
           />
         </label>
         <label className="block">
-          <span className="font-mono text-[10px] uppercase tracking-wider text-text-muted">Password</span>
+          <span className="field-label">Password</span>
           <input
             name="password"
             type="password"
             required
             autoComplete="current-password"
-            className="mt-1 w-full rounded-2xl border border-border bg-bg px-4 py-3 text-sm text-text outline-none transition-colors focus:border-accent"
+            className="field mt-1"
           />
         </label>
         <SubmitButton
           pendingLabel="Signing in…"
-          className="w-full rounded-full bg-accent px-6 py-3 font-mono text-xs font-bold uppercase tracking-wider text-bg transition-colors hover:bg-accent-hover"
+          className="btn btn-primary w-full"
         >
           Sign in
         </SubmitButton>
