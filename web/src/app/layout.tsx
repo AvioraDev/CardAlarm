@@ -39,11 +39,11 @@ export default async function RootLayout({
     <html lang="en" className={`${inter.variable} ${jetbrains.variable}`}>
       <body className="min-h-screen">
         <header className="sticky top-0 z-50 border-b border-border bg-bg/95 backdrop-blur-sm">
-          <div className="mx-auto flex h-14 max-w-[1600px] items-center justify-between px-4">
+          <div className="mx-auto flex max-w-[1600px] flex-wrap items-center justify-between gap-x-4 px-4 py-2 sm:h-14 sm:flex-nowrap sm:py-0">
             <Link href="/" className="text-base font-semibold tracking-tight text-text">
               Card<span className="text-accent">Alarm</span>
             </Link>
-            <nav aria-label="Main" className="flex items-center gap-4 overflow-x-auto sm:gap-6 [&_a]:whitespace-nowrap [&_button]:whitespace-nowrap">
+            <nav aria-label="Main" className={`flex items-center gap-4 overflow-x-auto sm:w-auto sm:gap-6 [&_a]:whitespace-nowrap [&_button]:whitespace-nowrap ${profile ? "w-full pb-1 sm:pb-0" : ""}`}>
               {profile ? (
                 <>
                   <Link href="/dashboard" className="nav-link">

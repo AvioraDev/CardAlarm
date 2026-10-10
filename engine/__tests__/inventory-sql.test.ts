@@ -13,6 +13,15 @@ import {
 } from '../../web/src/lib/inventory-sql';
 
 describe('canonical inventory SQL helpers', () => {
+  it('never lets a watchlist name or terms override the listing\'s own parsed player', () => {
+    const selectSql = watchlistInventoryListingSelectSql();
+    const start = selectSql.indexOf('as player_name');
+    const block = selectSql.slice(selectSql.indexOf('pcm.matched_player_name'), start);
+    const order = ['pcm.matched_player_name', 'pc.player_name', 'p.full_name', 'w.name'].map(token => block.indexOf(token));
+    expect(order.every(index => index >= 0)).toBe(true);
+    expect([...order].sort((a, b) => a - b)).toEqual(order);
+  });
+
   it('builds browse-all SQL from store_products without listings_feed', () => {
     const selectSql = inventoryListingSelectSql();
     const joinSql = inventoryMatchJoinSql();

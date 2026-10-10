@@ -153,12 +153,14 @@ export function watchlistInventoryListingSelectSql(): string {
        pc.year,
        coalesce(pc.set_name, pc.product_line) as set_name,
        pc.card_number,
+       -- Prefer what the listing itself was identified as; the watchlist's own name or terms
+       -- are only a last resort and must never override a parsed player.
        coalesce(
          pcm.matched_player_name,
+         pc.player_name,
          p.full_name,
          nullif(trim(split_part(coalesce(wr.include_terms, ''), ',', 1)), ''),
-         w.name,
-         pc.player_name
+         w.name
        ) as player_name,
        coalesce(pc.variant_name, pc.parallel_name, pc.insert_name) as variant,
        coalesce(pc.is_serial, coalesce(pcm.matched_fields, '[]'::jsonb) ? 'serial', false) as is_serial,
