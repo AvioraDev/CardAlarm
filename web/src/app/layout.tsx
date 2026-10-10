@@ -1,20 +1,29 @@
 import type { Metadata, Viewport } from "next";
-import { Inter, JetBrains_Mono } from "next/font/google";
+import { IBM_Plex_Mono, IBM_Plex_Sans, Newsreader } from "next/font/google";
 import Link from "next/link";
 import { getCurrentProfile } from "@/lib/auth";
 import { signOutAction } from "@/lib/auth-actions";
 import "./globals.css";
 
-const inter = Inter({
+const plexSans = IBM_Plex_Sans({
   subsets: ["latin"],
-  variable: "--font-sans",
+  variable: "--font-plex-sans",
   display: "swap",
 });
 
-const jetbrains = JetBrains_Mono({
+const plexMono = IBM_Plex_Mono({
   subsets: ["latin"],
-  variable: "--font-mono",
+  weight: ["400", "500"],
+  variable: "--font-plex-mono",
   display: "swap",
+});
+
+const newsreader = Newsreader({
+  subsets: ["latin"],
+  variable: "--font-newsreader",
+  display: "swap",
+  axes: ["opsz"],
+  style: ["normal"],
 });
 
 export const metadata: Metadata = {
@@ -24,8 +33,11 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  colorScheme: "dark",
-  themeColor: "#07080b",
+  colorScheme: "light dark",
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#FFFFFF" },
+    { media: "(prefers-color-scheme: dark)", color: "#1B1B19" },
+  ],
 };
 
 export default async function RootLayout({
@@ -36,7 +48,7 @@ export default async function RootLayout({
   const profile = await getCurrentProfile();
 
   return (
-    <html lang="en" className={`${inter.variable} ${jetbrains.variable}`}>
+    <html lang="en" className={`${plexSans.variable} ${plexMono.variable} ${newsreader.variable}`}>
       <body className="min-h-screen">
         <header className="sticky top-0 z-50 border-b border-border bg-bg/95 backdrop-blur-sm">
           <div className="mx-auto flex max-w-[1600px] flex-wrap items-center justify-between gap-x-4 px-4 py-2 sm:h-14 sm:flex-nowrap sm:py-0">
