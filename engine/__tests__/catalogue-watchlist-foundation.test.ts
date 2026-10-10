@@ -85,7 +85,7 @@ describe('CAR-37 Stage 1 catalogue-backed watchlist foundation', () => {
     expect(watchlistFormFields).toContain('name="catalogue_card_id"');
     expect(watchlistFormFields).toContain('name="catalogue_variant_id"');
     expect(watchlistFormFields).toContain('name="include_terms"');
-    expect(watchlistFormFields).toContain('Catalogue fields are preferred. Include terms are fallback only.');
+    expect(watchlistFormFields).toContain("Pick from our NBA card list.");
     expect(watchlistFormFields).toContain('Select a player or set first.');
     expect(watchlistFormFields).toContain('CatalogueRefineForm');
     expect(watchlistFormFields).toContain('<datalist');

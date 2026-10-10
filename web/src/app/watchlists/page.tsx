@@ -35,13 +35,11 @@ export default async function WatchlistsPage({ searchParams }: WatchlistsPagePro
           {friendlyError(error)}
         </div>
       ) : null}
-      <section className="rounded-3xl border border-border bg-card p-6 shadow-card md:p-8">
+      <section className="panel p-6 md:p-8">
         <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
           <div>
-            <p className="font-mono text-xs uppercase tracking-[0.24em] text-accent">
-              Watchlists
-            </p>
-            <h1 className="mt-3 text-3xl font-semibold tracking-tight text-text md:text-4xl">
+            <p className="eyebrow">Watchlists</p>
+            <h1 className="mt-2 text-3xl font-semibold tracking-tight text-text md:text-4xl">
               Cards you&apos;re chasing
             </h1>
             <p className="mt-3 max-w-2xl text-sm leading-6 text-text-muted">
@@ -51,16 +49,14 @@ export default async function WatchlistsPage({ searchParams }: WatchlistsPagePro
             </p>
           </div>
           <Link
-            href="/watchlists/new"
-            className="inline-flex items-center justify-center rounded-full bg-accent px-5 py-3 font-mono text-xs font-bold uppercase tracking-wider text-bg transition-colors hover:bg-accent-hover"
-          >
-            New Watchlist
+            href="/watchlists/new" className="btn btn-primary">
+            New watchlist
           </Link>
         </div>
       </section>
 
       {watchlists.length === 0 ? (
-        <section className="rounded-3xl border border-border bg-card px-6 py-16 text-center shadow-card">
+        <section className="panel px-6 py-16 text-center">
           <h2 className="text-xl font-semibold text-text">No watchlists yet</h2>
           <p className="mx-auto mt-3 max-w-xl text-sm leading-6 text-text-muted">
             Start simple. Add a player name, set, card number, or a few terms.
@@ -68,15 +64,15 @@ export default async function WatchlistsPage({ searchParams }: WatchlistsPagePro
           </p>
           <Link
             href="/watchlists/new"
-            className="mt-6 inline-flex items-center justify-center rounded-full bg-accent px-5 py-3 font-mono text-xs font-bold uppercase tracking-wider text-bg transition-colors hover:bg-accent-hover"
+            className="btn btn-primary mt-6"
           >
-            Create First Watchlist
+            Create your first watchlist
           </Link>
         </section>
       ) : (
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
           {watchlists.map((watchlist) => (
-            <article key={watchlist.id} className="rounded-3xl border border-border bg-card p-5 shadow-card">
+            <article key={watchlist.id} className="panel p-5">
               <div className="flex items-start justify-between gap-3">
                 <div>
                   <h2 className="text-lg font-semibold tracking-tight text-text">
@@ -84,8 +80,8 @@ export default async function WatchlistsPage({ searchParams }: WatchlistsPagePro
                       {watchlist.name}
                     </Link>
                   </h2>
-                  <p className="mt-1 font-mono text-[10px] uppercase tracking-[0.18em] text-text-muted">
-                    {ruleSummary(watchlist.rules.length)} · {watchlist.match_count} found cards · Alerts {watchlist.notification_enabled ? "on" : "off"}
+                  <p className="mt-1 text-xs text-text-muted">
+                    {ruleSummary(watchlist.rules.length)} · <span className="data">{watchlist.match_count}</span> found cards · Alerts {watchlist.notification_enabled ? "on" : "off"}
                   </p>
                 </div>
                 <span className={watchlist.is_active ? "tag tag-accent" : "tag"}>
@@ -106,27 +102,27 @@ export default async function WatchlistsPage({ searchParams }: WatchlistsPagePro
               <div className="mt-5 flex flex-wrap gap-2">
                 <Link
                   href={`/watchlists/${watchlist.id}`}
-                  className="rounded-full border border-border px-4 py-2 font-mono text-xs font-bold uppercase tracking-wider text-text transition-colors hover:border-accent"
+                  className="btn btn-secondary btn-sm"
                 >
                   View
                 </Link>
                 <form action={toggleUserWatchlistAction}>
                   <input type="hidden" name="watchlistId" value={watchlist.id} />
                   <input type="hidden" name="isActive" value={String(watchlist.is_active)} />
-                  <SubmitButton className="rounded-full border border-border px-4 py-2 font-mono text-xs font-bold uppercase tracking-wider text-text-muted transition-colors hover:border-accent hover:text-text">
+                  <SubmitButton className="btn btn-secondary btn-sm">
                     {watchlist.is_active ? "Pause" : "Activate"}
                   </SubmitButton>
                 </form>
                 <form action={toggleWatchlistNotificationsAction}>
                   <input type="hidden" name="watchlistId" value={watchlist.id} />
                   <input type="hidden" name="notificationsEnabled" value={String(watchlist.notification_enabled)} />
-                  <SubmitButton className="rounded-full border border-border px-4 py-2 font-mono text-xs font-bold uppercase tracking-wider text-text-muted transition-colors hover:border-accent hover:text-text">
+                  <SubmitButton className="btn btn-secondary btn-sm">
                     {watchlist.notification_enabled ? "Alerts On" : "Alerts Off"}
                   </SubmitButton>
                 </form>
                 <form action={deleteUserWatchlistAction}>
                   <input type="hidden" name="watchlistId" value={watchlist.id} />
-                  <ConfirmSubmitButton message="Delete this watchlist and its matches? This can't be undone." className="rounded-full border border-danger/40 px-4 py-2 font-mono text-xs font-bold uppercase tracking-wider text-danger transition-colors hover:bg-danger hover:text-bg">
+                  <ConfirmSubmitButton message="Delete this watchlist and its matches? This can't be undone." className="btn btn-danger btn-sm">
                     Delete
                   </ConfirmSubmitButton>
                 </form>

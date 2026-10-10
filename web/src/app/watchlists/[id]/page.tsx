@@ -64,17 +64,17 @@ export default async function WatchlistDetailPage({ params, searchParams }: Watc
 
   return (
     <div className="mx-auto max-w-5xl space-y-6">
-      <section className="rounded-3xl border border-border bg-card p-6 shadow-card md:p-8">
+      <section className="panel p-6 md:p-8">
         <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
           <div>
-            <Link href="/watchlists" className="font-mono text-xs uppercase tracking-wider text-text-muted hover:text-accent">
+            <Link href="/watchlists" className="nav-link hover:text-accent">
               ← Watchlists
             </Link>
-            <h1 className="mt-4 text-3xl font-semibold tracking-tight text-text md:text-4xl">
+            <h1 className="mt-3 text-3xl font-semibold tracking-tight text-text md:text-4xl">
               {watchlist.name}
             </h1>
-            <p className="mt-2 font-mono text-[10px] uppercase tracking-[0.18em] text-text-muted">
-              Created {new Date(watchlist.created_at).toLocaleDateString()} · {watchlist.match_count} found cards · Alerts {watchlist.notification_enabled ? "on" : "off"}
+            <p className="mt-2 text-xs text-text-muted">
+              Created {new Date(watchlist.created_at).toLocaleDateString()} · <span className="data">{watchlist.match_count}</span> found cards · Alerts {watchlist.notification_enabled ? "on" : "off"}
             </p>
           </div>
           <span className={watchlist.is_active ? "tag tag-accent" : "tag"}>
@@ -90,35 +90,35 @@ export default async function WatchlistDetailPage({ params, searchParams }: Watc
           <form action={toggleUserWatchlistAction}>
             <input type="hidden" name="watchlistId" value={watchlist.id} />
             <input type="hidden" name="isActive" value={String(watchlist.is_active)} />
-            <SubmitButton className="rounded-full border border-border px-4 py-2 font-mono text-xs font-bold uppercase tracking-wider text-text transition-colors hover:border-accent">
+            <SubmitButton className="btn btn-secondary btn-sm">
               {watchlist.is_active ? "Pause" : "Activate"}
             </SubmitButton>
           </form>
           <form action={deleteUserWatchlistAction}>
             <input type="hidden" name="watchlistId" value={watchlist.id} />
-            <ConfirmSubmitButton message="Delete this watchlist and its matches? This can't be undone." className="rounded-full border border-danger/40 px-4 py-2 font-mono text-xs font-bold uppercase tracking-wider text-danger transition-colors hover:bg-danger hover:text-bg">
+            <ConfirmSubmitButton message="Delete this watchlist and its matches? This can't be undone." className="btn btn-danger btn-sm">
               Delete
             </ConfirmSubmitButton>
           </form>
           <form action={toggleWatchlistNotificationsAction}>
             <input type="hidden" name="watchlistId" value={watchlist.id} />
             <input type="hidden" name="notificationsEnabled" value={String(watchlist.notification_enabled)} />
-            <SubmitButton className="rounded-full border border-border px-4 py-2 font-mono text-xs font-bold uppercase tracking-wider text-text transition-colors hover:border-accent">
+            <SubmitButton className="btn btn-secondary btn-sm">
               {watchlist.notification_enabled ? "Turn Alerts Off" : "Turn Alerts On"}
             </SubmitButton>
           </form>
           <form action={backfillUserWatchlistAction}>
             <input type="hidden" name="watchlistId" value={watchlist.id} />
-            <SubmitButton className="rounded-full bg-accent px-4 py-2 font-mono text-xs font-bold uppercase tracking-wider text-bg transition-colors hover:bg-accent-hover">
-              Refresh Matches
+            <SubmitButton className="btn btn-primary btn-sm">
+              Refresh matches
             </SubmitButton>
           </form>
         </div>
       </section>
 
       {rule ? (
-        <section className="rounded-3xl border border-border bg-card p-6 shadow-card md:p-8">
-        <p className="font-mono text-xs uppercase tracking-[0.24em] text-accent">Watchlist Filter</p>
+        <section className="panel p-6 md:p-8">
+        <p className="eyebrow">Watchlist filter</p>
           <div className="mt-5 grid gap-3 md:grid-cols-2">
             {[
               ["Include terms", rule.include_terms ?? "Any"],
@@ -127,8 +127,8 @@ export default async function WatchlistDetailPage({ params, searchParams }: Watc
               ["Player ID", rule.player_id ?? "Any"],
               ["Team ID", rule.team_id ?? "Any"],
               ["Set ID", rule.set_id ?? "Any"],
-              ["Catalogue card ID", rule.catalogue_card_id ?? "Any"],
-              ["Catalogue variant ID", rule.catalogue_variant_id ?? "Any"],
+              ["Specific card ID", rule.catalogue_card_id ?? "Any"],
+              ["Parallel / variant ID", rule.catalogue_variant_id ?? "Any"],
               ["Brand", rule.brand ?? "Any"],
               ["Product line", rule.product_line ?? "Any"],
               ["Season", rule.season ?? "Any"],
@@ -144,7 +144,7 @@ export default async function WatchlistDetailPage({ params, searchParams }: Watc
               ["Raw only", yesNo(rule.raw_only)],
             ].map(([label, value]) => (
               <div key={label} className="rounded-2xl border border-border bg-bg/45 p-4">
-                <p className="font-mono text-[10px] uppercase tracking-wider text-text-muted">{label}</p>
+                <p className="field-label">{label}</p>
                 <p className="mt-1 text-sm text-text">{value}</p>
               </div>
             ))}
@@ -153,9 +153,9 @@ export default async function WatchlistDetailPage({ params, searchParams }: Watc
       ) : null}
 
       {rule ? (
-        <section className="rounded-3xl border border-border bg-card p-6 shadow-card md:p-8">
-          <p className="font-mono text-xs uppercase tracking-[0.24em] text-accent">Edit Watchlist</p>
-          <h2 className="mt-3 text-xl font-semibold text-text">Catalogue-backed filter details</h2>
+        <section className="panel p-6 md:p-8">
+          <p className="eyebrow">Edit Watchlist</p>
+          <h2 className="mt-3 text-xl font-semibold text-text">Filter details</h2>
           <div className="mt-5">
             <CatalogueRefineForm action={`/watchlists/${watchlist.id}`} options={catalogueOptions} selected={selected} />
           </div>
@@ -165,21 +165,23 @@ export default async function WatchlistDetailPage({ params, searchParams }: Watc
               selected={selected}
               watchlist={watchlist}
               rule={rule}
-              submitLabel="Save Watchlist"
+              submitLabel="Save watchlist"
             />
           </form>
         </section>
       ) : null}
 
-      <section className="rounded-3xl border border-border bg-card p-6 shadow-card md:p-8">
-        <p className="font-mono text-xs uppercase tracking-[0.24em] text-accent">Found Cards</p>
-        <h2 className="mt-3 text-xl font-semibold text-text">
-          {watchlist.match_count} cards currently match this watchlist
+      <section className="panel p-6 md:p-8">
+        <p className="eyebrow">Found cards</p>
+        <h2 className="mt-2 text-xl font-semibold text-text">
+          <span className="data">{watchlist.match_count}</span> cards currently match this watchlist
         </h2>
         <p className="mt-2 max-w-2xl text-sm leading-6 text-text-muted">
-          CardAlarm refreshes this watchlist when it is created or updated, then shows
-          matching cards in For You.
+          CardAlarm checks this watchlist against the latest store inventory whenever you create or change it. Matching cards appear in For You.
         </p>
+        <Link href={`/dashboard?watchlistId=${watchlist.id}`} className="btn btn-secondary btn-sm mt-4">
+          See these cards
+        </Link>
       </section>
     </div>
   );
