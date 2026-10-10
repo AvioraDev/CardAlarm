@@ -40,42 +40,42 @@ export default async function NewWatchlistPage({ searchParams }: NewWatchlistPag
     : null;
 
   const errorBanner = error ? (
-    <div role="alert" className="mt-5 rounded-2xl border border-danger/30 bg-danger/10 px-4 py-3 text-sm text-text">
+    <div role="alert" className="notice notice-error mt-5">
       {friendlyError(error)}
     </div>
   ) : null;
 
   if (quick) {
     return (
-      <div className="mx-auto max-w-xl space-y-6">
+      <div className="mx-auto max-w-[30rem] space-y-5 md:space-y-6">
         <section className="panel p-6 md:p-8">
           <p className="eyebrow">New watchlist</p>
           {quickPlayer ? (
             <>
-              <h1 className="mt-2 text-3xl font-semibold tracking-tight text-text">
+              <h1 className="page-title mt-2 text-text">
                 Watch {quickPlayer.label}
               </h1>
-              <p className="mt-3 text-sm leading-6 text-text-muted">
+              <p className="mt-3 text-text-muted">
                 We&apos;ll show every {quickPlayer.label} card we find in stock. Narrow it down below if you only want certain cards.
               </p>
               {errorBanner}
               <form action={createWatchlistAction} className="mt-6">
                 <QuickStartCreateFields player={quickPlayer} />
               </form>
-              <div className="mt-5 flex flex-wrap gap-4 text-sm">
-                <Link href="/watchlists/new?quick=1" className="text-accent hover:underline">Change player</Link>
-                <Link href={`/watchlists/new?playerId=${quickPlayer.id}`} className="text-accent hover:underline">More options</Link>
+              <div className="mt-5 flex flex-wrap gap-4 text-[0.875rem]">
+                <Link href="/watchlists/new?quick=1" className="link">Change player</Link>
+                <Link href={`/watchlists/new?playerId=${quickPlayer.id}`} className="link">More options</Link>
               </div>
             </>
           ) : (
             <>
-              <h1 className="mt-2 text-3xl font-semibold tracking-tight text-text">Who are you chasing?</h1>
-              <p className="mt-3 text-sm leading-6 text-text-muted">
+              <h1 className="page-title mt-2 text-text">Who are you chasing?</h1>
+              <p className="mt-3 text-text-muted">
                 Pick a player. You can narrow it down on the next step, or keep it broad to see every card we find.
               </p>
               {errorBanner}
               {selected.playerId ? (
-                <p role="alert" className="mt-4 text-sm text-danger">
+                <p role="alert" className="mt-4 text-[0.875rem] text-danger">
                   We couldn&apos;t find that player. Pick another from the list.
                 </p>
               ) : null}
@@ -83,22 +83,22 @@ export default async function NewWatchlistPage({ searchParams }: NewWatchlistPag
             </>
           )}
         </section>
-        <p className="text-center text-sm text-text-muted">
+        <p className="text-[0.875rem] text-text-muted">
           Need more options?{" "}
-          <Link href="/watchlists/new" className="text-accent hover:underline">Build a detailed watchlist</Link>
+          <Link href="/watchlists/new" className="link">Build a detailed watchlist</Link>
         </p>
       </div>
     );
   }
 
   return (
-    <div className="mx-auto max-w-4xl space-y-6">
+    <div className="mx-auto max-w-2xl space-y-5 md:space-y-6">
       <section className="panel p-6 md:p-8">
         <p className="eyebrow">New watchlist</p>
-        <h1 className="mt-2 text-3xl font-semibold tracking-tight text-text">
+        <h1 className="page-title mt-2 text-text">
           Build a watchlist
         </h1>
-        <p className="mt-3 max-w-2xl text-sm leading-6 text-text-muted">
+        <p className="mt-3 max-w-2xl text-text-muted">
           Keep it broad if you want all cards for a player or set. Add optional filters
           when you know the exact season, card number, parallel, or price range.
         </p>

@@ -97,8 +97,10 @@ describe('customer navigation focus', () => {
     expect(watchlistFormFields).toContain('Email alerts');
     expect(watchlistsPage).toContain('toggleWatchlistNotificationsAction');
     expect(watchlistsPage).toContain('Alerts {watchlist.notification_enabled ? "on" : "off"}');
-    expect(watchlistDetail).toContain('Turn Alerts On');
-    expect(watchlistDetail).toContain('Turn Alerts Off');
+    expect(watchlistDetail).toContain('Turn alerts on');
+    expect(watchlistDetail).toContain('Turn alerts off');
+    expect(watchlistsPage).toContain('Turn alerts');
+    expect(watchlistsPage).not.toContain('Alerts On');
     expect(watchlistActions).toContain('notification_enabled: watchlistInput.notificationEnabled');
     expect(watchlistActions).toContain('toggleWatchlistNotificationsAction');
     expect(watchlistActions).toContain('enqueueAndProcessWatchlistAlerts');

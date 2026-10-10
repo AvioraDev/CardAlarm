@@ -38,6 +38,12 @@ describe('card image', () => {
     expect(cardImage).toContain('aspect-[5/7]');
     expect(cardImage).not.toContain('dangerouslySetInnerHTML');
   });
+
+  it('sets the art on a catalogue mat', () => {
+    expect(cardImage).toContain('mix-blend-multiply');
+    expect(cardImage).toContain('dark:mix-blend-normal');
+    expect(cardImage).not.toMatch(/rounded-(2xl|3xl|full)/);
+  });
 });
 
 describe('listing card', () => {
@@ -66,6 +72,17 @@ describe('listing card', () => {
     expect(listingCard).not.toContain('"Cached"');
     expect(listingCard).not.toContain('match_type');
     expect(listingCard).not.toContain('uppercase');
+  });
+
+  it('uses the catalogue card anatomy', () => {
+    expect(listingCard).not.toContain('✓');
+    expect(listingCard).not.toContain('shadow-card');
+    expect(listingCard).not.toMatch(/rounded-(2xl|3xl|full)/);
+    expect(listingCard).toContain('aria-pressed');
+    expect(listingCard).toContain('IconExternal');
+    expect(listingCard).toContain('IconCheck');
+    expect(listingCard).toContain('IconPossible');
+    expect(listingCard).toContain('card-title');
   });
 
   it('keeps match-display pure for tests', () => {

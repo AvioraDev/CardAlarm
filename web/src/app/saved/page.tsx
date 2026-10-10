@@ -31,36 +31,32 @@ export default async function SavedPage({ searchParams }: SavedPageProps) {
   }
 
   return (
-    <div className="space-y-5">
-      <header className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+    <div className="space-y-5 md:space-y-6">
+      <header className="flex items-end justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight text-text md:text-3xl">Saved</h1>
-          <p className="mt-1 text-sm text-text-muted">
+          <h1 className="page-title text-text">Saved</h1>
+          <p className="mt-1 text-[0.875rem] text-text-muted">
             <span className="data text-text">{total}</span> saved {total === 1 ? "card" : "cards"}. Saved cards stay
             here while they&apos;re still in stock.
           </p>
         </div>
-        <div className="flex gap-2">
-          <Link href="/dashboard" className="btn btn-secondary btn-sm">
-            Back to For You
-          </Link>
-        </div>
+        <Link href="/dashboard" className="link hidden shrink-0 text-[0.8125rem] sm:inline">
+          Back to For You
+        </Link>
       </header>
 
       {savedCards.length === 0 ? (
-        <div className="panel px-6 py-12 text-center">
-          <h2 className="text-lg font-semibold text-text">No saved cards yet</h2>
-          <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-text-muted">
-            Tap Save on any card in For You to keep it here.
-          </p>
-          <div className="mt-6 flex flex-col justify-center gap-3 sm:flex-row">
+        <div className="panel px-5 py-10 md:px-10 md:py-14 md:text-center">
+          <h2 className="section-title text-text">No saved cards yet</h2>
+          <p className="mt-2 max-w-md text-text-muted md:mx-auto">Tap Save on any card in For You to keep it here.</p>
+          <div className="mt-6 flex flex-col gap-3 sm:flex-row md:justify-center">
             <Link href="/dashboard" className="btn btn-primary">
               Go to For You
             </Link>
           </div>
         </div>
       ) : (
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
+        <div className={CARD_GRID}>
           {savedCards.map((listing) => (
             <ListingCard key={listing.id} listing={listing} showFeedbackControls />
           ))}
@@ -71,3 +67,6 @@ export default async function SavedPage({ searchParams }: SavedPageProps) {
     </div>
   );
 }
+
+// Shared card grid (dashboard, saved, loading): max 4 columns.
+const CARD_GRID = "grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3 xl:grid-cols-4 xl:gap-5";

@@ -1,0 +1,67 @@
+diff --git a/web/src/lib/auth.ts b/web/src/lib/auth.ts
+index d41825f..a6c1edc 100644
+--- a/web/src/lib/auth.ts
++++ b/web/src/lib/auth.ts
+@@ -9,6 +9,8 @@ export type AuthProfile = {
+ };
+ 
+ export async function getCurrentUser() {
++  // TEMP LOCAL-RENDER STUB (never commit)
++  return { id: "11111111-1111-1111-1111-111111111111", email: "a@x" } as { id: string; email: string };
+   const supabase = await createClient();
+   const {
+     data: { user },
+@@ -20,6 +22,8 @@ export async function getCurrentUser() {
+ }
+ 
+ export async function ensureProfile(userId: string, email?: string | null): Promise<AuthProfile> {
++  // TEMP LOCAL-RENDER STUB (never commit)
++  if (userId) return { user_id: userId, display_name: "Harry", role: "admin" };
+   const supabase = await createClient();
+   const existing = await getProfileByUserId(userId);
+   if (existing) return existing;
+@@ -36,6 +40,8 @@ export async function ensureProfile(userId: string, email?: string | null): Prom
+ }
+ 
+ async function getProfileByUserId(userId: string): Promise<AuthProfile | null> {
++  // TEMP LOCAL-RENDER STUB (never commit)
++  if (userId) return { user_id: userId, display_name: "Harry", role: "admin" };
+   const supabase = await createClient();
+   const { data, error } = await supabase
+     .from("profiles")
+diff --git a/web/src/lib/watchlists.ts b/web/src/lib/watchlists.ts
+index 30e5af4..b48d1eb 100644
+--- a/web/src/lib/watchlists.ts
++++ b/web/src/lib/watchlists.ts
+@@ -20,6 +20,31 @@ function normalizeRule(row: UserWatchlistRuleRow): UserWatchlistRuleRow {
+ }
+ 
+ export async function getUserWatchlists(userId: string): Promise<UserWatchlistRow[]> {
++  // TEMP LOCAL-RENDER STUB (never commit): read via Postgres because the harness has no Supabase REST API.
++  {
++    const { query } = await import("./db");
++    const lists = await query<WatchlistRowWithoutRules>(
++      "select id, user_id, name, is_active, notification_enabled, created_at, updated_at from watchlists where user_id = $1 order by updated_at desc",
++      [userId],
++    );
++    const ids = lists.map((row) => row.id);
++    if (ids.length === 0) return [];
++    const rules = await query<UserWatchlistRuleRow>("select * from watchlist_rules where watchlist_id = any($1) order by created_at", [ids]);
++    const counts = await query<{ watchlist_id: number; n: string }>(
++      "select watchlist_id, count(*) as n from watchlist_matches where watchlist_id = any($1) group by watchlist_id",
++      [ids],
++    );
++    // node-pg returns bigint columns as strings; the Supabase REST client returns numbers, so coerce *id columns.
++    const numeric = <T extends object>(row: T): T =>
++      Object.fromEntries(
++        Object.entries(row).map(([key, value]) => [key, (key === "id" || key.endsWith("_id")) && value !== null ? Number(value) : value]),
++      ) as T;
++    return lists.map(numeric).map((row) => ({
++      ...row,
++      rules: rules.map(numeric).filter((rule) => rule.watchlist_id === row.id).map(normalizeRule),
++      match_count: Number(counts.find((count) => Number(count.watchlist_id) === row.id)?.n ?? 0),
++    }));
++  }
+   const supabase = await createClient();
+   const { data: watchlists, error: watchlistsError } = await supabase
+     .from("watchlists")

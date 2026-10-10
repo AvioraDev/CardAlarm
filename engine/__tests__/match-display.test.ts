@@ -22,7 +22,7 @@ describe('matchTier and labels', () => {
   });
 
   it('labels tiers in plain English', () => {
-    expect(tierLabel('strong')).toBe('Strong match');
+    expect(tierLabel('strong')).toBe('Confirmed match');
     expect(tierLabel('confirmed')).toBe('Confirmed match');
     expect(tierLabel('possible')).toBe('Possible match');
     expect(tierLabel('unmatched')).toBe('Not matched yet');

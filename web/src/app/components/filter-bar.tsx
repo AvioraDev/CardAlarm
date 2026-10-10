@@ -2,6 +2,7 @@
 
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { useCallback, useId, useState } from "react";
+import { IconChevron } from "@/app/components/icons";
 import type { FilterFacets, FilterOptions } from "@/lib/types";
 
 const FILTER_KEYS_IGNORED_FOR_COUNT = ["watchlistId"];
@@ -66,28 +67,31 @@ export function FilterBar({
         aria-expanded={isExpanded}
         aria-controls="filter-panel"
         onClick={() => setIsExpanded(!isExpanded)}
-        className="flex w-full min-h-12 items-center justify-between px-4 md:px-5"
+        className="flex min-h-12 w-full items-center justify-between gap-3 px-4 text-left md:px-5"
       >
-        <span className="flex flex-wrap items-center gap-3">
-          <span className="text-sm font-semibold text-text">Filters</span>
+        <span className="flex flex-wrap items-center gap-x-3 gap-y-1">
+          <span className="section-head text-text">Filters</span>
           {isFiltered && (
             <span className="badge badge-neutral">
               <span className="data">{activeCount}</span> active
             </span>
           )}
           {isFiltered && (
-            <span className="text-xs text-text-muted">
+            <span className="text-[0.8125rem] text-text-muted">
               <span className="data">{totalFiltered}</span> of <span className="data">{totalUnfiltered}</span>
             </span>
           )}
         </span>
-        <span className="text-sm text-text-muted">{isExpanded ? "Hide" : "Show"}</span>
+        <span className="flex shrink-0 items-center gap-1.5 text-[0.8125rem] text-text-muted">
+          {isExpanded ? "Hide" : "Show"}
+          <IconChevron className={`transition-transform duration-[120ms] ${isExpanded ? "rotate-180" : ""}`} />
+        </span>
       </button>
 
       {/* Filter Grid */}
       {isExpanded && (
         <div id="filter-panel" className="border-t border-border px-4 py-4 md:px-5">
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-6">
+          <div className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-6">
             <FilterSelect
               label="Store"
               value={activeFilters.source}
@@ -137,6 +141,7 @@ export function FilterBar({
             {isMatches ? (
               <>
                 <TextFilter
+                  className="col-span-2 md:col-span-1"
                   label="Team"
                   value={activeFilters.team}
                   placeholder="Suns, Lakers…"
@@ -190,8 +195,8 @@ export function FilterBar({
             />
 
             {/* Price Range */}
-            <fieldset className="md:ml-auto">
-              <legend className="field-label mb-1">Price</legend>
+            <fieldset>
+              <legend className="field-label">Price</legend>
               <div className="flex items-center gap-2">
                 <input
                   type="number"
@@ -203,7 +208,7 @@ export function FilterBar({
                   onBlur={(e) => updateFilter("priceMin", e.target.value)}
                   className="field data w-24"
                 />
-                <span className="text-sm text-text-muted" aria-hidden="true">
+                <span className="text-text-muted" aria-hidden="true">
                   –
                 </span>
                 <input
@@ -235,7 +240,7 @@ export function FilterBar({
             />
 
             {isFiltered && (
-              <button type="button" onClick={clearAll} className="btn btn-danger btn-sm">
+              <button type="button" onClick={clearAll} className="btn btn-secondary btn-sm">
                 Clear filters
               </button>
             )}
@@ -275,7 +280,7 @@ function FilterSelect({
   const id = useId();
   return (
     <div>
-      <label htmlFor={id} className="field-label mb-1">
+      <label htmlFor={id} className="field-label">
         {label}
       </label>
       <select
@@ -298,16 +303,17 @@ function FilterSelect({
 
 interface TextFilterProps {
   label: string;
+  className?: string;
   value?: string;
   placeholder: string;
   onChange: (value: string) => void;
 }
 
-function TextFilter({ label, value, placeholder, onChange }: TextFilterProps) {
+function TextFilter({ label, className, value, placeholder, onChange }: TextFilterProps) {
   const id = useId();
   return (
-    <div>
-      <label htmlFor={id} className="field-label mb-1">
+    <div className={className}>
+      <label htmlFor={id} className="field-label">
         {label}
       </label>
       <input
@@ -346,17 +352,12 @@ function FilterToggle({ label, value, onChange }: FilterToggleProps) {
       type="button"
       onClick={cycle}
       aria-label={`${label}: ${state}`}
-      className={`chip text-sm transition-colors ${
-        value === "1"
-          ? "border-accent/40 bg-accent/10 text-accent"
-          : value === "0"
-            ? "border-danger/40 bg-danger/10 text-danger"
-            : ""
-      }`}
+      data-state={state === "any" ? undefined : state}
+      className="chip"
     >
       {label}
-      {value === "1" && " ✓"}
-      {value === "0" && " ✗"}
+      {state === "only" ? <span className="text-[0.8125rem] font-normal">· only</span> : null}
+      {state === "excluded" ? <span className="text-[0.8125rem] font-normal">· hidden</span> : null}
     </button>
   );
 }

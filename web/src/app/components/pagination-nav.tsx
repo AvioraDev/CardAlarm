@@ -17,8 +17,8 @@ export function PaginationNav({ window: pager, basePath, params, noun }: Paginat
   if (pager.total === 0) return null;
 
   return (
-    <nav aria-label="Pagination" className="flex flex-col items-center gap-3 pt-2 sm:flex-row sm:justify-between">
-      <p className="text-sm text-text-muted">
+    <nav aria-label="Pagination" className="mt-2 flex flex-col items-center gap-3 border-t border-border pt-5 sm:flex-row sm:justify-between">
+      <p className="text-[0.875rem] text-text-muted">
         Showing{" "}
         <span className="data text-text">
           {formatCount(pager.start)}–{formatCount(pager.end)}
@@ -36,7 +36,7 @@ export function PaginationNav({ window: pager, basePath, params, noun }: Paginat
               Previous
             </span>
           )}
-          <span className="data text-xs text-text-muted">
+          <span className="data text-[0.8125rem] text-text-muted">
             Page {formatCount(pager.page)} of {formatCount(pager.pageCount)}
           </span>
           {pager.hasNext ? (
