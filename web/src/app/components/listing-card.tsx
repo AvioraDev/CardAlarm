@@ -1,167 +1,175 @@
+import { CardImage } from "@/app/components/card-image";
 import { SubmitButton } from "@/app/components/submit-button";
 import { dismissCardAction, notMatchCardAction, saveCardAction, unsaveCardAction } from "@/lib/actions";
+import {
+  cardAltText,
+  cardImageSrc,
+  cardImageSrcSet,
+  confidencePercent,
+  customerReasons,
+  formatCheckedAgo,
+  formatPrice,
+  matchTier,
+  safeListingHref,
+  tierLabel,
+  type MatchTier,
+} from "@/lib/match-display";
 import type { ListingRow } from "@/lib/types";
 
 interface ListingCardProps {
   listing: ListingRow;
   showFeedbackControls?: boolean;
+  /** Landing-page example: inert links, "Example" badge, no feedback, no checked time. */
+  preview?: boolean;
+  /** The dashboard passes "eager" for the first cards above the fold. */
+  imageLoading?: "lazy" | "eager";
 }
 
-function parseReasons(value: string[] | null): string[] {
-  return Array.isArray(value) ? value.filter((item): item is string => typeof item === "string") : [];
+function MatchBadge({ tier }: { tier: MatchTier }) {
+  if (tier === "possible") {
+    return (
+      <span className="badge badge-possible">
+        <span aria-hidden="true">?</span> {tierLabel(tier)}
+      </span>
+    );
+  }
+  if (tier === "unmatched") {
+    return <span className="badge badge-neutral">{tierLabel(tier)}</span>;
+  }
+  return (
+    <span className="badge badge-confirmed">
+      <span aria-hidden="true">✓</span> {tierLabel(tier)}
+    </span>
+  );
 }
 
-function confidenceLabel(confidence: number | null): string {
-  if (confidence === null) return "Unscored";
-  if (confidence >= 0.9) return "High confidence";
-  if (confidence >= 0.75) return "Strong match";
-  if (confidence >= 0.6) return "Possible match";
-  return "Low confidence";
-}
-
-function formatPrice(value: number | string | null): string {
-  const price = typeof value === "number" ? value : Number(value);
-  if (!Number.isFinite(price)) return "Price unavailable";
-  return `$${price.toFixed(2)}`;
-}
-
-export function ListingCard({ listing, showFeedbackControls = false }: ListingCardProps) {
-  const reasons = parseReasons(listing.match_reasons).slice(0, 3);
-
-  const confidence = listing.match_confidence;
-  const isPossible = listing.match_status === "possible";
-  const matchAccent = isPossible ? "text-stealth border-stealth/30 bg-stealth/10" : "text-direct border-direct/30 bg-direct/10";
+// Store-controlled text is rendered only as React text; URLs and images go through match-display sanitisers.
+export function ListingCard({ listing, showFeedbackControls = false, preview = false, imageLoading }: ListingCardProps) {
+  const tier = matchTier(listing.match_status, listing.match_confidence);
+  const isPossible = tier === "possible";
+  const pct = confidencePercent(listing.match_confidence);
+  const reasons = customerReasons(listing.match_reasons, 2);
+  const src = cardImageSrc(listing.image_url, 480);
+  const srcSet = cardImageSrcSet(listing.image_url);
+  const alt = cardAltText(listing);
+  const href = safeListingHref(listing.url);
+  const checked = formatCheckedAgo(listing.last_checked_at);
   const serialDisplay = listing.serial_current && listing.serial_limit
     ? `${listing.serial_current}/${listing.serial_limit}`
     : listing.serial_limit
       ? `/${listing.serial_limit}`
       : listing.serial_number;
-  const primaryTitle = listing.player_name ?? listing.title;
-  const secondaryTitle = listing.player_name ? listing.title : listing.set_name ?? listing.source;
-  const matchTypeLabel = listing.match_type === "Cached" ? "Found" : listing.match_type;
+  const primaryTitle = listing.player_name ?? "Unidentified card";
+  const detailLine = [
+    listing.year,
+    listing.set_name,
+    listing.card_number ? `#${listing.card_number}` : null,
+    listing.variant,
+  ]
+    .filter(Boolean)
+    .join(" · ");
+  const storeName = listing.store_name || listing.source;
+  const showFeedback = showFeedbackControls && !preview;
 
   return (
-    <article className="group overflow-hidden rounded-3xl border border-border bg-card shadow-card transition duration-200 motion-safe:hover:-translate-y-0.5 hover:border-border-strong hover:shadow-card-hover">
-      <div className="relative aspect-[4/3] overflow-hidden bg-elevated">
-        {listing.image_url ? (
-          // Store image hosts are dynamic, so a plain img avoids brittle remotePatterns.
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={listing.image_url}
-            alt=""
-            className="h-full w-full object-contain p-3 transition duration-300 motion-safe:group-hover:scale-[1.03]"
-            loading="lazy"
-          />
-        ) : (
-          <div className="flex h-full w-full items-center justify-center font-mono text-4xl text-text-muted">
-            #
-          </div>
-        )}
-
-        <div className="absolute left-3 top-3 flex flex-wrap gap-2">
-          <span className={`rounded-full border px-2.5 py-1 font-mono text-[10px] font-bold uppercase tracking-wider ${matchAccent}`}>
-            {listing.match_status ?? "confirmed"}
-          </span>
-          <span className="rounded-full border border-border bg-bg/85 px-2.5 py-1 font-mono text-[10px] uppercase tracking-wider text-text-muted backdrop-blur">
-            {matchTypeLabel}
-          </span>
-        </div>
-
-        {listing.category && listing.category !== "NBA" && (
-          <span className="absolute right-3 top-3 rounded-full border border-border bg-bg/85 px-2.5 py-1 font-mono text-[10px] uppercase tracking-wider text-text-muted">
-            {listing.category}
-          </span>
-        )}
+    <article
+      data-match-tier={tier}
+      className={`grid grid-cols-[7rem_1fr] gap-x-3 gap-y-3 overflow-hidden rounded-3xl border bg-card p-3 shadow-card transition-colors sm:grid-cols-1 sm:gap-0 sm:p-0 ${
+        isPossible ? "card-possible" : "border-border hover:border-border-strong"
+      }`}
+    >
+      <div className="relative sm:border-b sm:border-border">
+        <CardImage
+          src={src}
+          srcSet={srcSet}
+          alt={alt}
+          fallbackPrimary={listing.card_number ? `#${listing.card_number}` : "No photo"}
+          fallbackSecondary={listing.set_name ?? primaryTitle}
+          fallbackNote={preview ? "Example card" : undefined}
+          loading={imageLoading ?? "lazy"}
+        />
+        {preview ? <span className="badge badge-example absolute right-2 top-2">Example</span> : null}
       </div>
 
-      <div className="flex min-h-[230px] flex-col gap-3 p-4">
-        <div>
-          <div className="flex items-start justify-between gap-3">
-            <h2 className="line-clamp-1 text-base font-semibold tracking-tight text-text">
-              {primaryTitle}
-            </h2>
-            <span className="shrink-0 font-mono text-lg font-bold text-text">
-              {formatPrice(listing.price)}
+      <div className="flex min-w-0 flex-col gap-2 sm:p-4 sm:pb-0">
+        <div className="flex flex-wrap items-center gap-2">
+          <MatchBadge tier={tier} />
+          {pct ? (
+            <span className="data text-xs text-text-muted" aria-label={`${pct} match confidence`}>
+              {pct}
             </span>
-          </div>
-          <p className="mt-1 line-clamp-2 text-sm leading-5 text-text-muted" title={listing.title}>
-            {secondaryTitle}
-          </p>
-        </div>
-
-        <div className="flex flex-wrap gap-1.5">
-          {listing.year && <span className="tag">{listing.year}</span>}
-          {listing.set_name && <span className="tag max-w-[170px] truncate">{listing.set_name}</span>}
-          {listing.card_number && <span className="tag">#{listing.card_number}</span>}
-          {listing.variant && <span className="tag max-w-[150px] truncate">{listing.variant}</span>}
-          {listing.is_serial && serialDisplay && <span className="tag tag-accent">{serialDisplay}</span>}
-          {listing.is_auto && <span className="tag tag-warning">Auto</span>}
-          {listing.is_rookie && <span className="tag tag-rookie">RC</span>}
-        </div>
-
-        <div className="rounded-2xl border border-border bg-bg/45 p-3">
-          <div className="flex items-center justify-between gap-3">
-            <span className="text-xs font-medium text-text">{confidenceLabel(confidence)}</span>
-            <span className="font-mono text-xs text-text-muted">
-              {confidence === null ? "—" : `${Math.round(confidence * 100)}%`}
-            </span>
-          </div>
-          {reasons.length > 0 && (
-            <ul className="mt-2 space-y-1 text-xs leading-4 text-text-muted">
-              {reasons.map((reason) => (
-                <li key={reason}>• {reason}</li>
-              ))}
-            </ul>
-          )}
-        </div>
-
-        <div className="mt-auto flex flex-col gap-3 pt-1">
-          {showFeedbackControls ? (
-            <div className="flex flex-wrap gap-2">
-              <form action={listing.is_saved ? unsaveCardAction : saveCardAction}>
-                <input type="hidden" name="storeProductId" value={listing.id} />
-                <SubmitButton
-                  className={`rounded-full border px-3 py-2 text-[10px] font-bold uppercase tracking-wider transition ${
-                    listing.is_saved
-                      ? "border-accent bg-accent text-bg hover:bg-accent-hover"
-                      : "border-border text-text-muted hover:border-accent hover:text-text"
-                  }`}
-                >
-                  {listing.is_saved ? "Saved" : "Save"}
-                </SubmitButton>
-              </form>
-              <form action={dismissCardAction}>
-                <input type="hidden" name="storeProductId" value={listing.id} />
-                <SubmitButton
-                  className="rounded-full border border-border px-3 py-2 text-[10px] font-bold uppercase tracking-wider text-text-muted transition hover:border-danger/60 hover:text-danger"
-                >
-                  Dismiss
-                </SubmitButton>
-              </form>
-              <form action={notMatchCardAction}>
-                <input type="hidden" name="storeProductId" value={listing.id} />
-                <SubmitButton
-                  className="rounded-full border border-border px-3 py-2 text-[10px] font-bold uppercase tracking-wider text-text-muted transition hover:border-stealth/60 hover:text-stealth"
-                >
-                  Not a match
-                </SubmitButton>
-              </form>
-            </div>
           ) : null}
-          <div className="flex items-center justify-between gap-3">
-          <span className="font-mono text-[10px] uppercase tracking-[0.18em] text-text-muted">
-            {listing.source}
-          </span>
+        </div>
+        <h3 className="line-clamp-2 text-base font-semibold leading-snug tracking-tight text-text">{primaryTitle}</h3>
+        {detailLine ? <p className="line-clamp-2 text-sm leading-5 text-text-muted">{detailLine}</p> : null}
+        <p className="line-clamp-1 text-xs text-text-muted/80" title={listing.title}>
+          Listed as: {listing.title}
+        </p>
+        <div className="flex flex-wrap gap-1.5">
+          {listing.is_serial && serialDisplay ? <span className="tag tag-accent">{serialDisplay}</span> : null}
+          {listing.is_serial && !serialDisplay ? <span className="tag tag-accent">Numbered</span> : null}
+          {listing.is_auto ? <span className="tag tag-warning">Auto</span> : null}
+          {listing.is_rookie ? <span className="tag tag-rookie">RC</span> : null}
+          {listing.category && listing.category !== "NBA" ? <span className="tag">{listing.category}</span> : null}
+        </div>
+        <div className="flex items-baseline justify-between gap-2">
+          <span className="data text-xl font-semibold text-text">{formatPrice(listing.price, listing.currency)}</span>
+          <span className="truncate text-xs text-text-muted">{storeName}</span>
+        </div>
+        {reasons.length > 0 ? (
+          <p className="text-xs leading-5 text-text-muted">
+            <span className="font-medium text-text">Why it matched:</span> {reasons.join(" · ")}
+          </p>
+        ) : null}
+        {isPossible ? (
+          <p className="text-xs leading-5 text-possible">
+            We&apos;re less sure about this one. Check the details before you buy.
+          </p>
+        ) : null}
+        {!preview && checked ? <p className="text-[11px] text-text-muted/80">{checked}</p> : null}
+      </div>
+
+      <div className="col-span-2 flex flex-col gap-2 sm:col-span-1 sm:p-4 sm:pt-3">
+        <div className="flex gap-2">
+          {preview ? (
+            <span aria-disabled="true" className="btn btn-primary btn-sm flex-1">
+              Open store
+            </span>
+          ) : (
             <a
-              href={listing.url}
+              href={href}
               target="_blank"
               rel="noopener noreferrer"
-              className="rounded-full bg-accent px-4 py-2 text-xs font-bold uppercase tracking-wider text-bg transition hover:bg-accent-hover"
+              className="btn btn-primary btn-sm flex-1"
+              aria-label={`Open store listing at ${storeName} (opens in a new tab)`}
             >
               Open store
             </a>
-          </div>
+          )}
+          {showFeedback ? (
+            <form action={listing.is_saved ? unsaveCardAction : saveCardAction}>
+              <input type="hidden" name="storeProductId" value={listing.id} />
+              <SubmitButton
+                className={`btn btn-sm ${listing.is_saved ? "btn-primary" : "btn-secondary"}`}
+                pendingLabel={listing.is_saved ? "Removing…" : "Saving…"}
+              >
+                {listing.is_saved ? "Saved" : "Save"}
+              </SubmitButton>
+            </form>
+          ) : null}
         </div>
+        {showFeedback ? (
+          <div className="flex gap-1">
+            <form action={dismissCardAction}>
+              <input type="hidden" name="storeProductId" value={listing.id} />
+              <SubmitButton className="btn btn-ghost btn-sm text-xs">Hide</SubmitButton>
+            </form>
+            <form action={notMatchCardAction}>
+              <input type="hidden" name="storeProductId" value={listing.id} />
+              <SubmitButton className="btn btn-ghost btn-sm text-xs">Not a match</SubmitButton>
+            </form>
+          </div>
+        ) : null}
       </div>
     </article>
   );
