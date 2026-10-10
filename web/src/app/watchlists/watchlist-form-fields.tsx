@@ -1,3 +1,4 @@
+import { SubmitButton } from "@/app/components/submit-button";
 import type { WatchlistCatalogueOptionFilters, WatchlistCatalogueOptions } from "@/lib/catalogue-options";
 import type { UserWatchlistRow, UserWatchlistRuleRow } from "@/lib/types";
 
@@ -60,9 +61,9 @@ export function CatalogueRefineForm({ action, options, selected }: CatalogueRefi
             ))}
           </select>
         </label>
-        <button type="submit" className="rounded-full border border-border px-5 py-3 font-mono text-xs font-bold uppercase tracking-wider text-text transition-colors hover:border-accent">
+        <SubmitButton className="rounded-full border border-border px-5 py-3 font-mono text-xs font-bold uppercase tracking-wider text-text transition-colors hover:border-accent">
           Refine Cards
-        </button>
+        </SubmitButton>
       </div>
       <p className="mt-3 text-sm leading-6 text-text-muted">
         Choose a player first, then narrow by set. Card choices are loaded only after a player or set is selected.
@@ -227,7 +228,7 @@ export function WatchlistFormFields({ options, selected, watchlist, rule, submit
             ["rookie_only", "Rookie only", rule?.rookie_only],
             ["autograph_only", "Autographs", rule?.autograph_only],
             ["relic_only", "Relics", rule?.relic_only],
-            ["serial_numbered_only", "Serial numbered", rule?.serial_numbered_only],
+            ["serial_numbered_only", "Numbered", rule?.serial_numbered_only],
             ["graded_only", "Graded", rule?.graded_only],
             ["raw_only", "Raw", rule?.raw_only],
           ].map(([name, label, checked]) => (
@@ -250,9 +251,9 @@ export function WatchlistFormFields({ options, selected, watchlist, rule, submit
       </label>
 
       <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-        <button type="submit" className="rounded-full bg-accent px-6 py-3 font-mono text-xs font-bold uppercase tracking-wider text-bg transition-colors hover:bg-accent-hover">
+        <SubmitButton className="rounded-full bg-accent px-6 py-3 font-mono text-xs font-bold uppercase tracking-wider text-bg transition-colors hover:bg-accent-hover">
           {submitLabel}
-        </button>
+        </SubmitButton>
       </div>
     </>
   );

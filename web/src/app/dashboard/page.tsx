@@ -1,3 +1,4 @@
+import { SubmitButton } from "@/app/components/submit-button";
 import { Suspense } from "react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
@@ -96,13 +97,9 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
           </div>
           <div className="flex flex-col gap-2 sm:flex-row">
             <form action={refreshAllUserWatchlistsAction}>
-              <button
-                type="submit"
-                className="inline-flex w-full items-center justify-center rounded-full border border-border px-5 py-3 font-mono text-xs font-bold uppercase tracking-wider text-text transition-colors hover:border-accent sm:w-auto"
-                title="Re-check available cards against every active watchlist."
-              >
+              <SubmitButton className="inline-flex w-full items-center justify-center rounded-full border border-border px-5 py-3 font-mono text-xs font-bold uppercase tracking-wider text-text transition-colors hover:border-accent sm:w-auto">
                 Refresh Matches
-              </button>
+              </SubmitButton>
             </form>
             <Link
               href="/watchlists/new"

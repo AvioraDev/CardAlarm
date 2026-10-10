@@ -2,6 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
+import { safeRedirectPath } from "@/lib/safe-redirect";
 import { createClient } from "./supabase/server";
 
 function formString(formData: FormData, key: string): string {
@@ -25,7 +26,7 @@ export async function signInAction(formData: FormData): Promise<void> {
   if (error) redirect(`/login?error=${encodeURIComponent(error.message)}`);
 
   revalidatePath("/", "layout");
-  redirect(next.startsWith("/") ? next : "/dashboard");
+  redirect(safeRedirectPath(next));
 }
 
 export async function signUpAction(formData: FormData): Promise<void> {

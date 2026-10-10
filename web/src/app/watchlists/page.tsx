@@ -1,3 +1,6 @@
+import { friendlyError } from "@/lib/friendly-error";
+import { ConfirmSubmitButton } from "@/app/components/confirm-submit-button";
+import { SubmitButton } from "@/app/components/submit-button";
 import Link from "next/link";
 import { requireUser } from "@/lib/auth";
 import { getUserWatchlists } from "@/lib/watchlists";
@@ -15,12 +18,23 @@ function ruleSummary(ruleCount: number): string {
   return `${ruleCount} watchlist filters`;
 }
 
-export default async function WatchlistsPage() {
+interface WatchlistsPageProps {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}
+
+export default async function WatchlistsPage({ searchParams }: WatchlistsPageProps) {
+  const params = await searchParams;
+  const error = typeof params.error === "string" ? params.error : undefined;
   const user = await requireUser();
   const watchlists = await getUserWatchlists(user.id);
 
   return (
     <div className="space-y-6">
+      {error ? (
+        <div role="alert" className="rounded-2xl border border-danger/30 bg-danger/10 px-4 py-3 text-sm text-text">
+          {friendlyError(error)}
+        </div>
+      ) : null}
       <section className="rounded-3xl border border-border bg-card p-6 shadow-card md:p-8">
         <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
           <div>
@@ -32,7 +46,7 @@ export default async function WatchlistsPage() {
             </h1>
             <p className="mt-3 max-w-2xl text-sm leading-6 text-text-muted">
               Create broad or specific watchlists for players, sets, cards, parallels,
-              serials, autos, relics, and price ranges. CardAlarm uses them to find
+              numbered cards, autos, relics, and price ranges. CardAlarm uses them to find
               available cards for you.
             </p>
           </div>
@@ -99,31 +113,22 @@ export default async function WatchlistsPage() {
                 <form action={toggleUserWatchlistAction}>
                   <input type="hidden" name="watchlistId" value={watchlist.id} />
                   <input type="hidden" name="isActive" value={String(watchlist.is_active)} />
-                  <button
-                    type="submit"
-                    className="rounded-full border border-border px-4 py-2 font-mono text-xs font-bold uppercase tracking-wider text-text-muted transition-colors hover:border-accent hover:text-text"
-                  >
+                  <SubmitButton className="rounded-full border border-border px-4 py-2 font-mono text-xs font-bold uppercase tracking-wider text-text-muted transition-colors hover:border-accent hover:text-text">
                     {watchlist.is_active ? "Pause" : "Activate"}
-                  </button>
+                  </SubmitButton>
                 </form>
                 <form action={toggleWatchlistNotificationsAction}>
                   <input type="hidden" name="watchlistId" value={watchlist.id} />
                   <input type="hidden" name="notificationsEnabled" value={String(watchlist.notification_enabled)} />
-                  <button
-                    type="submit"
-                    className="rounded-full border border-border px-4 py-2 font-mono text-xs font-bold uppercase tracking-wider text-text-muted transition-colors hover:border-accent hover:text-text"
-                  >
+                  <SubmitButton className="rounded-full border border-border px-4 py-2 font-mono text-xs font-bold uppercase tracking-wider text-text-muted transition-colors hover:border-accent hover:text-text">
                     {watchlist.notification_enabled ? "Alerts On" : "Alerts Off"}
-                  </button>
+                  </SubmitButton>
                 </form>
                 <form action={deleteUserWatchlistAction}>
                   <input type="hidden" name="watchlistId" value={watchlist.id} />
-                  <button
-                    type="submit"
-                    className="rounded-full border border-danger/40 px-4 py-2 font-mono text-xs font-bold uppercase tracking-wider text-danger transition-colors hover:bg-danger hover:text-bg"
-                  >
+                  <ConfirmSubmitButton message="Delete this watchlist and its matches? This can't be undone." className="rounded-full border border-danger/40 px-4 py-2 font-mono text-xs font-bold uppercase tracking-wider text-danger transition-colors hover:bg-danger hover:text-bg">
                     Delete
-                  </button>
+                  </ConfirmSubmitButton>
                 </form>
               </div>
             </article>

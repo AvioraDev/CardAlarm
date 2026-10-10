@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { friendlyError } from "@/lib/friendly-error";
+import { SubmitButton } from "@/app/components/submit-button";
 import { signUpAction } from "@/lib/auth-actions";
 
 interface SignupPageProps {
@@ -18,8 +20,8 @@ export default async function SignupPage({ searchParams }: SignupPageProps) {
       </p>
 
       {error ? (
-        <div className="mt-5 rounded-2xl border border-danger/30 bg-danger/10 px-4 py-3 text-sm text-text">
-          {decodeURIComponent(error)}
+        <div role="alert" className="mt-5 rounded-2xl border border-danger/30 bg-danger/10 px-4 py-3 text-sm text-text">
+          {friendlyError(error)}
         </div>
       ) : null}
 
@@ -45,12 +47,12 @@ export default async function SignupPage({ searchParams }: SignupPageProps) {
             className="mt-1 w-full rounded-2xl border border-border bg-bg px-4 py-3 text-sm text-text outline-none transition-colors focus:border-accent"
           />
         </label>
-        <button
-          type="submit"
+        <SubmitButton
+          pendingLabel="Creating account…"
           className="w-full rounded-full bg-accent px-6 py-3 font-mono text-xs font-bold uppercase tracking-wider text-bg transition-colors hover:bg-accent-hover"
         >
           Create account
-        </button>
+        </SubmitButton>
       </form>
 
       <p className="mt-5 text-center text-sm text-text-muted">

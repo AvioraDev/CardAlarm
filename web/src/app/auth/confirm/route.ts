@@ -1,13 +1,9 @@
 import { NextResponse, type NextRequest } from "next/server";
 import type { EmailOtpType } from "@supabase/supabase-js";
+import { safeRedirectPath } from "@/lib/safe-redirect";
 import { createClient } from "@/lib/supabase/server";
 
 const validEmailOtpTypes = new Set(["signup", "invite", "magiclink", "recovery", "email", "email_change"]);
-
-function safeRedirectPath(value: string | null): string {
-  if (!value || !value.startsWith("/") || value.startsWith("//")) return "/dashboard";
-  return value;
-}
 
 export async function GET(request: NextRequest) {
   const requestUrl = new URL(request.url);

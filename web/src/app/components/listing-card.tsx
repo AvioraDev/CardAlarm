@@ -1,6 +1,4 @@
-"use client";
-
-import { useMemo } from "react";
+import { SubmitButton } from "@/app/components/submit-button";
 import { dismissCardAction, notMatchCardAction, saveCardAction, unsaveCardAction } from "@/lib/actions";
 import type { ListingRow } from "@/lib/types";
 
@@ -28,7 +26,7 @@ function formatPrice(value: number | string | null): string {
 }
 
 export function ListingCard({ listing, showFeedbackControls = false }: ListingCardProps) {
-  const reasons = useMemo(() => parseReasons(listing.match_reasons).slice(0, 3), [listing.match_reasons]);
+  const reasons = parseReasons(listing.match_reasons).slice(0, 3);
 
   const confidence = listing.match_confidence;
   const isPossible = listing.match_status === "possible";
@@ -43,15 +41,15 @@ export function ListingCard({ listing, showFeedbackControls = false }: ListingCa
   const matchTypeLabel = listing.match_type === "Cached" ? "Found" : listing.match_type;
 
   return (
-    <article className="group overflow-hidden rounded-3xl border border-border bg-card shadow-card transition duration-200 hover:-translate-y-0.5 hover:border-border-strong hover:shadow-card-hover">
+    <article className="group overflow-hidden rounded-3xl border border-border bg-card shadow-card transition duration-200 motion-safe:hover:-translate-y-0.5 hover:border-border-strong hover:shadow-card-hover">
       <div className="relative aspect-[4/3] overflow-hidden bg-elevated">
         {listing.image_url ? (
-          // External Shopify image hosts are dynamic; plain img avoids brittle remotePatterns for this local MVP.
+          // Store image hosts are dynamic, so a plain img avoids brittle remotePatterns.
           // eslint-disable-next-line @next/next/no-img-element
           <img
             src={listing.image_url}
-            alt={listing.title}
-            className="h-full w-full object-contain p-3 transition duration-300 group-hover:scale-[1.03]"
+            alt=""
+            className="h-full w-full object-contain p-3 transition duration-300 motion-safe:group-hover:scale-[1.03]"
             loading="lazy"
           />
         ) : (
@@ -122,8 +120,7 @@ export function ListingCard({ listing, showFeedbackControls = false }: ListingCa
             <div className="flex flex-wrap gap-2">
               <form action={listing.is_saved ? unsaveCardAction : saveCardAction}>
                 <input type="hidden" name="storeProductId" value={listing.id} />
-                <button
-                  type="submit"
+                <SubmitButton
                   className={`rounded-full border px-3 py-2 text-[10px] font-bold uppercase tracking-wider transition ${
                     listing.is_saved
                       ? "border-accent bg-accent text-bg hover:bg-accent-hover"
@@ -131,25 +128,23 @@ export function ListingCard({ listing, showFeedbackControls = false }: ListingCa
                   }`}
                 >
                   {listing.is_saved ? "Saved" : "Save"}
-                </button>
+                </SubmitButton>
               </form>
               <form action={dismissCardAction}>
                 <input type="hidden" name="storeProductId" value={listing.id} />
-                <button
-                  type="submit"
+                <SubmitButton
                   className="rounded-full border border-border px-3 py-2 text-[10px] font-bold uppercase tracking-wider text-text-muted transition hover:border-danger/60 hover:text-danger"
                 >
                   Dismiss
-                </button>
+                </SubmitButton>
               </form>
               <form action={notMatchCardAction}>
                 <input type="hidden" name="storeProductId" value={listing.id} />
-                <button
-                  type="submit"
+                <SubmitButton
                   className="rounded-full border border-border px-3 py-2 text-[10px] font-bold uppercase tracking-wider text-text-muted transition hover:border-stealth/60 hover:text-stealth"
                 >
                   Not a match
-                </button>
+                </SubmitButton>
               </form>
             </div>
           ) : null}

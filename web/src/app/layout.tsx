@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter, JetBrains_Mono } from "next/font/google";
 import Link from "next/link";
 import { getCurrentProfile } from "@/lib/auth";
@@ -23,6 +23,11 @@ export const metadata: Metadata = {
     "Watchlist-driven sports card discovery for cards found across hobby stores.",
 };
 
+export const viewport: Viewport = {
+  colorScheme: "dark",
+  themeColor: "#07080b",
+};
+
 export default async function RootLayout({
   children,
 }: Readonly<{
@@ -38,7 +43,7 @@ export default async function RootLayout({
             <Link href="/" className="font-mono text-sm font-bold uppercase tracking-[0.2em] text-text">
               Card<span className="text-accent">Alarm</span>
             </Link>
-            <nav className="flex items-center gap-6">
+            <nav aria-label="Main" className="flex items-center gap-3 overflow-x-auto sm:gap-6 [&_a]:whitespace-nowrap [&_button]:whitespace-nowrap">
               <Link
                 href="/dashboard"
                 className="font-mono text-xs uppercase tracking-wider text-text-muted transition-colors hover:text-text"

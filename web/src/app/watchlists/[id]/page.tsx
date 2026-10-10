@@ -1,4 +1,7 @@
+import { ConfirmSubmitButton } from "@/app/components/confirm-submit-button";
+import { SubmitButton } from "@/app/components/submit-button";
 import Link from "next/link";
+import { friendlyError } from "@/lib/friendly-error";
 import { notFound } from "next/navigation";
 import { requireUser } from "@/lib/auth";
 import type { WatchlistCatalogueOptionFilters } from "@/lib/catalogue-options";
@@ -79,36 +82,36 @@ export default async function WatchlistDetailPage({ params, searchParams }: Watc
           </span>
         </div>
         {error ? (
-          <div className="mt-5 rounded-2xl border border-danger/30 bg-danger/10 px-4 py-3 text-sm text-text">
-            {decodeURIComponent(error)}
+          <div role="alert" className="mt-5 rounded-2xl border border-danger/30 bg-danger/10 px-4 py-3 text-sm text-text">
+            {friendlyError(error)}
           </div>
         ) : null}
         <div className="mt-6 flex flex-wrap gap-2">
           <form action={toggleUserWatchlistAction}>
             <input type="hidden" name="watchlistId" value={watchlist.id} />
             <input type="hidden" name="isActive" value={String(watchlist.is_active)} />
-            <button type="submit" className="rounded-full border border-border px-4 py-2 font-mono text-xs font-bold uppercase tracking-wider text-text transition-colors hover:border-accent">
+            <SubmitButton className="rounded-full border border-border px-4 py-2 font-mono text-xs font-bold uppercase tracking-wider text-text transition-colors hover:border-accent">
               {watchlist.is_active ? "Pause" : "Activate"}
-            </button>
+            </SubmitButton>
           </form>
           <form action={deleteUserWatchlistAction}>
             <input type="hidden" name="watchlistId" value={watchlist.id} />
-            <button type="submit" className="rounded-full border border-danger/40 px-4 py-2 font-mono text-xs font-bold uppercase tracking-wider text-danger transition-colors hover:bg-danger hover:text-bg">
+            <ConfirmSubmitButton message="Delete this watchlist and its matches? This can't be undone." className="rounded-full border border-danger/40 px-4 py-2 font-mono text-xs font-bold uppercase tracking-wider text-danger transition-colors hover:bg-danger hover:text-bg">
               Delete
-            </button>
+            </ConfirmSubmitButton>
           </form>
           <form action={toggleWatchlistNotificationsAction}>
             <input type="hidden" name="watchlistId" value={watchlist.id} />
             <input type="hidden" name="notificationsEnabled" value={String(watchlist.notification_enabled)} />
-            <button type="submit" className="rounded-full border border-border px-4 py-2 font-mono text-xs font-bold uppercase tracking-wider text-text transition-colors hover:border-accent">
+            <SubmitButton className="rounded-full border border-border px-4 py-2 font-mono text-xs font-bold uppercase tracking-wider text-text transition-colors hover:border-accent">
               {watchlist.notification_enabled ? "Turn Alerts Off" : "Turn Alerts On"}
-            </button>
+            </SubmitButton>
           </form>
           <form action={backfillUserWatchlistAction}>
             <input type="hidden" name="watchlistId" value={watchlist.id} />
-            <button type="submit" className="rounded-full bg-accent px-4 py-2 font-mono text-xs font-bold uppercase tracking-wider text-bg transition-colors hover:bg-accent-hover">
+            <SubmitButton className="rounded-full bg-accent px-4 py-2 font-mono text-xs font-bold uppercase tracking-wider text-bg transition-colors hover:bg-accent-hover">
               Refresh Matches
-            </button>
+            </SubmitButton>
           </form>
         </div>
       </section>
@@ -136,7 +139,7 @@ export default async function WatchlistDetailPage({ params, searchParams }: Watc
               ["Rookie only", yesNo(rule.rookie_only)],
               ["Autograph only", yesNo(rule.autograph_only)],
               ["Relic only", yesNo(rule.relic_only)],
-              ["Serial numbered", yesNo(rule.serial_numbered_only)],
+              ["Numbered", yesNo(rule.serial_numbered_only)],
               ["Graded only", yesNo(rule.graded_only)],
               ["Raw only", yesNo(rule.raw_only)],
             ].map(([label, value]) => (

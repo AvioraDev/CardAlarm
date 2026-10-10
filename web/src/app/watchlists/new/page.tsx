@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { friendlyError } from "@/lib/friendly-error";
 import { requireUser } from "@/lib/auth";
 import type { WatchlistCatalogueOptionFilters } from "@/lib/catalogue-options";
 import { getWatchlistCatalogueOptions } from "@/lib/catalogue-options";
@@ -47,8 +48,8 @@ export default async function NewWatchlistPage({ searchParams }: NewWatchlistPag
           when you know the exact season, card number, parallel, or price range.
         </p>
         {error ? (
-          <div className="mt-5 rounded-2xl border border-danger/30 bg-danger/10 px-4 py-3 text-sm text-text">
-            {decodeURIComponent(error)}
+          <div role="alert" className="mt-5 rounded-2xl border border-danger/30 bg-danger/10 px-4 py-3 text-sm text-text">
+            {friendlyError(error)}
           </div>
         ) : null}
       </section>

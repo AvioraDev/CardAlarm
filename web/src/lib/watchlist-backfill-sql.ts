@@ -146,7 +146,7 @@ export function buildCanonicalBackfillSql(rule: CanonicalBackfillRule): Backfill
     conditions.push(`(
       coalesce(sp.title, '') ilike ${hash}
       or coalesce(sp.description, '') ilike ${hash}
-      or coalesce(sp.title, '') ~ ('(^|[^0-9])' || ${exact} || '([^0-9]|$)')
+      or coalesce(sp.title, '') ~ ('(^|[^0-9])' || regexp_replace(${exact}::text, '([.^$*+?()\\[\\]{}|\\\\])', '\\\\\\1', 'g') || '([^0-9]|$)')
     )`);
   }
   if (rule.parallel) addTextMatch(conditions, params, rule.parallel);

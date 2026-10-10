@@ -118,3 +118,19 @@ body {
   color: #fb923c;
   background: rgba(251, 146, 60, 0.10);
 }
+
+/* ─── Accessibility ───────────────────────────────────────────────── */
+
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

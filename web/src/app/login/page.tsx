@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { friendlyError } from "@/lib/friendly-error";
+import { SubmitButton } from "@/app/components/submit-button";
 import { signInAction } from "@/lib/auth-actions";
 
 interface LoginPageProps {
@@ -20,13 +22,13 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
       </p>
 
       {message ? (
-        <div className="mt-5 rounded-2xl border border-accent/30 bg-accent/10 px-4 py-3 text-sm text-text">
+        <div role="status" className="mt-5 rounded-2xl border border-accent/30 bg-accent/10 px-4 py-3 text-sm text-text">
           Check your email to confirm your account, then sign in.
         </div>
       ) : null}
       {error ? (
-        <div className="mt-5 rounded-2xl border border-danger/30 bg-danger/10 px-4 py-3 text-sm text-text">
-          {decodeURIComponent(error)}
+        <div role="alert" className="mt-5 rounded-2xl border border-danger/30 bg-danger/10 px-4 py-3 text-sm text-text">
+          {friendlyError(error)}
         </div>
       ) : null}
 
@@ -52,12 +54,12 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
             className="mt-1 w-full rounded-2xl border border-border bg-bg px-4 py-3 text-sm text-text outline-none transition-colors focus:border-accent"
           />
         </label>
-        <button
-          type="submit"
+        <SubmitButton
+          pendingLabel="Signing in…"
           className="w-full rounded-full bg-accent px-6 py-3 font-mono text-xs font-bold uppercase tracking-wider text-bg transition-colors hover:bg-accent-hover"
         >
           Sign in
-        </button>
+        </SubmitButton>
       </form>
 
       <p className="mt-5 text-center text-sm text-text-muted">
