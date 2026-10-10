@@ -39,7 +39,7 @@ describe('server action validation and ownership checks', () => {
     expect(actions).toContain('await backfillWatchlist(user.id, watchlist.id)');
     expect(actions).toContain('await enqueueAndProcessWatchlistAlerts(watchlist.id)');
     expect(dashboard).toContain('refreshAllUserWatchlistsAction');
-    expect(dashboard).toContain('Refresh Matches');
+    expect(dashboard).toContain('Refresh matches');
   });
 
   it('validates match feedback ids and visible match ownership', () => {

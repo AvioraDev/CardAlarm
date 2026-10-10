@@ -40,11 +40,14 @@ describe('CAR-16 performance readiness', () => {
   it('keeps admin inventory paginated and customer dashboard watchlist-scoped', () => {
     const adminInventory = readWebFile('app', 'admin', 'inventory', 'page.tsx');
     const dashboard = readWebFile('app', 'dashboard', 'page.tsx');
+    const saved = readWebFile('app', 'saved', 'page.tsx');
 
     expect(adminInventory).toContain('const pageSize = 48');
     expect(adminInventory).toContain('getActiveFeed(cleanFilters, { limit: pageSize, offset: (currentPage - 1) * pageSize })');
     expect(adminInventory).toContain('getFilterFacets()');
-    expect(dashboard).toContain('getUserWatchlistFeed(user.id, cleanFilters)');
+    expect(dashboard).toContain('getUserWatchlistFeed(user.id, cleanFilters, { limit: pageSize, offset })');
+    expect(dashboard).toContain('parsePage(params.page)');
+    expect(saved).toContain('countUserSavedCards(user.id)');
     expect(dashboard).toContain('getUserWatchlistFilterFacets(user.id, cleanFilters)');
     expect(dashboard).not.toContain('getActiveFeed');
     expect(dashboard).not.toContain('getFilterFacets');

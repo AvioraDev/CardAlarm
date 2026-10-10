@@ -8,10 +8,12 @@ function readWebFile(...segments: string[]): string {
 describe('customer navigation focus', () => {
   it('keeps raw inventory out of the primary dashboard experience', () => {
     const dashboard = readWebFile('app', 'dashboard', 'page.tsx');
+    const filterBar = readWebFile('app', 'components', 'filter-bar.tsx');
 
     expect(dashboard).toContain('For You');
     expect(dashboard).toContain('Cards found for you');
-    expect(dashboard).toContain('Numbered');
+    expect(filterBar).toContain('label="Numbered"');
+    expect(dashboard).not.toContain('Serialized');
     expect(dashboard).toContain('getUserWatchlistFilterFacets');
     expect(dashboard).toContain('getUserWatchlistFilterFacets(user.id, cleanFilters)');
     expect(dashboard).not.toContain('getFilterFacets');
@@ -57,6 +59,7 @@ describe('customer navigation focus', () => {
     expect(savedPage).toContain('await requireUser()');
     expect(savedPage).toContain('Saved');
     expect(dashboard).toContain('showFeedbackControls');
+    expect(listingCard).toContain('showFeedbackControls');
     expect(listingCard).toContain('saveCardAction');
     expect(listingCard).toContain('unsaveCardAction');
     expect(listingCard).toContain('dismissCardAction');

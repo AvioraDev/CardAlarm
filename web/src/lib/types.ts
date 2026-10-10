@@ -113,8 +113,6 @@ export interface WatchlistDashboardStats {
   total: number;
   current: number;
   possible: number;
-  watchlists: number;
-  serialized: number;
 }
 
 // ─── Filter Types ──────────────────────────────────────────────────

@@ -17,26 +17,56 @@ import {
   buildWatchlistMatchWhereSql,
   inventoryListingSelectSql,
   inventoryMatchJoinSql,
+  storeJoinSql,
   userFeedbackStateJoinSql,
   watchlistInventoryListingSelectSql,
   watchlistInventoryMatchJoinSql,
 } from "./inventory-sql";
+import { clampPageSize } from "./pagination";
 
 const HIDDEN_USER_FEEDBACK_WHERE = `
        coalesce(ufs.is_dismissed, false) = false
        and coalesce(ufs.is_not_match, false) = false`;
+
+/**
+ * One row per store product the user's active watchlists matched, keeping the strongest match.
+ * The feed, the dashboard stats and the saved list all read this same ranked set, so their
+ * totals always agree. `whereSql` must come from buildWatchlistMatchWhereSql (user-scoped, $1 = user id).
+ */
+function rankedWatchlistMatchesSql(whereSql: string, extraWhereSql: string): string {
+  return `select distinct on (sp.id)
+         ${watchlistInventoryListingSelectSql()}
+       from public.watchlist_matches wm
+       join public.watchlists w on w.id = wm.watchlist_id
+       left join public.watchlist_rules wr on wr.id = wm.watchlist_rule_id
+       left join public.players p on p.id = wr.player_id
+       join public.store_products sp on sp.id = wm.store_product_id
+       ${storeJoinSql()}
+       ${watchlistInventoryMatchJoinSql()}
+       ${inventoryClassificationJoinSql()}
+       ${userFeedbackStateJoinSql()}
+       where ${whereSql}
+         and ${extraWhereSql}
+       order by sp.id, greatest(coalesce(wm.confidence, 0), coalesce(pcm.confidence, 0)) desc, wm.last_matched_at desc`;
+}
+
+function clampOffset(offset: number | undefined): number {
+  const value = Math.trunc(offset ?? 0);
+  return Number.isFinite(value) ? Math.max(value, 0) : 0;
+}
 
 export async function getActiveFeed(
   filters: FilterOptions = {},
   pagination: { limit?: number; offset?: number } = {},
 ): Promise<ListingRow[]> {
   const { whereSql, params } = buildInventoryWhereSql(filters);
-  const limit = Math.min(Math.max(pagination.limit ?? 48, 1), 96);
+  const limit = clampPageSize(pagination.limit);
   const offset = Math.max(pagination.offset ?? 0, 0);
   return query<ListingRow>(
     `SELECT
        ${inventoryListingSelectSql()}
      FROM public.store_products sp
+     ${storeJoinSql()}
      ${inventoryMatchJoinSql()}
      ${inventoryClassificationJoinSql()}
      WHERE ${whereSql}
@@ -47,27 +77,26 @@ export async function getActiveFeed(
   );
 }
 
-export async function getUserWatchlistFeed(userId: string, filters: FilterOptions = {}): Promise<ListingRow[]> {
+export async function getUserWatchlistFeed(
+  userId: string,
+  filters: FilterOptions = {},
+  pagination: { limit?: number; offset?: number } = {},
+): Promise<ListingRow[]> {
   const { whereSql, params } = buildWatchlistMatchWhereSql(userId, filters);
+  const limit = clampPageSize(pagination.limit);
+  const offset = clampOffset(pagination.offset);
+  // Confirmed before possible; id desc is a unique tiebreak so offset pages never overlap or skip.
   return query<ListingRow>(
     `select *
-     from (
-       select distinct on (sp.id)
-         ${watchlistInventoryListingSelectSql()}
-       from public.watchlist_matches wm
-       join public.watchlists w on w.id = wm.watchlist_id
-       left join public.watchlist_rules wr on wr.id = wm.watchlist_rule_id
-       left join public.players p on p.id = wr.player_id
-       join public.store_products sp on sp.id = wm.store_product_id
-       ${watchlistInventoryMatchJoinSql()}
-       ${inventoryClassificationJoinSql()}
-       ${userFeedbackStateJoinSql()}
-       where ${whereSql}
-         and ${HIDDEN_USER_FEEDBACK_WHERE}
-       order by sp.id, greatest(coalesce(wm.confidence, 0), coalesce(pcm.confidence, 0)) desc, wm.last_matched_at desc
-     ) ranked_matches
-     order by match_confidence desc nulls last, created_at desc`,
-    params,
+     from (${rankedWatchlistMatchesSql(whereSql, HIDDEN_USER_FEEDBACK_WHERE)}) ranked_matches
+     order by
+       (coalesce(match_status, 'confirmed') = 'possible') asc,
+       match_confidence desc nulls last,
+       created_at desc,
+       id desc
+     limit $${params.length + 1}
+     offset $${params.length + 2}`,
+    [...params, limit, offset],
   );
 }
 
@@ -94,45 +123,17 @@ export async function getFeedStats(filters: FilterOptions = {}): Promise<FeedSta
 
 export async function getUserWatchlistStats(userId: string, filters: FilterOptions = {}): Promise<WatchlistDashboardStats> {
   const { whereSql, params } = buildWatchlistMatchWhereSql(userId, filters);
-  const watchlistInventoryFromSql = `
-       from public.watchlist_matches wm
-       join public.watchlists w on w.id = wm.watchlist_id
-       left join public.watchlist_rules wr on wr.id = wm.watchlist_rule_id
-       left join public.players p on p.id = wr.player_id
-       join public.store_products sp on sp.id = wm.store_product_id
-       ${watchlistInventoryMatchJoinSql()}
-       ${inventoryClassificationJoinSql()}
-       ${userFeedbackStateJoinSql()}
-       where ${whereSql}
-         and ${HIDDEN_USER_FEEDBACK_WHERE}`;
-  const [total, current, possible, watchlists, serialized] = await Promise.all([
-    count(
-      `select count(distinct sp.id) as c
-       ${watchlistInventoryFromSql}`,
-      params,
-    ),
-    count(
-      `select count(distinct sp.id) as c
-       ${watchlistInventoryFromSql}
-         and coalesce(wm.status, pcm.status, 'confirmed') != 'possible'`,
-      params,
-    ),
-    count(
-      `select count(distinct sp.id) as c
-       ${watchlistInventoryFromSql}
-         and (wm.status = 'possible' or pcm.status = 'possible')`,
-      params,
-    ),
-    count("select count(*) as c from public.watchlists where user_id = $1 and is_active = true", [userId]),
-    count(
-      `select count(distinct sp.id) as c
-       ${watchlistInventoryFromSql}
-         and coalesce(pc.is_serial, coalesce(pcm.matched_fields, '[]'::jsonb) ? 'serial', false) = true`,
-      params,
-    ),
-  ]);
-
-  return { total, current, possible, watchlists, serialized };
+  // One pass over the same ranked set as the feed, so total = current + possible = pagination total.
+  const rows = await query<{ total: number; current: number; possible: number }>(
+    `select
+       count(*)::int as total,
+       (count(*) filter (where coalesce(match_status, 'confirmed') <> 'possible'))::int as current,
+       (count(*) filter (where match_status = 'possible'))::int as possible
+     from (${rankedWatchlistMatchesSql(whereSql, HIDDEN_USER_FEEDBACK_WHERE)}) ranked_matches`,
+    params,
+  );
+  const row = rows[0];
+  return { total: Number(row?.total ?? 0), current: Number(row?.current ?? 0), possible: Number(row?.possible ?? 0) };
 }
 
 export async function getActiveUserWatchlistChips(userId: string): Promise<WatchlistChipRow[]> {
@@ -241,26 +242,28 @@ export async function getUserWatchlistFilterFacets(
   return { sources, years, setNames, players, variants, categories };
 }
 
-export async function getUserSavedCards(userId: string): Promise<ListingRow[]> {
+export async function getUserSavedCards(
+  userId: string,
+  pagination: { limit?: number; offset?: number } = {},
+): Promise<ListingRow[]> {
   const { whereSql, params } = buildWatchlistMatchWhereSql(userId);
+  const limit = clampPageSize(pagination.limit);
+  const offset = clampOffset(pagination.offset);
   return query<ListingRow>(
     `select *
-     from (
-       select distinct on (sp.id)
-         ${watchlistInventoryListingSelectSql()}
-       from public.watchlist_matches wm
-       join public.watchlists w on w.id = wm.watchlist_id
-       left join public.watchlist_rules wr on wr.id = wm.watchlist_rule_id
-       left join public.players p on p.id = wr.player_id
-       join public.store_products sp on sp.id = wm.store_product_id
-       ${watchlistInventoryMatchJoinSql()}
-       ${inventoryClassificationJoinSql()}
-       ${userFeedbackStateJoinSql()}
-       where ${whereSql}
-         and coalesce(ufs.is_saved, false) = true
-       order by sp.id, greatest(coalesce(wm.confidence, 0), coalesce(pcm.confidence, 0)) desc, wm.last_matched_at desc
-     ) saved_matches
-     order by created_at desc`,
+     from (${rankedWatchlistMatchesSql(whereSql, "coalesce(ufs.is_saved, false) = true")}) saved_matches
+     order by created_at desc, id desc
+     limit $${params.length + 1}
+     offset $${params.length + 2}`,
+    [...params, limit, offset],
+  );
+}
+
+export async function countUserSavedCards(userId: string): Promise<number> {
+  const { whereSql, params } = buildWatchlistMatchWhereSql(userId);
+  return count(
+    `select count(*) as c
+     from (${rankedWatchlistMatchesSql(whereSql, "coalesce(ufs.is_saved, false) = true")}) saved_matches`,
     params,
   );
 }

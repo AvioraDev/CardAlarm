@@ -95,6 +95,8 @@ export function inventoryListingSelectSql(): string {
   return `sp.id,
        sp.external_product_id as external_id,
        sp.source,
+       coalesce(st.name, sp.source) as store_name,
+       st.currency as currency,
        coalesce(sp.title, 'Untitled listing') as title,
        sp.current_price::float8 as price,
        coalesce(sp.product_url, sp.canonical_url, '') as url,
@@ -106,6 +108,7 @@ export function inventoryListingSelectSql(): string {
        false as is_not_match_for_user,
        (not sp.current_availability or not sp.is_active) as is_oos,
        sp.created_at,
+       sp.last_checked_at,
        pc.year,
        coalesce(pc.set_name, pc.product_line) as set_name,
        pc.card_number,
@@ -133,6 +136,8 @@ export function watchlistInventoryListingSelectSql(): string {
   return `sp.id,
        sp.external_product_id as external_id,
        sp.source,
+       coalesce(st.name, sp.source) as store_name,
+       st.currency as currency,
        coalesce(sp.title, 'Untitled listing') as title,
        sp.current_price::float8 as price,
        coalesce(sp.product_url, sp.canonical_url, '') as url,
@@ -144,6 +149,7 @@ export function watchlistInventoryListingSelectSql(): string {
        coalesce(ufs.is_not_match, false) as is_not_match_for_user,
        (not sp.current_availability or not sp.is_active) as is_oos,
        sp.created_at,
+       sp.last_checked_at,
        pc.year,
        coalesce(pc.set_name, pc.product_line) as set_name,
        pc.card_number,
@@ -173,6 +179,11 @@ export function watchlistInventoryListingSelectSql(): string {
        pcm.match_reasons,
        pcm.unmatched_fields,
        pcm.matcher_version`;
+}
+
+/** Store name and currency for each listing. Every query using the shared selects must include it. */
+export function storeJoinSql(): string {
+  return "left join public.stores st on st.id = sp.store_id";
 }
 
 export function inventoryMatchJoinSql(): string {
