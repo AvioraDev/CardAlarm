@@ -30,8 +30,8 @@ function formatPrice(value: string | number | null, currency: string | null): st
 
 function statusClass(status: string | null | undefined): string {
   if (status === "completed" || status === "current") return "border-accent/40 bg-accent/10 text-accent";
-  if (status === "running" || status === "queued") return "border-yellow-400/40 bg-yellow-400/10 text-yellow-200";
-  if (status === "possible") return "border-purple-400/40 bg-purple-400/10 text-purple-200";
+  if (status === "running" || status === "queued") return "border-possible/40 bg-possible/10 text-possible";
+  if (status === "possible") return "border-stealth/40 bg-stealth/10 text-stealth";
   if (status === "failed" || status === "timed_out") return "border-danger/40 bg-danger/10 text-danger";
   return "border-border bg-bg text-text-muted";
 }

@@ -36,7 +36,7 @@ export default async function EditStorePage({ params, searchParams }: EditStoreP
       </div>
 
       {error ? (
-        <div className="mb-6 rounded-2xl border border-red-500/40 bg-red-500/10 px-4 py-3 text-sm text-red-200">
+        <div className="mb-6 rounded-2xl border border-danger/40 bg-danger/10 px-4 py-3 text-sm text-danger">
           {error}
         </div>
       ) : null}
