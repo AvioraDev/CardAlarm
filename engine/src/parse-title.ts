@@ -39,13 +39,13 @@ function detectCategory(title: string): string {
 }
 
 function extractYear(title: string): string | null {
-  const match = title.match(/^(\d{4}(?:-\d{2})?)\b/);
+  const match = title.match(/^(\d{4}(?:[-/]\d{2})?)\b/);
   return match?.[1] ?? null;
 }
 
 function findCardNumberMarkerIndex(titleWithoutYear: string): number {
   const hashIndex = titleWithoutYear.indexOf('#');
-  const noMatch = titleWithoutYear.match(/\bNo\.?\s*[\w-]+/i);
+  const noMatch = titleWithoutYear.match(/\bNo\.?\s*\d[\w-]*/i);
   if (hashIndex === -1) return noMatch?.index ?? -1;
   if (noMatch?.index === undefined) return hashIndex;
   return Math.min(hashIndex, noMatch.index);
@@ -171,7 +171,7 @@ function isProductLineProtectedParallel(parallel: string | null, productLine: st
 }
 
 function candidateBeforeNumber(title: string): { noYear: string; beforeNumber: string; numberIndex: number } {
-  const noYear = title.replace(/^\d{4}(?:-\d{2})?\s+/, '');
+  const noYear = title.replace(/^\d{4}(?:[-/]\d{2})?\s+/, '');
   const numberIndex = findCardNumberMarkerIndex(noYear);
   return {
     noYear,
@@ -248,12 +248,12 @@ function extractVariant(title: string): string | null {
 }
 
 function extractCardNumber(title: string): string | null {
-  const match = title.match(/#([\w-]+)|\bNo\.?\s*([\w-]+)/i);
+  const match = title.match(/#([\w-]+)|\bNo\.?\s*(\d[\w-]*)/i);
   return match?.[1] ?? match?.[2] ?? null;
 }
 
 function extractPlayerName(title: string): string | null {
-  const match = title.match(/(?:#[\w-]+|\bNo\.?\s*[\w-]+)\s+[-–]?\s*(.*)/i);
+  const match = title.match(/(?:#[\w-]+|\bNo\.?\s*\d[\w-]*)\s+[-–]?\s*(.*)/i);
   if (!match?.[1]) return null;
 
   const cleaned = match[1]
@@ -266,13 +266,20 @@ function extractPlayerName(title: string): string | null {
   return cleaned || null;
 }
 
+/** "2023/24" and "2023/2024" are seasons, not print runs. */
+function isSeasonSlash(current: string, limit: string): boolean {
+  return current.length === 4 && /^(19|20)\d{2}$/.test(current) && (limit.length === 2 || limit.length === 4);
+}
+
 function extractSerial(title: string): {
   isSerial: boolean;
   serialNumber: string | null;
   serialCurrent: string | null;
   serialLimit: string | null;
 } {
-  const numbered = title.match(/\b(\d{1,4})\s*\/\s*(\d{1,5})\b/);
+  const numbered = Array.from(title.matchAll(/\b(\d{1,4})\s*\/\s*(\d{1,5})\b/g)).find(
+    candidate => !isSeasonSlash(candidate[1] ?? '', candidate[2] ?? '')
+  );
   if (numbered) {
     const serialCurrent = numbered[1] ?? null;
     const serialLimit = numbered[2] ?? null;
@@ -284,7 +291,7 @@ function extractSerial(title: string): {
     };
   }
 
-  const limitOnly = title.match(/#?\/\s*(\d{1,5})\b/);
+  const limitOnly = title.match(/(?<!\d)#?\/\s*(\d{1,5})\b/);
   if (limitOnly) {
     const serialLimit = limitOnly[1] ?? null;
     return {

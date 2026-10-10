@@ -116,9 +116,8 @@ export async function reconcileActiveWatchlistMatches(db: DbClient): Promise<num
        and (
          wr.card_number is null
          or pc.card_number = wr.card_number
-         or coalesce(sp.title, '') ilike '%#' || wr.card_number || '%'
-         or coalesce(sp.description, '') ilike '%#' || wr.card_number || '%'
-         or coalesce(sp.title, '') ~ ('(^|[^0-9])' || wr.card_number || '([^0-9]|$)')
+         or coalesce(sp.title, '') ~* ('(#|\\mNo\\.?\\s*)\\s*' || regexp_replace(wr.card_number, '([.^$*+?()\\[\\]{}|\\\\])', '\\\\\\1', 'g') || '([^0-9A-Za-z-]|$)')
+         or coalesce(sp.description, '') ~* ('(#|\\mNo\\.?\\s*)\\s*' || regexp_replace(wr.card_number, '([.^$*+?()\\[\\]{}|\\\\])', '\\\\\\1', 'g') || '([^0-9A-Za-z-]|$)')
        )
        and (wr.parallel is null or coalesce(pc.variant_name, pc.parallel_name, pc.insert_name, '') ilike '%' || wr.parallel || '%' or coalesce(sp.title, '') ilike '%' || wr.parallel || '%' or coalesce(sp.description, '') ilike '%' || wr.parallel || '%')
        and (wr.rookie_only = false or coalesce(pc.is_rookie, coalesce(sp.title, '') ~* '\\m(rc|rookie|rookies)\\M') = true)

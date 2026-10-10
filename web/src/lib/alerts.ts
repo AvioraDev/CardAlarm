@@ -112,7 +112,10 @@ export async function sendAlertEmail(row: AlertRow): Promise<SendResult> {
     headers: {
       Authorization: `Bearer ${apiKey}`,
       "Content-Type": "application/json",
+      // Resend de-duplicates retries of the same alert, so a failed status update can't email twice.
+      "Idempotency-Key": `cardalarm-alert-${row.id}`,
     },
+    signal: AbortSignal.timeout(10_000),
     body: JSON.stringify({
       from,
       to: row.recipient_email,

@@ -294,3 +294,28 @@ describe('parseTitleMetadata', () => {
     expect(signals.caseHit).toBe('Kaboom');
   });
 });
+
+describe('parseTitleMetadata regressions', () => {
+  it('does not read "Noir" as a card number marker', () => {
+    const meta = parseTitleMetadata('2021-22 Panini Noir #12 LeBron James Auto');
+    expect(meta.cardNumber).toBe('12');
+    expect(meta.playerName).toBe('LeBron James');
+  });
+
+  it('does not treat a slash season as a serial number', () => {
+    const meta = parseTitleMetadata('2023/24 Panini Prizm #1 Victor Wembanyama');
+    expect(meta.isSerial).toBe(false);
+    expect(meta.serialNumber).toBeNull();
+    expect(meta.year).toBe('2023/24');
+  });
+
+  it('still finds a real print run next to a slash season', () => {
+    const meta = parseTitleMetadata('2023/24 Panini Prizm Silver #1 Victor Wembanyama 12/25');
+    expect(meta.isSerial).toBe(true);
+    expect(meta.serialLimit).toBe('25');
+  });
+
+  it('accepts "No. 24" style card numbers but not bare "No" words', () => {
+    expect(parseTitleMetadata('2022-23 Panini Prizm No. 24 Jayson Tatum').cardNumber).toBe('24');
+  });
+});
