@@ -84,7 +84,7 @@ export function ListingCard({ listing, showFeedbackControls = false, preview = f
           fallbackNote={preview ? "Example card" : undefined}
           loading={imageLoading ?? "lazy"}
         />
-        {preview ? <span className="badge badge-example absolute left-2 top-2">Example</span> : null}
+        {preview ? <span className="badge badge-example absolute right-2 top-2">Example</span> : null}
       </div>
 
       <div className="flex min-w-0 flex-col gap-2 sm:px-4 sm:pt-4">

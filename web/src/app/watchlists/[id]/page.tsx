@@ -6,6 +6,7 @@ import { notFound } from "next/navigation";
 import { requireUser } from "@/lib/auth";
 import type { CatalogueOption, WatchlistCatalogueOptionFilters } from "@/lib/catalogue-options";
 import { getWatchlistCatalogueOptions } from "@/lib/catalogue-options";
+import { labelForCatalogueId } from "@/lib/catalogue-label";
 import { getUserWatchlist } from "@/lib/watchlists";
 import {
   backfillUserWatchlistAction,
@@ -33,8 +34,7 @@ function priceRange(min: number | null, max: number | null): string | null {
 }
 
 function labelFor(options: CatalogueOption[], id: number | null | undefined): string | null {
-  if (!id) return null;
-  return options.find((option) => option.id === id)?.label || null;
+  return labelForCatalogueId(options, id);
 }
 
 function clean(value: string | null | undefined): string | null {
