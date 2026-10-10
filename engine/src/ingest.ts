@@ -1,3 +1,4 @@
+import { summarizeVariants } from './shopify-variants';
 import crypto from 'crypto';
 import type { DbClient } from './db';
 import type {
@@ -215,7 +216,12 @@ async function fetchProductPage(
     }
 
     const data = (await response.json()) as ShopifyProductsResponse;
-    const products = data.products ?? [];
+    // A 200 without a products array (blocked, unpublished, API change) is a failed fetch, not an empty catalogue.
+    if (!data || !Array.isArray(data.products)) {
+      console.error(`  ✗ Unexpected response shape from ${url}`);
+      return null;
+    }
+    const products = data.products;
     console.log(`  ↳ Page ${page} fetched ${products.length} products in ${Date.now() - startedAt}ms`);
     return products;
   } catch (err) {
@@ -229,13 +235,14 @@ async function fetchProductPage(
 }
 
 function productContentHash(product: ShopifyProduct): string {
-  const firstVariant = product.variants[0];
+  const firstVariant = product.variants?.[0];
+  const summary = summarizeVariants(product.variants);
   return hashJson({
     id: product.id,
     title: product.title,
     handle: product.handle,
     price: firstVariant?.price ?? null,
-    available: firstVariant?.available ?? false,
+    available: summary.available,
     imageUrl: product.images[0]?.src ?? '',
     description: product.body_html ?? '',
   });
@@ -246,7 +253,7 @@ function toCacheInput(
   source: SourceConfig,
   scanToken: string
 ): SourceProductCacheInput {
-  const firstVariant = product.variants[0];
+  const summary = summarizeVariants(product.variants);
   const baseUrl = normalizeBaseUrl(source.baseUrl);
 
   return {
@@ -255,8 +262,8 @@ function toCacheInput(
     externalId: String(product.id),
     handle: product.handle,
     title: product.title,
-    price: parseFloat(firstVariant?.price ?? '0'),
-    available: firstVariant?.available ?? false,
+    price: summary.price,
+    available: summary.available,
     url: `${baseUrl}/products/${product.handle}`,
     imageUrl: product.images[0]?.src ?? '',
     description: product.body_html ?? '',
@@ -414,7 +421,8 @@ async function processSource(
   await publishProgress('post_scan_mark_matched');
   await markSourceProductsMatched(db, source.slug, evaluatedCacheRows, identityContextHash);
   let markedOOS = 0;
-  if (!hadFetchError && !stoppedEarlyFromCache) {
+  // Never mark a store out of stock from a walk that saw no products at all.
+  if (!hadFetchError && !stoppedEarlyFromCache && fetched > 0) {
     await publishProgress('post_scan_mark_oos');
     markedOOS = await markMissingSourceProductsOOS(db, source.slug, scanToken);
   }

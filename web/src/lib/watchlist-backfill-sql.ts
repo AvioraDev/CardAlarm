@@ -142,11 +142,13 @@ export function buildCanonicalBackfillSql(rule: CanonicalBackfillRule): Backfill
   if (rule.season) addTextMatch(conditions, params, rule.season);
   if (rule.card_number) {
     const exact = addParam(params, rule.card_number);
-    const hash = addParam(params, `%#${rule.card_number}%`);
+    // Only "#24" / "No. 24" style markers count; bare digits would match seasons ("2023-24") and print runs ("/24").
+    const escaped = `regexp_replace(${exact}::text, '([.^$*+?()\\[\\]{}|\\\\])', '\\\\\\1', 'g')`;
+    const marker = `('(#|\\mNo\\.?\\s*)\\s*' || ${escaped} || '([^0-9A-Za-z-]|$)')`;
     conditions.push(`(
-      coalesce(sp.title, '') ilike ${hash}
-      or coalesce(sp.description, '') ilike ${hash}
-      or coalesce(sp.title, '') ~ ('(^|[^0-9])' || ${exact} || '([^0-9]|$)')
+      coalesce(pc.card_number, '') = ${exact}
+      or coalesce(sp.title, '') ~* ${marker}
+      or coalesce(sp.description, '') ~* ${marker}
     )`);
   }
   if (rule.parallel) addTextMatch(conditions, params, rule.parallel);

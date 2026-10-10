@@ -1,8 +1,12 @@
+import { ConfirmSubmitButton } from "@/app/components/confirm-submit-button";
+import { SubmitButton } from "@/app/components/submit-button";
 import Link from "next/link";
+import { friendlyError } from "@/lib/friendly-error";
 import { notFound } from "next/navigation";
 import { requireUser } from "@/lib/auth";
-import type { WatchlistCatalogueOptionFilters } from "@/lib/catalogue-options";
+import type { CatalogueOption, WatchlistCatalogueOptionFilters } from "@/lib/catalogue-options";
 import { getWatchlistCatalogueOptions } from "@/lib/catalogue-options";
+import { labelForCatalogueId } from "@/lib/catalogue-label";
 import { getUserWatchlist } from "@/lib/watchlists";
 import {
   backfillUserWatchlistAction,
@@ -18,13 +22,24 @@ interface WatchlistDetailPageProps {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }
 
-function yesNo(value: boolean): string {
-  return value ? "Yes" : "No";
+function formatPrice(value: number): string {
+  return `$${value.toFixed(2)}`;
 }
 
-function formatPrice(value: number | null): string {
-  if (value === null) return "Any";
-  return `$${value.toFixed(2)}`;
+function priceRange(min: number | null, max: number | null): string | null {
+  if (min !== null && max !== null) return `${formatPrice(min)} – ${formatPrice(max)}`;
+  if (min !== null) return `${formatPrice(min)} and up`;
+  if (max !== null) return `Up to ${formatPrice(max)}`;
+  return null;
+}
+
+function labelFor(options: CatalogueOption[], id: number | null | undefined): string | null {
+  return labelForCatalogueId(options, id);
+}
+
+function clean(value: string | null | undefined): string | null {
+  const trimmed = value?.trim();
+  return trimmed ? trimmed : null;
 }
 
 function positiveQueryId(value: string | string[] | undefined): number | null {
@@ -58,102 +73,140 @@ export default async function WatchlistDetailPage({ params, searchParams }: Watc
     productLine: queryText(query.productLine) ?? rule?.product_line ?? null,
   };
   const catalogueOptions = await getWatchlistCatalogueOptions(selected);
+  const ruleSelected: WatchlistCatalogueOptionFilters = {
+    playerId: rule?.player_id ?? null,
+    setId: rule?.set_id ?? null,
+    cardId: rule?.catalogue_card_id ?? null,
+    season: rule?.season ?? null,
+    productLine: rule?.product_line ?? null,
+  };
+  const sameSelection =
+    selected.playerId === ruleSelected.playerId &&
+    selected.setId === ruleSelected.setId &&
+    selected.season === ruleSelected.season &&
+    selected.productLine === ruleSelected.productLine;
+  const ruleOptions = sameSelection ? catalogueOptions : await getWatchlistCatalogueOptions(ruleSelected);
+
+  // Resolve catalogue IDs to names. A row whose ID cannot be resolved is dropped,
+  // so a raw database ID is never shown as a label.
+  const lookingFor: Array<[string, string | null]> = rule
+    ? [
+        ["Player", labelFor(ruleOptions.players, rule.player_id)],
+        ["Team", labelFor(ruleOptions.teams, rule.team_id)],
+        ["Set", labelFor(ruleOptions.sets, rule.set_id)],
+        ["Specific card", labelFor(ruleOptions.cards, rule.catalogue_card_id)],
+        ["Parallel / variant", labelFor(ruleOptions.variants, rule.catalogue_variant_id)],
+        ["Must include words", clean(rule.include_terms)],
+        ["Leave out words", clean(rule.exclude_terms)],
+        ["Brand", clean(rule.brand)],
+        ["Product line", clean(rule.product_line)],
+        ["Season", clean(rule.season)],
+        ["Card number", clean(rule.card_number)],
+        ["Parallel", clean(rule.parallel)],
+        ["Price", priceRange(rule.min_price, rule.max_price)],
+        [
+          "Only show",
+          [
+            rule.rookie_only ? "Rookies" : null,
+            rule.autograph_only ? "Autographs" : null,
+            rule.relic_only ? "Relics" : null,
+            rule.serial_numbered_only ? "Numbered" : null,
+            rule.graded_only ? "Graded" : null,
+            rule.raw_only ? "Raw" : null,
+          ]
+            .filter(Boolean)
+            .join(", ") || null,
+        ],
+        ["Minimum confidence", `${Math.round(rule.minimum_match_confidence * 100)}%`],
+      ]
+    : [];
+  const lookingForRows = lookingFor.filter((row): row is [string, string] => row[1] !== null);
+  const isBroad =
+    !(rule && (rule.player_id || rule.team_id || rule.set_id || rule.catalogue_card_id || rule.catalogue_variant_id)) &&
+    lookingForRows.filter(([label]) => label !== "Minimum confidence").length === 0;
 
   return (
-    <div className="mx-auto max-w-5xl space-y-6">
-      <section className="rounded-3xl border border-border bg-card p-6 shadow-card md:p-8">
-        <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
-          <div>
-            <Link href="/watchlists" className="font-mono text-xs uppercase tracking-wider text-text-muted hover:text-accent">
-              ← Watchlists
-            </Link>
-            <h1 className="mt-4 text-3xl font-semibold tracking-tight text-text md:text-4xl">
-              {watchlist.name}
-            </h1>
-            <p className="mt-2 font-mono text-[10px] uppercase tracking-[0.18em] text-text-muted">
-              Created {new Date(watchlist.created_at).toLocaleDateString()} · {watchlist.match_count} found cards · Alerts {watchlist.notification_enabled ? "on" : "off"}
-            </p>
-          </div>
-          <span className={watchlist.is_active ? "tag tag-accent" : "tag"}>
-            {watchlist.is_active ? "Active" : "Paused"}
-          </span>
+    <div className="mx-auto max-w-5xl space-y-5 md:space-y-6">
+      <header>
+        <Link href="/watchlists" className="link text-[0.8125rem]">
+          Watchlists
+        </Link>
+        <div className="mt-2 flex flex-wrap items-center gap-3">
+          <h1 className="page-title text-text">{watchlist.name}</h1>
+          <span className="tag">{watchlist.is_active ? "Active" : "Paused"}</span>
         </div>
+        <p className="mt-1 text-[0.8125rem] leading-[1.125rem] text-text-muted">
+          Created {new Date(watchlist.created_at).toLocaleDateString()} · <span className="data">{watchlist.match_count}</span> found cards · Alerts {watchlist.notification_enabled ? "on" : "off"}
+        </p>
         {error ? (
-          <div className="mt-5 rounded-2xl border border-danger/30 bg-danger/10 px-4 py-3 text-sm text-text">
-            {decodeURIComponent(error)}
+          <div role="alert" className="notice notice-error mt-4">
+            {friendlyError(error)}
           </div>
         ) : null}
-        <div className="mt-6 flex flex-wrap gap-2">
+        <div className="mt-4 flex flex-wrap gap-2">
+          <form action={backfillUserWatchlistAction}>
+            <input type="hidden" name="watchlistId" value={watchlist.id} />
+            <SubmitButton className="btn btn-secondary btn-sm">
+              Refresh matches
+            </SubmitButton>
+          </form>
           <form action={toggleUserWatchlistAction}>
             <input type="hidden" name="watchlistId" value={watchlist.id} />
             <input type="hidden" name="isActive" value={String(watchlist.is_active)} />
-            <button type="submit" className="rounded-full border border-border px-4 py-2 font-mono text-xs font-bold uppercase tracking-wider text-text transition-colors hover:border-accent">
+            <SubmitButton className="btn btn-ghost btn-sm">
               {watchlist.is_active ? "Pause" : "Activate"}
-            </button>
-          </form>
-          <form action={deleteUserWatchlistAction}>
-            <input type="hidden" name="watchlistId" value={watchlist.id} />
-            <button type="submit" className="rounded-full border border-danger/40 px-4 py-2 font-mono text-xs font-bold uppercase tracking-wider text-danger transition-colors hover:bg-danger hover:text-bg">
-              Delete
-            </button>
+            </SubmitButton>
           </form>
           <form action={toggleWatchlistNotificationsAction}>
             <input type="hidden" name="watchlistId" value={watchlist.id} />
             <input type="hidden" name="notificationsEnabled" value={String(watchlist.notification_enabled)} />
-            <button type="submit" className="rounded-full border border-border px-4 py-2 font-mono text-xs font-bold uppercase tracking-wider text-text transition-colors hover:border-accent">
-              {watchlist.notification_enabled ? "Turn Alerts Off" : "Turn Alerts On"}
-            </button>
+            <SubmitButton className="btn btn-ghost btn-sm">
+              {watchlist.notification_enabled ? "Turn alerts off" : "Turn alerts on"}
+            </SubmitButton>
           </form>
-          <form action={backfillUserWatchlistAction}>
+          <form action={deleteUserWatchlistAction}>
             <input type="hidden" name="watchlistId" value={watchlist.id} />
-            <button type="submit" className="rounded-full bg-accent px-4 py-2 font-mono text-xs font-bold uppercase tracking-wider text-bg transition-colors hover:bg-accent-hover">
-              Refresh Matches
-            </button>
+            <ConfirmSubmitButton message="Delete this watchlist and its matches? This can't be undone." className="btn btn-danger btn-sm">
+              Delete
+            </ConfirmSubmitButton>
           </form>
         </div>
+      </header>
+
+      <section className="panel p-5 md:p-6">
+        <h2 className="section-head text-text">
+          <span className="data">{watchlist.match_count}</span> cards currently match this watchlist
+        </h2>
+        <p className="mt-1 max-w-2xl text-[0.875rem] text-text-muted">
+          CardAlarm checks this watchlist against the latest store inventory whenever you create or change it. Matching cards appear in For You.
+        </p>
+        <Link href={`/dashboard?watchlistId=${watchlist.id}`} className="btn btn-secondary btn-sm mt-4">
+          See these cards
+        </Link>
       </section>
 
       {rule ? (
-        <section className="rounded-3xl border border-border bg-card p-6 shadow-card md:p-8">
-        <p className="font-mono text-xs uppercase tracking-[0.24em] text-accent">Watchlist Filter</p>
-          <div className="mt-5 grid gap-3 md:grid-cols-2">
-            {[
-              ["Include terms", rule.include_terms ?? "Any"],
-              ["Exclude terms", rule.exclude_terms ?? "None"],
-              ["Intent", rule.intent_type],
-              ["Player ID", rule.player_id ?? "Any"],
-              ["Team ID", rule.team_id ?? "Any"],
-              ["Set ID", rule.set_id ?? "Any"],
-              ["Catalogue card ID", rule.catalogue_card_id ?? "Any"],
-              ["Catalogue variant ID", rule.catalogue_variant_id ?? "Any"],
-              ["Brand", rule.brand ?? "Any"],
-              ["Product line", rule.product_line ?? "Any"],
-              ["Season", rule.season ?? "Any"],
-              ["Card number", rule.card_number ?? "Any"],
-              ["Parallel", rule.parallel ?? "Any"],
-              ["Price", `${formatPrice(rule.min_price)} – ${formatPrice(rule.max_price)}`],
-              ["Minimum confidence", `${Math.round(rule.minimum_match_confidence * 100)}%`],
-              ["Rookie only", yesNo(rule.rookie_only)],
-              ["Autograph only", yesNo(rule.autograph_only)],
-              ["Relic only", yesNo(rule.relic_only)],
-              ["Serial numbered", yesNo(rule.serial_numbered_only)],
-              ["Graded only", yesNo(rule.graded_only)],
-              ["Raw only", yesNo(rule.raw_only)],
-            ].map(([label, value]) => (
-              <div key={label} className="rounded-2xl border border-border bg-bg/45 p-4">
-                <p className="font-mono text-[10px] uppercase tracking-wider text-text-muted">{label}</p>
-                <p className="mt-1 text-sm text-text">{value}</p>
+        <section className="panel p-5 md:p-6">
+          <h2 className="section-head text-text">What this watchlist looks for</h2>
+          {isBroad ? (
+            <p className="mt-3 text-text">Every NBA card we find for any player</p>
+          ) : null}
+          <dl className="mt-4 grid gap-x-8 gap-y-3 sm:grid-cols-2">
+            {lookingForRows.map(([label, value]) => (
+              <div key={label}>
+                <dt className="field-label text-text-muted">{label}</dt>
+                <dd className="text-[0.9375rem] text-text">{value}</dd>
               </div>
             ))}
-          </div>
+          </dl>
         </section>
       ) : null}
 
       {rule ? (
-        <section className="rounded-3xl border border-border bg-card p-6 shadow-card md:p-8">
-          <p className="font-mono text-xs uppercase tracking-[0.24em] text-accent">Edit Watchlist</p>
-          <h2 className="mt-3 text-xl font-semibold text-text">Catalogue-backed filter details</h2>
-          <div className="mt-5">
+        <section className="panel p-5 md:p-6">
+          <p className="eyebrow">Edit Watchlist</p>
+          <h2 className="section-head mt-1 text-text">Filter details</h2>
+          <div className="mt-4">
             <CatalogueRefineForm action={`/watchlists/${watchlist.id}`} options={catalogueOptions} selected={selected} />
           </div>
           <form action={updateWatchlistAction} className="mt-5">
@@ -162,22 +215,11 @@ export default async function WatchlistDetailPage({ params, searchParams }: Watc
               selected={selected}
               watchlist={watchlist}
               rule={rule}
-              submitLabel="Save Watchlist"
+              submitLabel="Save watchlist"
             />
           </form>
         </section>
       ) : null}
-
-      <section className="rounded-3xl border border-border bg-card p-6 shadow-card md:p-8">
-        <p className="font-mono text-xs uppercase tracking-[0.24em] text-accent">Found Cards</p>
-        <h2 className="mt-3 text-xl font-semibold text-text">
-          {watchlist.match_count} cards currently match this watchlist
-        </h2>
-        <p className="mt-2 max-w-2xl text-sm leading-6 text-text-muted">
-          CardAlarm refreshes this watchlist when it is created or updated, then shows
-          matching cards in For You.
-        </p>
-      </section>
     </div>
   );
 }

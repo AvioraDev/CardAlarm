@@ -1,8 +1,11 @@
 "use client";
 
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
-import { useCallback, useState } from "react";
+import { useCallback, useId, useState } from "react";
+import { IconChevron } from "@/app/components/icons";
 import type { FilterFacets, FilterOptions } from "@/lib/types";
+
+const FILTER_KEYS_IGNORED_FOR_COUNT = ["watchlistId"];
 
 interface FilterBarProps {
   facets: FilterFacets;
@@ -22,9 +25,11 @@ export function FilterBar({
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const [isExpanded, setIsExpanded] = useState(
-    Object.keys(activeFilters).length > 0
-  );
+  const activeCount = Object.entries(activeFilters).filter(
+    ([key, value]) => Boolean(value) && !FILTER_KEYS_IGNORED_FOR_COUNT.includes(key)
+  ).length;
+  // Collapsed by default; open only when a real filter (not the watchlist chip) is active.
+  const [isExpanded, setIsExpanded] = useState(activeCount > 0);
 
   const updateFilter = useCallback(
     (key: string, value: string) => {
@@ -41,48 +46,54 @@ export function FilterBar({
   );
 
   const clearAll = useCallback(() => {
+    // Clearing filters keeps the view mode and the selected watchlist.
+    const params = new URLSearchParams();
     const mode = searchParams.get("mode");
-    router.push(mode ? `${pathname}?mode=${mode}` : pathname);
+    const watchlistId = searchParams.get("watchlistId");
+    if (mode) params.set("mode", mode);
+    if (watchlistId) params.set("watchlistId", watchlistId);
+    const query = params.toString();
+    router.push(query ? `${pathname}?${query}` : pathname);
   }, [router, pathname, searchParams]);
 
-  const activeCount = Object.values(activeFilters).filter(Boolean).length;
   const isFiltered = activeCount > 0;
   const isMatches = variant === "matches";
 
   return (
-    <div className="rounded-3xl border border-border bg-card shadow-card">
+    <div className="panel">
       {/* Toggle Header */}
       <button
+        type="button"
+        aria-expanded={isExpanded}
+        aria-controls="filter-panel"
         onClick={() => setIsExpanded(!isExpanded)}
-        className="flex w-full items-center justify-between px-4 py-3 transition-colors hover:bg-surface-hover md:px-5"
+        className="flex min-h-12 w-full items-center justify-between gap-3 px-4 text-left md:px-5"
       >
-        <div className="flex items-center gap-3">
-          <span className="font-mono text-xs font-bold uppercase tracking-wider text-text">
-            Filters
-          </span>
+        <span className="flex flex-wrap items-center gap-x-3 gap-y-1">
+          <span className="section-head text-text">Filters</span>
           {isFiltered && (
-            <span className="font-mono text-[10px] px-2 py-0.5 bg-accent/10 text-accent border border-accent/30">
-              {activeCount} active
+            <span className="badge badge-neutral">
+              <span className="data">{activeCount}</span> active
             </span>
           )}
           {isFiltered && (
-            <span className="font-mono text-[10px] text-text-muted">
-              {totalFiltered} / {totalUnfiltered} results
+            <span className="text-[0.8125rem] text-text-muted">
+              <span className="data">{totalFiltered}</span> of <span className="data">{totalUnfiltered}</span>
             </span>
           )}
-        </div>
-        <span className="font-mono text-xs text-text-muted">
+        </span>
+        <span className="flex shrink-0 items-center gap-1.5 text-[0.8125rem] text-text-muted">
           {isExpanded ? "Hide" : "Show"}
+          <IconChevron className={`transition-transform duration-[120ms] ${isExpanded ? "rotate-180" : ""}`} />
         </span>
       </button>
 
       {/* Filter Grid */}
       {isExpanded && (
-        <div className="border-t border-border px-4 py-4 md:px-5">
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-6">
-            {/* Source */}
+        <div id="filter-panel" className="border-t border-border px-4 py-4 md:px-5">
+          <div className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-6">
             <FilterSelect
-              label="Source"
+              label="Store"
               value={activeFilters.source}
               options={facets.sources}
               onChange={(v) => updateFilter("source", v)}
@@ -121,7 +132,7 @@ export function FilterBar({
             ) : null}
 
             <FilterSelect
-              label="Variant"
+              label="Parallel / variant"
               value={activeFilters.variant}
               options={facets.variants}
               onChange={(v) => updateFilter("variant", v)}
@@ -130,9 +141,10 @@ export function FilterBar({
             {isMatches ? (
               <>
                 <TextFilter
+                  className="col-span-2 md:col-span-1"
                   label="Team"
                   value={activeFilters.team}
-                  placeholder="Suns, Lakers..."
+                  placeholder="Suns, Lakers…"
                   onChange={(v) => updateFilter("team", v)}
                 />
                 <FilterSelect
@@ -143,6 +155,7 @@ export function FilterBar({
                     { value: "possible", count: 0 },
                   ]}
                   onChange={(v) => updateFilter("matchStatus", v)}
+                  formatLabel={formatMatchStatus}
                   hideCounts
                 />
               </>
@@ -159,14 +172,9 @@ export function FilterBar({
               />
             )}
           </div>
-          {isMatches ? (
-            <p className="mt-3 text-xs leading-5 text-text-muted">
-              Year, player, and variant filters use CardAlarm&apos;s current card details. Team remains text-derived for now.
-            </p>
-          ) : null}
 
           {/* Toggle Row */}
-          <div className="mt-3 flex flex-wrap items-center gap-3 border-t border-border pt-3">
+          <div className="mt-4 flex flex-wrap items-end gap-3 border-t border-border pt-4">
             <FilterToggle
               label="Numbered"
               paramKey="isSerial"
@@ -187,50 +195,53 @@ export function FilterBar({
             />
 
             {/* Price Range */}
-            <div className="flex items-center gap-1 md:ml-auto">
-              <label className="font-mono text-[10px] uppercase tracking-wider text-text-muted">
-                Price
-              </label>
-              <input
-                type="number"
-                placeholder="Min"
-                defaultValue={activeFilters.priceMin || ""}
-                onBlur={(e) => updateFilter("priceMin", e.target.value)}
-                className="w-16 bg-bg border border-border px-2 py-1 font-mono text-xs text-text placeholder:text-text-muted/50 focus:border-accent focus:outline-none"
-              />
-              <span className="font-mono text-xs text-text-muted">–</span>
-              <input
-                type="number"
-                placeholder="Max"
-                defaultValue={activeFilters.priceMax || ""}
-                onBlur={(e) => updateFilter("priceMax", e.target.value)}
-                className="w-16 bg-bg border border-border px-2 py-1 font-mono text-xs text-text placeholder:text-text-muted/50 focus:border-accent focus:outline-none"
-              />
-            </div>
+            <fieldset>
+              <legend className="field-label">Price</legend>
+              <div className="flex items-center gap-2">
+                <input
+                  type="number"
+                  inputMode="decimal"
+                  min={0}
+                  placeholder="Min"
+                  aria-label="Minimum price"
+                  defaultValue={activeFilters.priceMin || ""}
+                  onBlur={(e) => updateFilter("priceMin", e.target.value)}
+                  className="field data w-24"
+                />
+                <span className="text-text-muted" aria-hidden="true">
+                  –
+                </span>
+                <input
+                  type="number"
+                  inputMode="decimal"
+                  min={0}
+                  placeholder="Max"
+                  aria-label="Maximum price"
+                  defaultValue={activeFilters.priceMax || ""}
+                  onBlur={(e) => updateFilter("priceMax", e.target.value)}
+                  className="field data w-24"
+                />
+              </div>
+            </fieldset>
 
             {/* Search */}
-            <div className="flex items-center gap-1">
-              <input
-                type="text"
-                placeholder="Search titles..."
-                defaultValue={activeFilters.search || ""}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    updateFilter("search", (e.target as HTMLInputElement).value);
-                  }
-                }}
-                onBlur={(e) => updateFilter("search", e.target.value)}
-                className="w-40 bg-bg border border-border px-2 py-1 font-mono text-xs text-text placeholder:text-text-muted/50 focus:border-accent focus:outline-none"
-              />
-            </div>
+            <input
+              type="search"
+              placeholder="Search cards…"
+              aria-label="Search cards"
+              defaultValue={activeFilters.search || ""}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  updateFilter("search", (e.target as HTMLInputElement).value);
+                }
+              }}
+              onBlur={(e) => updateFilter("search", e.target.value)}
+              className="field w-full sm:w-56"
+            />
 
-            {/* Clear All */}
             {isFiltered && (
-              <button
-                onClick={clearAll}
-                className="font-mono text-[10px] uppercase tracking-wider text-danger hover:bg-danger hover:text-bg px-2 py-1 border border-danger/30 transition-colors"
-              >
-                Clear All
+              <button type="button" onClick={clearAll} className="btn btn-secondary btn-sm">
+                Clear filters
               </button>
             )}
           </div>
@@ -238,6 +249,12 @@ export function FilterBar({
       )}
     </div>
   );
+}
+
+function formatMatchStatus(value: string): string {
+  if (value === "confirmed") return "Confirmed";
+  if (value === "possible") return "Possible";
+  return value;
 }
 
 // ─── Sub-components ────────────────────────────────────────────────
@@ -248,6 +265,8 @@ interface FilterSelectProps {
   options: { value: string; count: number }[];
   onChange: (value: string) => void;
   hideCounts?: boolean;
+  /** Display text for an option; the stored URL value is unchanged. */
+  formatLabel?: (value: string) => string;
 }
 
 function FilterSelect({
@@ -256,21 +275,24 @@ function FilterSelect({
   options,
   onChange,
   hideCounts,
+  formatLabel,
 }: FilterSelectProps) {
+  const id = useId();
   return (
     <div>
-      <label className="block font-mono text-[10px] uppercase tracking-wider text-text-muted mb-1">
+      <label htmlFor={id} className="field-label">
         {label}
       </label>
       <select
+        id={id}
         value={value || ""}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full bg-bg border border-border px-2 py-1.5 font-mono text-xs text-text focus:border-accent focus:outline-none appearance-none cursor-pointer"
+        className="field cursor-pointer"
       >
         <option value="">All</option>
         {options.map((opt) => (
           <option key={opt.value} value={opt.value}>
-            {opt.value}
+            {formatLabel ? formatLabel(opt.value) : opt.value}
             {!hideCounts && opt.count > 0 ? ` (${opt.count})` : ""}
           </option>
         ))}
@@ -281,18 +303,21 @@ function FilterSelect({
 
 interface TextFilterProps {
   label: string;
+  className?: string;
   value?: string;
   placeholder: string;
   onChange: (value: string) => void;
 }
 
-function TextFilter({ label, value, placeholder, onChange }: TextFilterProps) {
+function TextFilter({ label, className, value, placeholder, onChange }: TextFilterProps) {
+  const id = useId();
   return (
-    <div>
-      <label className="block font-mono text-[10px] uppercase tracking-wider text-text-muted mb-1">
+    <div className={className}>
+      <label htmlFor={id} className="field-label">
         {label}
       </label>
       <input
+        id={id}
         type="text"
         defaultValue={value || ""}
         placeholder={placeholder}
@@ -300,7 +325,7 @@ function TextFilter({ label, value, placeholder, onChange }: TextFilterProps) {
           if (e.key === "Enter") onChange((e.target as HTMLInputElement).value);
         }}
         onBlur={(e) => onChange(e.target.value)}
-        className="w-full bg-bg border border-border px-2 py-1.5 font-mono text-xs text-text placeholder:text-text-muted/50 focus:border-accent focus:outline-none"
+        className="field"
       />
     </div>
   );
@@ -314,27 +339,25 @@ interface FilterToggleProps {
 }
 
 function FilterToggle({ label, value, onChange }: FilterToggleProps) {
-  // Three states: unset (all), "1" (yes), "0" (no)
+  // Three states: unset (any), "1" (only), "0" (excluded)
   const cycle = () => {
     if (!value) onChange("1");
     else if (value === "1") onChange("0");
     else onChange("");
   };
+  const state = value === "1" ? "only" : value === "0" ? "excluded" : "any";
 
   return (
     <button
+      type="button"
       onClick={cycle}
-      className={`font-mono text-[10px] uppercase tracking-wider px-2 py-1 border transition-colors ${
-        value === "1"
-          ? "text-accent border-accent/30 bg-accent/10"
-          : value === "0"
-            ? "text-danger border-danger/30 bg-danger/10"
-            : "text-text-muted border-border hover:border-border-strong"
-      }`}
+      aria-label={`${label}: ${state}`}
+      data-state={state === "any" ? undefined : state}
+      className="chip"
     >
       {label}
-      {value === "1" && " ✓"}
-      {value === "0" && " ✗"}
+      {state === "only" ? <span className="text-[0.8125rem] font-normal">· only</span> : null}
+      {state === "excluded" ? <span className="text-[0.8125rem] font-normal">· hidden</span> : null}
     </button>
   );
 }

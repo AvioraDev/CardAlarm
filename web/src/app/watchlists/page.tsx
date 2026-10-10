@@ -1,3 +1,6 @@
+import { friendlyError } from "@/lib/friendly-error";
+import { ConfirmSubmitButton } from "@/app/components/confirm-submit-button";
+import { SubmitButton } from "@/app/components/submit-button";
 import Link from "next/link";
 import { requireUser } from "@/lib/auth";
 import { getUserWatchlists } from "@/lib/watchlists";
@@ -15,120 +18,106 @@ function ruleSummary(ruleCount: number): string {
   return `${ruleCount} watchlist filters`;
 }
 
-export default async function WatchlistsPage() {
+interface WatchlistsPageProps {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}
+
+export default async function WatchlistsPage({ searchParams }: WatchlistsPageProps) {
+  const params = await searchParams;
+  const error = typeof params.error === "string" ? params.error : undefined;
   const user = await requireUser();
   const watchlists = await getUserWatchlists(user.id);
 
   return (
-    <div className="space-y-6">
-      <section className="rounded-3xl border border-border bg-card p-6 shadow-card md:p-8">
-        <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-          <div>
-            <p className="font-mono text-xs uppercase tracking-[0.24em] text-accent">
-              Watchlists
-            </p>
-            <h1 className="mt-3 text-3xl font-semibold tracking-tight text-text md:text-4xl">
-              Cards you&apos;re chasing
-            </h1>
-            <p className="mt-3 max-w-2xl text-sm leading-6 text-text-muted">
-              Create broad or specific watchlists for players, sets, cards, parallels,
-              serials, autos, relics, and price ranges. CardAlarm uses them to find
-              available cards for you.
-            </p>
-          </div>
-          <Link
-            href="/watchlists/new"
-            className="inline-flex items-center justify-center rounded-full bg-accent px-5 py-3 font-mono text-xs font-bold uppercase tracking-wider text-bg transition-colors hover:bg-accent-hover"
-          >
-            New Watchlist
-          </Link>
+    <div className="space-y-5 md:space-y-6">
+      {error ? (
+        <div role="alert" className="notice notice-error">
+          {friendlyError(error)}
         </div>
-      </section>
+      ) : null}
+      <header className="flex items-end justify-between gap-4">
+        <div>
+          <h1 className="page-title text-text">Watchlists</h1>
+          <p className="mt-1 max-w-xl text-text-muted">
+            The players and cards CardAlarm checks stores for. Keep one broad or make it exact.
+          </p>
+        </div>
+        <Link href="/watchlists/new" className="btn btn-primary shrink-0">
+          New watchlist
+        </Link>
+      </header>
 
       {watchlists.length === 0 ? (
-        <section className="rounded-3xl border border-border bg-card px-6 py-16 text-center shadow-card">
-          <h2 className="text-xl font-semibold text-text">No watchlists yet</h2>
-          <p className="mx-auto mt-3 max-w-xl text-sm leading-6 text-text-muted">
+        <section className="panel px-5 py-10 md:px-10 md:py-14 md:text-center">
+          <h2 className="section-title text-text">No watchlists yet</h2>
+          <p className="mt-2 max-w-md text-text-muted md:mx-auto">
             Start simple. Add a player name, set, card number, or a few terms.
             CardAlarm will use these watchlist filters to find relevant cards.
           </p>
-          <Link
-            href="/watchlists/new"
-            className="mt-6 inline-flex items-center justify-center rounded-full bg-accent px-5 py-3 font-mono text-xs font-bold uppercase tracking-wider text-bg transition-colors hover:bg-accent-hover"
-          >
-            Create First Watchlist
-          </Link>
+          <div className="mt-6 flex flex-col gap-3 sm:flex-row md:justify-center">
+            <Link href="/watchlists/new" className="btn btn-primary">
+              Create your first watchlist
+            </Link>
+          </div>
         </section>
       ) : (
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-          {watchlists.map((watchlist) => (
-            <article key={watchlist.id} className="rounded-3xl border border-border bg-card p-5 shadow-card">
-              <div className="flex items-start justify-between gap-3">
-                <div>
-                  <h2 className="text-lg font-semibold tracking-tight text-text">
-                    <Link href={`/watchlists/${watchlist.id}`} className="hover:text-accent">
-                      {watchlist.name}
-                    </Link>
-                  </h2>
-                  <p className="mt-1 font-mono text-[10px] uppercase tracking-[0.18em] text-text-muted">
-                    {ruleSummary(watchlist.rules.length)} · {watchlist.match_count} found cards · Alerts {watchlist.notification_enabled ? "on" : "off"}
+        <section className="panel">
+          <ul className="divide-y divide-border">
+            {watchlists.map((watchlist) => (
+              <li
+                key={watchlist.id}
+                className="flex flex-col gap-3 p-4 md:flex-row md:items-center md:justify-between md:p-5"
+              >
+                <div className="min-w-0">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <h2 className="section-title text-text">
+                      <Link href={`/watchlists/${watchlist.id}`} className="underline-offset-4 hover:underline">
+                        {watchlist.name}
+                      </Link>
+                    </h2>
+                    <span className="tag">{watchlist.is_active ? "Active" : "Paused"}</span>
+                  </div>
+                  <p className="mt-1 text-[0.8125rem] leading-[1.125rem] text-text-muted">
+                    {ruleSummary(watchlist.rules.length)} · <span className="data">{watchlist.match_count}</span> found cards · Alerts {watchlist.notification_enabled ? "on" : "off"}
                   </p>
+                  {watchlist.rules.slice(0, 1).map((rule) => (
+                    <p key={rule.id} className="mt-1 text-[0.875rem] text-text">
+                      {[rule.season, rule.brand, rule.product_line, rule.card_number ? `#${rule.card_number}` : null, rule.parallel]
+                        .filter(Boolean)
+                        .join(" ") || rule.include_terms || "Broad watchlist"}
+                    </p>
+                  ))}
                 </div>
-                <span className={watchlist.is_active ? "tag tag-accent" : "tag"}>
-                  {watchlist.is_active ? "Active" : "Paused"}
-                </span>
-              </div>
 
-              <div className="mt-4 space-y-2 text-sm leading-6 text-text-muted">
-                {watchlist.rules.slice(0, 1).map((rule) => (
-                  <p key={rule.id}>
-                    {[rule.season, rule.brand, rule.product_line, rule.card_number ? `#${rule.card_number}` : null, rule.parallel]
-                      .filter(Boolean)
-                      .join(" ") || rule.include_terms || "Broad watchlist"}
-                  </p>
-                ))}
-              </div>
-
-              <div className="mt-5 flex flex-wrap gap-2">
-                <Link
-                  href={`/watchlists/${watchlist.id}`}
-                  className="rounded-full border border-border px-4 py-2 font-mono text-xs font-bold uppercase tracking-wider text-text transition-colors hover:border-accent"
-                >
-                  View
-                </Link>
-                <form action={toggleUserWatchlistAction}>
-                  <input type="hidden" name="watchlistId" value={watchlist.id} />
-                  <input type="hidden" name="isActive" value={String(watchlist.is_active)} />
-                  <button
-                    type="submit"
-                    className="rounded-full border border-border px-4 py-2 font-mono text-xs font-bold uppercase tracking-wider text-text-muted transition-colors hover:border-accent hover:text-text"
-                  >
-                    {watchlist.is_active ? "Pause" : "Activate"}
-                  </button>
-                </form>
-                <form action={toggleWatchlistNotificationsAction}>
-                  <input type="hidden" name="watchlistId" value={watchlist.id} />
-                  <input type="hidden" name="notificationsEnabled" value={String(watchlist.notification_enabled)} />
-                  <button
-                    type="submit"
-                    className="rounded-full border border-border px-4 py-2 font-mono text-xs font-bold uppercase tracking-wider text-text-muted transition-colors hover:border-accent hover:text-text"
-                  >
-                    {watchlist.notification_enabled ? "Alerts On" : "Alerts Off"}
-                  </button>
-                </form>
-                <form action={deleteUserWatchlistAction}>
-                  <input type="hidden" name="watchlistId" value={watchlist.id} />
-                  <button
-                    type="submit"
-                    className="rounded-full border border-danger/40 px-4 py-2 font-mono text-xs font-bold uppercase tracking-wider text-danger transition-colors hover:bg-danger hover:text-bg"
-                  >
-                    Delete
-                  </button>
-                </form>
-              </div>
-            </article>
-          ))}
-        </div>
+                <div className="flex flex-wrap gap-2">
+                  <Link href={`/watchlists/${watchlist.id}`} className="btn btn-secondary btn-sm">
+                    View
+                  </Link>
+                  <form action={toggleUserWatchlistAction}>
+                    <input type="hidden" name="watchlistId" value={watchlist.id} />
+                    <input type="hidden" name="isActive" value={String(watchlist.is_active)} />
+                    <SubmitButton className="btn btn-ghost btn-sm">
+                      {watchlist.is_active ? "Pause" : "Activate"}
+                    </SubmitButton>
+                  </form>
+                  <form action={toggleWatchlistNotificationsAction}>
+                    <input type="hidden" name="watchlistId" value={watchlist.id} />
+                    <input type="hidden" name="notificationsEnabled" value={String(watchlist.notification_enabled)} />
+                    <SubmitButton className="btn btn-ghost btn-sm">
+                      {watchlist.notification_enabled ? "Turn alerts off" : "Turn alerts on"}
+                    </SubmitButton>
+                  </form>
+                  <form action={deleteUserWatchlistAction}>
+                    <input type="hidden" name="watchlistId" value={watchlist.id} />
+                    <ConfirmSubmitButton message="Delete this watchlist and its matches? This can't be undone." className="btn btn-danger btn-sm">
+                      Delete
+                    </ConfirmSubmitButton>
+                  </form>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </section>
       )}
     </div>
   );

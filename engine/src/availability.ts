@@ -1,3 +1,4 @@
+import { summarizeVariants } from './shopify-variants';
 import type { DbClient } from './db';
 import type { SourceConfig, ShopifyProductsResponse } from './types';
 import { reconcileSourceAvailability } from './db';
@@ -22,14 +23,18 @@ async function fetchProductPage(
   console.log(`  ↳ Availability page ${page}: ${url}`);
 
   try {
-    const response = await fetch(url);
+    const response = await fetch(url, { signal: AbortSignal.timeout(30_000) });
     if (!response.ok) {
       console.error(`  ✗ HTTP ${response.status} from ${url}`);
       return null;
     }
 
     const data = (await response.json()) as ShopifyProductsResponse;
-    return data.products ?? [];
+    if (!data || !Array.isArray(data.products)) {
+      console.error(`  ✗ Unexpected response shape from ${url}`);
+      return null;
+    }
+    return data.products;
   } catch (err) {
     console.error(`  ✗ Network error fetching ${url}:`, err);
     return null;
@@ -66,7 +71,7 @@ async function fetchAvailableProductIds(source: SourceConfig): Promise<{
       fetched += products.length;
 
       for (const product of products) {
-        if (product.variants[0]?.available) {
+        if (summarizeVariants(product.variants).available) {
           availableExternalIds.push(String(product.id));
         }
       }
@@ -96,7 +101,7 @@ export async function runAvailabilityCheck(
     console.log(`\n▶ Availability inventory: ${source.name}`);
     const result = await fetchAvailableProductIds(source);
 
-    if (!result.complete) {
+    if (!result.complete || result.fetched === 0) {
       console.warn(`  ⚠ Skipping OOS reconciliation for ${source.slug}; source fetch was incomplete`);
       continue;
     }

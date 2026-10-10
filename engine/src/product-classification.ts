@@ -88,7 +88,7 @@ const STRONG_NON_CARD_PATTERNS: Array<{ pattern: RegExp; reason: string }> = [
 
 const CARD_CONTEXT_PATTERN =
   /\b(Panini|Topps|Upper\s+Deck|Fleer|Skybox|Donruss|Prizm|Optic|Mosaic|Select|Hoops|Chronicles|Court\s+Kings|Contenders|Revolution|Obsidian|Origins|Flux|Recon|Certified|trading\s+card|rookie\s+card|card)\b/i;
-const CARD_NUMBER_PATTERN = /(?:^|\s)(?:#|No\.?\s*)[A-Za-z0-9-]+\b/i;
+const CARD_NUMBER_PATTERN = /(?:^|\s)(?:#[A-Za-z0-9-]+|No\.?\s*\d[A-Za-z0-9-]*)\b/i;
 const NBA_CONTEXT_PATTERN =
   /\b(NBA|basketball|Lakers|Celtics|Bulls|Warriors|Suns|Spurs|Heat|Knicks|Nets|Mavericks|Mavs|Nuggets|Bucks|Sixers|76ers|Clippers|Raptors|Grizzlies|Pelicans|Timberwolves|Wolves|Thunder|Trail\s+Blazers|Blazers|Hornets|Magic|Pacers|Pistons|Cavaliers|Cavs|Hawks|Jazz|Kings|Rockets|Wizards|LeBron\s+James|Lebron\s+James|Michael\s+Jordan|Kobe\s+Bryant|Kevin\s+Durant|Victor\s+Wembanyama|Jayson\s+Tatum|Stephen\s+Curry|Luka\s+Doncic|Giannis\s+Antetokounmpo|Nikola\s+Jokic|Shaquille\s+O'Neal)\b/i;
 const NBA_CARD_PRODUCT_PATTERNS: Array<{ pattern: RegExp; signal: string }> = [

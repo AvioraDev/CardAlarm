@@ -95,6 +95,8 @@ export function inventoryListingSelectSql(): string {
   return `sp.id,
        sp.external_product_id as external_id,
        sp.source,
+       coalesce(st.name, sp.source) as store_name,
+       st.currency as currency,
        coalesce(sp.title, 'Untitled listing') as title,
        sp.current_price::float8 as price,
        coalesce(sp.product_url, sp.canonical_url, '') as url,
@@ -106,6 +108,7 @@ export function inventoryListingSelectSql(): string {
        false as is_not_match_for_user,
        (not sp.current_availability or not sp.is_active) as is_oos,
        sp.created_at,
+       sp.last_checked_at,
        pc.year,
        coalesce(pc.set_name, pc.product_line) as set_name,
        pc.card_number,
@@ -133,6 +136,8 @@ export function watchlistInventoryListingSelectSql(): string {
   return `sp.id,
        sp.external_product_id as external_id,
        sp.source,
+       coalesce(st.name, sp.source) as store_name,
+       st.currency as currency,
        coalesce(sp.title, 'Untitled listing') as title,
        sp.current_price::float8 as price,
        coalesce(sp.product_url, sp.canonical_url, '') as url,
@@ -144,15 +149,18 @@ export function watchlistInventoryListingSelectSql(): string {
        coalesce(ufs.is_not_match, false) as is_not_match_for_user,
        (not sp.current_availability or not sp.is_active) as is_oos,
        sp.created_at,
+       sp.last_checked_at,
        pc.year,
        coalesce(pc.set_name, pc.product_line) as set_name,
        pc.card_number,
+       -- Prefer what the listing itself was identified as; the watchlist's own name or terms
+       -- are only a last resort and must never override a parsed player.
        coalesce(
          pcm.matched_player_name,
+         pc.player_name,
          p.full_name,
          nullif(trim(split_part(coalesce(wr.include_terms, ''), ',', 1)), ''),
-         w.name,
-         pc.player_name
+         w.name
        ) as player_name,
        coalesce(pc.variant_name, pc.parallel_name, pc.insert_name) as variant,
        coalesce(pc.is_serial, coalesce(pcm.matched_fields, '[]'::jsonb) ? 'serial', false) as is_serial,
@@ -173,6 +181,11 @@ export function watchlistInventoryListingSelectSql(): string {
        pcm.match_reasons,
        pcm.unmatched_fields,
        pcm.matcher_version`;
+}
+
+/** Store name and currency for each listing. Every query using the shared selects must include it. */
+export function storeJoinSql(): string {
+  return "left join public.stores st on st.id = sp.store_id";
 }
 
 export function inventoryMatchJoinSql(): string {

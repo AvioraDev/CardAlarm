@@ -1,3 +1,5 @@
+import { IconPossible } from "@/app/components/icons";
+import { SubmitButton } from "@/app/components/submit-button";
 import { Suspense } from "react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
@@ -8,10 +10,12 @@ import {
   getUserWatchlistStats,
 } from "@/lib/queries";
 import { ensureProfile, requireUser } from "@/lib/auth";
-import type { FilterOptions } from "@/lib/types";
+import type { FilterOptions, ListingRow } from "@/lib/types";
 import { refreshAllUserWatchlistsAction } from "@/lib/watchlist-actions";
+import { DEFAULT_PAGE_SIZE, pageHref, pageOffset, pageWindow, parsePage } from "@/lib/pagination";
 import { ListingCard } from "../components/listing-card";
 import { FilterBar } from "../components/filter-bar";
+import { PaginationNav } from "../components/pagination-nav";
 
 export const dynamic = "force-dynamic";
 
@@ -53,14 +57,34 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
   const hasNonWatchlistFilters = Object.keys(nonWatchlistFilters).length > 0;
   const selectedWatchlistId = cleanFilters.watchlistId;
 
+  const pageSize = DEFAULT_PAGE_SIZE;
+  const currentPage = parsePage(params.page);
+  const offset = pageOffset(currentPage, pageSize);
+  const hasAnyFilter = Object.keys(cleanFilters).length > 0;
+  const statsPromise = getUserWatchlistStats(user.id, cleanFilters);
+
   const [feed, stats, unfilteredStats, watchlistChips, facets] = await Promise.all([
-    getUserWatchlistFeed(user.id, cleanFilters),
-    getUserWatchlistStats(user.id, cleanFilters),
-    getUserWatchlistStats(user.id),
+    getUserWatchlistFeed(user.id, cleanFilters, { limit: pageSize, offset }),
+    statsPromise,
+    hasAnyFilter ? getUserWatchlistStats(user.id) : statsPromise,
     getActiveUserWatchlistChips(user.id),
     getUserWatchlistFilterFacets(user.id, cleanFilters),
   ]);
 
+  const pager = pageWindow(stats.total, currentPage, pageSize);
+  const hrefParams = { ...cleanFilters } as Record<string, string | undefined>;
+  if (stats.total > 0 && currentPage > pager.pageCount) {
+    redirect(pageHref("/dashboard", hrefParams, pager.pageCount));
+  }
+
+  const confirmedOnPage = feed.filter((listing) => listing.match_status !== "possible");
+  const possibleOnPage = feed.filter((listing) => listing.match_status === "possible");
+  const isFirstRun = watchlistChips.length === 0;
+  const selectedWatchlist = selectedWatchlistId
+    ? watchlistChips.find((watchlist) => String(watchlist.id) === selectedWatchlistId)
+    : undefined;
+
+  // Never includes `page`, so switching watchlist always starts at page 1.
   function matchesHref(nextWatchlistId?: string): string {
     const nextParams = new URLSearchParams();
     for (const [key, value] of Object.entries(cleanFilters)) {
@@ -71,96 +95,115 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
     return query ? `/dashboard?${query}` : "/dashboard";
   }
 
+  // Drops every filter but keeps the selected watchlist.
+  const clearFiltersHref = selectedWatchlistId
+    ? `/dashboard?${new URLSearchParams({ watchlistId: selectedWatchlistId }).toString()}`
+    : "/dashboard";
+
+  // Empty-state causes, checked in order; the fallback reuses the filters copy.
+  const emptyCause: "filters" | "watchlist" | "none-yet" = hasNonWatchlistFilters
+    ? "filters"
+    : selectedWatchlistId
+      ? "watchlist"
+      : unfilteredStats.total === 0
+        ? "none-yet"
+        : "filters";
+
   const emptyTitle = (() => {
     if (feed.length > 0) return "";
-    if (hasNonWatchlistFilters) return "No cards found for these filters";
-    if (selectedWatchlistId) return "No cards found for this watchlist yet";
-    if (unfilteredStats.total === 0) return "No cards found for you yet";
-    return "No cards found for these filters";
+    if (emptyCause === "watchlist") return `Nothing found for ${selectedWatchlist?.name ?? "this watchlist"} yet`;
+    if (emptyCause === "none-yet") return "No cards found for you yet";
+    return "No cards match these filters";
   })();
 
-  return (
-    <div className="space-y-5">
-      <section className="rounded-3xl border border-border bg-card p-5 shadow-card md:p-6">
-        <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-          <div>
-            <p className="font-mono text-xs uppercase tracking-[0.24em] text-accent">
-              Cards found for you
-            </p>
-            <h1 className="mt-2 text-2xl font-semibold tracking-tight text-text md:text-4xl">
-              For You
-            </h1>
-            <p className="mt-2 max-w-2xl text-sm leading-6 text-text-muted">
-              CardAlarm watches your active watchlists and brings matching cards here when they are available now.
-            </p>
-          </div>
-          <div className="flex flex-col gap-2 sm:flex-row">
-            <form action={refreshAllUserWatchlistsAction}>
-              <button
-                type="submit"
-                className="inline-flex w-full items-center justify-center rounded-full border border-border px-5 py-3 font-mono text-xs font-bold uppercase tracking-wider text-text transition-colors hover:border-accent sm:w-auto"
-                title="Re-check available cards against every active watchlist."
+  function renderEmptyState() {
+    if (emptyCause === "filters") {
+      return (
+        <EmptyState
+          title={emptyTitle}
+          body="Try removing a filter or two. Your watchlists are still being checked."
+          actions={
+            <Link href={clearFiltersHref} className="btn btn-primary">
+              Clear filters
+            </Link>
+          }
+        />
+      );
+    }
+    if (emptyCause === "watchlist") {
+      return (
+        <EmptyState
+          title={emptyTitle}
+          body="We've checked the latest store inventory and haven't found a match. Broader watchlists, like a player on their own, find more cards."
+          actions={
+            <>
+              <Link
+                href={selectedWatchlist ? `/watchlists/${selectedWatchlist.id}` : "/watchlists"}
+                className="btn btn-primary"
               >
-                Refresh Matches
-              </button>
+                Edit this watchlist
+              </Link>
+              <Link href={matchesHref()} className="btn btn-secondary">
+                See all watchlists
+              </Link>
+            </>
+          }
+        />
+      );
+    }
+    return (
+      <EmptyState
+        title={emptyTitle}
+        body="We've checked the latest store inventory for your watchlists and haven't found a match yet. Stores are checked regularly, and new matches will appear here as soon as they turn up."
+        actions={
+          <>
+            <Link href="/watchlists/new?quick=1" className="btn btn-primary">
+              Add another watchlist
+            </Link>
+            <Link href="/watchlists" className="btn btn-secondary">
+              Review your watchlists
+            </Link>
+          </>
+        }
+      />
+    );
+  }
+
+  return (
+    <div className="space-y-5 md:space-y-6">
+      <header>
+        <div className="flex items-center justify-between gap-3">
+          <h1 className="page-title text-text">For You</h1>
+          {!isFirstRun ? (
+            <form action={refreshAllUserWatchlistsAction}>
+              <SubmitButton className="btn btn-ghost btn-sm" pendingLabel="Refreshing…">
+                Refresh matches
+              </SubmitButton>
             </form>
-            <Link
-              href="/watchlists/new"
-              className="inline-flex items-center justify-center rounded-full bg-accent px-5 py-3 font-mono text-xs font-bold uppercase tracking-wider text-bg transition-colors hover:bg-accent-hover"
-            >
-              Create Watchlist
-            </Link>
-          </div>
+          ) : null}
         </div>
-      </section>
+        {!isFirstRun ? (
+          <p className="mt-1 text-[0.875rem] text-text-muted">
+            Cards found for you: <b className="data font-medium text-text">{stats.total}</b> ·{" "}
+            <span className="data text-text">{stats.current}</span> confirmed ·{" "}
+            <span className="data text-text">{stats.possible}</span> possible
+            {hasNonWatchlistFilters ? (
+              <>
+                {" "}
+                (filtered from <span className="data text-text">{unfilteredStats.total}</span>)
+              </>
+            ) : null}
+          </p>
+        ) : null}
+      </header>
 
-      <div className="grid grid-cols-2 gap-3 md:grid-cols-5">
-        <div className="metric-card">
-          <p className="metric-label">Found Cards</p>
-          <p className="metric-value">{stats.total}</p>
-        </div>
-        <div className="metric-card">
-          <p className="metric-label text-direct">Available Now</p>
-          <p className="metric-value text-direct">{stats.current}</p>
-        </div>
-        <div className="metric-card">
-          <p className="metric-label text-stealth">Possible</p>
-          <p className="metric-value text-stealth">{stats.possible}</p>
-        </div>
-        <div className="metric-card">
-          <p className="metric-label">Watchlists</p>
-          <p className="metric-value">{stats.watchlists}</p>
-        </div>
-        <div className="metric-card">
-          <p className="metric-label">Numbered</p>
-          <p className="metric-value">{stats.serialized}</p>
-        </div>
-      </div>
-
-      <div className="space-y-3">
-        <section className="rounded-3xl border border-border bg-card p-4 shadow-card">
-          <div className="mb-3 flex items-center justify-between gap-3">
-            <div>
-              <h2 className="font-mono text-xs font-bold uppercase tracking-wider text-text">
-                Watchlists
-              </h2>
-              <p className="mt-1 text-xs text-text-muted">
-                Switch between the cards CardAlarm found for each chase list.
-              </p>
-            </div>
-            <Link href="/watchlists" className="font-mono text-[10px] uppercase tracking-wider text-accent hover:underline">
-              Manage
-            </Link>
-          </div>
-          <div className="flex gap-2 overflow-x-auto pb-1">
-            <Link
-              href={matchesHref()}
-              className={`shrink-0 rounded-full px-4 py-2 font-mono text-xs font-bold uppercase tracking-wider transition-colors ${
-                !selectedWatchlistId ? "bg-accent text-bg" : "border border-border text-text-muted hover:border-accent hover:text-text"
-              }`}
-            >
-              All Watchlists
-              <span className="ml-2 text-[10px] opacity-70">{unfilteredStats.total}</span>
+      {isFirstRun ? (
+        <FirstRunPanel />
+      ) : (
+        <>
+          <nav aria-label="Watchlists" className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 sm:mx-0 sm:px-0">
+            <Link href={matchesHref()} className="chip" aria-current={!selectedWatchlistId ? "page" : undefined}>
+              All watchlists <span className="data text-[0.8125rem]">{unfilteredStats.total}</span>
             </Link>
             {watchlistChips.map((watchlist) => {
               const isSelected = selectedWatchlistId === String(watchlist.id);
@@ -168,48 +211,138 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
                 <Link
                   key={watchlist.id}
                   href={matchesHref(String(watchlist.id))}
-                  className={`shrink-0 rounded-full px-4 py-2 font-mono text-xs font-bold uppercase tracking-wider transition-colors ${
-                    isSelected ? "bg-accent text-bg" : "border border-border text-text-muted hover:border-accent hover:text-text"
-                  }`}
+                  className="chip"
+                  aria-current={isSelected ? "page" : undefined}
                 >
-                  {watchlist.name}
-                  <span className="ml-2 text-[10px] opacity-70">{watchlist.match_count}</span>
+                  {watchlist.name} <span className="data text-[0.8125rem]">{watchlist.match_count}</span>
                 </Link>
               );
             })}
-          </div>
-        </section>
-        <Suspense fallback={null}>
-          <FilterBar
-            facets={facets}
-            activeFilters={cleanFilters}
-            totalUnfiltered={unfilteredStats.total}
-            totalFiltered={stats.total}
-            variant="matches"
-          />
-        </Suspense>
-      </div>
+            <Link href="/watchlists" className="btn btn-ghost btn-sm shrink-0">
+              Manage
+            </Link>
+            <Link href="/watchlists/new?quick=1" className="btn btn-ghost btn-sm shrink-0">
+              New watchlist
+            </Link>
+          </nav>
 
-      {feed.length === 0 ? (
-        <div className="rounded-3xl border border-border bg-card px-6 py-16 text-center shadow-card">
-          <p className="text-lg font-semibold text-text">{emptyTitle}</p>
-          <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-text-muted">
-            Create or refine a watchlist and CardAlarm will surface matching cards here when they are found.
-          </p>
-          <Link
-            href="/watchlists/new"
-            className="mt-6 inline-flex rounded-full bg-accent px-5 py-3 font-mono text-xs font-bold uppercase tracking-wider text-bg hover:bg-accent-hover"
-          >
-            Create Watchlist
-          </Link>
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
-          {feed.map((listing) => (
-            <ListingCard key={listing.id} listing={listing} showFeedbackControls />
-          ))}
-        </div>
+          <Suspense fallback={null}>
+            <FilterBar
+              facets={facets}
+              activeFilters={cleanFilters}
+              totalUnfiltered={unfilteredStats.total}
+              totalFiltered={stats.total}
+              variant="matches"
+            />
+          </Suspense>
+
+          {feed.length === 0 ? (
+            renderEmptyState()
+          ) : (
+            <>
+              {confirmedOnPage.length > 0 ? (
+                <section aria-labelledby="confirmed-heading">
+                  {possibleOnPage.length > 0 ? (
+                    <h2
+                      id="confirmed-heading"
+                      className="section-head mb-4 flex items-baseline gap-2 border-b border-border pb-2 text-text"
+                    >
+                      Confirmed matches <span className="data font-normal text-text-muted">{confirmedOnPage.length}</span>
+                    </h2>
+                  ) : (
+                    <h2 id="confirmed-heading" className="sr-only">
+                      Confirmed matches
+                    </h2>
+                  )}
+                  <CardGrid listings={confirmedOnPage} eagerCount={2} />
+                </section>
+              ) : null}
+              {possibleOnPage.length > 0 ? (
+                <section aria-labelledby="possible-heading" className={confirmedOnPage.length > 0 ? "pt-8" : undefined}>
+                  <div className="mb-4 border-b border-dashed border-possible pb-2">
+                    <h2 id="possible-heading" className="section-head flex items-center gap-2 text-text">
+                      <IconPossible className="text-possible" /> Possible matches{" "}
+                      <span className="data font-normal text-text-muted">{possibleOnPage.length}</span>
+                    </h2>
+                    <p className="mt-1 max-w-2xl text-[0.875rem] text-text-muted">
+                      These listings may match your watchlist, but CardAlarm is less certain. Check them before relying on
+                      them.
+                    </p>
+                  </div>
+                  <CardGrid listings={possibleOnPage} />
+                </section>
+              ) : null}
+            </>
+          )}
+
+          <PaginationNav window={pager} basePath="/dashboard" params={hrefParams} noun="cards" />
+        </>
       )}
     </div>
+  );
+}
+
+// Shared card grid (dashboard, saved, loading): max 4 columns.
+const CARD_GRID = "grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3 xl:grid-cols-4 xl:gap-5";
+
+function CardGrid({ listings, eagerCount = 0 }: { listings: ListingRow[]; eagerCount?: number }) {
+  return (
+    <div className={CARD_GRID}>
+      {listings.map((listing, index) => (
+        <ListingCard
+          key={listing.id}
+          listing={listing}
+          showFeedbackControls
+          imageLoading={index < eagerCount ? "eager" : "lazy"}
+        />
+      ))}
+    </div>
+  );
+}
+
+function EmptyState({ title, body, actions }: { title: string; body: string; actions: React.ReactNode }) {
+  return (
+    <div className="panel px-5 py-10 md:px-10 md:py-14 md:text-center">
+      <h2 className="section-title text-text">{title}</h2>
+      <p className="mt-2 max-w-md text-text-muted md:mx-auto">{body}</p>
+      <div className="mt-6 flex flex-col gap-3 sm:flex-row md:justify-center">{actions}</div>
+    </div>
+  );
+}
+
+const FIRST_RUN_STEPS = [
+  "Pick a player",
+  "Narrow it down if you like: rookies, autos, numbered cards or a price range",
+  "Matches appear here with the store, the price and how sure we are",
+];
+
+function FirstRunPanel() {
+  return (
+    <section aria-labelledby="first-run-heading" className="panel mx-auto max-w-2xl p-6 md:p-10">
+      <p className="eyebrow">Welcome to CardAlarm</p>
+      <h2 id="first-run-heading" className="page-title mt-2 text-text">
+        Who are you chasing?
+      </h2>
+      <p className="mt-3 text-text-muted">
+        Start with a player. CardAlarm will check the latest store inventory straight away and show any matching NBA
+        singles here.
+      </p>
+      <ol className="mt-6 divide-y divide-border border-y border-border">
+        {FIRST_RUN_STEPS.map((step, index) => (
+          <li key={step} className="flex gap-4 py-3">
+            <span className="data w-5 shrink-0 text-text-muted">{index + 1}</span>
+            <span className="text-text">{step}</span>
+          </li>
+        ))}
+      </ol>
+      <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+        <Link href="/watchlists/new?quick=1" className="btn btn-primary">
+          Pick a player
+        </Link>
+        <Link href="/watchlists/new" className="btn btn-secondary">
+          Build a detailed watchlist
+        </Link>
+      </div>
+    </section>
   );
 }

@@ -59,7 +59,7 @@ describe('CAR-28 DB-backed scan job queue', () => {
   });
 
   it('preserves existing OOS safety guard for incomplete scans', () => {
-    expect(ingest).toContain('if (!hadFetchError && !stoppedEarlyFromCache) {');
+    expect(ingest).toContain('if (!hadFetchError && !stoppedEarlyFromCache && fetched > 0) {');
     expect(ingest).toContain('markedOOS = await markMissingSourceProductsOOS');
   });
 });

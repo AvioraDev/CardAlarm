@@ -373,6 +373,7 @@ export async function upsertSourceProducts(
            normalized_title = excluded.normalized_title,
            raw_latest_payload = excluded.raw_latest_payload,
            product_fingerprint = excluded.product_fingerprint,
+           is_active = excluded.current_availability,
            last_seen_at = now(),
            last_checked_at = now(),
            updated_at = now()

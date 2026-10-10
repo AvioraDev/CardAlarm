@@ -94,7 +94,8 @@ export async function createWatchlistAction(formData: FormData): Promise<void> {
   await enqueueAndProcessWatchlistAlerts(watchlist.id);
   revalidatePath("/watchlists");
   revalidatePath("/dashboard");
-  redirect(`/watchlists/${watchlist.id}`);
+  const after = formData.get("after");
+  redirect(after === "dashboard" ? `/dashboard?watchlistId=${watchlist.id}` : `/watchlists/${watchlist.id}`);
 }
 
 export async function updateWatchlistAction(formData: FormData): Promise<void> {

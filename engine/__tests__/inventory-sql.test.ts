@@ -6,12 +6,22 @@ import {
   inventoryClassificationJoinSql,
   inventoryListingSelectSql,
   inventoryMatchJoinSql,
+  storeJoinSql,
   watchlistInventoryListingSelectSql,
   watchlistInventoryMatchJoinSql,
   userFeedbackStateJoinSql,
 } from '../../web/src/lib/inventory-sql';
 
 describe('canonical inventory SQL helpers', () => {
+  it('never lets a watchlist name or terms override the listing\'s own parsed player', () => {
+    const selectSql = watchlistInventoryListingSelectSql();
+    const start = selectSql.indexOf('as player_name');
+    const block = selectSql.slice(selectSql.indexOf('pcm.matched_player_name'), start);
+    const order = ['pcm.matched_player_name', 'pc.player_name', 'p.full_name', 'w.name'].map(token => block.indexOf(token));
+    expect(order.every(index => index >= 0)).toBe(true);
+    expect([...order].sort((a, b) => a - b)).toEqual(order);
+  });
+
   it('builds browse-all SQL from store_products without listings_feed', () => {
     const selectSql = inventoryListingSelectSql();
     const joinSql = inventoryMatchJoinSql();
@@ -24,6 +34,15 @@ describe('canonical inventory SQL helpers', () => {
     expect(joinSql).toContain('public.product_card_matches');
     expect(classificationJoinSql).toContain('public.product_classifications');
     expect(`${selectSql}\n${joinSql}\n${classificationJoinSql}`).not.toContain('listings_feed');
+  });
+
+  it('selects store name, currency and last checked time in both listing selects', () => {
+    for (const selectSql of [inventoryListingSelectSql(), watchlistInventoryListingSelectSql()]) {
+      expect(selectSql).toContain('coalesce(st.name, sp.source) as store_name');
+      expect(selectSql).toContain('st.currency as currency');
+      expect(selectSql).toContain('sp.last_checked_at');
+    }
+    expect(storeJoinSql()).toBe('left join public.stores st on st.id = sp.store_id');
   });
 
   it('builds My Matches SQL shape from watchlist_matches and store_products without listings_feed', () => {
@@ -184,9 +203,17 @@ describe('canonical inventory SQL helpers', () => {
     const inventoryStart = queriesSource.indexOf('export async function getActiveFeed');
     const inventoryEnd = queriesSource.indexOf('export async function getUserWatchlistFeed');
     const inventorySource = queriesSource.slice(inventoryStart, inventoryEnd);
+    const builderStart = queriesSource.indexOf('function rankedWatchlistMatchesSql');
+    const builderEnd = queriesSource.indexOf('export async function getActiveFeed');
+    const builderSource = queriesSource.slice(builderStart, builderEnd);
 
-    expect(feedSource).toContain('userFeedbackStateJoinSql()');
-    expect(feedSource).toContain('HIDDEN_USER_FEEDBACK_WHERE');
+    expect(builderStart).toBeGreaterThan(-1);
+    expect(builderSource).toContain('userFeedbackStateJoinSql()');
+    expect(builderSource).toContain('storeJoinSql()');
+    expect(builderSource).toContain('select distinct on (sp.id)');
+    expect(builderSource).toContain('from public.watchlist_matches wm');
+    expect(feedSource).toContain('rankedWatchlistMatchesSql(whereSql, HIDDEN_USER_FEEDBACK_WHERE)');
+    expect(feedSource).toContain('id desc');
     expect(queriesSource).toContain('coalesce(ufs.is_dismissed, false) = false');
     expect(queriesSource).toContain('coalesce(ufs.is_not_match, false) = false');
     expect(savedSource).toContain('coalesce(ufs.is_saved, false) = true');
