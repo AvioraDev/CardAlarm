@@ -26,14 +26,18 @@ export function CardImage({
 }: CardImageProps) {
   const [failed, setFailed] = useState(!src);
 
+  // The mat: a 5:7 thumbnail on phones, a 5:4 plate with the card art centred on sm+.
   return (
-    <div className="relative aspect-[5/7] w-full overflow-hidden rounded-2xl bg-elevated sm:rounded-none">
+    <div className="relative flex aspect-[5/7] w-full items-center justify-center overflow-hidden rounded-control bg-mat p-1.5 sm:aspect-[5/4] sm:rounded-none sm:border-b sm:border-border sm:p-3">
       {failed || !src ? (
-        <div className="flex h-full w-full flex-col items-center justify-center gap-1.5 p-3 text-center">
-          <div className="flex h-full w-full flex-col items-center justify-center gap-1 rounded-xl border border-dashed border-border-strong/60">
-            <span className="data text-2xl font-semibold text-text-muted">{fallbackPrimary}</span>
-            <span className="line-clamp-2 px-2 text-xs text-text-muted">{fallbackSecondary}</span>
-            <span className="text-[11px] text-text-muted/70">{fallbackNote}</span>
+        // "Slab label" fallback: a graded-slab-style frame with the set and the card number. No fake art.
+        <div className="flex aspect-[5/7] h-full max-w-full flex-col overflow-hidden rounded-[2px] border border-border-strong bg-surface">
+          <div className="hidden border-b border-border px-1.5 py-1 sm:block">
+            <span className="line-clamp-2 text-[0.75rem] font-medium leading-4 text-text">{fallbackSecondary}</span>
+          </div>
+          <div className="flex flex-1 flex-col items-center justify-center gap-1 px-1 text-center">
+            <span className="ref line-clamp-1 text-[0.9375rem] text-text-muted sm:text-[1.125rem]">{fallbackPrimary}</span>
+            <span className="line-clamp-2 text-[0.75rem] leading-4 text-text-muted">{fallbackNote}</span>
           </div>
         </div>
       ) : (
@@ -42,7 +46,7 @@ export function CardImage({
         <img
           src={src}
           srcSet={srcSet}
-          sizes="(min-width: 640px) 18rem, 7rem"
+          sizes="(min-width: 640px) 170px, 96px"
           width={500}
           height={700}
           alt={alt}
@@ -54,7 +58,8 @@ export function CardImage({
             // Catches images that failed to load before hydration attached onError.
             if (node && node.complete && node.naturalWidth === 0) queueMicrotask(() => setFailed(true));
           }}
-          className="h-full w-full object-contain p-2 sm:p-3"
+          // Multiply dissolves white store backgrounds into the mat in light mode; dark mode turns it off.
+          className="aspect-[5/7] h-full w-auto max-w-full object-contain mix-blend-multiply dark:mix-blend-normal"
         />
       )}
     </div>

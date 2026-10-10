@@ -1,3 +1,4 @@
+import { IconPossible } from "@/app/components/icons";
 import { SubmitButton } from "@/app/components/submit-button";
 import { Suspense } from "react";
 import Link from "next/link";
@@ -169,35 +170,30 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
   }
 
   return (
-    <div className="space-y-5">
-      <header className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight text-text md:text-3xl">For You</h1>
+    <div className="space-y-5 md:space-y-6">
+      <header>
+        <div className="flex items-center justify-between gap-3">
+          <h1 className="page-title text-text">For You</h1>
           {!isFirstRun ? (
-            <p className="mt-1 text-sm text-text-muted">
-              Cards found for you: <span className="data text-text">{stats.total}</span> ·{" "}
-              <span className="data text-confirmed">{stats.current}</span> confirmed ·{" "}
-              <span className="data text-possible">{stats.possible}</span> possible
-              {hasNonWatchlistFilters ? (
-                <>
-                  {" "}
-                  (filtered from <span className="data">{unfilteredStats.total}</span>)
-                </>
-              ) : null}
-            </p>
-          ) : null}
-        </div>
-        {!isFirstRun ? (
-          <div className="flex gap-2">
             <form action={refreshAllUserWatchlistsAction}>
               <SubmitButton className="btn btn-ghost btn-sm" pendingLabel="Refreshing…">
                 Refresh matches
               </SubmitButton>
             </form>
-            <Link href="/watchlists/new?quick=1" className="btn btn-secondary btn-sm">
-              New watchlist
-            </Link>
-          </div>
+          ) : null}
+        </div>
+        {!isFirstRun ? (
+          <p className="mt-1 text-[0.875rem] text-text-muted">
+            Cards found for you: <b className="data font-medium text-text">{stats.total}</b> ·{" "}
+            <span className="data text-text">{stats.current}</span> confirmed ·{" "}
+            <span className="data text-text">{stats.possible}</span> possible
+            {hasNonWatchlistFilters ? (
+              <>
+                {" "}
+                (filtered from <span className="data text-text">{unfilteredStats.total}</span>)
+              </>
+            ) : null}
+          </p>
         ) : null}
       </header>
 
@@ -207,7 +203,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
         <>
           <nav aria-label="Watchlists" className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 sm:mx-0 sm:px-0">
             <Link href={matchesHref()} className="chip" aria-current={!selectedWatchlistId ? "page" : undefined}>
-              All watchlists <span className="data text-xs opacity-75">{unfilteredStats.total}</span>
+              All watchlists <span className="data text-[0.8125rem]">{unfilteredStats.total}</span>
             </Link>
             {watchlistChips.map((watchlist) => {
               const isSelected = selectedWatchlistId === String(watchlist.id);
@@ -218,12 +214,15 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
                   className="chip"
                   aria-current={isSelected ? "page" : undefined}
                 >
-                  {watchlist.name} <span className="data text-xs opacity-75">{watchlist.match_count}</span>
+                  {watchlist.name} <span className="data text-[0.8125rem]">{watchlist.match_count}</span>
                 </Link>
               );
             })}
             <Link href="/watchlists" className="btn btn-ghost btn-sm shrink-0">
               Manage
+            </Link>
+            <Link href="/watchlists/new?quick=1" className="btn btn-ghost btn-sm shrink-0">
+              New watchlist
             </Link>
           </nav>
 
@@ -243,22 +242,29 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
             <>
               {confirmedOnPage.length > 0 ? (
                 <section aria-labelledby="confirmed-heading">
-                  <h2
-                    id="confirmed-heading"
-                    className={possibleOnPage.length > 0 ? "mb-3 text-base font-semibold text-text" : "sr-only"}
-                  >
-                    Confirmed matches
-                  </h2>
+                  {possibleOnPage.length > 0 ? (
+                    <h2
+                      id="confirmed-heading"
+                      className="section-head mb-4 flex items-baseline gap-2 border-b border-border pb-2 text-text"
+                    >
+                      Confirmed matches <span className="data font-normal text-text-muted">{confirmedOnPage.length}</span>
+                    </h2>
+                  ) : (
+                    <h2 id="confirmed-heading" className="sr-only">
+                      Confirmed matches
+                    </h2>
+                  )}
                   <CardGrid listings={confirmedOnPage} eagerCount={2} />
                 </section>
               ) : null}
               {possibleOnPage.length > 0 ? (
-                <section aria-labelledby="possible-heading" className="space-y-3 pt-4">
-                  <div className="rounded-2xl border border-dashed border-possible/40 bg-possible/5 p-4">
-                    <h2 id="possible-heading" className="text-base font-semibold text-text">
-                      Possible matches
+                <section aria-labelledby="possible-heading" className={confirmedOnPage.length > 0 ? "pt-8" : undefined}>
+                  <div className="mb-4 border-b border-dashed border-possible pb-2">
+                    <h2 id="possible-heading" className="section-head flex items-center gap-2 text-text">
+                      <IconPossible className="text-possible" /> Possible matches{" "}
+                      <span className="data font-normal text-text-muted">{possibleOnPage.length}</span>
                     </h2>
-                    <p className="mt-1 text-sm leading-6 text-text-muted">
+                    <p className="mt-1 max-w-2xl text-[0.875rem] text-text-muted">
                       These listings may match your watchlist, but CardAlarm is less certain. Check them before relying on
                       them.
                     </p>
@@ -276,11 +282,12 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
   );
 }
 
-const GRID_CLASS = "grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5";
+// Shared card grid (dashboard, saved, loading): max 4 columns.
+const CARD_GRID = "grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3 xl:grid-cols-4 xl:gap-5";
 
 function CardGrid({ listings, eagerCount = 0 }: { listings: ListingRow[]; eagerCount?: number }) {
   return (
-    <div className={GRID_CLASS}>
+    <div className={CARD_GRID}>
       {listings.map((listing, index) => (
         <ListingCard
           key={listing.id}
@@ -295,40 +302,38 @@ function CardGrid({ listings, eagerCount = 0 }: { listings: ListingRow[]; eagerC
 
 function EmptyState({ title, body, actions }: { title: string; body: string; actions: React.ReactNode }) {
   return (
-    <div className="panel px-6 py-12 text-center">
-      <h2 className="text-lg font-semibold text-text">{title}</h2>
-      <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-text-muted">{body}</p>
-      <div className="mt-6 flex flex-col justify-center gap-3 sm:flex-row">{actions}</div>
+    <div className="panel px-5 py-10 md:px-10 md:py-14 md:text-center">
+      <h2 className="section-title text-text">{title}</h2>
+      <p className="mt-2 max-w-md text-text-muted md:mx-auto">{body}</p>
+      <div className="mt-6 flex flex-col gap-3 sm:flex-row md:justify-center">{actions}</div>
     </div>
   );
 }
 
+const FIRST_RUN_STEPS = [
+  "Pick a player",
+  "Narrow it down if you like: rookies, autos, numbered cards or a price range",
+  "Matches appear here with the store, the price and how sure we are",
+];
+
 function FirstRunPanel() {
   return (
-    <section aria-labelledby="first-run-heading" className="panel mx-auto max-w-2xl p-6 md:p-8">
+    <section aria-labelledby="first-run-heading" className="panel mx-auto max-w-2xl p-6 md:p-10">
       <p className="eyebrow">Welcome to CardAlarm</p>
-      <h2 id="first-run-heading" className="mt-2 text-2xl font-semibold tracking-tight text-text">
+      <h2 id="first-run-heading" className="page-title mt-2 text-text">
         Who are you chasing?
       </h2>
-      <p className="mt-3 text-sm leading-6 text-text-muted">
+      <p className="mt-3 text-text-muted">
         Start with a player. CardAlarm will check the latest store inventory straight away and show any matching NBA
         singles here.
       </p>
-      <ol className="mt-6 space-y-3">
-        <li className="flex gap-3">
-          <span className="data text-sm text-accent">1</span>
-          <span className="text-sm text-text">Pick a player</span>
-        </li>
-        <li className="flex gap-3">
-          <span className="data text-sm text-accent">2</span>
-          <span className="text-sm text-text">
-            Narrow it down if you like: rookies, autos, numbered cards or a price range
-          </span>
-        </li>
-        <li className="flex gap-3">
-          <span className="data text-sm text-accent">3</span>
-          <span className="text-sm text-text">Matches appear here with the store, the price and how sure we are</span>
-        </li>
+      <ol className="mt-6 divide-y divide-border border-y border-border">
+        {FIRST_RUN_STEPS.map((step, index) => (
+          <li key={step} className="flex gap-4 py-3">
+            <span className="data w-5 shrink-0 text-text-muted">{index + 1}</span>
+            <span className="text-text">{step}</span>
+          </li>
+        ))}
       </ol>
       <div className="mt-8 flex flex-col gap-3 sm:flex-row">
         <Link href="/watchlists/new?quick=1" className="btn btn-primary">

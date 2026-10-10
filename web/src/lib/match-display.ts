@@ -16,8 +16,8 @@ export function matchTier(status: string | null, confidence: number | null): Mat
 
 export function tierLabel(tier: MatchTier): string {
   switch (tier) {
+    // Customers see two tiers only; "strong" stays internal and the percentage shows the gradation.
     case "strong":
-      return "Strong match";
     case "confirmed":
       return "Confirmed match";
     case "possible":
