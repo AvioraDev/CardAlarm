@@ -34,6 +34,9 @@ export interface ListingRow {
   match_reasons: string[] | null;
   unmatched_fields: string[] | null;
   matcher_version: string | null;
+  store_name: string; // coalesce(stores.name, store_products.source)
+  currency: string | null; // stores.currency, e.g. "NZD", "AUD"
+  last_checked_at: string | null; // store_products.last_checked_at
 }
 
 export interface StoreRow {
