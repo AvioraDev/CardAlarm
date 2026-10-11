@@ -54,6 +54,7 @@
     "parallels": 248,
     "cards": 1236,
     "rookies": 0,
+    "rookiesUnknown": 1236,
     "rookiesFromBlocks": 0,
     "rookiesFromTeams": {
       "sourceRows": 0,
@@ -289,12 +290,18 @@
       "level": "accepted",
       "code": "declared_count",
       "message": "Subset \"Youth Explosion Signatures\": 40 cards declared, 39 parsed (1 missing)",
+      "detail": {
+        "sheet": "Autographs",
+        "subset": "Youth Explosion Signatures",
+        "declared": 40,
+        "parsed": 39
+      },
       "acceptedReason": "The sheet declares 40 cards but lists 39; number #12 does not exist in the file."
     },
     {
       "level": "warning",
       "code": "rookies_not_marked_in_source",
-      "message": "The source marks no rookies (no RC flags in the Teams sheet, no rookie-named block), so no card is flagged as a rookie"
+      "message": "The source marks no rookies (no RC flags in the Teams sheet, no rookie-named block), so rookie status of all 1236 cards is stored as unknown"
     }
   ]
 }

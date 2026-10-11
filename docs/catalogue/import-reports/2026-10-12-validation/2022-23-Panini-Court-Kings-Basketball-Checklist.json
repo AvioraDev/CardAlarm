@@ -54,6 +54,7 @@
     "parallels": 57,
     "cards": 1234,
     "rookies": 0,
+    "rookiesUnknown": 1234,
     "rookiesFromBlocks": 0,
     "rookiesFromTeams": {
       "sourceRows": 0,
@@ -320,12 +321,18 @@
       "level": "accepted",
       "code": "declared_count",
       "message": "Subset \"Aurora\": 17 cards declared, 16 parsed (1 missing)",
+      "detail": {
+        "sheet": "Inserts",
+        "subset": "Aurora",
+        "declared": 17,
+        "parsed": 16
+      },
       "acceptedReason": "The sheet declares 17 cards but lists numbers 2-17; row #1 does not exist in the file."
     },
     {
       "level": "warning",
       "code": "rookies_not_marked_in_source",
-      "message": "The source marks no rookies (no RC flags in the Teams sheet, no rookie-named block), so no card is flagged as a rookie"
+      "message": "The source marks no rookies (no RC flags in the Teams sheet, no rookie-named block), so rookie status of all 1234 cards is stored as unknown"
     }
   ]
 }

@@ -54,6 +54,7 @@
     "parallels": 338,
     "cards": 1716,
     "rookies": 50,
+    "rookiesUnknown": 0,
     "rookiesFromBlocks": 0,
     "rookiesFromTeams": {
       "sourceRows": 50,
@@ -388,7 +389,13 @@
     {
       "level": "warning",
       "code": "declared_count_stale",
-      "message": "Subset \"Base Set\": 250 cards declared, 300 listed"
+      "message": "Subset \"Base Set\": 250 cards declared, 300 listed",
+      "detail": {
+        "sheet": "Base",
+        "subset": "Base Set",
+        "declared": 250,
+        "parsed": 300
+      }
     }
   ]
 }

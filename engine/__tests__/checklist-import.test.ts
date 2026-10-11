@@ -4,6 +4,7 @@ import { parseChecklistFile } from '../src/catalogue/import-checklists';
 import { parseSubsetSheet, parseSubsetSheetDetailed, type SheetRow } from '../src/catalogue/checklist-parser';
 import {
   applyTeamsRookies,
+  markUnknownRookies,
   readTeamsRookies,
   validateChecklist,
   type AcceptedDiscrepancy,
@@ -216,17 +217,62 @@ describe('import-time validation fails loudly', () => {
     expect(report.findings.map(finding => finding.code)).toContain('cards_lost');
   });
 
-  it('lets a reviewed source discrepancy through, recording the reason, and nothing else', () => {
+  it('lets a reviewed source discrepancy through only when file hash, sheet, subset and numbers all match', () => {
     const rows: SheetRow[] = [['Base Set'], ['4 cards.'], card(1, 'A'), card(2, 'B'), card(4, 'D')];
-    const accepted: AcceptedDiscrepancy[] = [{ file: 'test.xlsx', code: 'declared_count', contains: 'Base Set', reason: 'The file skips #3.' }];
+    const entry: AcceptedDiscrepancy = { file: 'test.xlsx', sha256: 'abc', sheet: 'Base', code: 'declared_count', subset: 'Base Set', declared: 4, parsed: 3, reason: 'The file skips #3.' };
+    const run = (accepted: AcceptedDiscrepancy[], sha256 = 'abc', file = 'test.xlsx') => {
+      const { subsets, trace } = parseSubsetSheetDetailed('Base', rows);
+      return validateChecklist({ file, product, subsets, traces: [trace], teams: noTeams, sheetNames: ['Base'], sha256, accepted });
+    };
 
-    const report = validate(rows, { accepted });
+    const report = run([entry]);
     expect(report).toMatchObject({ ok: true, errors: 0, accepted: 1 });
     expect(report.findings[0]).toMatchObject({ level: 'accepted', acceptedReason: 'The file skips #3.' });
 
-    // The same discrepancy in another file is not covered.
-    const other = validate(rows, { accepted: [{ ...accepted[0]!, file: 'other.xlsx' }] });
-    expect(other.ok).toBe(false);
+    expect(run([entry], 'changed-file').ok).toBe(false); // the workbook changed
+    expect(run([{ ...entry, file: 'other.xlsx' }]).ok).toBe(false);
+    expect(run([{ ...entry, sheet: 'Inserts' }]).ok).toBe(false);
+    expect(run([{ ...entry, subset: 'Other' }]).ok).toBe(false);
+    expect(run([{ ...entry, parsed: 2 }]).ok).toBe(false); // a different number of cards is a new defect
+    expect(run([{ ...entry, declared: 5 }]).ok).toBe(false);
+  });
+
+  it('warns when a parallel has the same name as a subset or block of the product, and accepts it only when listed', () => {
+    const rows: SheetRow[] = [['Base Set'], ['2 cards.'], ['Parallels:'], ['Veterans'], ['Red /99'], card(1, 'A'), card(2, 'B'), ['Veterans'], ['1 cards.'], card(3, 'C')];
+    const { subsets, trace } = parseSubsetSheetDetailed('Base', rows);
+    const base = { file: 'test.xlsx', product, subsets, traces: [trace], teams: noTeams, sheetNames: ['Base'], sha256: 'abc' };
+
+    const flagged = validateChecklist(base).findings.filter(finding => finding.code === 'parallel_subset_name_collision');
+    expect(flagged).toHaveLength(1);
+    expect(flagged[0]).toMatchObject({ level: 'warning', detail: { subset: 'Base Set', parallel: 'Veterans' } });
+
+    const accepted: AcceptedDiscrepancy = { file: 'test.xlsx', sha256: 'abc', sheet: 'Base', code: 'parallel_subset_name_collision', subset: 'Base Set', parallel: 'Veterans', reason: 'Genuinely both.' };
+    const exempt = validateChecklist({ ...base, accepted: [accepted] }).findings.filter(finding => finding.code === 'parallel_subset_name_collision');
+    expect(exempt[0]!.level).toBe('accepted');
+  });
+});
+
+describe('rookie status is unknown, not false, where the source marks no rookies', () => {
+  it('stores null for every card of a product whose source marks no rookies', () => {
+    const subsets = parseSubsetSheet('Base', [['Base Set'], ['2 cards.'], card(1, 'A'), card(2, 'B')]);
+    applyTeamsRookies(subsets, []);
+    markUnknownRookies(subsets);
+    expect(subsets[0]!.cards.map(c => c.isRookie)).toEqual([null, null]);
+  });
+
+  it('keeps false for unmarked cards when the source does mark rookies', () => {
+    const subsets = parseSubsetSheet('Base', [['Base Set'], ['3 cards.'], ['Rated Rookies - #3-3'], card(1, 'A'), card(2, 'B'), card(3, 'C')]);
+    applyTeamsRookies(subsets, []);
+    markUnknownRookies(subsets);
+    expect(subsets.find(subset => subset.name === 'Base Set')!.cards.map(c => c.isRookie)).toEqual([false, false]);
+    expect(subsets.find(subset => subset.name === 'Rated Rookies')!.cards.map(c => c.isRookie)).toEqual([true]);
+  });
+
+  it('reports the unknown count for the 15 real products that mark no rookies', () => {
+    const parsed = parseChecklistFile(path.join(__dirname, '../../docs/sets/incoming/2022-23-Panini-Prizm-Basketball-Checklist.xlsx'))!;
+    expect(parsed.report.stats.rookies).toBe(0);
+    expect(parsed.report.stats.rookiesUnknown).toBe(parsed.report.stats.cards);
+    expect(parsed.subsets.every(subset => subset.cards.every(c => c.isRookie === null))).toBe(true);
   });
 });
 

@@ -1,3 +1,4 @@
+import crypto from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
 import * as xlsx from 'xlsx';
@@ -13,7 +14,7 @@ import {
   type SheetRow,
   type SheetTrace,
 } from './checklist-parser';
-import { applyTeamsRookies, readTeamsRookies, validateChecklist, type AcceptedDiscrepancy, type ValidationReport } from './checklist-validate';
+import { applyTeamsRookies, markUnknownRookies, readTeamsRookies, validateChecklist, type AcceptedDiscrepancy, type ValidationReport } from './checklist-validate';
 
 /**
  * Loads Beckett-format checklist workbooks into the checklist_* catalogue tables.
@@ -89,8 +90,9 @@ export function parseChecklistFile(filePath: string, accepted: AcceptedDiscrepan
   const teamsSheet = workbook.SheetNames.find(name => /^teams?$/i.test(name));
   const teamRows = teamsSheet ? xlsx.utils.sheet_to_json<SheetRow>(workbook.Sheets[teamsSheet]!, { header: 1, defval: '' }) : [];
   const teams = applyTeamsRookies(subsets, readTeamsRookies(teamRows));
+  markUnknownRookies(subsets);
 
-  const report = validateChecklist({ file: fileName, product, subsets, traces, teams, sheetNames: workbook.SheetNames, accepted });
+  const report = validateChecklist({ file: fileName, product, subsets, traces, teams, sheetNames: workbook.SheetNames, sha256: crypto.createHash('sha256').update(fs.readFileSync(filePath)).digest('hex'), accepted });
   return { product, subsets, report, traces };
 }
 

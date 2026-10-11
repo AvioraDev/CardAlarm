@@ -54,6 +54,7 @@
     "parallels": 76,
     "cards": 829,
     "rookies": 131,
+    "rookiesUnknown": 0,
     "rookiesFromBlocks": 131,
     "rookiesFromTeams": {
       "sourceRows": 0,
@@ -260,6 +261,12 @@
       "level": "accepted",
       "code": "declared_count",
       "message": "Subset \"Base Set\": 199 cards declared, 198 parsed (1 missing)",
+      "detail": {
+        "sheet": "Base",
+        "subset": "Base Set",
+        "declared": 199,
+        "parsed": 198
+      },
       "acceptedReason": "The sheet declares 199 cards but the rookie sections run #168-199 after #166; row #167 does not exist in the file."
     }
   ]

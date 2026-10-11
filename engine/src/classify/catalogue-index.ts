@@ -20,7 +20,8 @@ export interface CatalogueCard {
   cardNumber: string | null;
   playerName: string;
   normalizedPlayerName: string;
-  isRookie: boolean;
+  /** null when the source of the checklist does not say. */
+  isRookie: boolean | null;
 }
 
 export interface CatalogueSubset {

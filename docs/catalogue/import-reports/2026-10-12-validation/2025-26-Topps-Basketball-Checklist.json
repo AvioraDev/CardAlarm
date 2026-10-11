@@ -54,6 +54,7 @@
     "parallels": 6,
     "cards": 2148,
     "rookies": 48,
+    "rookiesUnknown": 0,
     "rookiesFromBlocks": 0,
     "rookiesFromTeams": {
       "sourceRows": 0,
@@ -363,12 +364,24 @@
     {
       "level": "warning",
       "code": "declared_count_stale",
-      "message": "Subset \"1980-81 Topps Basketball Triple Autographs\": 10 cards declared, 30 listed"
+      "message": "Subset \"1980-81 Topps Basketball Triple Autographs\": 10 cards declared, 30 listed",
+      "detail": {
+        "sheet": "Autographs",
+        "subset": "1980-81 Topps Basketball Triple Autographs",
+        "declared": 10,
+        "parsed": 30
+      }
     },
     {
       "level": "warning",
       "code": "declared_count_stale",
-      "message": "Subset \"Rookie Photo Shoot Dual Autographs\": 10 cards declared, 20 listed"
+      "message": "Subset \"Rookie Photo Shoot Dual Autographs\": 10 cards declared, 20 listed",
+      "detail": {
+        "sheet": "Autographs",
+        "subset": "Rookie Photo Shoot Dual Autographs",
+        "declared": 10,
+        "parsed": 20
+      }
     }
   ]
 }

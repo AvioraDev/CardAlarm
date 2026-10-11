@@ -44,6 +44,7 @@
     "parallels": 87,
     "cards": 964,
     "rookies": 59,
+    "rookiesUnknown": 0,
     "rookiesFromBlocks": 45,
     "rookiesFromTeams": {
       "sourceRows": 45,
@@ -220,6 +221,12 @@
       "level": "accepted",
       "code": "declared_count",
       "message": "Subset \"Rookie Autographs Mosaic\": 60 cards declared, 40 parsed (20 missing)",
+      "detail": {
+        "sheet": "Autographs",
+        "subset": "Rookie Autographs Mosaic",
+        "declared": 60,
+        "parsed": 40
+      },
       "acceptedReason": "The sheet declares 60 cards but lists numbers 1-40 only; rows #41-60 do not exist in the file."
     }
   ]

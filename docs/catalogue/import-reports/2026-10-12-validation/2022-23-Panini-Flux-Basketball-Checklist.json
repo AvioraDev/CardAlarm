@@ -44,6 +44,7 @@
     "parallels": 85,
     "cards": 881,
     "rookies": 50,
+    "rookiesUnknown": 0,
     "rookiesFromBlocks": 50,
     "rookiesFromTeams": {
       "sourceRows": 50,

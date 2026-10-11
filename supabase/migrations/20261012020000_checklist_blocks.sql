@@ -17,3 +17,8 @@ create index if not exists idx_checklist_subsets_parent
 
 comment on column public.checklist_subsets.parent_subset_id is
   'The base set this block belongs to; null for a top-level subset.';
+
+-- Rookie status is unknown (null) for products whose source marks no rookies, rather than a false "not a rookie".
+-- Relaxing NOT NULL changes no existing row.
+alter table public.checklist_cards alter column is_rookie drop not null;
+alter table public.checklist_cards alter column is_rookie drop default;

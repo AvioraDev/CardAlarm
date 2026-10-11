@@ -44,6 +44,7 @@
     "parallels": 122,
     "cards": 2012,
     "rookies": 0,
+    "rookiesUnknown": 2012,
     "rookiesFromBlocks": 0,
     "rookiesFromTeams": {
       "sourceRows": 0,
@@ -263,12 +264,18 @@
     {
       "level": "warning",
       "code": "declared_count_stale",
-      "message": "Subset \"Rookie Signatures\": 48 cards declared, 50 listed"
+      "message": "Subset \"Rookie Signatures\": 48 cards declared, 50 listed",
+      "detail": {
+        "sheet": "Autographs",
+        "subset": "Rookie Signatures",
+        "declared": 48,
+        "parsed": 50
+      }
     },
     {
       "level": "warning",
       "code": "rookies_not_marked_in_source",
-      "message": "The source marks no rookies (no RC flags in the Teams sheet, no rookie-named block), so no card is flagged as a rookie"
+      "message": "The source marks no rookies (no RC flags in the Teams sheet, no rookie-named block), so rookie status of all 2012 cards is stored as unknown"
     }
   ]
 }

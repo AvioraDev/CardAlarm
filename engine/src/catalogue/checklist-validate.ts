@@ -11,17 +11,45 @@ export interface Finding {
   level: Level;
   code: string;
   message: string;
+  /** What the finding is about, so an accepted discrepancy can match it exactly. */
+  detail?: FindingDetail;
   /** Why a known discrepancy in the source file was accepted (level "accepted" only). */
   acceptedReason?: string;
 }
 
-/** A discrepancy in a source file that has been reviewed and accepted, so the import may proceed. */
+export interface FindingDetail {
+  sheet: string;
+  subset: string;
+  parallel?: string;
+  declared?: number;
+  parsed?: number;
+}
+
+/**
+ * A discrepancy in one source file that has been reviewed and accepted. It matches one finding only: the exact file
+ * (by name and content hash), sheet, check, subset and expected values. If the workbook changes, or the numbers
+ * differ, it stops applying and the import fails again.
+ */
 export interface AcceptedDiscrepancy {
   file: string;
+  /** SHA-256 of the workbook the discrepancy was reviewed in. */
+  sha256: string;
+  sheet: string;
+  /** The check that raised it, e.g. declared_count. */
   code: string;
-  /** Text the finding's message must contain. */
-  contains: string;
+  subset: string;
+  parallel?: string;
+  declared?: number;
+  parsed?: number;
   reason: string;
+}
+
+export function matchesAccepted(item: AcceptedDiscrepancy, file: string, sha256: string | undefined, code: string, detail: FindingDetail | undefined): boolean {
+  if (!detail || !sha256) return false;
+  return (
+    item.file === file && item.sha256 === sha256 && item.code === code && item.sheet === detail.sheet && item.subset === detail.subset &&
+    item.parallel === detail.parallel && item.declared === detail.declared && item.parsed === detail.parsed
+  );
 }
 
 export interface BlockStat {
@@ -56,6 +84,8 @@ export interface ValidationReport {
     parallels: number;
     cards: number;
     rookies: number;
+    /** Cards whose rookie status is unknown (null): every card of a product whose source marks no rookies. */
+    rookiesUnknown: number;
     rookiesFromBlocks: number;
     rookiesFromTeams: TeamsRookies;
     blockStats: BlockStat[];
@@ -109,6 +139,16 @@ export function applyTeamsRookies(subsets: ChecklistSubset[], rookies: Array<{ l
   return { sourceRows: rookies.length, matchedRows, unmatched };
 }
 
+/**
+ * A product whose source marks no rookies at all (no RC flags, no rookie-named block) certainly still has rookie
+ * cards, so "not a rookie" would be a claim without evidence. Every card's rookie status becomes unknown (null).
+ * Products that do mark rookies keep false for the cards they leave unmarked.
+ */
+export function markUnknownRookies(subsets: ChecklistSubset[]): void {
+  if (subsets.some(subset => subset.cards.some(card => card.isRookie === true))) return;
+  for (const subset of subsets) for (const card of subset.cards) card.isRookie = null;
+}
+
 export interface ValidationInput {
   file: string;
   product: ChecklistProduct;
@@ -118,16 +158,19 @@ export interface ValidationInput {
   teams: TeamsRookies;
   /** Names of the workbook's sheets, to know whether a Base sheet existed. */
   sheetNames: string[];
+  /** SHA-256 of the workbook, so accepted discrepancies apply to this exact file only. */
+  sha256?: string;
   accepted?: AcceptedDiscrepancy[];
 }
 
 export function validateChecklist(input: ValidationInput): ValidationReport {
   const { subsets, traces } = input;
   const findings: Finding[] = [];
-  const add = (level: Level, code: string, message: string): void => {
-    const known = level === 'error' ? input.accepted?.find(item => item.file === input.file && item.code === code && message.includes(item.contains)) : undefined;
-    findings.push(known ? { level: 'accepted', code, message, acceptedReason: known.reason } : { level, code, message });
+  const add = (level: Level, code: string, message: string, detail?: FindingDetail): void => {
+    const known = level === 'accepted' ? undefined : input.accepted?.find(item => matchesAccepted(item, input.file, input.sha256, code, detail));
+    findings.push(known ? { level: 'accepted', code, message, detail, acceptedReason: known.reason } : { level, code, message, detail });
   };
+  const sheetOf = (name: string): string => traces.find(trace => trace.subsetHeaders.some(header => normalizeCatalogueName(header) === normalizeCatalogueName(name)))?.sheet ?? traces[0]?.sheet ?? '';
 
   // 1. Every numbered card row in the source reached the output, per sheet.
   for (const trace of traces) {
@@ -167,11 +210,11 @@ export function validateChecklist(input: ValidationInput): ValidationReport {
       blockStats.push({ name: block.name, parent: block.parent, from: block.from, to: block.to, expected, parsed });
       if (elsewhere) {
         referencedCards.set(block.parent, (referencedCards.get(block.parent) ?? 0) + elsewhere.cards.length);
-        if (parsed !== expected) add('error', 'block_count', `Block "${block.name}" (#${block.from}-${block.to}) is listed on another sheet: ${expected} cards declared by the range, ${parsed} there`);
+        if (parsed !== expected) add('error', 'block_count', `Block "${block.name}" (#${block.from}-${block.to}) is listed on another sheet: ${expected} cards declared by the range, ${parsed} there`, { sheet: trace.sheet, subset: block.name, declared: expected, parsed });
       } else if (!found) {
         if (!block.implicit) add('error', 'block_missing', `Block "${block.name}" (#${block.from}-${block.to}) is declared but not in the output`);
       } else if (!block.implicit && parsed !== expected) {
-        add('error', 'block_count', `Block "${block.name}" (#${block.from}-${block.to}): ${expected} cards declared by the range, ${parsed} parsed`);
+        add('error', 'block_count', `Block "${block.name}" (#${block.from}-${block.to}): ${expected} cards declared by the range, ${parsed} parsed`, { sheet: trace.sheet, subset: block.name, declared: expected, parsed });
       }
     }
   }
@@ -196,10 +239,10 @@ export function validateChecklist(input: ValidationInput): ValidationReport {
     }
     if (parsed < subset.declaredCardCount!) {
       // Fewer cards than the source declares: cards are missing from the output.
-      add('error', 'declared_count', `Subset "${subset.name}": ${subset.declaredCardCount} cards declared, ${parsed} parsed (${subset.declaredCardCount! - parsed} missing)`);
+      add('error', 'declared_count', `Subset "${subset.name}": ${subset.declaredCardCount} cards declared, ${parsed} parsed (${subset.declaredCardCount! - parsed} missing)`, { sheet: sheetOf(subset.name), subset: subset.name, declared: subset.declaredCardCount!, parsed });
     } else if (parsed > subset.declaredCardCount!) {
       // More cards than the source declares: every row is present, the declared total is stale.
-      add('warning', 'declared_count_stale', `Subset "${subset.name}": ${subset.declaredCardCount} cards declared, ${parsed} listed`);
+      add('warning', 'declared_count_stale', `Subset "${subset.name}": ${subset.declaredCardCount} cards declared, ${parsed} listed`, { sheet: sheetOf(subset.name), subset: subset.name, declared: subset.declaredCardCount!, parsed });
     }
   }
 
@@ -218,8 +261,23 @@ export function validateChecklist(input: ValidationInput): ValidationReport {
     }
   }
 
+  // 5b. A parallel named like a subset or block of the same product is usually a heading read as a parallel
+  // (Donruss 2020-21 "Veterans"). Names that are genuinely both are listed in the accepted discrepancies.
+  for (const subset of subsets) {
+    for (const parallel of subset.parallels) {
+      if (outputSubsets.has(normalizeCatalogueName(parallel.name))) {
+        add('warning', 'parallel_subset_name_collision', `Parallel "${parallel.name}" under "${subset.name}" has the same name as a subset or block of this product`, {
+          sheet: sheetOf(subset.name),
+          subset: subset.name,
+          parallel: parallel.name,
+        });
+      }
+    }
+  }
+
   // 6. Rookie flags: every RC row in the source Teams sheet found its card.
-  const rookies = subsets.reduce((sum, subset) => sum + subset.cards.filter(card => card.isRookie).length, 0);
+  const rookies = subsets.reduce((sum, subset) => sum + subset.cards.filter(card => card.isRookie === true).length, 0);
+  const rookiesUnknown = subsets.reduce((sum, subset) => sum + subset.cards.filter(card => card.isRookie === null).length, 0);
   const rookiesFromBlocks = subsets
     .filter(subset => subset.parentName && /rookie/i.test(subset.name))
     .reduce((sum, subset) => sum + subset.cards.length, 0);
@@ -232,7 +290,7 @@ export function validateChecklist(input: ValidationInput): ValidationReport {
   }
   if (input.teams.sourceRows > 0 && rookies === 0) add('error', 'rookies_lost', 'The Teams sheet marks rookies but none were flagged');
   if (input.teams.sourceRows === 0 && rookies === 0 && subsets.some(subset => subset.cards.length > 0)) {
-    add('warning', 'rookies_not_marked_in_source', 'The source marks no rookies (no RC flags in the Teams sheet, no rookie-named block), so no card is flagged as a rookie');
+    add('warning', 'rookies_not_marked_in_source', `The source marks no rookies (no RC flags in the Teams sheet, no rookie-named block), so rookie status of all ${rookiesUnknown} cards is stored as unknown`);
   }
 
   const errors = findings.filter(finding => finding.level === 'error').length;
@@ -261,6 +319,7 @@ export function validateChecklist(input: ValidationInput): ValidationReport {
       parallels: subsets.reduce((sum, subset) => sum + subset.parallels.length, 0),
       cards: subsets.reduce((sum, subset) => sum + subset.cards.length, 0),
       rookies,
+      rookiesUnknown,
       rookiesFromBlocks,
       rookiesFromTeams: input.teams,
       blockStats,

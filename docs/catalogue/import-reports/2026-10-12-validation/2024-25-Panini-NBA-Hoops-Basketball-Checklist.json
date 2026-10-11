@@ -54,6 +54,7 @@
     "parallels": 120,
     "cards": 1243,
     "rookies": 50,
+    "rookiesUnknown": 0,
     "rookiesFromBlocks": 50,
     "rookiesFromTeams": {
       "sourceRows": 0,
@@ -298,7 +299,13 @@
     {
       "level": "warning",
       "code": "declared_count_stale",
-      "message": "Subset \"Hoops Ink\": 37 cards declared, 46 listed"
+      "message": "Subset \"Hoops Ink\": 37 cards declared, 46 listed",
+      "detail": {
+        "sheet": "Autographs",
+        "subset": "Hoops Ink",
+        "declared": 37,
+        "parsed": 46
+      }
     }
   ]
 }

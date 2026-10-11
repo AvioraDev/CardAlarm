@@ -54,6 +54,7 @@
     "parallels": 116,
     "cards": 3419,
     "rookies": 0,
+    "rookiesUnknown": 3419,
     "rookiesFromBlocks": 0,
     "rookiesFromTeams": {
       "sourceRows": 0,
@@ -483,12 +484,18 @@
     {
       "level": "warning",
       "code": "declared_count_stale",
-      "message": "Subset \"Jumbo Memorabilia\": 87 cards declared, 90 listed"
+      "message": "Subset \"Jumbo Memorabilia\": 87 cards declared, 90 listed",
+      "detail": {
+        "sheet": "Memorabilia",
+        "subset": "Jumbo Memorabilia",
+        "declared": 87,
+        "parsed": 90
+      }
     },
     {
       "level": "warning",
       "code": "rookies_not_marked_in_source",
-      "message": "The source marks no rookies (no RC flags in the Teams sheet, no rookie-named block), so no card is flagged as a rookie"
+      "message": "The source marks no rookies (no RC flags in the Teams sheet, no rookie-named block), so rookie status of all 3419 cards is stored as unknown"
     }
   ]
 }

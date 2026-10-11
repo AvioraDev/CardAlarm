@@ -1,52 +1,85 @@
 {
-  "description": "Discrepancies inside the SOURCE checklist files that were reviewed and accepted so the import can proceed. Each is a total the file declares that its own rows do not reach. The validator counts every numbered card row in the sheet independently of the parser, so none of these is a card the parser lost. Anything not listed here fails the import. Reviewed by: pending founder approval.",
+  "status": "PENDING founder approval on CAR-77. Do not treat as approved.",
+  "description": "Discrepancies inside SOURCE checklist workbooks that were reviewed and may be accepted. Each entry matches exactly one finding: the workbook (name and SHA-256), sheet, check, subset and the declared/parsed numbers. If the workbook changes or the numbers differ, the entry stops applying and the import fails. The validator counts numbered card rows independently of the parser, so none of these is a card the parser lost.",
   "accepted": [
     {
       "file": "2021-22-Elite-Basketball-Checklist.xlsx",
+      "sha256": "6eda4f2080df35813c322478c1fb9c02c092d2b335f4443ffab94fd6447c06b2",
+      "sheet": "Autographs",
       "code": "declared_count",
-      "contains": "Passing the Torch Signatures",
+      "subset": "Passing the Torch Signatures",
+      "declared": 10,
+      "parsed": 8,
       "reason": "The sheet declares 10 cards but lists numbers 1-5 and 8-10; rows #6 and #7 do not exist in the file."
     },
     {
       "file": "2021-22-Panini-Mosaic-Basketball-Checklist.xlsx",
+      "sha256": "26c55478183e002305fbaa985c80cf73757bc99a291bb6fa33039d72c19159d4",
+      "sheet": "Autographs",
       "code": "declared_count",
-      "contains": "Rookie Autographs Mosaic",
+      "subset": "Rookie Autographs Mosaic",
+      "declared": 60,
+      "parsed": 40,
       "reason": "The sheet declares 60 cards but lists numbers 1-40 only; rows #41-60 do not exist in the file."
     },
     {
       "file": "2021-22-Select-Basketball-Checklist.xlsx",
+      "sha256": "12a4b66b747fd0d2de7e810db7eb3c1158badd95cbfa91f437f9186df6e36cb3",
+      "sheet": "Autographs",
       "code": "declared_count",
-      "contains": "Autographed Memorabilia Purple Prizms",
+      "subset": "Autographed Memorabilia Purple Prizms",
+      "declared": 24,
+      "parsed": 23,
       "reason": "The sheet declares 24 cards but skips row #5 (the numbers run 4, 6, 7); raw rows checked."
     },
     {
       "file": "2022-23-Donruss-Elite-Basketball-Checklist.xlsx",
+      "sha256": "571da2280ee3f4944f9a1ed79760b5b38859bea7e37bcf8929db47ea42586bcf",
+      "sheet": "Autographs",
       "code": "declared_count",
-      "contains": "GenreGraphs",
+      "subset": "GenreGraphs",
+      "declared": 25,
+      "parsed": 23,
       "reason": "The sheet declares 25 cards but lists 23; numbers #5 and #8 do not exist in the file."
     },
     {
       "file": "2022-23-Panini-Court-Kings-Basketball-Checklist.xlsx",
+      "sha256": "d4ac4a4156c6031800b2a5529827ef106bf392378f2f41c56998d46460b331b8",
+      "sheet": "Inserts",
       "code": "declared_count",
-      "contains": "Aurora",
+      "subset": "Aurora",
+      "declared": 17,
+      "parsed": 16,
       "reason": "The sheet declares 17 cards but lists numbers 2-17; row #1 does not exist in the file."
     },
     {
       "file": "2022-23-Panini-Select-Basketball-Checklist.xlsx",
+      "sha256": "27b4b65b6f93940b019415b594f7da1fabbb77fa23ff192d8329e31db0545515",
+      "sheet": "Autographs",
       "code": "declared_count",
-      "contains": "Youth Explosion Signatures",
+      "subset": "Youth Explosion Signatures",
+      "declared": 40,
+      "parsed": 39,
       "reason": "The sheet declares 40 cards but lists 39; number #12 does not exist in the file."
     },
     {
       "file": "2023-24-Donruss-Optic-Basketball-Checklist.xlsx",
+      "sha256": "58310ab46bf1357d116ae9351316b5aa1bbd32ad6d677f8ac3d0a17604ab3e35",
+      "sheet": "Base",
       "code": "block_count",
-      "contains": "Rated Rookies Signatures",
+      "subset": "Rated Rookies Signatures",
+      "declared": 50,
+      "parsed": 49,
       "reason": "The block range #251-300 implies 50 cards but the sheet lists 49; number #299 does not exist in the file."
     },
     {
       "file": "2023-24-Panini-Court-Kings-Basketball-Checklist.xlsx",
+      "sha256": "9a86b5a89912a089676ca3308863a4d0e336be4fe3ab8eb55f2c3d1fb5b2056b",
+      "sheet": "Base",
       "code": "declared_count",
-      "contains": "Base Set",
+      "subset": "Base Set",
+      "declared": 199,
+      "parsed": 198,
       "reason": "The sheet declares 199 cards but the rookie sections run #168-199 after #166; row #167 does not exist in the file."
     }
   ]

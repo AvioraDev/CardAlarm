@@ -44,6 +44,7 @@
     "parallels": 241,
     "cards": 970,
     "rookies": 99,
+    "rookiesUnknown": 0,
     "rookiesFromBlocks": 99,
     "rookiesFromTeams": {
       "sourceRows": 0,
@@ -206,6 +207,12 @@
       "level": "accepted",
       "code": "block_count",
       "message": "Block \"Rated Rookies Signatures\" (#251-300): 50 cards declared by the range, 49 parsed",
+      "detail": {
+        "sheet": "Base",
+        "subset": "Rated Rookies Signatures",
+        "declared": 50,
+        "parsed": 49
+      },
       "acceptedReason": "The block range #251-300 implies 50 cards but the sheet lists 49; number #299 does not exist in the file."
     }
   ]

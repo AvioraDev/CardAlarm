@@ -44,6 +44,7 @@
     "parallels": 341,
     "cards": 1132,
     "rookies": 50,
+    "rookiesUnknown": 0,
     "rookiesFromBlocks": 50,
     "rookiesFromTeams": {
       "sourceRows": 0,
@@ -238,7 +239,13 @@
     {
       "level": "warning",
       "code": "declared_count_stale",
-      "message": "Subset \"Rookie Dominators Signatures Holo\": 39 cards declared, 40 listed"
+      "message": "Subset \"Rookie Dominators Signatures Holo\": 39 cards declared, 40 listed",
+      "detail": {
+        "sheet": "Autographs",
+        "subset": "Rookie Dominators Signatures Holo",
+        "declared": 39,
+        "parsed": 40
+      }
     }
   ]
 }

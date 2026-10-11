@@ -54,6 +54,7 @@
     "parallels": 391,
     "cards": 1363,
     "rookies": 0,
+    "rookiesUnknown": 1363,
     "rookiesFromBlocks": 0,
     "rookiesFromTeams": {
       "sourceRows": 0,
@@ -316,7 +317,7 @@
     {
       "level": "warning",
       "code": "rookies_not_marked_in_source",
-      "message": "The source marks no rookies (no RC flags in the Teams sheet, no rookie-named block), so no card is flagged as a rookie"
+      "message": "The source marks no rookies (no RC flags in the Teams sheet, no rookie-named block), so rookie status of all 1363 cards is stored as unknown"
     }
   ]
 }

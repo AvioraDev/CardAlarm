@@ -44,6 +44,7 @@
     "parallels": 99,
     "cards": 1179,
     "rookies": 150,
+    "rookiesUnknown": 0,
     "rookiesFromBlocks": 50,
     "rookiesFromTeams": {
       "sourceRows": 50,
@@ -173,12 +174,24 @@
       "level": "accepted",
       "code": "declared_count",
       "message": "Subset \"Passing the Torch Signatures\": 10 cards declared, 8 parsed (2 missing)",
+      "detail": {
+        "sheet": "Autographs",
+        "subset": "Passing the Torch Signatures",
+        "declared": 10,
+        "parsed": 8
+      },
       "acceptedReason": "The sheet declares 10 cards but lists numbers 1-5 and 8-10; rows #6 and #7 do not exist in the file."
     },
     {
       "level": "warning",
       "code": "declared_count_stale",
-      "message": "Subset \"Star Status\": 20 cards declared, 21 listed"
+      "message": "Subset \"Star Status\": 20 cards declared, 21 listed",
+      "detail": {
+        "sheet": "Inserts",
+        "subset": "Star Status",
+        "declared": 20,
+        "parsed": 21
+      }
     }
   ]
 }

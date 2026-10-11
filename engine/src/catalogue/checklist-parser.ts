@@ -26,7 +26,8 @@ export interface ChecklistCard {
   cardNumber: string | null;
   playerName: string;
   teamName: string | null;
-  isRookie: boolean;
+  /** true when the source marks the card a rookie, false when it marks others but not this one, null when unknown. */
+  isRookie: boolean | null;
   serialLimit: number | null;
 }
 

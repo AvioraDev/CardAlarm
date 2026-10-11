@@ -54,6 +54,7 @@
     "parallels": 100,
     "cards": 1277,
     "rookies": 150,
+    "rookiesUnknown": 0,
     "rookiesFromBlocks": 50,
     "rookiesFromTeams": {
       "sourceRows": 50,
@@ -193,6 +194,12 @@
       "level": "accepted",
       "code": "declared_count",
       "message": "Subset \"GenreGraphs\": 25 cards declared, 23 parsed (2 missing)",
+      "detail": {
+        "sheet": "Autographs",
+        "subset": "GenreGraphs",
+        "declared": 25,
+        "parsed": 23
+      },
       "acceptedReason": "The sheet declares 25 cards but lists 23; numbers #5 and #8 do not exist in the file."
     }
   ]
