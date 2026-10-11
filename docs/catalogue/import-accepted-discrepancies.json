@@ -1,5 +1,8 @@
 {
-  "status": "PENDING founder approval on CAR-77. Do not treat as approved.",
+  "status": "APPROVED",
+  "approvedBy": "Harry Bramwell (founder)",
+  "approvedOn": "2026-10-12",
+  "approvalNote": "Approved in chat on 2026-10-12, not as a Linear comment.",
   "description": "Discrepancies inside SOURCE checklist workbooks that were reviewed and may be accepted. Each entry matches exactly one finding: the workbook (name and SHA-256), sheet, check, subset and the declared/parsed numbers. If the workbook changes or the numbers differ, the entry stops applying and the import fails. The validator counts numbered card rows independently of the parser, so none of these is a card the parser lost.",
   "accepted": [
     {
