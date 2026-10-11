@@ -42,7 +42,7 @@ describe('CAR-33 scan and watchlist relevance boundary', () => {
 
   it('requires an accepted Jev classification, or the deterministic fallback, for scan-triggered watchlist reconciliation', () => {
     expect(reconciliationSource).toContain('from public.product_classifications pc');
-    expect(reconciliationSource).toContain("pc.classifier_type in ('jev', 'deterministic')");
+    expect(reconciliationSource).toContain("pc.classifier_type = 'deterministic'");
     expect(reconciliationSource).toContain("order by (pc.classifier_type = 'jev') desc, pc.updated_at desc");
     expect(reconciliationSource).toContain("(pc.classifier_type <> 'jev' or pc.review_status = 'accepted')");
     expect(reconciliationSource).toContain('or pc.player_id = wr.player_id');

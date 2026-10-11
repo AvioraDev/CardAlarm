@@ -93,7 +93,7 @@ describe('canonical watchlist backfill SQL', () => {
     const joinSql = productClassificationLateralJoinSql();
 
     expect(joinSql).toContain('where pc.store_product_id = sp.id');
-    expect(joinSql).toContain("pc.classifier_type in ('jev', 'deterministic')");
+    expect(joinSql).toContain("pc.classifier_type = 'deterministic'");
     expect(joinSql).toContain("order by (pc.classifier_type = 'jev') desc, pc.updated_at desc");
     expect(joinSql).toContain('limit 1');
   });
