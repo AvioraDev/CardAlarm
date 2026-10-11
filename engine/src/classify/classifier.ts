@@ -31,7 +31,8 @@ const POSSIBLE_CONFIDENCE_CAP = 0.74;
 export type ItemType = 'single_card' | 'sealed_product' | 'lot' | 'memorabilia' | 'supplies' | 'other';
 /**
  * accepted     - maps to a catalogue row and the card number and player agree with it (shown as a match)
- * possible     - product and player are in the catalogue but the row is not confirmed (shown separately)
+ * possible     - product and player are in the catalogue but the row is not confirmed: no card number, subset
+ *                unresolved, or the season was widened by one (shown separately)
  * unmatched    - no catalogue row; the listing may still be shown to the player's watchlist by D-005, with
  *                only what the store provides
  * out_of_scope - positive evidence that it is not a basketball card
@@ -222,6 +223,11 @@ export async function classifyListing(
   // ── Candidates (rules) ───────────────────────────────────────────
   const cataloguePlayers = catalogue.findPlayers(searchTexts);
   const exactPlayers = catalogue.findExactPlayers(evidence.title);
+  // A known NBA player written in the title, a tag or the product type. While one is named, a model hint for
+  // another sport cannot rule the listing out: the model said "soccer" for a basketball card once already.
+  const namedNbaPlayer = [evidence.title, ...evidence.tags, evidence.productType ?? ''].some(
+    text => catalogue.findExactPlayers(text).length > 0
+  );
   const knownNames = new Set(cataloguePlayers.map(player => player.normalizedName));
   const storeNames = storeProvidedNames(evidence.tags, evidence.productType).filter(
     name => !knownNames.has(normalizeCatalogueName(name))
@@ -413,7 +419,7 @@ export async function classifyListing(
 
   // Nothing to match against: no product, no player, or a product that does not contain the player.
   const unmatched = (): ListingClassification =>
-    empty(isPositivelyNotBasketballCard(hints, minConfidence) ? 'out_of_scope' : 'unmatched');
+    empty(isPositivelyNotBasketballCard(hints, minConfidence) && !namedNbaPlayer ? 'out_of_scope' : 'unmatched');
 
   if (!product) {
     if (!playerName) reasons.push('no_player');
@@ -463,6 +469,17 @@ export async function classifyListing(
   }
 
   const playerRows = catalogue.playerCards(product, playerName);
+  if (agreeing.length === 0 && number) {
+    const numberRows = product.subsets.flatMap(subset => subset.cards).filter(row => row.cardNumber?.toLowerCase() === number.toLowerCase());
+    if (playerRows.length > 0 || numberRows.length > 0) {
+      // The number belongs to someone else, or the player has no such number, in the product the title names.
+      // A guess about the product here would be a bad match, so none is stored (the listing is shown only as
+      // the store describes it, under the player).
+      reasons.push('card_number_conflict');
+      matchReasons.splice(0, matchReasons.length, `Card #${number} is not a ${playerName} card in the products the title names; no product is recorded`);
+      return unmatched();
+    }
+  }
   if (agreeing.length === 0 && playerRows.length === 0) {
     reasons.push('player_not_in_product');
     return unmatched();
@@ -588,8 +605,6 @@ export async function classifyListing(
       }
     }
     if (parallelStatus === 'unknown') reasons.push('parallel_unknown');
-  } else if (number) {
-    reasons.push('card_number_not_for_this_player');
   } else {
     reasons.push('no_card_number');
   }

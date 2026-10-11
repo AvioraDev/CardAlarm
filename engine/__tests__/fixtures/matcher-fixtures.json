@@ -1,5 +1,5 @@
 {
-  "description": "Matcher fixtures: 20 real listings with expected outcomes, verified against the catalogue on 2026-10-12. No test consumes this yet; the spec is pending founder approval.",
+  "description": "Matcher fixtures: 20 real listings with expected outcomes, verified against the catalogue on 2026-10-12. No test consumes this yet; the spec is pending founder approval. syntheticFixtures hold the founder-decision guards (not real listings).",
   "outcomes": {
     "confirmed": 10,
     "possible": 2,
@@ -78,7 +78,7 @@
       "input": {
         "store": "spnz",
         "title": "2007 Topps #21 Kevin Garnett Luxury Box",
-        "description": " 2007 Topps #21  \n Kevin Garnett Luxury Box ",
+        "description": " 2007 Topps #21\u00a0 \n Kevin Garnett Luxury Box ",
         "url": "https://sportscards.co.nz/products/2007-topps-21-kevin-garnett-luxury-box",
         "handle": "2007-topps-21-kevin-garnett-luxury-box",
         "productType": "NBA Sports Card",
@@ -395,7 +395,7 @@
       "input": {
         "store": "topplay",
         "title": "2020-21 Panini Mosaic - Will to Win - Mosaic Prizm #5 Bradley Beal",
-        "description": " 2020-21 Panini Mosaic - Will to Win - Mosaic Prizm #5 Bradley Beal \n  All cards are sleeved and top loaded, Condition of card as is in photo  \n   ",
+        "description": " 2020-21 Panini Mosaic - Will to Win - Mosaic Prizm #5 Bradley Beal \n  All cards are sleeved and top loaded, Condition of card as is in photo  \n \u00a0 ",
         "url": "https://topplaysportscards.co.nz/products/2020-21-panini-mosaic-will-to-win-mosaic-prizm-5-bradley-beal",
         "handle": "2020-21-panini-mosaic-will-to-win-mosaic-prizm-5-bradley-beal",
         "productType": null,
@@ -458,7 +458,7 @@
       "input": {
         "store": "spnz",
         "title": "2023-24 Panini Revolution #12 Jalen Hood-Schifino Rookie Card Vortex",
-        "description": " 2023-24 Panini Revolution #12  \n Jalen Hood-Schifino Rookie Card Vortex ",
+        "description": " 2023-24 Panini Revolution #12\u00a0 \n Jalen Hood-Schifino Rookie Card Vortex ",
         "url": "https://sportscards.co.nz/products/2023-24-panini-revolution-12-jalen-hood-schifino-rookie-card-vortex",
         "handle": "2023-24-panini-revolution-12-jalen-hood-schifino-rookie-card-vortex",
         "productType": "NBA Sports Card",
@@ -582,7 +582,7 @@
       "input": {
         "store": "dimecity",
         "title": "2024-25 Select H2 /25",
-        "description": " 2024-25 Michael Porter Jr Select H2 /25  \n Lovely Card Of MPJ  ",
+        "description": " 2024-25 Michael Porter Jr Select H2 /25\u00a0 \n Lovely Card Of MPJ\u00a0 ",
         "url": "https://dimecitycards.co.nz/products/2024-25-select-h2-25",
         "handle": "2024-25-select-h2-25",
         "productType": "Michael Porter Jr",
@@ -651,7 +651,7 @@
       "input": {
         "store": "spnz",
         "title": "1994 Upper Deck #184 Shaquille O'Neal Tip Offs Silver Signature",
-        "description": " 1994 Upper Deck #184  \n Shaquille O'Neal Tip Offs Silver Signature ",
+        "description": " 1994 Upper Deck #184\u00a0 \n Shaquille O'Neal Tip Offs Silver Signature ",
         "url": "https://sportscards.co.nz/products/1994-upper-deck-184-shaquille-oneal-tip-offs-silver-signature",
         "handle": "1994-upper-deck-184-shaquille-oneal-tip-offs-silver-signature",
         "productType": "NBA Sports Card",
@@ -719,7 +719,7 @@
       "input": {
         "store": "dimecity",
         "title": "Panini 2013 HRX Rookie Card",
-        "description": " CJ Panini HRX Rookie Card  ",
+        "description": " CJ Panini HRX Rookie Card\u00a0 ",
         "url": "https://dimecitycards.co.nz/products/panini-2013-hrx-rookie-card",
         "handle": "panini-2013-hrx-rookie-card",
         "productType": "CJ McCollum",
@@ -858,7 +858,7 @@
       "input": {
         "store": "dimecity",
         "title": "Panini Optic 2020-21 Rated Rookie Silver Prizm",
-        "description": " Poku Silver Optic rated rookie  ",
+        "description": " Poku Silver Optic rated rookie\u00a0 ",
         "url": "https://dimecitycards.co.nz/products/panini-optic-2020-21-rated-rookie-silver-prizm",
         "handle": "panini-optic-2020-21-rated-rookie-silver-prizm",
         "productType": "Aleksej Pokusevski",
@@ -1176,7 +1176,7 @@
       "input": {
         "store": "spnz",
         "title": "2020-21 Panini Hoops #20 JA Morant Sky View",
-        "description": " 2020-21 Panini Hoops #20  \n JA Morant Sky View ",
+        "description": " 2020-21 Panini Hoops #20\u00a0 \n JA Morant Sky View ",
         "url": "https://sportscards.co.nz/products/2020-21-panini-hoops-20-ja-morant-sky-view",
         "handle": "2020-21-panini-hoops-20-ja-morant-sky-view",
         "productType": "NBA Sports Card",
@@ -1294,6 +1294,80 @@
         "detail": "Not catalogued, unverified."
       },
       "differsFromBrief": null
+    }
+  ],
+  "syntheticFixtures": [
+    {
+      "id": "S1",
+      "purpose": "Guard: a known NBA player in the title plus a confident hint for another sport must stay unmatched, not out_of_scope (founder decision, CAR-78)",
+      "input": {
+        "store": "synthetic",
+        "title": "Ja Morant Premier League Edition Card",
+        "description": "",
+        "tags": [
+          "Ja Morant"
+        ],
+        "productType": null,
+        "vendor": null
+      },
+      "stubHints": {
+        "sport": [
+          "soccer",
+          0.95
+        ]
+      },
+      "expected": {
+        "status": "unmatched",
+        "reasonIncludes": [
+          "product_not_in_catalogue"
+        ],
+        "product": null
+      }
+    },
+    {
+      "id": "S2",
+      "purpose": "Control for S1: the same hint with nobody named is positive evidence, so out_of_scope",
+      "input": {
+        "store": "synthetic",
+        "title": "2024 Premier League Edition Card",
+        "description": "",
+        "tags": [],
+        "productType": null,
+        "vendor": null
+      },
+      "stubHints": {
+        "sport": [
+          "soccer",
+          0.95
+        ]
+      },
+      "expected": {
+        "status": "out_of_scope",
+        "reasonIncludes": [],
+        "product": null
+      }
+    },
+    {
+      "id": "S3",
+      "purpose": "A card number that is not this player's card in the product is unmatched with card_number_conflict and no product guess (founder decision, CAR-78)",
+      "input": {
+        "store": "synthetic",
+        "title": "2020-21 Panini Hoops #36 Ja Morant",
+        "description": "",
+        "tags": [
+          "Ja Morant"
+        ],
+        "productType": null,
+        "vendor": null
+      },
+      "stubHints": {},
+      "expected": {
+        "status": "unmatched",
+        "reasonIncludes": [
+          "card_number_conflict"
+        ],
+        "product": null
+      }
     }
   ]
 }

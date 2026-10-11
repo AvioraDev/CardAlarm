@@ -529,15 +529,43 @@ describe('classifyListing: rules decide acceptance, the model only tie-breaks (D
     expect(result.reviewReasons).toContain('product_not_in_catalogue');
   });
 
-  it('is Possible, not accepted, when the number is not this player\'s card in the product', async () => {
+  it('is unmatched with card_number_conflict, and records no product, when the number is not a card of this player (founder decision)', async () => {
     const jev = scriptedJev({ item_type: { choice: 'single_card' }, sport: { choice: 'basketball' } });
 
     const result = await classifyListing(evidence('2023-24 Panini Prizm #999 Victor Wembanyama'), catalogue, jev);
 
-    expect(result.reviewStatus).toBe('possible');
-    expect(result.reviewReasons).toContain('card_number_not_for_this_player');
-    expect(result.card).toBeNull();
-    expect(result.confidence).toBeLessThanOrEqual(0.74);
+    expect(result.reviewStatus).toBe('unmatched');
+    expect(result.reviewReasons).toContain('card_number_conflict');
+    // A wrong product guess is a bad match, so none is kept; the player is, for the watchlist section.
+    expect(result).toMatchObject({ product: null, card: null, subset: null, grounded: false, playerName: 'Victor Wembanyama' });
+    expect(result.matchedFields).toEqual([]);
+    expect(result.matchReasons.join(' ')).not.toMatch(/Product 2023-24/);
+  });
+
+  it('treats a number that belongs to a different player in the product as a conflict too', async () => {
+    const jev = scriptedJev({ item_type: { choice: 'single_card' }, sport: { choice: 'basketball' } });
+
+    // #12 is P.J. Tucker's card in the test Prizm product, not Wembanyama's.
+    const result = await classifyListing(evidence('2023-24 Panini Prizm #12 Victor Wembanyama'), catalogue, jev);
+
+    expect(result).toMatchObject({ reviewStatus: 'unmatched', product: null });
+    expect(result.reviewReasons).toContain('card_number_conflict');
+  });
+
+  it('does not let a confident hint for another sport rule out a listing that names a known NBA player (founder decision)', async () => {
+    const jev = scriptedJev({ item_type: { choice: 'single_card' }, sport: { choice: 'soccer', confidence: 0.95 } });
+
+    const named = await classifyListing(evidence('Victor Wembanyama Premier League Edition Card'), catalogue, jev);
+    expect(named.reviewStatus).toBe('unmatched');
+    expect(named.hints).toMatchObject({ sport: 'soccer', sportConfidence: 0.95 });
+
+    // The same hint with nobody named is positive evidence, so the listing is out of scope.
+    const unnamed = await classifyListing(evidence('2024 Premier League Edition Card'), catalogue, jev);
+    expect(unnamed.reviewStatus).toBe('out_of_scope');
+
+    // A known player in a store tag counts the same as one in the title.
+    const tagged = await classifyListing(evidence('Premier League Edition Card', { tags: ['Victor Wembanyama'] }), catalogue, jev);
+    expect(tagged.reviewStatus).toBe('unmatched');
   });
 
   it('is Possible when the title has no card number', async () => {

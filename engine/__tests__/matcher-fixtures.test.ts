@@ -52,7 +52,12 @@ const CHOICES: Record<number, { product?: string }> = {
   14: { product: '2020-21 Panini Donruss Optic' },
 };
 
-function stubFor(fixtureNumber: number, title: string, otherEvidence: string[]): JevClient {
+function stubFor(
+  fixtureNumber: number,
+  title: string,
+  otherEvidence: string[],
+  hintOverride: { item?: [string, number]; sport?: [string, number] } = {}
+): JevClient {
   const titleWords = new Set(words(title));
   // The real model also reads tags, product type and description (the evidence state sent to it).
   const evidenceWords = new Set([...titleWords, ...otherEvidence.flatMap(words)]);
@@ -67,11 +72,11 @@ function stubFor(fixtureNumber: number, title: string, otherEvidence: string[]):
         let confidence = 1;
 
         if (id === 'item_type') {
-          const [value, score] = HINT_OVERRIDES[fixtureNumber]?.item ?? ['single_card', 1];
+          const [value, score] = hintOverride.item ?? HINT_OVERRIDES[fixtureNumber]?.item ?? ['single_card', 1];
           choice = value;
           confidence = score;
         } else if (id === 'sport') {
-          const [value, score] = HINT_OVERRIDES[fixtureNumber]?.sport ?? ['basketball', 1];
+          const [value, score] = hintOverride.sport ?? HINT_OVERRIDES[fixtureNumber]?.sport ?? ['basketball', 1];
           choice = value;
           confidence = score;
         } else if (id === 'player') {
@@ -195,5 +200,38 @@ describe('matcher fixtures (CAR-78): the 20 real listings', () => {
     const eleven = await classify(fixtures.find(f => f.fixture === 11)!);
     expect(eleven.fields.isAutograph).toBe(true); // the title word is still seen...
     expect(eleven.isAutograph).toBeNull(); // ...but it is not a fact without a matched row
+  });
+});
+
+interface SyntheticFixture {
+  id: string;
+  purpose: string;
+  input: { store: string; title: string; description: string; tags: string[]; productType: string | null; vendor: string | null };
+  stubHints: { item?: [string, number]; sport?: [string, number] };
+  expected: { status: string; reasonIncludes: string[]; product: null };
+}
+
+const synthetic: SyntheticFixture[] = JSON.parse(fs.readFileSync(path.join(__dirname, 'fixtures/matcher-fixtures.json'), 'utf8')).syntheticFixtures;
+
+describe('founder-decision guards (CAR-78 follow-up)', () => {
+  it.each(synthetic.map(f => [f.id, f] as const))('%s', async (_id, fixture) => {
+    const evidence: ListingEvidence = {
+      store: fixture.input.store,
+      title: fixture.input.title,
+      tags: fixture.input.tags,
+      vendor: fixture.input.vendor,
+      productType: fixture.input.productType,
+      description: fixture.input.description || null,
+    };
+    const result = await classifyListing(
+      evidence,
+      catalogue,
+      stubFor(0, fixture.input.title, [...fixture.input.tags, fixture.input.description], fixture.stubHints)
+    );
+
+    expect(result.reviewStatus).toBe(fixture.expected.status);
+    expect(result.product).toBeNull();
+    expect(result.card).toBeNull();
+    for (const reason of fixture.expected.reasonIncludes) expect(result.reviewReasons).toContain(reason);
   });
 });
