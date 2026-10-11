@@ -24,6 +24,9 @@ import { applyTeamsRookies, markUnknownRookies, readTeamsRookies, validateCheckl
  *
  *   --dry-run          parse and validate only; never connects to the database
  *   --force            replace products already in the catalogue (then reclassify)
+ *   --rookies-only     update rookie flags in place on products already imported (detaches nothing); stops on the
+ *                      first product whose stored cards differ from the source
+ *   --only "A,B"       restrict to products named "<season> <product line>", e.g. "2023-24 Prizm,2020-21 Prizm"
  *   --report-dir DIR   where the per-workbook validation reports are saved
  *                      (default docs/catalogue/import-reports/<date>-<mode>)
  *
@@ -251,6 +254,93 @@ async function importChecklist(parsed: ParsedChecklist): Promise<{ subsets: numb
   return { subsets: subsetRows.length, cards: cardRows.length, parallels: parallelRows.length };
 }
 
+export interface DbCardRef {
+  id: string;
+  kind: string;
+  subsetNormalizedName: string;
+  cardNumber: string | null;
+  normalizedPlayerName: string;
+  isRookie: boolean | null;
+}
+
+const cardKey = (kind: string, subset: string, number: string | null, player: string): string => [kind, subset, number ?? '', player].join(' ');
+
+/**
+ * Plans an in-place rookie update (no delete, so no classification is detached). Only valid when the database
+ * already holds exactly the parsed cards: same subsets, same card numbers and players. Anything else needs a full
+ * re-import, and the plan says so instead of guessing.
+ */
+export function planRookieUpdate(
+  dbCards: DbCardRef[],
+  subsets: ChecklistSubset[]
+): { ok: true; updates: Array<{ id: string; isRookie: boolean | null }>; unchanged: number } | { ok: false; reason: string } {
+  const wanted = new Map<string, Array<boolean | null>>();
+  let parsedCount = 0;
+  for (const subset of subsets) {
+    for (const card of subset.cards) {
+      const key = cardKey(subset.kind, normalizeCatalogueName(subset.name), card.cardNumber, normalizeCatalogueName(card.playerName));
+      wanted.set(key, [...(wanted.get(key) ?? []), card.isRookie]);
+      parsedCount += 1;
+    }
+  }
+  if (dbCards.length !== parsedCount) return { ok: false, reason: `database has ${dbCards.length} cards, source has ${parsedCount}` };
+  const updates: Array<{ id: string; isRookie: boolean | null }> = [];
+  let unchanged = 0;
+  for (const card of dbCards) {
+    const key = cardKey(card.kind, card.subsetNormalizedName, card.cardNumber, card.normalizedPlayerName);
+    const queue = wanted.get(key);
+    if (!queue || queue.length === 0) return { ok: false, reason: `database card not in the source: ${card.subsetNormalizedName} #${card.cardNumber ?? ''} ${card.normalizedPlayerName}` };
+    const isRookie = queue.shift()!;
+    if (isRookie === card.isRookie) unchanged += 1;
+    else updates.push({ id: card.id, isRookie });
+  }
+  return { ok: true, updates, unchanged };
+}
+
+/** Sets is_rookie on the existing cards of a product. Rolls back and throws if anything differs from the plan. */
+export async function updateRookiesInPlace(parsed: ParsedChecklist): Promise<{ updated: number; unchanged: number }> {
+  const { product, subsets } = parsed;
+  return withTransaction(async client => {
+    const found = await client.query<{ id: string }>(
+      `select id from public.checklist_products where sport = 'basketball' and season = $1 and normalized_product_line = $2`,
+      [product.season, normalizeCatalogueName(product.productLine)]
+    );
+    if (found.rows.length !== 1) throw new Error(`${product.season} ${product.productLine} is not in the catalogue exactly once`);
+    const productId = found.rows[0]!.id;
+    const rows = await client.query<{ id: string; kind: string; normalized_name: string; card_number: string | null; normalized_player_name: string; is_rookie: boolean | null }>(
+      `select c.id, s.kind, s.normalized_name, c.card_number, c.normalized_player_name, c.is_rookie
+       from public.checklist_cards c join public.checklist_subsets s on s.id = c.subset_id
+       where s.product_id = $1 order by c.id`,
+      [productId]
+    );
+    const plan = planRookieUpdate(
+      rows.rows.map(row => ({ id: row.id, kind: row.kind, subsetNormalizedName: row.normalized_name, cardNumber: row.card_number, normalizedPlayerName: row.normalized_player_name, isRookie: row.is_rookie })),
+      subsets
+    );
+    if (!plan.ok) throw new Error(`${product.season} ${product.productLine}: cannot update in place (${plan.reason}); needs a full re-import`);
+
+    const yes = plan.updates.filter(update => update.isRookie === true).map(update => update.id);
+    const no = plan.updates.filter(update => update.isRookie === false).map(update => update.id);
+    const unknown = plan.updates.filter(update => update.isRookie === null).map(update => update.id);
+    if (yes.length > 0) await client.query(`update public.checklist_cards set is_rookie = true where id = any($1::bigint[])`, [yes]);
+    if (no.length > 0) await client.query(`update public.checklist_cards set is_rookie = false where id = any($1::bigint[])`, [no]);
+    if (unknown.length > 0) await client.query(`update public.checklist_cards set is_rookie = null where id = any($1::bigint[])`, [unknown]);
+
+    // The database must now hold exactly the parsed rookie flags.
+    const expected = subsets.flatMap(subset => subset.cards).reduce((acc, card) => ({ t: acc.t + (card.isRookie === true ? 1 : 0), n: acc.n + (card.isRookie === null ? 1 : 0) }), { t: 0, n: 0 });
+    const check = await client.query<{ rookies: string; unknown: string; cards: string }>(
+      `select count(*) filter (where c.is_rookie) as rookies, count(*) filter (where c.is_rookie is null) as unknown, count(*) as cards
+       from public.checklist_cards c join public.checklist_subsets s on s.id = c.subset_id where s.product_id = $1`,
+      [productId]
+    );
+    const got = check.rows[0]!;
+    if (Number(got.rookies) !== expected.t || Number(got.unknown) !== expected.n) {
+      throw new Error(`${product.season} ${product.productLine}: rookies expected ${expected.t} (unknown ${expected.n}), got ${got.rookies} (unknown ${got.unknown})`);
+    }
+    return { updated: plan.updates.length, unchanged: plan.unchanged };
+  });
+}
+
 function optionValue(args: string[], flag: string): string | undefined {
   const index = args.indexOf(flag);
   return index === -1 ? undefined : args[index + 1];
@@ -286,8 +376,11 @@ async function main(): Promise<void> {
   const args = process.argv.slice(2);
   const force = args.includes('--force');
   const dryRun = args.includes('--dry-run');
+  const rookiesOnly = args.includes('--rookies-only');
   const reportDirArg = optionValue(args, '--report-dir');
-  const dirArgs = args.filter((arg, index) => !arg.startsWith('--') && args[index - 1] !== '--report-dir');
+  // --only "2023-24 Prizm,2020-21 Prizm": restrict the run to these products (season + product line).
+  const only = optionValue(args, '--only')?.split(',').map(item => normalizeCatalogueName(item));
+  const dirArgs = args.filter((arg, index) => !arg.startsWith('--') && args[index - 1] !== '--report-dir' && args[index - 1] !== '--only');
   const dirs = dirArgs.length > 0 ? dirArgs : DEFAULT_DIRS;
   const files = dirs
     .filter(dir => fs.existsSync(dir))
@@ -317,6 +410,7 @@ async function main(): Promise<void> {
       const key = `${parsed.product.season}\u0000${normalizeCatalogueName(parsed.product.productLine)}`;
       if (seen.has(key)) continue;
       seen.add(key);
+      if (only && !only.includes(normalizeCatalogueName(`${parsed.product.season} ${parsed.product.productLine}`))) continue;
       reports.push(parsed.report);
 
       const label = `${parsed.product.season} ${parsed.product.brand} ${parsed.product.productLine}`;
@@ -329,6 +423,15 @@ async function main(): Promise<void> {
       if (dryRun) {
         totals.products++;
         totals.cards += parsed.report.stats.cards;
+        continue;
+      }
+      if (rookiesOnly) {
+        // In place: no delete, so no classification is detached. Stops the whole run on the first mismatch.
+        if (!inCatalogue.has(key)) throw new Error(`${label} is not in the catalogue; --rookies-only only updates products already imported`);
+        const started = Date.now();
+        const result = await updateRookiesInPlace(parsed);
+        totals.products++;
+        console.log(`${label}: rookie flags updated in place, ${result.updated} changed, ${result.unchanged} unchanged (${Date.now() - started} ms)`);
         continue;
       }
       if (inCatalogue.has(key) && !force) {

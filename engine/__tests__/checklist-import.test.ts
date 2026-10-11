@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import { parseChecklistFile } from '../src/catalogue/import-checklists';
+import { parseChecklistFile, planRookieUpdate, type DbCardRef } from '../src/catalogue/import-checklists';
 import { parseSubsetSheet, parseSubsetSheetDetailed, type SheetRow } from '../src/catalogue/checklist-parser';
 import {
   applyTeamsRookies,
@@ -328,4 +328,39 @@ describe('the real workbooks (CAR-77)', () => {
     // The old importer flagged 705 rookies in the whole catalogue.
     expect(rookies).toBeGreaterThan(2500);
   }, 120000);
+});
+
+describe('in-place rookie update (detaches nothing)', () => {
+  const subsets = () => parseSubsetSheet('Base', [['Base Set'], ['3 cards.'], ['Rated Rookies - #3-3'], card(1, 'Vet One'), card(2, 'Vet Two'), card(3, 'Kid Three')]);
+  const db = (isRookie: Array<boolean | null>): DbCardRef[] =>
+    ['vet one', 'vet two', 'kid three'].map((player, index) => ({
+      id: String(index + 1),
+      kind: 'base',
+      subsetNormalizedName: index === 2 ? 'rated rookies' : 'base set',
+      cardNumber: String(index + 1),
+      normalizedPlayerName: player,
+      isRookie: isRookie[index]!,
+    }));
+
+  it('plans updates only for cards whose flag differs, matched by subset, number and player', () => {
+    const plan = planRookieUpdate(db([false, false, false]), subsets());
+    expect(plan).toEqual({ ok: true, updates: [{ id: '3', isRookie: true }], unchanged: 2 });
+  });
+
+  it('plans null (unknown) over a stored false', () => {
+    const all = parseSubsetSheet('Base', [['Base Set'], ['2 cards.'], card(1, 'Vet One'), card(2, 'Vet Two')]);
+    markUnknownRookies(all);
+    const rows = db([false, false, false]).slice(0, 2);
+    expect(planRookieUpdate(rows, all)).toEqual({ ok: true, updates: [{ id: '1', isRookie: null }, { id: '2', isRookie: null }], unchanged: 0 });
+  });
+
+  it('refuses when the stored cards differ from the source, so a full re-import is needed', () => {
+    expect(planRookieUpdate(db([false, false, false]).slice(0, 2), subsets())).toMatchObject({ ok: false });
+    const changed = db([false, false, false]);
+    changed[1]!.normalizedPlayerName = 'someone else';
+    expect(planRookieUpdate(changed, subsets())).toMatchObject({ ok: false });
+    const moved = db([false, false, false]);
+    moved[2]!.subsetNormalizedName = 'base set';
+    expect(planRookieUpdate(moved, subsets())).toMatchObject({ ok: false });
+  });
 });
