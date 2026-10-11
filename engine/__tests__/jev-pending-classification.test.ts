@@ -86,9 +86,14 @@ describe('classifying new and changed listings', () => {
   });
 
   it('is enabled only with an API key and can be switched off', () => {
+    const on = { CARDALARM_JEV_CLASSIFIER_V2: 'true' };
     expect(jevClassificationEnabled({})).toBe(false);
-    expect(jevClassificationEnabled({ TYPESAFE_KEY: 'k' })).toBe(true);
-    expect(jevClassificationEnabled({ TYPESAFE_KEY: 'k', CARDALARM_JEV_CLASSIFY: 'false' })).toBe(false);
+    expect(jevClassificationEnabled({ ...on })).toBe(false);
+    expect(jevClassificationEnabled({ ...on, TYPESAFE_KEY: 'k' })).toBe(true);
+    expect(jevClassificationEnabled({ ...on, TYPESAFE_KEY: 'k', CARDALARM_JEV_CLASSIFY: 'false' })).toBe(false);
+    // v2 is opt-in: a key alone does not start classification until the migration and reclassification are approved.
+    expect(jevClassificationEnabled({ TYPESAFE_KEY: 'k' })).toBe(false);
+    expect(jevClassificationEnabled({ TYPESAFE_KEY: 'k', CARDALARM_JEV_CLASSIFIER_V2: 'false' })).toBe(false);
     expect(pendingClassificationLimit(undefined)).toBe(2000);
     expect(pendingClassificationLimit('250')).toBe(250);
     expect(pendingClassificationLimit('nope')).toBe(2000);

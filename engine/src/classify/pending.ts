@@ -32,8 +32,15 @@ export interface PendingClassificationDeps {
   markChecked?: (db: DbClient, storeProductIds: number[]) => Promise<void>;
 }
 
-/** Whether the scan worker should classify new and changed listings after each scan. */
+/**
+ * Whether the scan worker should classify new and changed listings after each scan.
+ *
+ * Classifier v2 is opt-in (CARDALARM_JEV_CLASSIFIER_V2=true). It stays off until the v2 migration is applied
+ * and the one-off reclassification has been approved: with the new version string every listing counts as
+ * pending, so an unguarded worker would spend tokens and then fail to save the new statuses.
+ */
 export function jevClassificationEnabled(env: NodeJS.ProcessEnv = process.env): boolean {
+  if ((env.CARDALARM_JEV_CLASSIFIER_V2 ?? 'false').toLowerCase() !== 'true') return false;
   if ((env.CARDALARM_JEV_CLASSIFY ?? 'true').toLowerCase() === 'false') return false;
   return Boolean(env.TYPESAFE_KEY || env.TYPESAFE_API_KEY);
 }
