@@ -1,5 +1,6 @@
 import { normalizeCatalogueName } from '../catalogue/checklist-parser';
 import {
+  adjacentSeasons,
   storeProvidedNames,
   titleNameSpans,
   type CatalogueCard,
@@ -13,25 +14,52 @@ import { choiceAnswer, MAX_CHOICE_OPTIONS, type ChoiceAnswer, type JevClient, ty
 import { parseTitleFields, type TitleFields } from './title-fields';
 
 export const JEV_CLASSIFIER_TYPE = 'jev';
-export const JEV_CLASSIFIER_VERSION = 'jev-catalogue-v1';
+/**
+ * v2 (CAR-78, decisions D-005 and D-006): rules generate candidates and decide acceptance; Jev only
+ * chooses among the candidates rules allow. A match must map to a catalogue row.
+ */
+export const JEV_CLASSIFIER_VERSION = 'jev-catalogue-v2';
 
 const NONE = 'none_of_these';
 const BASE = 'base';
 const UNKNOWN = 'unknown';
 const MAX_SUBSET_OPTIONS = 120;
 const MAX_PARALLEL_OPTIONS = 200;
+/** A Possible match never reports more confidence than this, whatever the model said. */
+const POSSIBLE_CONFIDENCE_CAP = 0.74;
 
 export type ItemType = 'single_card' | 'sealed_product' | 'lot' | 'memorabilia' | 'supplies' | 'other';
-export type ReviewStatus = 'accepted' | 'needs_review' | 'out_of_scope';
+/**
+ * accepted     - maps to a catalogue row and the card number and player agree with it (shown as a match)
+ * possible     - product and player are in the catalogue but the row is not confirmed (shown separately)
+ * unmatched    - no catalogue row; the listing may still be shown to the player's watchlist by D-005, with
+ *                only what the store provides
+ * out_of_scope - positive evidence that it is not a basketball card
+ * needs_review - legacy value from classifier v1; v2 never produces it
+ */
+export type ReviewStatus = 'accepted' | 'possible' | 'unmatched' | 'out_of_scope' | 'needs_review';
 /** Where the player came from: the catalogue, a store tag, a name span in the title, or the card number. */
 export type PlayerSource = 'catalogue' | 'store' | 'title' | 'checklist' | null;
 export type ParallelStatus = 'matched' | 'base' | 'unknown' | 'not_asked';
 
-export interface ListingClassification {
+/** What the model said about item type and sport. A hint: it can never accept a match (D-006). */
+export interface ClassificationHints {
   itemType: ItemType;
   itemTypeConfidence: number;
   sport: string;
   sportConfidence: number;
+}
+
+export interface ListingClassification {
+  /** From the matched catalogue row when there is one (single_card), otherwise the model's hint. */
+  itemType: ItemType;
+  itemTypeConfidence: number;
+  /** From the matched catalogue row when there is one (basketball), otherwise the model's hint. */
+  sport: string;
+  sportConfidence: number;
+  /** True when itemType and sport come from a matched catalogue row rather than from the model. */
+  grounded: boolean;
+  hints: ClassificationHints;
   fields: TitleFields;
   playerName: string | null;
   playerId: number | null;
@@ -46,11 +74,19 @@ export interface ListingClassification {
   parallelStatus: ParallelStatus;
   parallelConfidence: number | null;
   isRookie: boolean;
-  isAutograph: boolean;
-  isRelic: boolean;
+  /** From the matched row's subset kind. Null means unknown: it is never "yes" without a matched row. */
+  isAutograph: boolean | null;
+  isRelic: boolean | null;
   reviewStatus: ReviewStatus;
   reviewReasons: string[];
-  /** The weakest of the decisions the result depends on. */
+  /** Catalogue-confirmed fields, for example ["product", "card_number", "player", "subset"]. */
+  matchedFields: string[];
+  /** Plain statements of why the result is what it is. */
+  matchReasons: string[];
+  matcherVersion: string;
+  /** Set when the title's season had to be widened by one to find the card, for example "2020-21 -> 2021-22". */
+  yearWidened: string | null;
+  /** The weakest of the model-decided steps the result depends on; 1 when rules decided everything. */
   confidence: number;
   jevModel: string | null;
   jevRequests: number;
@@ -58,7 +94,7 @@ export interface ListingClassification {
 }
 
 export interface ClassifierOptions {
-  /** Decisions below this confidence are not acted on; the listing goes to review instead. */
+  /** Decisions below this confidence are not acted on. */
   minConfidence?: number;
 }
 
@@ -143,7 +179,8 @@ function parallelLabel(parallel: CatalogueParallel): string {
 
 /**
  * Autograph and memorabilia subsets reuse the base set's numbers and players. When the title carries no
- * autograph or relic wording, they are ruled out in code rather than left for the model to weigh.
+ * autograph or relic wording, they are ruled out in code rather than left for the model to weigh. This only
+ * narrows the candidates; whether a card is an autograph is read from the matched row, never from the title.
  */
 export function subsetsConsistentWithTitle(
   subsets: CatalogueSubset[],
@@ -162,6 +199,13 @@ export function parallelsMatchingSerial(parallels: CatalogueParallel[], serialLi
   return numbered.length > 0 ? numbered : parallels;
 }
 
+function isPositivelyNotBasketballCard(hints: ClassificationHints, minConfidence: number): boolean {
+  const notSingle = hints.itemTypeConfidence >= minConfidence && hints.itemType !== 'single_card';
+  const otherSport =
+    hints.sportConfidence >= minConfidence && hints.sport !== 'basketball' && hints.sport !== 'unclear';
+  return notSingle || otherSport;
+}
+
 export async function classifyListing(
   evidence: ListingEvidence,
   catalogue: CatalogueIndex,
@@ -172,9 +216,12 @@ export async function classifyListing(
   const fields = parseTitleFields(evidence.title);
   const state = evidenceState(evidence);
   const searchTexts = [evidence.title, ...evidence.tags, evidence.productType ?? '', evidence.description ?? ''];
+  const reasons: string[] = [];
+  const matchReasons: string[] = [];
 
-  // ── Candidates ───────────────────────────────────────────────────
+  // ── Candidates (rules) ───────────────────────────────────────────
   const cataloguePlayers = catalogue.findPlayers(searchTexts);
+  const exactPlayers = catalogue.findExactPlayers(evidence.title);
   const knownNames = new Set(cataloguePlayers.map(player => player.normalizedName));
   const storeNames = storeProvidedNames(evidence.tags, evidence.productType).filter(
     name => !knownNames.has(normalizeCatalogueName(name))
@@ -185,7 +232,11 @@ export async function classifyListing(
   ];
   const productCandidates = catalogue.findProducts([evidence.title, ...evidence.tags], fields.seasonCandidates);
 
-  // ── Request 1: what is it, who is it, which product ──────────────
+  // One exact candidate needs no tiebreak, so rules accept it. The model only arbitrates between several.
+  const ruleProduct = productCandidates.length === 1 ? productCandidates[0]! : null;
+  const rulePlayer = exactPlayers.length === 1 ? exactPlayers[0]! : null;
+
+  // ── Request 1: hints, plus a choice wherever rules left more than one candidate ──
   const playerOptions = buildOptions(
     playerCandidates,
     candidate => candidate.name,
@@ -213,7 +264,7 @@ export async function classifyListing(
       criteria: SPORT_CRITERIA,
     },
   };
-  if (playerOptions.byLabel.size > 0) {
+  if (!rulePlayer && playerOptions.byLabel.size > 0) {
     firstQuestions.player = {
       type: 'choice',
       instructions:
@@ -221,7 +272,7 @@ export async function classifyListing(
       criteria: playerOptions.criteria,
     };
   }
-  if (productOptions.byLabel.size > 0) {
+  if (productCandidates.length > 1) {
     firstQuestions.product = {
       type: 'choice',
       instructions:
@@ -239,63 +290,62 @@ export async function classifyListing(
   const playerAnswer = choiceAnswer(first, 'player');
   const productAnswer = choiceAnswer(first, 'product');
 
-  const itemType = (itemAnswer?.choice ?? 'other') as ItemType;
-  const itemTypeConfidence = itemAnswer?.confidence ?? 0;
-  const sport = sportAnswer?.choice ?? 'unclear';
-  const sportConfidence = sportAnswer?.confidence ?? 0;
-  const reviewReasons: string[] = [];
-  if (itemTypeConfidence < minConfidence) reviewReasons.push('low_confidence_item_type');
-  if (sportConfidence < minConfidence) reviewReasons.push('low_confidence_sport');
-
-  const result: ListingClassification = {
-    itemType,
-    itemTypeConfidence,
-    sport,
-    sportConfidence,
-    fields,
-    playerName: null,
-    playerId: null,
-    playerSource: null,
-    playerConfidence: playerAnswer?.confidence ?? null,
-    product: null,
-    productConfidence: productAnswer?.confidence ?? null,
-    subset: null,
-    subsetConfidence: null,
-    card: null,
-    parallel: null,
-    parallelStatus: 'not_asked',
-    parallelConfidence: null,
-    isRookie: fields.isRookie,
-    isAutograph: fields.isAutograph,
-    isRelic: fields.isRelic,
-    reviewStatus: 'needs_review',
-    reviewReasons,
-    confidence: Math.min(itemTypeConfidence, sportConfidence),
-    jevModel: first.model,
-    jevRequests,
-    inputTokens,
+  const hints: ClassificationHints = {
+    itemType: (itemAnswer?.choice ?? 'other') as ItemType,
+    itemTypeConfidence: itemAnswer?.confidence ?? 0,
+    sport: sportAnswer?.choice ?? 'unclear',
+    sportConfidence: sportAnswer?.confidence ?? 0,
   };
 
-  // Only basketball single cards are classified in depth; everything else is recorded and left alone.
-  if (itemType !== 'single_card' || sport !== 'basketball') {
-    result.reviewStatus = reviewReasons.length === 0 ? 'out_of_scope' : 'needs_review';
-    return result;
-  }
+  // Components the model decided, so the result can report its weakest link.
+  const modelScores: number[] = [];
 
-  if (accepted(playerAnswer, minConfidence, [NONE])) {
+  // ── Player ───────────────────────────────────────────────────────
+  let playerName: string | null = null;
+  let playerId: number | null = null;
+  let playerSource: PlayerSource = null;
+  let playerConfidence: number | null = null;
+  if (rulePlayer) {
+    playerName = rulePlayer.name;
+    playerId = rulePlayer.playerId;
+    playerSource = 'catalogue';
+    playerConfidence = 1;
+    matchReasons.push(`Player "${rulePlayer.name}" is written in the title and is the only catalogue player named`);
+  } else if (accepted(playerAnswer, minConfidence, [NONE])) {
     const chosen = playerOptions.byLabel.get(playerAnswer!.choice)!;
-    result.playerName = chosen.name;
-    result.playerId = chosen.playerId;
-    result.playerSource = chosen.source;
-  }
-  if (accepted(productAnswer, minConfidence, [NONE])) {
-    result.product = productOptions.byLabel.get(productAnswer!.choice) ?? null;
+    playerName = chosen.name;
+    playerId = chosen.playerId;
+    playerSource = chosen.source;
+    playerConfidence = playerAnswer!.confidence;
+    modelScores.push(playerAnswer!.confidence);
+    matchReasons.push(`Player "${chosen.name}" chosen by the model among ${playerOptions.byLabel.size} candidates (${playerAnswer!.confidence})`);
+  } else if (playerAnswer) {
+    playerConfidence = playerAnswer.confidence;
   }
 
-  // ── Fallback: a person the catalogue and the store's tags do not know ──
-  // Older sets and unlicensed legends are in no checklist. Code proposes the capitalised runs in the
-  // title and Jev picks the one that is exactly a person's name.
-  if (!result.playerName) {
+  // ── Product ──────────────────────────────────────────────────────
+  let product: CatalogueProduct | null = null;
+  let productConfidence: number | null = null;
+  if (ruleProduct) {
+    product = ruleProduct;
+    productConfidence = 1;
+    matchReasons.push(`Product ${ruleProduct.season} ${ruleProduct.brand} ${ruleProduct.productLine} is the only catalogue product matching the title and season`);
+  } else if (productCandidates.length > 1) {
+    productConfidence = productAnswer?.confidence ?? null;
+    if (accepted(productAnswer, minConfidence, [NONE])) {
+      product = productOptions.byLabel.get(productAnswer!.choice) ?? null;
+      if (product) {
+        modelScores.push(productAnswer!.confidence);
+        matchReasons.push(`Product ${product.season} ${product.productLine} chosen by the model among ${productCandidates.length} candidates (${productAnswer!.confidence})`);
+      }
+    }
+    if (!product) reasons.push('product_candidate_rejected');
+  } else {
+    reasons.push('product_not_in_catalogue');
+  }
+
+  // ── Fallback names: only for showing the listing under a player (D-005); they can never accept a match ──
+  if (!playerName) {
     const spanOptions = buildOptions(
       titleNameSpans(evidence.title),
       span => span,
@@ -303,7 +353,7 @@ export async function classifyListing(
       { [NONE]: 'None of these is exactly a person\'s name, or the card is not of a single person' },
       40
     );
-    if (spanOptions.byLabel.size > 0) {
+    if (spanOptions.byLabel.size > 0 && !isPositivelyNotBasketballCard(hints, minConfidence)) {
       const spans = await jev.ask(state, {
         player_span: {
           type: 'choice',
@@ -316,34 +366,135 @@ export async function classifyListing(
       jevRequests++;
       const spanAnswer = choiceAnswer(spans, 'player_span');
       if (accepted(spanAnswer, minConfidence, [NONE])) {
-        result.playerName = displayName(spanAnswer!.choice);
-        result.playerSource = 'title';
-        result.playerConfidence = spanAnswer!.confidence;
+        playerName = displayName(spanAnswer!.choice);
+        playerSource = 'title';
+        playerConfidence = spanAnswer!.confidence;
       }
     }
   }
 
-  // ── Request 2: which subset and parallel, within the chosen product ──
-  if (result.product) {
-    const cards = catalogue.findCards(result.product, fields.cardNumber, result.playerName);
-    const subsetIds = [...new Set(cards.map(card => card.subsetId))];
+  const base = {
+    fields,
+    hints,
+    playerId,
+    jevModel: first.model,
+    matcherVersion: JEV_CLASSIFIER_VERSION,
+  };
+  const empty = (status: ReviewStatus): ListingClassification => ({
+    ...base,
+    itemType: hints.itemType,
+    itemTypeConfidence: hints.itemTypeConfidence,
+    sport: hints.sport,
+    sportConfidence: hints.sportConfidence,
+    grounded: false,
+    playerName,
+    playerSource,
+    playerConfidence,
+    product: null,
+    productConfidence,
+    subset: null,
+    subsetConfidence: null,
+    card: null,
+    parallel: null,
+    parallelStatus: 'not_asked',
+    parallelConfidence: null,
+    isRookie: fields.isRookie,
+    isAutograph: null,
+    isRelic: null,
+    reviewStatus: status,
+    reviewReasons: reasons,
+    matchedFields: [],
+    matchReasons,
+    yearWidened: null,
+    confidence: 0,
+    jevRequests,
+    inputTokens,
+  });
+
+  // Nothing to match against: no product, no player, or a product that does not contain the player.
+  const unmatched = (): ListingClassification =>
+    empty(isPositivelyNotBasketballCard(hints, minConfidence) ? 'out_of_scope' : 'unmatched');
+
+  if (!product) {
+    if (!playerName) reasons.push('no_player');
+    return unmatched();
+  }
+
+  // A player derived from the card number is a derived value, not a stated one (it caps at Possible).
+  let derivedPlayerFromNumber = false;
+  if (!playerName && fields.cardNumber) {
+    const pool = product.subsets.flatMap(subset => subset.cards).filter(card => card.cardNumber?.toLowerCase() === fields.cardNumber!.toLowerCase());
+    const names = new Set(pool.map(card => card.normalizedPlayerName));
+    if (pool.length > 0 && names.size === 1) {
+      playerName = pool[0]!.playerName;
+      playerId = pool[0]!.playerId;
+      playerSource = 'checklist';
+      playerConfidence = productConfidence;
+      derivedPlayerFromNumber = true;
+      matchReasons.push(`Player "${playerName}" derived from card number #${fields.cardNumber} in the catalogue; the title names nobody`);
+    }
+  }
+  if (!playerName) {
+    reasons.push('no_player');
+    return unmatched();
+  }
+  base.playerId = playerId;
+
+  // ── Catalogue rows: card number AND player must agree with a row ──
+  const number = fields.cardNumber;
+  let agreeing: CatalogueCard[] = number ? catalogue.findAgreeingCards(product, number, playerName) : [];
+  let yearWidened: string | null = null;
+
+  if (number && agreeing.length === 0) {
+    // A seller's year can be a season off. Look one season either side, same product line, and say so.
+    for (const season of adjacentSeasons(product.season)) {
+      const sibling = catalogue
+        .findProducts([evidence.title, ...evidence.tags], [season])
+        .find(candidate => candidate.productLine === product!.productLine);
+      const found = sibling ? catalogue.findAgreeingCards(sibling, number, playerName) : [];
+      if (sibling && found.length > 0) {
+        yearWidened = `${product.season} -> ${sibling.season}`;
+        product = sibling;
+        agreeing = found;
+        matchReasons.push(`Year widened ${yearWidened}: the card is not in the stated season`);
+        break;
+      }
+    }
+  }
+
+  const playerRows = catalogue.playerCards(product, playerName);
+  if (agreeing.length === 0 && playerRows.length === 0) {
+    reasons.push('player_not_in_product');
+    return unmatched();
+  }
+
+  // ── Request 2: subset and parallel, within the rows that agree ──
+  let subset: CatalogueSubset | null = null;
+  let subsetConfidence: number | null = null;
+  let card: CatalogueCard | null = null;
+  let parallel: CatalogueParallel | null = null;
+  let parallelStatus: ParallelStatus = 'not_asked';
+  let parallelConfidence: number | null = null;
+
+  if (agreeing.length > 0) {
+    const subsetIds = [...new Set(agreeing.map(row => row.subsetId))];
     const subsetCandidates = subsetsConsistentWithTitle(
-      subsetIds.map(id => catalogue.subset(id)).filter((subset): subset is CatalogueSubset => subset !== undefined),
+      subsetIds.map(id => catalogue.subset(id)).filter((candidate): candidate is CatalogueSubset => candidate !== undefined),
       fields
     );
 
     const parallelPool = new Map<string, CatalogueParallel>();
-    for (const subset of subsetCandidates) {
-      for (const parallel of catalogue.parallelsFor(subset)) {
-        const key = `${parallel.normalizedName}/${parallel.serialLimit ?? ''}`;
-        if (!parallelPool.has(key)) parallelPool.set(key, parallel);
+    for (const candidate of subsetCandidates) {
+      for (const option of catalogue.parallelsFor(candidate)) {
+        const key = `${option.normalizedName}/${option.serialLimit ?? ''}`;
+        if (!parallelPool.has(key)) parallelPool.set(key, option);
       }
     }
     const parallelCandidates = parallelsMatchingSerial([...parallelPool.values()], fields.serialLimit);
 
     const subsetOptions = buildOptions(
       subsetCandidates,
-      subset => subset.name,
+      candidate => candidate.name,
       subsetDescription,
       { [NONE]: 'A different subset, or the listing does not say' },
       MAX_SUBSET_OPTIONS
@@ -359,12 +510,13 @@ export async function classifyListing(
       MAX_PARALLEL_OPTIONS
     );
 
+    const productLabel = `${product.season} ${product.brand} ${product.productLine}`;
     const secondQuestions: Record<string, JevQuestion> = {};
     if (subsetOptions.byLabel.size > 1) {
       secondQuestions.subset = {
         type: 'choice',
         instructions: {
-          product: `${result.product.season} ${result.product.brand} ${result.product.productLine}`,
+          product: productLabel,
           question:
             'Which subset of `product` is this card from? Choose the base set unless `title` names an insert, autograph or memorabilia subset.',
         },
@@ -375,8 +527,8 @@ export async function classifyListing(
       secondQuestions.parallel = {
         type: 'choice',
         instructions: {
-          product: `${result.product.season} ${result.product.brand} ${result.product.productLine}`,
-          subset_names: subsetCandidates.map(subset => subset.name),
+          product: productLabel,
+          subset_names: subsetCandidates.map(candidate => candidate.name),
           question:
             'Which parallel of the card does `title` describe? A parallel is a colour, pattern or finish variant, such as Silver, Blue Ice or Gold Wave. Words that are part of `product`, any of `subset_names`, the player name or the team name are not a parallel.',
         },
@@ -395,70 +547,106 @@ export async function classifyListing(
     }
 
     if (subsetCandidates.length === 1) {
-      // One subset is consistent with the card number and player, so there was nothing to ask.
-      result.subset = subsetCandidates[0]!;
-      result.subsetConfidence = 1;
+      subset = subsetCandidates[0]!;
+      subsetConfidence = 1;
+      matchReasons.push(`Subset "${subset.name}" is the only one holding card #${number} for ${playerName}`);
     } else if (accepted(subsetAnswer, minConfidence, [NONE])) {
-      result.subset = subsetOptions.byLabel.get(subsetAnswer!.choice) ?? null;
-      result.subsetConfidence = subsetAnswer!.confidence;
-    } else {
-      result.subsetConfidence = subsetAnswer?.confidence ?? null;
-    }
-
-    if (result.subset) {
-      const inSubset = cards.filter(card => card.subsetId === result.subset!.id);
-      result.card = inSubset.length === 1 ? inSubset[0]! : null;
-    }
-
-    // A card number that identifies one player in this product names the player even when the title does not.
-    if (!result.playerName && fields.cardNumber) {
-      const pool = result.subset ? cards.filter(card => card.subsetId === result.subset!.id) : cards;
-      const names = new Set(pool.map(card => card.normalizedPlayerName));
-      if (pool.length > 0 && names.size === 1) {
-        result.playerName = pool[0]!.playerName;
-        result.playerId = pool[0]!.playerId;
-        result.playerSource = 'checklist';
-        result.playerConfidence = Math.min(result.productConfidence ?? 0, result.subsetConfidence ?? 1);
+      subset = subsetOptions.byLabel.get(subsetAnswer!.choice) ?? null;
+      subsetConfidence = subsetAnswer!.confidence;
+      if (subset) {
+        modelScores.push(subsetAnswer!.confidence);
+        matchReasons.push(`Subset "${subset.name}" chosen by the model among ${subsetCandidates.length} candidates holding the same number and player (${subsetAnswer!.confidence})`);
       }
+    } else {
+      subsetConfidence = subsetAnswer?.confidence ?? null;
+    }
+
+    if (subset) {
+      const inSubset = agreeing.filter(row => row.subsetId === subset!.id);
+      card = inSubset[0] ?? null;
+    } else {
+      reasons.push('subset_unresolved');
     }
 
     if (parallelAnswer) {
-      result.parallelConfidence = parallelAnswer.confidence;
+      parallelConfidence = parallelAnswer.confidence;
       if (parallelAnswer.confidence < minConfidence || parallelAnswer.choice === UNKNOWN) {
-        result.parallelStatus = 'unknown';
+        parallelStatus = 'unknown';
       } else if (parallelAnswer.choice === BASE) {
-        result.parallelStatus = 'base';
+        parallelStatus = 'base';
       } else {
         const chosen = parallelOptions.byLabel.get(parallelAnswer.choice) ?? null;
         // Prefer the chosen subset's own row for the same parallel, so the id belongs to that subset.
-        const own = result.subset
+        const own = subset
           ? catalogue
-              .parallelsFor(result.subset)
-              .find(parallel => chosen && parallel.normalizedName === chosen.normalizedName && parallel.serialLimit === chosen.serialLimit)
+              .parallelsFor(subset)
+              .find(candidate => chosen && candidate.normalizedName === chosen.normalizedName && candidate.serialLimit === chosen.serialLimit)
           : undefined;
-        result.parallel = own ?? chosen;
-        result.parallelStatus = result.parallel ? 'matched' : 'unknown';
+        parallel = own ?? chosen;
+        parallelStatus = parallel ? 'matched' : 'unknown';
+        if (parallel) modelScores.push(parallelAnswer.confidence);
       }
     }
-
-    if (!result.subset) reviewReasons.push('subset_unresolved');
-    if (result.parallelStatus === 'unknown') reviewReasons.push('parallel_unknown');
-    if (result.subset?.kind === 'autograph') result.isAutograph = true;
-    if (result.subset?.kind === 'memorabilia') result.isRelic = true;
-    if (result.card?.isRookie) result.isRookie = true;
+    if (parallelStatus === 'unknown') reasons.push('parallel_unknown');
+  } else if (number) {
+    reasons.push('card_number_not_for_this_player');
   } else {
-    reviewReasons.push('product_not_in_catalogue');
+    reasons.push('no_card_number');
   }
 
-  if (!result.playerName) reviewReasons.push('no_player');
+  // ── Outcome ──────────────────────────────────────────────────────
+  const matchedFields = ['product', 'player'];
+  if (card) matchedFields.push('card_number');
+  if (subset) matchedFields.push('subset');
+  if (parallel) matchedFields.push('parallel');
+  if (fields.serialLimit !== null && parallel?.serialLimit === fields.serialLimit) matchedFields.push('serial_limit');
 
-  const core = [itemTypeConfidence, sportConfidence, result.playerName ? (result.playerConfidence ?? 0) : 0];
-  result.confidence = Math.min(...core);
-  result.jevRequests = jevRequests;
-  result.inputTokens = inputTokens;
-  // A listing is usable for watchlists once we know it is a basketball single and whose card it is.
-  // Missing product, subset or parallel detail is recorded as a reason but does not block it.
-  result.reviewStatus =
-    result.playerName && itemTypeConfidence >= minConfidence && sportConfidence >= minConfidence ? 'accepted' : 'needs_review';
-  return result;
+  if (card) {
+    matchReasons.push(`Card #${card.cardNumber} and player "${card.playerName}" agree with a catalogue row in "${subset!.name}"`);
+  }
+  // Without a matched row nothing in the catalogue says this is a single card, so a model that is sure it
+  // is a box, a supply or another sport rules a Possible out.
+  if (!card && isPositivelyNotBasketballCard(hints, minConfidence)) return unmatched();
+
+  const confirmed = card !== null && !yearWidened && !derivedPlayerFromNumber;
+  if (yearWidened) reasons.push('year_widened');
+  if (derivedPlayerFromNumber) reasons.push('player_derived_from_card_number');
+  const status: ReviewStatus = confirmed ? 'accepted' : 'possible';
+
+  const weakest = modelScores.length > 0 ? Math.min(...modelScores) : 1;
+  const confidence = status === 'accepted' ? weakest : Math.min(weakest, POSSIBLE_CONFIDENCE_CAP);
+
+  return {
+    ...base,
+    // Item type and sport come from a matched catalogue row, not from the model's hints (D-006). Without a
+    // matched card the hints are kept as hints.
+    itemType: card ? 'single_card' : hints.itemType,
+    itemTypeConfidence: card ? 1 : hints.itemTypeConfidence,
+    sport: card ? 'basketball' : hints.sport,
+    sportConfidence: card ? 1 : hints.sportConfidence,
+    grounded: card !== null,
+    playerName,
+    playerSource,
+    playerConfidence,
+    product,
+    productConfidence,
+    subset,
+    subsetConfidence,
+    card,
+    parallel,
+    parallelStatus,
+    parallelConfidence,
+    isRookie: fields.isRookie || Boolean(card?.isRookie),
+    // Read from the matched row. With no matched subset the answer is unknown, not "no".
+    isAutograph: subset ? subset.kind === 'autograph' : null,
+    isRelic: subset ? subset.kind === 'memorabilia' : null,
+    reviewStatus: status,
+    reviewReasons: reasons,
+    matchedFields,
+    matchReasons,
+    yearWidened,
+    confidence,
+    jevRequests,
+    inputTokens,
+  };
 }
