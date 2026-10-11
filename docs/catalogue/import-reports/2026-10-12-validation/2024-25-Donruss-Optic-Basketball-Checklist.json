@@ -1,0 +1,251 @@
+{
+  "file": "2024-25-Donruss-Optic-Basketball-Checklist.xlsx",
+  "season": "2024-25",
+  "productLine": "Donruss Optic",
+  "ok": true,
+  "errors": 0,
+  "warnings": 1,
+  "accepted": 0,
+  "stats": {
+    "sheets": [
+      {
+        "sheet": "Base",
+        "numberedCardRows": 362,
+        "numberedCardsParsed": 362,
+        "cardsParsed": 362,
+        "subsets": 3,
+        "blocks": 3,
+        "notes": 0,
+        "unplaced": 0
+      },
+      {
+        "sheet": "Autographs",
+        "numberedCardRows": 430,
+        "numberedCardsParsed": 430,
+        "cardsParsed": 430,
+        "subsets": 10,
+        "blocks": 0,
+        "notes": 0,
+        "unplaced": 0
+      },
+      {
+        "sheet": "Inserts",
+        "numberedCardRows": 340,
+        "numberedCardsParsed": 340,
+        "cardsParsed": 340,
+        "subsets": 18,
+        "blocks": 0,
+        "notes": 0,
+        "unplaced": 0
+      }
+    ],
+    "subsets": 34,
+    "blocks": 3,
+    "parallels": 341,
+    "cards": 1132,
+    "rookies": 50,
+    "rookiesUnknown": 0,
+    "rookiesFromBlocks": 50,
+    "rookiesFromTeams": {
+      "sourceRows": 0,
+      "matchedRows": 0,
+      "unmatched": []
+    },
+    "blockStats": [
+      {
+        "name": "Veterans",
+        "parent": "Base Set",
+        "from": 1,
+        "to": 225,
+        "expected": 225,
+        "parsed": 225
+      },
+      {
+        "name": "Legends",
+        "parent": "Base Set",
+        "from": 226,
+        "to": 250,
+        "expected": 25,
+        "parsed": 25
+      },
+      {
+        "name": "Rated Rookies",
+        "parent": "Base Set",
+        "from": 251,
+        "to": 300,
+        "expected": 50,
+        "parsed": 50
+      }
+    ],
+    "declaredCounts": [
+      {
+        "subset": "Base Set",
+        "declared": 300,
+        "parsed": 300
+      },
+      {
+        "subset": "Base - Rated Rookies Signatures",
+        "declared": 50,
+        "parsed": 50
+      },
+      {
+        "subset": "Base - Rated Rookies Signatures Premium Box Set Blue",
+        "declared": 12,
+        "parsed": 12
+      },
+      {
+        "subset": "Dominators Signatures Holo",
+        "declared": 37,
+        "parsed": 37
+      },
+      {
+        "subset": "Fast Break Signatures",
+        "declared": 98,
+        "parsed": 98
+      },
+      {
+        "subset": "Opti-Graphs Choice",
+        "declared": 47,
+        "parsed": 47
+      },
+      {
+        "subset": "Opti-Graphs Holo",
+        "declared": 46,
+        "parsed": 46
+      },
+      {
+        "subset": "Retro Series Signatures Choice",
+        "declared": 20,
+        "parsed": 20
+      },
+      {
+        "subset": "Rookie Dominators Signatures Holo",
+        "declared": 39,
+        "parsed": 40
+      },
+      {
+        "subset": "Rookie Dual Signatures Choice",
+        "declared": 5,
+        "parsed": 5
+      },
+      {
+        "subset": "Rookie Optics Autographs Choice",
+        "declared": 25,
+        "parsed": 25
+      },
+      {
+        "subset": "Signature Series",
+        "declared": 94,
+        "parsed": 94
+      },
+      {
+        "subset": "The Elite Series Signatures Holo",
+        "declared": 18,
+        "parsed": 18
+      },
+      {
+        "subset": "Alter Ego",
+        "declared": 10,
+        "parsed": 10
+      },
+      {
+        "subset": "Downtown",
+        "declared": 30,
+        "parsed": 30
+      },
+      {
+        "subset": "Elite Dominators",
+        "declared": 20,
+        "parsed": 20
+      },
+      {
+        "subset": "Express Lane",
+        "declared": 25,
+        "parsed": 25
+      },
+      {
+        "subset": "Lights Out",
+        "declared": 15,
+        "parsed": 15
+      },
+      {
+        "subset": "My House",
+        "declared": 20,
+        "parsed": 20
+      },
+      {
+        "subset": "Mythical",
+        "declared": 20,
+        "parsed": 20
+      },
+      {
+        "subset": "Net Marvels",
+        "declared": 25,
+        "parsed": 25
+      },
+      {
+        "subset": "Optical Illusions",
+        "declared": 5,
+        "parsed": 5
+      },
+      {
+        "subset": "Phazes",
+        "declared": 30,
+        "parsed": 30
+      },
+      {
+        "subset": "Red Hot Rookies",
+        "declared": 15,
+        "parsed": 15
+      },
+      {
+        "subset": "Rising Suns",
+        "declared": 20,
+        "parsed": 20
+      },
+      {
+        "subset": "Rookie Kings",
+        "declared": 20,
+        "parsed": 20
+      },
+      {
+        "subset": "Slammy!",
+        "declared": 30,
+        "parsed": 30
+      },
+      {
+        "subset": "Splash!",
+        "declared": 15,
+        "parsed": 15
+      },
+      {
+        "subset": "The Rookies",
+        "declared": 5,
+        "parsed": 5
+      },
+      {
+        "subset": "White Hot Rookies",
+        "declared": 15,
+        "parsed": 15
+      },
+      {
+        "subset": "Winner Stays",
+        "declared": 20,
+        "parsed": 20
+      }
+    ]
+  },
+  "findings": [
+    {
+      "level": "warning",
+      "code": "declared_count_stale",
+      "message": "Subset \"Rookie Dominators Signatures Holo\": 39 cards declared, 40 listed",
+      "detail": {
+        "sheet": "Autographs",
+        "subset": "Rookie Dominators Signatures Holo",
+        "declared": 39,
+        "parsed": 40
+      }
+    }
+  ]
+}

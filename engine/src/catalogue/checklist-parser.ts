@@ -26,7 +26,8 @@ export interface ChecklistCard {
   cardNumber: string | null;
   playerName: string;
   teamName: string | null;
-  isRookie: boolean;
+  /** true when the source marks the card a rookie, false when it marks others but not this one, null when unknown. */
+  isRookie: boolean | null;
   serialLimit: number | null;
 }
 
@@ -36,6 +37,35 @@ export interface ChecklistSubset {
   declaredCardCount: number | null;
   parallels: ChecklistParallel[];
   cards: ChecklistCard[];
+  /**
+   * Set when this subset is a numbered block of a base set ("Crusade - #516-545"): the name of the base set it
+   * belongs to. Blocks keep their own cards, and their own parallels when the sheet lists some.
+   */
+  parentName?: string | null;
+  numberFrom?: number | null;
+  numberTo?: number | null;
+}
+
+/** What the parser understood on one sheet, so an import can prove nothing was silently dropped. */
+export interface SheetTrace {
+  sheet: string;
+  /** Subsets opened by a header row. */
+  subsetHeaders: string[];
+  /** Blocks declared by a "Name - #from-to" row. */
+  blocks: Array<{ name: string; from: number; to: number; parent: string; implicit: boolean }>;
+  /** Parallel names read, as "owner | name" where owner is the subset or block they were listed under. */
+  parallelNames: string[];
+  /** Rows that look like a numbered card (a card number then a name), counted without the parser. */
+  numberedCardRows: number;
+  /** Cards the parser produced from numbered rows. */
+  numberedCardsParsed: number;
+  cardsParsed: number;
+  /** Single-cell rows recognised as odds or notes (ignored on purpose). */
+  notes: string[];
+  /** Rows the parser could not place anywhere. */
+  unplaced: string[];
+  /** Exact repeats of a card row (same number, player, team and print run) within one subset, dropped. */
+  duplicatesRemoved: number;
 }
 
 export interface ChecklistProduct {
@@ -118,6 +148,13 @@ export function parseParallelLine(line: string): ChecklistParallel | null {
     text = text.replace(/\b(one[-\s]of[-\s]one|1[-\s]of[-\s]1)\b/i, '').trim();
   }
 
+  // "Green Ice Prizms - select cards only, list below": the remark is a note, not part of the name.
+  const remark = text.match(/\s+[-–]\s+((?:select cards only|only on select cards|list below)[^]*)$/i);
+  if (remark) {
+    note = note ?? remark[1]!.trim();
+    text = text.slice(0, remark.index).trim();
+  }
+
   const name = text.replace(/[\s\-–—:,#]+$/g, '').trim();
   if (!name) return null;
   return { name, serialLimit, note };
@@ -150,62 +187,284 @@ function subsetName(header: string): string {
   return header.replace(/\s+checklist$/i, '').replace(/\s+/g, ' ').trim();
 }
 
-export function parseSubsetSheet(sheetName: string, rows: SheetRow[]): ChecklistSubset[] {
-  const kind = sheetKind(sheetName);
-  const lines = rows.map(cells);
-  const subsets: ChecklistSubset[] = [];
-  let current: ChecklistSubset | null = null;
-  let inParallels = false;
+// "Crusade - #516-545", "Base - #1-200": a numbered block of a base set. Numbers only; lettered ranges are not blocks.
+const BLOCK_DEFINITION_PATTERN = /^(.{2,60}?)\s*(?:[-–]\s*#?|:\s*#s?)\s*(\d+)\s*[-–]\s*#?\s*(\d+)$/;
+// Odds, pack notes and similar single-cell rows that carry no checklist information.
+const NOTE_PATTERN = /\b\d+\s*:\s*\d+\b|\bodds?\b|\bpacks?\b|\bnotes?\b|\bavailable\b|\bexclusive\b|\bcards? (?:per|in)\b|\bcontinues\b|\bonly\.?$|\bper (?:\w+ )?(?:box|case|premium)\b|^\d+ (?:per|in) /i;
+// "Parallels:", "Electric Etch Parallels:", "Parallels (#1-67 only):", "Versions:": a heading that introduces a list of parallels.
+const PARALLELS_INTRO_PATTERN = /^(?:paralle?s|parallels?|versions?|variations?)\s*:?$|^.{0,40}\b(?:parallels?|versions?)\b[^:]{0,30}:$/i;
 
-  const nextContentLine = (from: number): string[] | null => {
-    for (let index = from; index < lines.length; index++) {
-      if (lines[index]!.length > 0) return lines[index]!;
-    }
-    return null;
+/** Block names are compared loosely: "Plates & Patches" is "Plates and Patches", "Rookies" is "Rookie". */
+function blockKey(name: string): string {
+  return normalizeCatalogueName(name.replace(/&/g, ' and '))
+    .split(' ')
+    .filter(word => word !== 'and')
+    .join(' ')
+    .replace(/s$/, '');
+}
+
+/** A heading names a block when the names are equal or one ends with the other ("Rookies I" and "I"). */
+function sameBlock(a: string, b: string): boolean {
+  const x = blockKey(a);
+  const y = blockKey(b);
+  return x === y || x.endsWith(` ${y}`) || y.endsWith(` ${x}`);
+}
+
+interface WorkingSubset extends ChecklistSubset {
+  blocks: WorkingSubset[];
+  /** A block that has no "#from-to" definition: a heading inside a set whose "N cards" total is larger than its first section. */
+  implicit: boolean;
+  /** A heading with no count row whose sections follow ("Road to the Finals" > "First Round", "Second Round"). */
+  group: boolean;
+}
+
+function newSubset(name: string, kind: SubsetKind, implicit = false): WorkingSubset {
+  return { name, kind, declaredCardCount: null, parallels: [], cards: [], parentName: null, numberFrom: null, numberTo: null, blocks: [], implicit, group: false };
+}
+
+function looksNumbered(row: string[]): boolean {
+  return row.length >= 2 && CARD_NUMBER_PATTERN.test(row[0]!) && /\d/.test(row[0]!) && /[A-Za-z]{2}/.test(row[1]!) && !COUNT_ROW_PATTERN.test(row[0]!);
+}
+
+function totalCards(subset: WorkingSubset): number {
+  return subset.cards.length + subset.blocks.reduce((sum, block) => sum + block.cards.length, 0);
+}
+
+export function parseSubsetSheetDetailed(sheetName: string, rows: SheetRow[]): { subsets: ChecklistSubset[]; trace: SheetTrace } {
+  const kind = sheetKind(sheetName);
+  const items = rows.map(cells).filter(line => line.length > 0);
+  const tops: WorkingSubset[] = [];
+  const trace: SheetTrace = {
+    sheet: sheetName,
+    subsetHeaders: [],
+    blocks: [],
+    parallelNames: [],
+    numberedCardRows: 0,
+    numberedCardsParsed: 0,
+    cardsParsed: 0,
+    notes: [],
+    unplaced: [],
+    duplicatesRemoved: 0,
   };
 
-  for (let index = 0; index < lines.length; index++) {
-    const line = lines[index]!;
-    if (line.length === 0) continue;
+  let top: WorkingSubset | null = null;
+  let active: WorkingSubset | null = null; // where the next parallels and cards go
+  let inParallels = false;
+  let cardsSinceHeading = 0;
+  let cardsInTop = 0;
+
+  const open = (name: string): void => {
+    const created = newSubset(subsetName(name), kind);
+    top = created;
+    tops.push(created);
+    active = created;
+    inParallels = false;
+    cardsSinceHeading = 0;
+    cardsInTop = 0;
+    trace.subsetHeaders.push(created.name);
+  };
+
+  for (let index = 0; index < items.length; index++) {
+    const line = items[index]!;
+    const next = items[index + 1] ?? null;
+    const currentTop = top as WorkingSubset | null;
+    const currentActive = active as WorkingSubset | null;
 
     if (line.length === 1) {
       const text = line[0]!;
-      const next = nextContentLine(index + 1);
-      const startsSubset = next !== null && next.length === 1 && COUNT_ROW_PATTERN.test(next[0]!);
 
-      if (startsSubset) {
-        current = { name: subsetName(text), kind, declaredCardCount: null, parallels: [], cards: [] };
-        subsets.push(current);
-        inParallels = false;
+      if (COUNT_ROW_PATTERN.test(text)) {
+        if (currentTop && cardsInTop === 0 && currentTop.declaredCardCount === null) {
+          currentTop.declaredCardCount = Number(text.match(/^\d[\d,]*/)![0].replace(/,/g, ''));
+        } else {
+          trace.notes.push(text);
+        }
         continue;
       }
-      if (!current) continue;
-
-      if (COUNT_ROW_PATTERN.test(text) && current.cards.length === 0 && current.declaredCardCount === null) {
-        current.declaredCardCount = Number(text.match(/^\d[\d,]*/)![0].replace(/,/g, ''));
-        continue;
-      }
-      if (PARALLELS_HEADER_PATTERN.test(text)) {
+      if (PARALLELS_INTRO_PATTERN.test(text)) {
         inParallels = true;
+        cardsSinceHeading = 0;
         continue;
       }
-      // Single-cell rows outside a parallels list are odds, notes or descriptions ("1:11 packs").
-      if (inParallels && current.cards.length === 0) {
-        const parallel = parseParallelLine(text);
-        if (parallel) current.parallels.push(parallel);
+
+      const block = BLOCK_DEFINITION_PATTERN.exec(text);
+      if (block && currentTop && !(next && next.length === 1 && COUNT_ROW_PATTERN.test(next[0]!))) {
+        const definition = newSubset(subsetName(block[1]!), kind);
+        definition.parentName = currentTop.name;
+        definition.numberFrom = Number(block[2]);
+        definition.numberTo = Number(block[3]);
+        currentTop.blocks.push(definition);
+        trace.blocks.push({ name: definition.name, from: definition.numberFrom, to: definition.numberTo, parent: currentTop.name, implicit: false });
+        continue;
       }
+
+      // Some sheets list parallels straight after the "N cards" row, with no "Parallels:" heading.
+      const headerlessParallels =
+        !inParallels && currentActive !== null && currentActive === currentTop && cardsInTop === 0 && currentTop !== null && currentTop.blocks.length === 0 &&
+        !NOTE_PATTERN.test(text) && !/:$/.test(text) && parseParallelLine(text) !== null &&
+        // A list has more than one entry. A lone line followed by "Parallels:" or by cards is a heading.
+        next !== null && next.length === 1 && !COUNT_ROW_PATTERN.test(next[0]!) && !PARALLELS_INTRO_PATTERN.test(next[0]!) &&
+        !BLOCK_DEFINITION_PATTERN.test(next[0]!);
+      if (headerlessParallels) inParallels = true;
+      const parallelEntry = inParallels && cardsSinceHeading === 0 && currentActive !== null;
+      const nextIsCount = next !== null && next.length === 1 && COUNT_ROW_PATTERN.test(next[0]!);
+      const nextIsParallels = next !== null && next.length === 1 && PARALLELS_INTRO_PATTERN.test(next[0]!);
+      const nextIsCard = next !== null && next.length >= 2 && parseCardRow(next) !== null;
+      const nextIsBlockDefinition = next !== null && next.length === 1 && BLOCK_DEFINITION_PATTERN.test(next[0]!);
+      const afterNext = items[index + 2] ?? null;
+      const nextIsSectionHeading =
+        next !== null && next.length === 1 && !COUNT_ROW_PATTERN.test(next[0]!) && !PARALLELS_INTRO_PATTERN.test(next[0]!) &&
+        !NOTE_PATTERN.test(next[0]!) && !/:$/.test(next[0]!) && !BLOCK_DEFINITION_PATTERN.test(next[0]!) &&
+        afterNext !== null && ((afterNext.length >= 2 && parseCardRow(afterNext) !== null) || (afterNext.length === 1 && PARALLELS_INTRO_PATTERN.test(afterNext[0]!)));
+      const note = NOTE_PATTERN.test(text) || /:$/.test(text);
+
+      if (nextIsCount) {
+        open(text);
+        continue;
+      }
+      if (!parallelEntry && !note && nextIsSectionHeading && !(currentTop && currentTop.group)) {
+        open(text);
+        (top as WorkingSubset | null)!.group = true;
+        continue;
+      }
+      // The first block's heading can come straight after a parallels list ("Veterans" before the cards):
+      // an exact repeat of a declared block's name ends the list.
+      if (parallelEntry && currentTop?.blocks.some(candidate => !candidate.implicit && blockKey(candidate.name) === blockKey(subsetName(text)))) {
+        active = currentTop.blocks.find(candidate => !candidate.implicit && blockKey(candidate.name) === blockKey(subsetName(text)))!;
+        inParallels = false;
+        cardsSinceHeading = 0;
+        continue;
+      }
+      if (!parallelEntry) {
+        // A heading that repeats a declared block's name: the cards and parallels that follow belong to it.
+        const key = blockKey(subsetName(text));
+        const named = currentTop?.blocks.find(candidate => !candidate.implicit && sameBlock(candidate.name, key));
+        if (named) {
+          active = named;
+          inParallels = false;
+          cardsSinceHeading = 0;
+          continue;
+        }
+        // A header need not be followed by an "N cards" row: "Parallels:" or the first card is enough.
+        const startsSection = !note && (nextIsParallels || nextIsBlockDefinition || (nextIsCard && (currentTop === null || cardsInTop > 0 || currentTop.blocks.length === 0)));
+        if (startsSection) {
+          // Inside a set whose "N cards" total is not yet reached, a new heading is a block of that set
+          // ("Veterans", "Rookies I", "Rookie Ticket"), not a set of its own.
+          if (currentTop && (currentTop.group || (currentTop.declaredCardCount !== null && totalCards(currentTop) < currentTop.declaredCardCount))) {
+            const implicit = newSubset(subsetName(text), kind, true);
+            implicit.parentName = currentTop.name;
+            currentTop.blocks.push(implicit);
+            trace.blocks.push({ name: implicit.name, from: 0, to: 0, parent: currentTop.name, implicit: true });
+            active = implicit;
+            inParallels = false;
+            cardsSinceHeading = 0;
+          } else {
+            open(text);
+          }
+          continue;
+        }
+      }
+      if (parallelEntry) {
+        const parallel = parseParallelLine(text);
+        if (parallel) {
+          currentActive!.parallels.push(parallel);
+          trace.parallelNames.push(`${currentActive!.name} | ${parallel.name}`);
+          continue;
+        }
+      }
+      if (note) trace.notes.push(text);
+      else trace.unplaced.push(text);
       continue;
     }
 
-    if (!current) continue;
+    // A row with several cells: a card, or something we cannot place.
+    const numbered = looksNumbered(line);
+    if (numbered) trace.numberedCardRows += 1;
     const card = parseCardRow(line);
-    if (card) {
-      current.cards.push(card);
-      inParallels = false;
+    if (!card || !currentTop) {
+      trace.unplaced.push(line.join(' | '));
+      continue;
+    }
+    const number = /^\d+$/.test(card.cardNumber ?? '') ? Number(card.cardNumber) : null;
+    const byRange =
+      number === null ? undefined : currentTop.blocks.find(candidate => !candidate.implicit && number >= candidate.numberFrom! && number <= candidate.numberTo!);
+    const target: WorkingSubset = byRange ?? (currentActive && currentActive !== currentTop && currentTop.blocks.includes(currentActive) ? currentActive : currentTop);
+    target.cards.push(card);
+    cardsInTop += 1;
+    cardsSinceHeading += 1;
+    trace.cardsParsed += 1;
+    if (numbered) trace.numberedCardsParsed += 1;
+    inParallels = false;
+  }
+
+  const dedupe = (subset: WorkingSubset): void => {
+    const seen = new Set<string>();
+    const kept: ChecklistCard[] = [];
+    for (const card of subset.cards) {
+      const key = `${card.cardNumber}|${normalizeCatalogueName(card.playerName)}|${card.teamName ?? ''}|${card.serialLimit ?? ''}`;
+      if (seen.has(key)) {
+        trace.duplicatesRemoved += 1;
+        continue;
+      }
+      seen.add(key);
+      kept.push(card);
+    }
+    subset.cards = kept;
+  };
+  for (const parent of tops) {
+    dedupe(parent);
+    parent.blocks.forEach(dedupe);
+  }
+
+  // "Legends - #226-250" declared under "Base Set" may be listed as its own set further down ("Base - Legends").
+  // That set is the block: it takes the declared range and the base set becomes its parent.
+  for (const parent of tops) {
+    for (const block of parent.blocks.filter(candidate => !candidate.implicit && candidate.cards.length === 0)) {
+      const wanted = blockKey(block.name.replace(/^base\b[\s-]*/i, ''));
+      const sibling = tops.find(candidate => candidate !== parent && candidate.blocks.length === 0 && blockKey(candidate.name.replace(/^base\b[\s-]*/i, '')) === wanted);
+      if (!sibling) continue;
+      block.cards = sibling.cards;
+      block.parallels = [...block.parallels, ...sibling.parallels];
+      block.declaredCardCount = sibling.declaredCardCount;
+      tops.splice(tops.indexOf(sibling), 1);
+      trace.subsetHeaders = trace.subsetHeaders.filter(name => name !== sibling.name);
+      trace.parallelNames = trace.parallelNames.map(entry => (entry.startsWith(`${sibling.name} | `) ? `${block.name} | ${entry.slice(sibling.name.length + 3)}` : entry));
     }
   }
 
-  return subsets.filter(subset => subset.cards.length > 0 || subset.parallels.length > 0);
+  const subsets: ChecklistSubset[] = [];
+  for (const parent of tops) {
+    for (const block of parent.blocks) {
+      // A block named for rookies makes its cards rookies, whether or not each row says "RC".
+      if (/rookie/i.test(block.name)) for (const card of block.cards) card.isRookie = true;
+      if (block.implicit) {
+        const numbers = block.cards.map(card => (/^\d+$/.test(card.cardNumber ?? '') ? Number(card.cardNumber) : NaN)).filter(Number.isFinite);
+        if (numbers.length > 0) {
+          block.numberFrom = Math.min(...numbers);
+          block.numberTo = Math.max(...numbers);
+        }
+        const traced = trace.blocks.find(entry => entry.implicit && entry.parent === parent.name && entry.name === block.name);
+        if (traced) {
+          traced.from = block.numberFrom ?? 0;
+          traced.to = block.numberTo ?? 0;
+        }
+      }
+    }
+    const withContent = parent.blocks.filter(block => block.cards.length > 0 || block.parallels.length > 0);
+    if (parent.cards.length > 0 || parent.parallels.length > 0 || withContent.length > 0) {
+      const { blocks: _blocks, implicit: _implicit, group: _group, ...parentOnly } = parent;
+      subsets.push(parentOnly);
+    }
+    for (const block of withContent) {
+      const { blocks: _unused, implicit: _flag, group: _g, ...blockOnly } = block;
+      subsets.push(blockOnly);
+    }
+  }
+  return { subsets, trace };
+}
+
+export function parseSubsetSheet(sheetName: string, rows: SheetRow[]): ChecklistSubset[] {
+  return parseSubsetSheetDetailed(sheetName, rows).subsets;
 }
 
 export function normalizeCatalogueName(value: string): string {

@@ -1,0 +1,193 @@
+{
+  "file": "2021-22-Donruss-Optic-Basketball-Checklist.xlsx",
+  "season": "2021-22",
+  "productLine": "Donruss Optic",
+  "ok": true,
+  "errors": 0,
+  "warnings": 0,
+  "accepted": 0,
+  "stats": {
+    "sheets": [
+      {
+        "sheet": "Base",
+        "numberedCardRows": 200,
+        "numberedCardsParsed": 200,
+        "cardsParsed": 200,
+        "subsets": 1,
+        "blocks": 1,
+        "notes": 0,
+        "unplaced": 0
+      },
+      {
+        "sheet": "Autographs",
+        "numberedCardRows": 566,
+        "numberedCardsParsed": 566,
+        "cardsParsed": 566,
+        "subsets": 9,
+        "blocks": 0,
+        "notes": 0,
+        "unplaced": 0
+      },
+      {
+        "sheet": "Memorabilia",
+        "numberedCardRows": 0,
+        "numberedCardsParsed": 0,
+        "cardsParsed": 0,
+        "subsets": 0,
+        "blocks": 0,
+        "notes": 0,
+        "unplaced": 0
+      },
+      {
+        "sheet": "Inserts",
+        "numberedCardRows": 225,
+        "numberedCardsParsed": 225,
+        "cardsParsed": 225,
+        "subsets": 13,
+        "blocks": 0,
+        "notes": 0,
+        "unplaced": 0
+      }
+    ],
+    "subsets": 24,
+    "blocks": 1,
+    "parallels": 246,
+    "cards": 991,
+    "rookies": 50,
+    "rookiesUnknown": 0,
+    "rookiesFromBlocks": 50,
+    "rookiesFromTeams": {
+      "sourceRows": 50,
+      "matchedRows": 50,
+      "unmatched": []
+    },
+    "blockStats": [
+      {
+        "name": "Rated Rookies",
+        "parent": "Base Set",
+        "from": 151,
+        "to": 200,
+        "expected": 50,
+        "parsed": 50
+      }
+    ],
+    "declaredCounts": [
+      {
+        "subset": "Base Set",
+        "declared": 200,
+        "parsed": 200
+      },
+      {
+        "subset": "Dominators Signatures",
+        "declared": 40,
+        "parsed": 40
+      },
+      {
+        "subset": "Fast Break Signatures",
+        "declared": 99,
+        "parsed": 99
+      },
+      {
+        "subset": "Opti-Graphs",
+        "declared": 99,
+        "parsed": 99
+      },
+      {
+        "subset": "Opti-Graphs Pulsar",
+        "declared": 99,
+        "parsed": 99
+      },
+      {
+        "subset": "Rated Rookies Signatures",
+        "declared": 49,
+        "parsed": 49
+      },
+      {
+        "subset": "Rated Rookies Signatures Premium Box Set",
+        "declared": 25,
+        "parsed": 25
+      },
+      {
+        "subset": "Retro Series Signatues",
+        "declared": 30,
+        "parsed": 30
+      },
+      {
+        "subset": "Rookie Dominators Signatures",
+        "declared": 29,
+        "parsed": 29
+      },
+      {
+        "subset": "Signature Series",
+        "declared": 96,
+        "parsed": 96
+      },
+      {
+        "subset": "75 Years of the NBA",
+        "declared": 25,
+        "parsed": 25
+      },
+      {
+        "subset": "Air Defense",
+        "declared": 5,
+        "parsed": 5
+      },
+      {
+        "subset": "All-Stars",
+        "declared": 20,
+        "parsed": 20
+      },
+      {
+        "subset": "Elite Dominators",
+        "declared": 25,
+        "parsed": 25
+      },
+      {
+        "subset": "Express Lane",
+        "declared": 25,
+        "parsed": 25
+      },
+      {
+        "subset": "Light It Up",
+        "declared": 15,
+        "parsed": 15
+      },
+      {
+        "subset": "My House",
+        "declared": 20,
+        "parsed": 20
+      },
+      {
+        "subset": "Raining 3s",
+        "declared": 20,
+        "parsed": 20
+      },
+      {
+        "subset": "Splash!",
+        "declared": 15,
+        "parsed": 15
+      },
+      {
+        "subset": "Star Gazing",
+        "declared": 15,
+        "parsed": 15
+      },
+      {
+        "subset": "T-Minus 3...2...1...",
+        "declared": 15,
+        "parsed": 15
+      },
+      {
+        "subset": "The Rookies",
+        "declared": 5,
+        "parsed": 5
+      },
+      {
+        "subset": "Winner Stays",
+        "declared": 20,
+        "parsed": 20
+      }
+    ]
+  },
+  "findings": []
+}

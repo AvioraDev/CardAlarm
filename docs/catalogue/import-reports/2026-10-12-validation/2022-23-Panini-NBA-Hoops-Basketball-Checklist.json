@@ -1,0 +1,317 @@
+{
+  "file": "2022-23-Panini-NBA-Hoops-Basketball-Checklist.xlsx",
+  "season": "2022-23",
+  "productLine": "Hoops",
+  "ok": true,
+  "errors": 0,
+  "warnings": 1,
+  "accepted": 0,
+  "stats": {
+    "sheets": [
+      {
+        "sheet": "Base",
+        "numberedCardRows": 300,
+        "numberedCardsParsed": 300,
+        "cardsParsed": 300,
+        "subsets": 1,
+        "blocks": 2,
+        "notes": 0,
+        "unplaced": 0
+      },
+      {
+        "sheet": "Autographs",
+        "numberedCardRows": 330,
+        "numberedCardsParsed": 330,
+        "cardsParsed": 330,
+        "subsets": 7,
+        "blocks": 0,
+        "notes": 0,
+        "unplaced": 0
+      },
+      {
+        "sheet": "Memorabilia",
+        "numberedCardRows": 83,
+        "numberedCardsParsed": 83,
+        "cardsParsed": 83,
+        "subsets": 3,
+        "blocks": 0,
+        "notes": 0,
+        "unplaced": 0
+      },
+      {
+        "sheet": "Inserts",
+        "numberedCardRows": 500,
+        "numberedCardsParsed": 500,
+        "cardsParsed": 500,
+        "subsets": 20,
+        "blocks": 8,
+        "notes": 0,
+        "unplaced": 0
+      }
+    ],
+    "subsets": 41,
+    "blocks": 10,
+    "parallels": 88,
+    "cards": 1213,
+    "rookies": 50,
+    "rookiesUnknown": 0,
+    "rookiesFromBlocks": 50,
+    "rookiesFromTeams": {
+      "sourceRows": 50,
+      "matchedRows": 50,
+      "unmatched": []
+    },
+    "blockStats": [
+      {
+        "name": "Rookies",
+        "parent": "Base Set",
+        "from": 231,
+        "to": 280,
+        "expected": 50,
+        "parsed": 50
+      },
+      {
+        "name": "Hoops Tribute",
+        "parent": "Base Set",
+        "from": 281,
+        "to": 300,
+        "expected": 20,
+        "parsed": 20
+      },
+      {
+        "name": "First Round",
+        "parent": "Road to the NBA Finals",
+        "from": 1,
+        "to": 43,
+        "expected": 43,
+        "parsed": 43
+      },
+      {
+        "name": "Second Round",
+        "parent": "Road to the NBA Finals",
+        "from": 44,
+        "to": 69,
+        "expected": 26,
+        "parsed": 26
+      },
+      {
+        "name": "Conference Finals",
+        "parent": "Road to the NBA Finals",
+        "from": 70,
+        "to": 81,
+        "expected": 12,
+        "parsed": 12
+      },
+      {
+        "name": "NBA Championship",
+        "parent": "Road to the NBA Finals",
+        "from": 82,
+        "to": 87,
+        "expected": 6,
+        "parsed": 6
+      },
+      {
+        "name": "Championship Moments",
+        "parent": "Road to the NBA Finals",
+        "from": 88,
+        "to": 97,
+        "expected": 10,
+        "parsed": 10
+      },
+      {
+        "name": "Finals MVP",
+        "parent": "Road to the NBA Finals",
+        "from": 98,
+        "to": 98,
+        "expected": 1,
+        "parsed": 1
+      },
+      {
+        "name": "Champions",
+        "parent": "Road to the NBA Finals",
+        "from": 99,
+        "to": 99,
+        "expected": 1,
+        "parsed": 1
+      },
+      {
+        "name": "Parade",
+        "parent": "Road to the NBA Finals",
+        "from": 100,
+        "to": 100,
+        "expected": 1,
+        "parsed": 1
+      }
+    ],
+    "declaredCounts": [
+      {
+        "subset": "Base Set",
+        "declared": 300,
+        "parsed": 300
+      },
+      {
+        "subset": "Base Hoops Tribute Premium Box Set Autographs",
+        "declared": 20,
+        "parsed": 20
+      },
+      {
+        "subset": "Great SIGnificance",
+        "declared": 100,
+        "parsed": 100
+      },
+      {
+        "subset": "Hoops Art Signatures",
+        "declared": 5,
+        "parsed": 10
+      },
+      {
+        "subset": "Hoops Ink",
+        "declared": 50,
+        "parsed": 50
+      },
+      {
+        "subset": "Hot Signatures",
+        "declared": 50,
+        "parsed": 50
+      },
+      {
+        "subset": "Hot Signatures Rookies",
+        "declared": 50,
+        "parsed": 50
+      },
+      {
+        "subset": "Rookie Ink",
+        "declared": 50,
+        "parsed": 50
+      },
+      {
+        "subset": "Rise N Shine Memorabilia",
+        "declared": 35,
+        "parsed": 35
+      },
+      {
+        "subset": "Rookie Remembrance",
+        "declared": 15,
+        "parsed": 15
+      },
+      {
+        "subset": "Rookie Sweaters",
+        "declared": 33,
+        "parsed": 33
+      },
+      {
+        "subset": "Arriving Now",
+        "declared": 30,
+        "parsed": 30
+      },
+      {
+        "subset": "City Edition",
+        "declared": 30,
+        "parsed": 30
+      },
+      {
+        "subset": "Class Action",
+        "declared": 30,
+        "parsed": 30
+      },
+      {
+        "subset": "Frequent Flyers",
+        "declared": 15,
+        "parsed": 15
+      },
+      {
+        "subset": "Highlights",
+        "declared": 5,
+        "parsed": 5
+      },
+      {
+        "subset": "HIPnotized",
+        "declared": 20,
+        "parsed": 20
+      },
+      {
+        "subset": "Hoopla",
+        "declared": 15,
+        "parsed": 15
+      },
+      {
+        "subset": "Hoops Throwback",
+        "declared": 25,
+        "parsed": 25
+      },
+      {
+        "subset": "JAM-tastic",
+        "declared": 25,
+        "parsed": 25
+      },
+      {
+        "subset": "Now Playing",
+        "declared": 31,
+        "parsed": 31
+      },
+      {
+        "subset": "Panini Presents",
+        "declared": 10,
+        "parsed": 10
+      },
+      {
+        "subset": "Prime Twine",
+        "declared": 25,
+        "parsed": 25
+      },
+      {
+        "subset": "Pure Players",
+        "declared": 10,
+        "parsed": 10
+      },
+      {
+        "subset": "Road to the NBA Finals",
+        "declared": 100,
+        "parsed": 100
+      },
+      {
+        "subset": "Rookie Greetings",
+        "declared": 20,
+        "parsed": 20
+      },
+      {
+        "subset": "Rookie Special",
+        "declared": 4,
+        "parsed": 4
+      },
+      {
+        "subset": "Skyview",
+        "declared": 25,
+        "parsed": 25
+      },
+      {
+        "subset": "Spark Plugs",
+        "declared": 25,
+        "parsed": 25
+      },
+      {
+        "subset": "We Got Next",
+        "declared": 35,
+        "parsed": 35
+      },
+      {
+        "subset": "Zero Gravity",
+        "declared": 20,
+        "parsed": 20
+      }
+    ]
+  },
+  "findings": [
+    {
+      "level": "warning",
+      "code": "declared_count_stale",
+      "message": "Subset \"Hoops Art Signatures\": 5 cards declared, 10 listed",
+      "detail": {
+        "sheet": "Autographs",
+        "subset": "Hoops Art Signatures",
+        "declared": 5,
+        "parsed": 10
+      }
+    }
+  ]
+}

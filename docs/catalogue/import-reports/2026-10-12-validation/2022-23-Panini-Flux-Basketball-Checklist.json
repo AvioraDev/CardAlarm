@@ -1,0 +1,193 @@
+{
+  "file": "2022-23-Panini-Flux-Basketball-Checklist.xlsx",
+  "season": "2022-23",
+  "productLine": "Flux",
+  "ok": true,
+  "errors": 0,
+  "warnings": 0,
+  "accepted": 0,
+  "stats": {
+    "sheets": [
+      {
+        "sheet": "Base",
+        "numberedCardRows": 250,
+        "numberedCardsParsed": 250,
+        "cardsParsed": 250,
+        "subsets": 1,
+        "blocks": 1,
+        "notes": 0,
+        "unplaced": 0
+      },
+      {
+        "sheet": "Autographs",
+        "numberedCardRows": 281,
+        "numberedCardsParsed": 281,
+        "cardsParsed": 281,
+        "subsets": 10,
+        "blocks": 0,
+        "notes": 0,
+        "unplaced": 0
+      },
+      {
+        "sheet": "Inserts",
+        "numberedCardRows": 350,
+        "numberedCardsParsed": 350,
+        "cardsParsed": 350,
+        "subsets": 14,
+        "blocks": 0,
+        "notes": 0,
+        "unplaced": 0
+      }
+    ],
+    "subsets": 26,
+    "blocks": 1,
+    "parallels": 85,
+    "cards": 881,
+    "rookies": 50,
+    "rookiesUnknown": 0,
+    "rookiesFromBlocks": 50,
+    "rookiesFromTeams": {
+      "sourceRows": 50,
+      "matchedRows": 50,
+      "unmatched": []
+    },
+    "blockStats": [
+      {
+        "name": "Rookies",
+        "parent": "Base Set",
+        "from": 201,
+        "to": 250,
+        "expected": 50,
+        "parsed": 50
+      }
+    ],
+    "declaredCounts": [
+      {
+        "subset": "Base Set",
+        "declared": 250,
+        "parsed": 250
+      },
+      {
+        "subset": "2020-21 Rookie Private Signings Association Version",
+        "declared": 1,
+        "parsed": 1
+      },
+      {
+        "subset": "2020-21 Rookie Private Signings Icon Version",
+        "declared": 1,
+        "parsed": 1
+      },
+      {
+        "subset": "Autograph Influx",
+        "declared": 27,
+        "parsed": 27
+      },
+      {
+        "subset": "Best of the Best Signatures",
+        "declared": 10,
+        "parsed": 10
+      },
+      {
+        "subset": "Equinox Autographs",
+        "declared": 96,
+        "parsed": 96
+      },
+      {
+        "subset": "Flux Freshman Signatures",
+        "declared": 9,
+        "parsed": 9
+      },
+      {
+        "subset": "Flux Rookie Signatures",
+        "declared": 40,
+        "parsed": 40
+      },
+      {
+        "subset": "Flux Signatures",
+        "declared": 39,
+        "parsed": 39
+      },
+      {
+        "subset": "Hot Stock Signatures",
+        "declared": 28,
+        "parsed": 28
+      },
+      {
+        "subset": "Ultraviolet Signatures",
+        "declared": 30,
+        "parsed": 30
+      },
+      {
+        "subset": "D Lux",
+        "declared": 20,
+        "parsed": 20
+      },
+      {
+        "subset": "Fade to Black",
+        "declared": 15,
+        "parsed": 15
+      },
+      {
+        "subset": "Flow Motion",
+        "declared": 20,
+        "parsed": 20
+      },
+      {
+        "subset": "Fluid",
+        "declared": 20,
+        "parsed": 20
+      },
+      {
+        "subset": "Flux Appeal",
+        "declared": 20,
+        "parsed": 20
+      },
+      {
+        "subset": "Fluxuations",
+        "declared": 20,
+        "parsed": 20
+      },
+      {
+        "subset": "Freshman Year",
+        "declared": 30,
+        "parsed": 30
+      },
+      {
+        "subset": "Full Capacity",
+        "declared": 20,
+        "parsed": 20
+      },
+      {
+        "subset": "Hall Influx",
+        "declared": 10,
+        "parsed": 10
+      },
+      {
+        "subset": "Incoming",
+        "declared": 10,
+        "parsed": 10
+      },
+      {
+        "subset": "Rookie Influx",
+        "declared": 30,
+        "parsed": 30
+      },
+      {
+        "subset": "Time Flux",
+        "declared": 15,
+        "parsed": 15
+      },
+      {
+        "subset": "Titan",
+        "declared": 100,
+        "parsed": 100
+      },
+      {
+        "subset": "Triumph",
+        "declared": 20,
+        "parsed": 20
+      }
+    ]
+  },
+  "findings": []
+}

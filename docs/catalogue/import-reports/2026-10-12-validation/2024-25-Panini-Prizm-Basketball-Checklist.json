@@ -1,0 +1,246 @@
+{
+  "file": "2024-25-Panini-Prizm-Basketball-Checklist.xlsx",
+  "season": "2024-25",
+  "productLine": "Prizm",
+  "ok": true,
+  "errors": 0,
+  "warnings": 2,
+  "accepted": 0,
+  "stats": {
+    "sheets": [
+      {
+        "sheet": "Base",
+        "numberedCardRows": 340,
+        "numberedCardsParsed": 340,
+        "cardsParsed": 340,
+        "subsets": 3,
+        "blocks": 0,
+        "notes": 0,
+        "unplaced": 0
+      },
+      {
+        "sheet": "Autographs",
+        "numberedCardRows": 778,
+        "numberedCardsParsed": 778,
+        "cardsParsed": 778,
+        "subsets": 17,
+        "blocks": 0,
+        "notes": 0,
+        "unplaced": 0
+      },
+      {
+        "sheet": "Inserts",
+        "numberedCardRows": 300,
+        "numberedCardsParsed": 300,
+        "cardsParsed": 300,
+        "subsets": 14,
+        "blocks": 0,
+        "notes": 0,
+        "unplaced": 0
+      }
+    ],
+    "subsets": 34,
+    "blocks": 0,
+    "parallels": 234,
+    "cards": 1418,
+    "rookies": 0,
+    "rookiesUnknown": 1418,
+    "rookiesFromBlocks": 0,
+    "rookiesFromTeams": {
+      "sourceRows": 0,
+      "matchedRows": 0,
+      "unmatched": []
+    },
+    "blockStats": [],
+    "declaredCounts": [
+      {
+        "subset": "Base Set",
+        "declared": 300,
+        "parsed": 300
+      },
+      {
+        "subset": "Base Variations",
+        "declared": 20,
+        "parsed": 20
+      },
+      {
+        "subset": "Rookie Variations",
+        "declared": 20,
+        "parsed": 20
+      },
+      {
+        "subset": "Fast Break Autographs",
+        "declared": 59,
+        "parsed": 59
+      },
+      {
+        "subset": "Fast Break Autographs Red",
+        "declared": 19,
+        "parsed": 19
+      },
+      {
+        "subset": "Fast Break Rookie Autographs",
+        "declared": 39,
+        "parsed": 39
+      },
+      {
+        "subset": "Fast Break Rookie Autographs Red",
+        "declared": 39,
+        "parsed": 39
+      },
+      {
+        "subset": "Penmanship",
+        "declared": 49,
+        "parsed": 49
+      },
+      {
+        "subset": "Penmanship Prizms Gold",
+        "declared": 18,
+        "parsed": 18
+      },
+      {
+        "subset": "Penmanship Prizms Silver",
+        "declared": 48,
+        "parsed": 48
+      },
+      {
+        "subset": "Prizmatrix Signatures",
+        "declared": 10,
+        "parsed": 10
+      },
+      {
+        "subset": "Rookie Penmanship",
+        "declared": 41,
+        "parsed": 41
+      },
+      {
+        "subset": "Rookie Signatures",
+        "declared": 40,
+        "parsed": 49
+      },
+      {
+        "subset": "Sensational Signatures",
+        "declared": 89,
+        "parsed": 89
+      },
+      {
+        "subset": "Sensational Signatures Prizms Blue",
+        "declared": 80,
+        "parsed": 80
+      },
+      {
+        "subset": "Sensational Signatures Prizms Choice Blue",
+        "declared": 80,
+        "parsed": 80
+      },
+      {
+        "subset": "Sensational Signatures Prizms Red",
+        "declared": 50,
+        "parsed": 50
+      },
+      {
+        "subset": "Signatures",
+        "declared": 50,
+        "parsed": 50
+      },
+      {
+        "subset": "Signatures Prizms Choice Blue",
+        "declared": 34,
+        "parsed": 34
+      },
+      {
+        "subset": "Signatures Prizms Red",
+        "declared": 24,
+        "parsed": 24
+      },
+      {
+        "subset": "Deep Space",
+        "declared": 10,
+        "parsed": 10
+      },
+      {
+        "subset": "Dominance",
+        "declared": 25,
+        "parsed": 25
+      },
+      {
+        "subset": "Emergent",
+        "declared": 30,
+        "parsed": 30
+      },
+      {
+        "subset": "Fireworks",
+        "declared": 25,
+        "parsed": 25
+      },
+      {
+        "subset": "Fractal",
+        "declared": 10,
+        "parsed": 10
+      },
+      {
+        "subset": "Global Reach",
+        "declared": 10,
+        "parsed": 10
+      },
+      {
+        "subset": "Groovy",
+        "declared": 30,
+        "parsed": 30
+      },
+      {
+        "subset": "Instant Impact",
+        "declared": 25,
+        "parsed": 25
+      },
+      {
+        "subset": "Kaleidoscopic",
+        "declared": 30,
+        "parsed": 30
+      },
+      {
+        "subset": "Luck of the Lottery",
+        "declared": 14,
+        "parsed": 14
+      },
+      {
+        "subset": "Manga",
+        "declared": 20,
+        "parsed": 20
+      },
+      {
+        "subset": "Prizmania",
+        "declared": 20,
+        "parsed": 20
+      },
+      {
+        "subset": "Sublime",
+        "declared": 30,
+        "parsed": 30
+      },
+      {
+        "subset": "Talismen",
+        "declared": 21,
+        "parsed": 21
+      }
+    ]
+  },
+  "findings": [
+    {
+      "level": "warning",
+      "code": "declared_count_stale",
+      "message": "Subset \"Rookie Signatures\": 40 cards declared, 49 listed",
+      "detail": {
+        "sheet": "Autographs",
+        "subset": "Rookie Signatures",
+        "declared": 40,
+        "parsed": 49
+      }
+    },
+    {
+      "level": "warning",
+      "code": "rookies_not_marked_in_source",
+      "message": "The source marks no rookies (no RC flags in the Teams sheet, no rookie-named block), so rookie status of all 1418 cards is stored as unknown"
+    }
+  ]
+}

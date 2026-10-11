@@ -1,0 +1,233 @@
+{
+  "file": "2021-22-Panini-Mosaic-Basketball-Checklist.xlsx",
+  "season": "2021-22",
+  "productLine": "Mosaic",
+  "ok": true,
+  "errors": 0,
+  "warnings": 0,
+  "accepted": 1,
+  "stats": {
+    "sheets": [
+      {
+        "sheet": "Base",
+        "numberedCardRows": 314,
+        "numberedCardsParsed": 314,
+        "cardsParsed": 314,
+        "subsets": 2,
+        "blocks": 5,
+        "notes": 0,
+        "unplaced": 0
+      },
+      {
+        "sheet": "Autographs",
+        "numberedCardRows": 300,
+        "numberedCardsParsed": 300,
+        "cardsParsed": 300,
+        "subsets": 5,
+        "blocks": 0,
+        "notes": 0,
+        "unplaced": 0
+      },
+      {
+        "sheet": "Inserts",
+        "numberedCardRows": 350,
+        "numberedCardsParsed": 350,
+        "cardsParsed": 350,
+        "subsets": 17,
+        "blocks": 0,
+        "notes": 0,
+        "unplaced": 0
+      }
+    ],
+    "subsets": 29,
+    "blocks": 5,
+    "parallels": 87,
+    "cards": 964,
+    "rookies": 59,
+    "rookiesUnknown": 0,
+    "rookiesFromBlocks": 45,
+    "rookiesFromTeams": {
+      "sourceRows": 45,
+      "matchedRows": 45,
+      "unmatched": []
+    },
+    "blockStats": [
+      {
+        "name": "Rookies",
+        "parent": "Base Set",
+        "from": 201,
+        "to": 245,
+        "expected": 45,
+        "parsed": 45
+      },
+      {
+        "name": "National Pride",
+        "parent": "Base Set",
+        "from": 246,
+        "to": 260,
+        "expected": 15,
+        "parsed": 15
+      },
+      {
+        "name": "NBA Debut",
+        "parent": "Base Set",
+        "from": 261,
+        "to": 280,
+        "expected": 20,
+        "parsed": 20
+      },
+      {
+        "name": "All NBA",
+        "parent": "Base Set",
+        "from": 281,
+        "to": 295,
+        "expected": 15,
+        "parsed": 15
+      },
+      {
+        "name": "Finals MVPs",
+        "parent": "Base Set",
+        "from": 296,
+        "to": 300,
+        "expected": 5,
+        "parsed": 5
+      }
+    ],
+    "declaredCounts": [
+      {
+        "subset": "Base Set",
+        "declared": 300,
+        "parsed": 300
+      },
+      {
+        "subset": "Rookie Variations Fast Break",
+        "declared": 14,
+        "parsed": 14
+      },
+      {
+        "subset": "Autographs Fast Break",
+        "declared": 100,
+        "parsed": 100
+      },
+      {
+        "subset": "Autographs Mosaic",
+        "declared": 60,
+        "parsed": 60
+      },
+      {
+        "subset": "Rookie Autographs Mosaic",
+        "declared": 60,
+        "parsed": 40
+      },
+      {
+        "subset": "Rookie Scripts",
+        "declared": 40,
+        "parsed": 40
+      },
+      {
+        "subset": "Scripts",
+        "declared": 60,
+        "parsed": 60
+      },
+      {
+        "subset": "Bang!",
+        "declared": 15,
+        "parsed": 15
+      },
+      {
+        "subset": "Elevate",
+        "declared": 25,
+        "parsed": 25
+      },
+      {
+        "subset": "Epic Performers",
+        "declared": 20,
+        "parsed": 20
+      },
+      {
+        "subset": "Introductions",
+        "declared": 10,
+        "parsed": 10
+      },
+      {
+        "subset": "Jam Masters",
+        "declared": 20,
+        "parsed": 20
+      },
+      {
+        "subset": "Moments in Time",
+        "declared": 20,
+        "parsed": 20
+      },
+      {
+        "subset": "Montage",
+        "declared": 30,
+        "parsed": 30
+      },
+      {
+        "subset": "Overdrive",
+        "declared": 25,
+        "parsed": 25
+      },
+      {
+        "subset": "Rising Stars",
+        "declared": 15,
+        "parsed": 15
+      },
+      {
+        "subset": "Rookie Eruption",
+        "declared": 25,
+        "parsed": 25
+      },
+      {
+        "subset": "Stained Glass",
+        "declared": 10,
+        "parsed": 10
+      },
+      {
+        "subset": "Stare Masters",
+        "declared": 25,
+        "parsed": 25
+      },
+      {
+        "subset": "Starting 5",
+        "declared": 30,
+        "parsed": 30
+      },
+      {
+        "subset": "Straight Fire",
+        "declared": 20,
+        "parsed": 20
+      },
+      {
+        "subset": "Swagger",
+        "declared": 15,
+        "parsed": 15
+      },
+      {
+        "subset": "Thunder Lane",
+        "declared": 20,
+        "parsed": 20
+      },
+      {
+        "subset": "Translucence",
+        "declared": 25,
+        "parsed": 25
+      }
+    ]
+  },
+  "findings": [
+    {
+      "level": "accepted",
+      "code": "declared_count",
+      "message": "Subset \"Rookie Autographs Mosaic\": 60 cards declared, 40 parsed (20 missing)",
+      "detail": {
+        "sheet": "Autographs",
+        "subset": "Rookie Autographs Mosaic",
+        "declared": 60,
+        "parsed": 40
+      },
+      "acceptedReason": "The sheet declares 60 cards but lists numbers 1-40 only; rows #41-60 do not exist in the file."
+    }
+  ]
+}

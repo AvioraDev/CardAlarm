@@ -1,0 +1,185 @@
+{
+  "file": "2022-23-Panini-Prizm-Basketball-Checklist.xlsx",
+  "season": "2022-23",
+  "productLine": "Prizm",
+  "ok": true,
+  "errors": 0,
+  "warnings": 1,
+  "accepted": 0,
+  "stats": {
+    "sheets": [
+      {
+        "sheet": "Base",
+        "numberedCardRows": 300,
+        "numberedCardsParsed": 300,
+        "cardsParsed": 300,
+        "subsets": 1,
+        "blocks": 0,
+        "notes": 0,
+        "unplaced": 0
+      },
+      {
+        "sheet": "Autographs",
+        "numberedCardRows": 481,
+        "numberedCardsParsed": 481,
+        "cardsParsed": 481,
+        "subsets": 10,
+        "blocks": 0,
+        "notes": 0,
+        "unplaced": 0
+      },
+      {
+        "sheet": "Memorabilia",
+        "numberedCardRows": 0,
+        "numberedCardsParsed": 0,
+        "cardsParsed": 0,
+        "subsets": 0,
+        "blocks": 0,
+        "notes": 0,
+        "unplaced": 0
+      },
+      {
+        "sheet": "Inserts",
+        "numberedCardRows": 214,
+        "numberedCardsParsed": 214,
+        "cardsParsed": 214,
+        "subsets": 11,
+        "blocks": 0,
+        "notes": 0,
+        "unplaced": 0
+      }
+    ],
+    "subsets": 22,
+    "blocks": 0,
+    "parallels": 120,
+    "cards": 995,
+    "rookies": 0,
+    "rookiesUnknown": 995,
+    "rookiesFromBlocks": 0,
+    "rookiesFromTeams": {
+      "sourceRows": 0,
+      "matchedRows": 0,
+      "unmatched": []
+    },
+    "blockStats": [],
+    "declaredCounts": [
+      {
+        "subset": "Base Set",
+        "declared": 300,
+        "parsed": 300
+      },
+      {
+        "subset": "Champions Signatures",
+        "declared": 10,
+        "parsed": 10
+      },
+      {
+        "subset": "Fast Break Autographs",
+        "declared": 60,
+        "parsed": 60
+      },
+      {
+        "subset": "Fast Break Rookie Autographs",
+        "declared": 40,
+        "parsed": 40
+      },
+      {
+        "subset": "Penmanship",
+        "declared": 50,
+        "parsed": 50
+      },
+      {
+        "subset": "Rookie Penmanship",
+        "declared": 50,
+        "parsed": 50
+      },
+      {
+        "subset": "Rookie Signatures",
+        "declared": 50,
+        "parsed": 50
+      },
+      {
+        "subset": "Rookie Signatures Prizms Choice",
+        "declared": 38,
+        "parsed": 38
+      },
+      {
+        "subset": "Sensational Signatures",
+        "declared": 90,
+        "parsed": 90
+      },
+      {
+        "subset": "Signatures",
+        "declared": 50,
+        "parsed": 50
+      },
+      {
+        "subset": "Signatures Choice Prizms",
+        "declared": 43,
+        "parsed": 43
+      },
+      {
+        "subset": "Dominance",
+        "declared": 25,
+        "parsed": 25
+      },
+      {
+        "subset": "Emergent",
+        "declared": 30,
+        "parsed": 30
+      },
+      {
+        "subset": "Fearless",
+        "declared": 21,
+        "parsed": 21
+      },
+      {
+        "subset": "Fireworks",
+        "declared": 25,
+        "parsed": 25
+      },
+      {
+        "subset": "Global Reach",
+        "declared": 10,
+        "parsed": 10
+      },
+      {
+        "subset": "Instant Impact",
+        "declared": 25,
+        "parsed": 25
+      },
+      {
+        "subset": "Luck of the Lottery",
+        "declared": 14,
+        "parsed": 14
+      },
+      {
+        "subset": "Prizmatic",
+        "declared": 30,
+        "parsed": 30
+      },
+      {
+        "subset": "Rookie Variation Fast Break",
+        "declared": 14,
+        "parsed": 14
+      },
+      {
+        "subset": "USA Basketball",
+        "declared": 10,
+        "parsed": 10
+      },
+      {
+        "subset": "Widescreen",
+        "declared": 10,
+        "parsed": 10
+      }
+    ]
+  },
+  "findings": [
+    {
+      "level": "warning",
+      "code": "rookies_not_marked_in_source",
+      "message": "The source marks no rookies (no RC flags in the Teams sheet, no rookie-named block), so rookie status of all 995 cards is stored as unknown"
+    }
+  ]
+}

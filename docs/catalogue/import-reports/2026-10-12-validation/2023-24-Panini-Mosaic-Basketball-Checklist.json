@@ -1,0 +1,262 @@
+{
+  "file": "2023-24-Panini-Mosaic-Basketball-Checklist.xlsx",
+  "season": "2023-24",
+  "productLine": "Mosaic",
+  "ok": true,
+  "errors": 0,
+  "warnings": 0,
+  "accepted": 0,
+  "stats": {
+    "sheets": [
+      {
+        "sheet": "Base",
+        "numberedCardRows": 314,
+        "numberedCardsParsed": 314,
+        "cardsParsed": 314,
+        "subsets": 2,
+        "blocks": 4,
+        "notes": 0,
+        "unplaced": 0
+      },
+      {
+        "sheet": "Autographs",
+        "numberedCardRows": 686,
+        "numberedCardsParsed": 686,
+        "cardsParsed": 686,
+        "subsets": 15,
+        "blocks": 0,
+        "notes": 0,
+        "unplaced": 0
+      },
+      {
+        "sheet": "Inserts",
+        "numberedCardRows": 350,
+        "numberedCardsParsed": 350,
+        "cardsParsed": 350,
+        "subsets": 17,
+        "blocks": 0,
+        "notes": 0,
+        "unplaced": 0
+      }
+    ],
+    "subsets": 38,
+    "blocks": 4,
+    "parallels": 167,
+    "cards": 1350,
+    "rookies": 64,
+    "rookiesUnknown": 0,
+    "rookiesFromBlocks": 50,
+    "rookiesFromTeams": {
+      "sourceRows": 50,
+      "matchedRows": 50,
+      "unmatched": []
+    },
+    "blockStats": [
+      {
+        "name": "Rookies",
+        "parent": "Base Set",
+        "from": 201,
+        "to": 250,
+        "expected": 50,
+        "parsed": 50
+      },
+      {
+        "name": "NBA Debut",
+        "parent": "Base Set",
+        "from": 251,
+        "to": 270,
+        "expected": 20,
+        "parsed": 20
+      },
+      {
+        "name": "City Edition",
+        "parent": "Base Set",
+        "from": 271,
+        "to": 290,
+        "expected": 20,
+        "parsed": 20
+      },
+      {
+        "name": "NBA Greats",
+        "parent": "Base Set",
+        "from": 291,
+        "to": 300,
+        "expected": 10,
+        "parsed": 10
+      }
+    ],
+    "declaredCounts": [
+      {
+        "subset": "Base Set",
+        "declared": 300,
+        "parsed": 300
+      },
+      {
+        "subset": "Rookie Variations Fast Break",
+        "declared": 14,
+        "parsed": 14
+      },
+      {
+        "subset": "Autographs Fast Break",
+        "declared": 95,
+        "parsed": 95
+      },
+      {
+        "subset": "Autographs Fast Break Blue",
+        "declared": 85,
+        "parsed": 85
+      },
+      {
+        "subset": "Autographs Fast Break Red",
+        "declared": 85,
+        "parsed": 85
+      },
+      {
+        "subset": "Autographs Mosaic",
+        "declared": 54,
+        "parsed": 54
+      },
+      {
+        "subset": "Collage Autographs Mosaic",
+        "declared": 35,
+        "parsed": 35
+      },
+      {
+        "subset": "Collage Autographs Blue Mosaic",
+        "declared": 31,
+        "parsed": 31
+      },
+      {
+        "subset": "Pictographs Mosaic",
+        "declared": 37,
+        "parsed": 37
+      },
+      {
+        "subset": "Pictographs Mosaic International",
+        "declared": 29,
+        "parsed": 29
+      },
+      {
+        "subset": "Rookie Autographs Mosaic",
+        "declared": 38,
+        "parsed": 38
+      },
+      {
+        "subset": "Rookie Scripts",
+        "declared": 40,
+        "parsed": 40
+      },
+      {
+        "subset": "Rookie Scripts Genesis",
+        "declared": 28,
+        "parsed": 28
+      },
+      {
+        "subset": "Rookie Scripts Green Ice",
+        "declared": 28,
+        "parsed": 28
+      },
+      {
+        "subset": "Scripts",
+        "declared": 60,
+        "parsed": 60
+      },
+      {
+        "subset": "Showtime Signatures Mosaic",
+        "declared": 25,
+        "parsed": 25
+      },
+      {
+        "subset": "Showtime Signatures Blue Mosaic",
+        "declared": 16,
+        "parsed": 16
+      },
+      {
+        "subset": "Bank Shot",
+        "declared": 20,
+        "parsed": 20
+      },
+      {
+        "subset": "Elevate",
+        "declared": 25,
+        "parsed": 25
+      },
+      {
+        "subset": "Epic Performers",
+        "declared": 20,
+        "parsed": 20
+      },
+      {
+        "subset": "Give and Go",
+        "declared": 15,
+        "parsed": 15
+      },
+      {
+        "subset": "Heat Check",
+        "declared": 15,
+        "parsed": 15
+      },
+      {
+        "subset": "Introductions",
+        "declared": 20,
+        "parsed": 20
+      },
+      {
+        "subset": "Jam Masters",
+        "declared": 20,
+        "parsed": 20
+      },
+      {
+        "subset": "Micro Mosaic",
+        "declared": 25,
+        "parsed": 25
+      },
+      {
+        "subset": "Montage",
+        "declared": 30,
+        "parsed": 30
+      },
+      {
+        "subset": "NBA In-Season Tournament",
+        "declared": 25,
+        "parsed": 25
+      },
+      {
+        "subset": "Notoriety",
+        "declared": 10,
+        "parsed": 10
+      },
+      {
+        "subset": "Overdrive",
+        "declared": 25,
+        "parsed": 25
+      },
+      {
+        "subset": "Razzle Dazzle",
+        "declared": 15,
+        "parsed": 15
+      },
+      {
+        "subset": "Stained Glass",
+        "declared": 25,
+        "parsed": 25
+      },
+      {
+        "subset": "Stare Masters",
+        "declared": 20,
+        "parsed": 20
+      },
+      {
+        "subset": "Storm Chasers",
+        "declared": 20,
+        "parsed": 20
+      },
+      {
+        "subset": "Thunder Road",
+        "declared": 20,
+        "parsed": 20
+      }
+    ]
+  },
+  "findings": []
+}

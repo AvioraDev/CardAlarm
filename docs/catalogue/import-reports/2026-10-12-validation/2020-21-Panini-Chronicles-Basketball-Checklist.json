@@ -1,0 +1,337 @@
+{
+  "file": "2020-21-Panini-Chronicles-Basketball-Checklist.xlsx",
+  "season": "2020-21",
+  "productLine": "Chronicles",
+  "ok": true,
+  "errors": 0,
+  "warnings": 1,
+  "accepted": 0,
+  "stats": {
+    "sheets": [
+      {
+        "sheet": "Base",
+        "numberedCardRows": 775,
+        "numberedCardsParsed": 775,
+        "cardsParsed": 775,
+        "subsets": 2,
+        "blocks": 27,
+        "notes": 0,
+        "unplaced": 0
+      },
+      {
+        "sheet": "Autographs",
+        "numberedCardRows": 294,
+        "numberedCardsParsed": 294,
+        "cardsParsed": 294,
+        "subsets": 11,
+        "blocks": 0,
+        "notes": 0,
+        "unplaced": 0
+      }
+    ],
+    "subsets": 40,
+    "blocks": 27,
+    "parallels": 286,
+    "cards": 1054,
+    "rookies": 55,
+    "rookiesUnknown": 0,
+    "rookiesFromBlocks": 55,
+    "rookiesFromTeams": {
+      "sourceRows": 0,
+      "matchedRows": 0,
+      "unmatched": []
+    },
+    "blockStats": [
+      {
+        "name": "Chronicles",
+        "parent": "Base Set",
+        "from": 1,
+        "to": 50,
+        "expected": 50,
+        "parsed": 50
+      },
+      {
+        "name": "Prestige",
+        "parent": "Base Set",
+        "from": 51,
+        "to": 75,
+        "expected": 25,
+        "parsed": 25
+      },
+      {
+        "name": "Threads",
+        "parent": "Base Set",
+        "from": 76,
+        "to": 100,
+        "expected": 25,
+        "parsed": 25
+      },
+      {
+        "name": "Panini",
+        "parent": "Base Set",
+        "from": 101,
+        "to": 135,
+        "expected": 35,
+        "parsed": 35
+      },
+      {
+        "name": "Luminance",
+        "parent": "Base Set",
+        "from": 136,
+        "to": 165,
+        "expected": 30,
+        "parsed": 30
+      },
+      {
+        "name": "Playbook",
+        "parent": "Base Set",
+        "from": 166,
+        "to": 195,
+        "expected": 30,
+        "parsed": 30
+      },
+      {
+        "name": "Donruss Rated Rookie",
+        "parent": "Base Set",
+        "from": 196,
+        "to": 200,
+        "expected": 5,
+        "parsed": 5
+      },
+      {
+        "name": "Essentials",
+        "parent": "Base Set",
+        "from": 201,
+        "to": 235,
+        "expected": 35,
+        "parsed": 35
+      },
+      {
+        "name": "Marquee",
+        "parent": "Base Set",
+        "from": 236,
+        "to": 270,
+        "expected": 35,
+        "parsed": 35
+      },
+      {
+        "name": "XR",
+        "parent": "Base Set",
+        "from": 271,
+        "to": 300,
+        "expected": 30,
+        "parsed": 30
+      },
+      {
+        "name": "Plates and Patches",
+        "parent": "Base Set",
+        "from": 301,
+        "to": 335,
+        "expected": 35,
+        "parsed": 35
+      },
+      {
+        "name": "Majestic",
+        "parent": "Base Set",
+        "from": 336,
+        "to": 370,
+        "expected": 35,
+        "parsed": 35
+      },
+      {
+        "name": "Limited",
+        "parent": "Base Set",
+        "from": 371,
+        "to": 400,
+        "expected": 30,
+        "parsed": 30
+      },
+      {
+        "name": "Gala",
+        "parent": "Base Set",
+        "from": 401,
+        "to": 435,
+        "expected": 35,
+        "parsed": 35
+      },
+      {
+        "name": "Titanium Jersey Number",
+        "parent": "Base Set",
+        "from": 436,
+        "to": 470,
+        "expected": 35,
+        "parsed": 35
+      },
+      {
+        "name": "Gold Standard",
+        "parent": "Base Set",
+        "from": 471,
+        "to": 500,
+        "expected": 30,
+        "parsed": 30
+      },
+      {
+        "name": "Prizm Update",
+        "parent": "Base Set",
+        "from": 501,
+        "to": 510,
+        "expected": 10,
+        "parsed": 10
+      },
+      {
+        "name": "Donruss Optic Traded",
+        "parent": "Base Set",
+        "from": 511,
+        "to": 515,
+        "expected": 5,
+        "parsed": 5
+      },
+      {
+        "name": "Crusade",
+        "parent": "Base Set",
+        "from": 516,
+        "to": 545,
+        "expected": 30,
+        "parsed": 30
+      },
+      {
+        "name": "Hometown Heroes Optic",
+        "parent": "Base Set",
+        "from": 546,
+        "to": 565,
+        "expected": 20,
+        "parsed": 20
+      },
+      {
+        "name": "Phoenix",
+        "parent": "Base Set",
+        "from": 566,
+        "to": 580,
+        "expected": 15,
+        "parsed": 15
+      },
+      {
+        "name": "Honors",
+        "parent": "Base Set",
+        "from": 581,
+        "to": 600,
+        "expected": 20,
+        "parsed": 20
+      },
+      {
+        "name": "Score",
+        "parent": "Base Set",
+        "from": 601,
+        "to": 625,
+        "expected": 25,
+        "parsed": 25
+      },
+      {
+        "name": "Classics",
+        "parent": "Base Set",
+        "from": 626,
+        "to": 650,
+        "expected": 25,
+        "parsed": 25
+      },
+      {
+        "name": "Rookies and Stars",
+        "parent": "Base Set",
+        "from": 651,
+        "to": 675,
+        "expected": 25,
+        "parsed": 25
+      },
+      {
+        "name": "Legacy",
+        "parent": "Base Set",
+        "from": 676,
+        "to": 700,
+        "expected": 25,
+        "parsed": 25
+      },
+      {
+        "name": "Totally Certified Rookies",
+        "parent": "Base Set",
+        "from": 701,
+        "to": 725,
+        "expected": 25,
+        "parsed": 25
+      }
+    ],
+    "declaredCounts": [
+      {
+        "subset": "Base Set",
+        "declared": 725,
+        "parsed": 725
+      },
+      {
+        "subset": "Titanium Draft Position",
+        "declared": 35,
+        "parsed": 35
+      },
+      {
+        "subset": "Airborne Signatures",
+        "declared": 36,
+        "parsed": 36
+      },
+      {
+        "subset": "Apprentice Signatures",
+        "declared": 38,
+        "parsed": 38
+      },
+      {
+        "subset": "Award-Winning Autographs",
+        "declared": 1,
+        "parsed": 1
+      },
+      {
+        "subset": "Gold Standard Rookie Jersey Autographs",
+        "declared": 20,
+        "parsed": 20
+      },
+      {
+        "subset": "Hall of Fame Autographs",
+        "declared": 20,
+        "parsed": 20
+      },
+      {
+        "subset": "Hometown Heroes Rookie Auto",
+        "declared": 40,
+        "parsed": 40
+      },
+      {
+        "subset": "Limited Rookie Jersey Auto",
+        "declared": 38,
+        "parsed": 38
+      },
+      {
+        "subset": "National Pride Signatures",
+        "declared": 17,
+        "parsed": 17
+      },
+      {
+        "subset": "Phoenix Rookie Auto",
+        "declared": 40,
+        "parsed": 40
+      },
+      {
+        "subset": "Rookie Cornerstones",
+        "declared": 38,
+        "parsed": 38
+      },
+      {
+        "subset": "Rookie Private Signings Association Version",
+        "declared": 6,
+        "parsed": 6
+      }
+    ]
+  },
+  "findings": [
+    {
+      "level": "warning",
+      "code": "duplicate_rows_removed",
+      "message": "Sheet \"Base\": 15 exact repeats of a card row dropped"
+    }
+  ]
+}

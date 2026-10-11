@@ -1,0 +1,134 @@
+{
+  "file": "2023-24-Panini-Revolution-Basketball-Checklist.xlsx",
+  "season": "2023-24",
+  "productLine": "Revolution",
+  "ok": true,
+  "errors": 0,
+  "warnings": 0,
+  "accepted": 0,
+  "stats": {
+    "sheets": [
+      {
+        "sheet": "Base",
+        "numberedCardRows": 160,
+        "numberedCardsParsed": 160,
+        "cardsParsed": 160,
+        "subsets": 2,
+        "blocks": 0,
+        "notes": 0,
+        "unplaced": 0
+      },
+      {
+        "sheet": "Autographs",
+        "numberedCardRows": 113,
+        "numberedCardsParsed": 113,
+        "cardsParsed": 113,
+        "subsets": 5,
+        "blocks": 0,
+        "notes": 0,
+        "unplaced": 0
+      },
+      {
+        "sheet": "Inserts",
+        "numberedCardRows": 170,
+        "numberedCardsParsed": 170,
+        "cardsParsed": 170,
+        "subsets": 8,
+        "blocks": 0,
+        "notes": 0,
+        "unplaced": 0
+      }
+    ],
+    "subsets": 15,
+    "blocks": 0,
+    "parallels": 69,
+    "cards": 443,
+    "rookies": 60,
+    "rookiesUnknown": 0,
+    "rookiesFromBlocks": 0,
+    "rookiesFromTeams": {
+      "sourceRows": 50,
+      "matchedRows": 50,
+      "unmatched": []
+    },
+    "blockStats": [],
+    "declaredCounts": [
+      {
+        "subset": "Base Set",
+        "declared": 150,
+        "parsed": 150
+      },
+      {
+        "subset": "Rookie Variations",
+        "declared": 10,
+        "parsed": 10
+      },
+      {
+        "subset": "2023-24 Calligraphy",
+        "declared": 3,
+        "parsed": 3
+      },
+      {
+        "subset": "2023-24 Private Signings",
+        "declared": 2,
+        "parsed": 2
+      },
+      {
+        "subset": "Autographs",
+        "declared": 42,
+        "parsed": 42
+      },
+      {
+        "subset": "Autographs Fractal",
+        "declared": 42,
+        "parsed": 42
+      },
+      {
+        "subset": "Rookie Autographs",
+        "declared": 24,
+        "parsed": 24
+      },
+      {
+        "subset": "Liftoff!",
+        "declared": 10,
+        "parsed": 10
+      },
+      {
+        "subset": "Prime Time Performers",
+        "declared": 25,
+        "parsed": 25
+      },
+      {
+        "subset": "Revolutionary",
+        "declared": 25,
+        "parsed": 25
+      },
+      {
+        "subset": "Rookie Revolution",
+        "declared": 20,
+        "parsed": 20
+      },
+      {
+        "subset": "Shock Wave",
+        "declared": 25,
+        "parsed": 25
+      },
+      {
+        "subset": "Star Factor",
+        "declared": 20,
+        "parsed": 20
+      },
+      {
+        "subset": "Supernova",
+        "declared": 10,
+        "parsed": 10
+      },
+      {
+        "subset": "Vortex",
+        "declared": 35,
+        "parsed": 35
+      }
+    ]
+  },
+  "findings": []
+}

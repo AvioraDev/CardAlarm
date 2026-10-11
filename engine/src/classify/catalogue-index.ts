@@ -20,7 +20,8 @@ export interface CatalogueCard {
   cardNumber: string | null;
   playerName: string;
   normalizedPlayerName: string;
-  isRookie: boolean;
+  /** null when the source of the checklist does not say. */
+  isRookie: boolean | null;
 }
 
 export interface CatalogueSubset {
@@ -28,6 +29,8 @@ export interface CatalogueSubset {
   productId: number;
   name: string;
   kind: string;
+  /** The base set this is a numbered block of (CAR-77); absent for a top-level subset. */
+  parentId?: number | null;
   parallels: CatalogueParallel[];
   cards: CatalogueCard[];
 }
@@ -311,6 +314,9 @@ export class CatalogueIndex {
    */
   parallelsFor(subset: CatalogueSubset): CatalogueParallel[] {
     if (subset.parallels.length > 0) return subset.parallels;
+    // A block without parallels of its own shares its base set's.
+    const parent = subset.parentId ? this.subsetsById.get(subset.parentId) : undefined;
+    if (parent && parent.parallels.length > 0) return parent.parallels;
     if (subset.kind !== 'base') return [];
     const product = this.productsById.get(subset.productId);
     const base = product?.subsets
@@ -349,13 +355,20 @@ export function storeProvidedNames(tags: string[], productType: string | null): 
 }
 
 export async function loadCatalogueIndex(db: DbClient): Promise<CatalogueIndex> {
+  // parent_subset_id exists once the CAR-77 migration is applied; read without it before then.
+  const loadSubsets = async (): Promise<Array<{ id: string; product_id: string; name: string; kind: string; parent_subset_id?: string | null }>> => {
+    try {
+      return (await db.query(`select id, product_id, name, kind, parent_subset_id from public.checklist_subsets`)).rows;
+    } catch (error) {
+      if ((error as { code?: string }).code !== '42703') throw error;
+      return (await db.query(`select id, product_id, name, kind from public.checklist_subsets`)).rows;
+    }
+  };
   const [products, subsets, parallels, cards] = await Promise.all([
     db.query<{ id: string; season: string; brand: string; product_line: string }>(
       `select id, season, brand, product_line from public.checklist_products where sport = 'basketball'`
     ),
-    db.query<{ id: string; product_id: string; name: string; kind: string }>(
-      `select id, product_id, name, kind from public.checklist_subsets`
-    ),
+    loadSubsets().then(rows => ({ rows })),
     db.query<{ id: string; subset_id: string; name: string; normalized_name: string; serial_limit: number | null }>(
       `select id, subset_id, name, normalized_name, serial_limit from public.checklist_parallels`
     ),
@@ -380,6 +393,7 @@ export async function loadCatalogueIndex(db: DbClient): Promise<CatalogueIndex> 
       productId: Number(row.product_id),
       name: row.name,
       kind: row.kind,
+      parentId: row.parent_subset_id ? Number(row.parent_subset_id) : null,
       parallels: [],
       cards: [],
     });

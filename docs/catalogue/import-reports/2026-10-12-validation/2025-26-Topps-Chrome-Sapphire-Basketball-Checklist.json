@@ -1,0 +1,109 @@
+{
+  "file": "2025-26-Topps-Chrome-Sapphire-Basketball-Checklist.xlsx",
+  "season": "2025-26",
+  "productLine": "Chrome Sapphire",
+  "ok": true,
+  "errors": 0,
+  "warnings": 0,
+  "accepted": 0,
+  "stats": {
+    "sheets": [
+      {
+        "sheet": "Base",
+        "numberedCardRows": 300,
+        "numberedCardsParsed": 300,
+        "cardsParsed": 300,
+        "subsets": 1,
+        "blocks": 0,
+        "notes": 0,
+        "unplaced": 0
+      },
+      {
+        "sheet": "Autographs",
+        "numberedCardRows": 1,
+        "numberedCardsParsed": 1,
+        "cardsParsed": 196,
+        "subsets": 7,
+        "blocks": 0,
+        "notes": 0,
+        "unplaced": 0
+      },
+      {
+        "sheet": "Inserts",
+        "numberedCardRows": 40,
+        "numberedCardsParsed": 40,
+        "cardsParsed": 40,
+        "subsets": 2,
+        "blocks": 0,
+        "notes": 2,
+        "unplaced": 0
+      }
+    ],
+    "subsets": 10,
+    "blocks": 0,
+    "parallels": 40,
+    "cards": 536,
+    "rookies": 50,
+    "rookiesUnknown": 0,
+    "rookiesFromBlocks": 0,
+    "rookiesFromTeams": {
+      "sourceRows": 0,
+      "matchedRows": 0,
+      "unmatched": []
+    },
+    "blockStats": [],
+    "declaredCounts": [
+      {
+        "subset": "Base",
+        "declared": 300,
+        "parsed": 300
+      },
+      {
+        "subset": "Topps Chrome Autographs",
+        "declared": 25,
+        "parsed": 25
+      },
+      {
+        "subset": "Topps Chrome Autographs Rookies",
+        "declared": 40,
+        "parsed": 40
+      },
+      {
+        "subset": "Sky-Write Signatures",
+        "declared": 33,
+        "parsed": 33
+      },
+      {
+        "subset": "Topps Certified Autograph Issue - Rookies",
+        "declared": 30,
+        "parsed": 30
+      },
+      {
+        "subset": "Next Stop Signatures",
+        "declared": 30,
+        "parsed": 30
+      },
+      {
+        "subset": "Signature Style",
+        "declared": 37,
+        "parsed": 37
+      },
+      {
+        "subset": "Topps Chrome Autographs II",
+        "declared": 1,
+        "parsed": 1
+      },
+      {
+        "subset": "Sapphire Selections",
+        "declared": 20,
+        "parsed": 20
+      },
+      {
+        "subset": "Infinite Sapphire",
+        "declared": 20,
+        "parsed": 20
+      }
+    ]
+  },
+  "findings": []
+}
