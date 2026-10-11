@@ -5,6 +5,7 @@ import type { DbClient } from './db';
  * listing has one; the deterministic one is only a fallback for listings Jev has not reached yet.
  */
 export async function reconcileActiveWatchlistMatches(db: DbClient): Promise<number> {
+  const { rows: [clock] } = await db.query<{ started_at: Date }>('select clock_timestamp() as started_at');
   const result = await db.query(
     `insert into public.watchlist_matches (
        watchlist_id,
@@ -141,6 +142,22 @@ export async function reconcileActiveWatchlistMatches(db: DbClient): Promise<num
          status = excluded.status,
          last_matched_at = now(),
          updated_at = now()`,
+  );
+
+  // Upserts never remove a match that has stopped matching (a classification changed, a product was
+  // reclassified, a rule no longer fits). Anything on a still-live listing that this run did not refresh is
+  // stale, so retire it before alerts are enqueued. Only runs after the upsert succeeds. Alerts keep their
+  // history (alerts.watchlist_match_id is set null). Matches on sold-out listings are left alone.
+  await db.query(
+    `delete from public.watchlist_matches wm
+     using public.watchlists w, public.store_products sp
+     where w.id = wm.watchlist_id
+       and w.is_active = true
+       and sp.id = wm.store_product_id
+       and sp.is_active = true
+       and sp.current_availability = true
+       and wm.last_matched_at < $1`,
+    [clock!.started_at],
   );
 
   return result.rowCount ?? 0;
