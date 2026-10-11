@@ -1,0 +1,192 @@
+{
+  "file": "2023-24-Donruss-Elite-Basketball-Checklist.xlsx",
+  "season": "2023-24",
+  "productLine": "Donruss Elite",
+  "ok": true,
+  "errors": 0,
+  "warnings": 0,
+  "accepted": 0,
+  "stats": {
+    "sheets": [
+      {
+        "sheet": "Base",
+        "numberedCardRows": 750,
+        "numberedCardsParsed": 750,
+        "cardsParsed": 750,
+        "subsets": 3,
+        "blocks": 1,
+        "notes": 0,
+        "unplaced": 0
+      },
+      {
+        "sheet": "Autographs",
+        "numberedCardRows": 311,
+        "numberedCardsParsed": 311,
+        "cardsParsed": 311,
+        "subsets": 9,
+        "blocks": 0,
+        "notes": 0,
+        "unplaced": 0
+      },
+      {
+        "sheet": "Inserts",
+        "numberedCardRows": 240,
+        "numberedCardsParsed": 240,
+        "cardsParsed": 240,
+        "subsets": 13,
+        "blocks": 0,
+        "notes": 0,
+        "unplaced": 0
+      }
+    ],
+    "subsets": 26,
+    "blocks": 1,
+    "parallels": 108,
+    "cards": 1301,
+    "rookies": 150,
+    "rookiesFromBlocks": 50,
+    "rookiesFromTeams": {
+      "sourceRows": 50,
+      "matchedRows": 50,
+      "unmatched": []
+    },
+    "blockStats": [
+      {
+        "name": "Rookies",
+        "parent": "Base Set",
+        "from": 201,
+        "to": 250,
+        "expected": 50,
+        "parsed": 50
+      }
+    ],
+    "declaredCounts": [
+      {
+        "subset": "Base Set",
+        "declared": 250,
+        "parsed": 250
+      },
+      {
+        "subset": "Aspirations",
+        "declared": 250,
+        "parsed": 250
+      },
+      {
+        "subset": "Status",
+        "declared": 250,
+        "parsed": 250
+      },
+      {
+        "subset": "Elite Signatures",
+        "declared": 23,
+        "parsed": 23
+      },
+      {
+        "subset": "GenreGraphs",
+        "declared": 24,
+        "parsed": 24
+      },
+      {
+        "subset": "GenreGraphs Blue",
+        "declared": 22,
+        "parsed": 22
+      },
+      {
+        "subset": "Impact Impressions",
+        "declared": 58,
+        "parsed": 58
+      },
+      {
+        "subset": "New Breed Autographs",
+        "declared": 48,
+        "parsed": 48
+      },
+      {
+        "subset": "Passing the Torch Signatures",
+        "declared": 9,
+        "parsed": 9
+      },
+      {
+        "subset": "Pen Pals",
+        "declared": 39,
+        "parsed": 39
+      },
+      {
+        "subset": "Rookie Yearbook Autographs",
+        "declared": 40,
+        "parsed": 40
+      },
+      {
+        "subset": "Turn of the Century Signatures",
+        "declared": 48,
+        "parsed": 48
+      },
+      {
+        "subset": "Back to the Future",
+        "declared": 10,
+        "parsed": 10
+      },
+      {
+        "subset": "Clarity",
+        "declared": 30,
+        "parsed": 30
+      },
+      {
+        "subset": "Clear Path",
+        "declared": 20,
+        "parsed": 20
+      },
+      {
+        "subset": "Craftsmen",
+        "declared": 30,
+        "parsed": 30
+      },
+      {
+        "subset": "Deck",
+        "declared": 30,
+        "parsed": 30
+      },
+      {
+        "subset": "Dimensions",
+        "declared": 15,
+        "parsed": 15
+      },
+      {
+        "subset": "Elite Series",
+        "declared": 20,
+        "parsed": 20
+      },
+      {
+        "subset": "Equalizers",
+        "declared": 10,
+        "parsed": 10
+      },
+      {
+        "subset": "Full Throttle",
+        "declared": 10,
+        "parsed": 10
+      },
+      {
+        "subset": "Glass Masters",
+        "declared": 10,
+        "parsed": 10
+      },
+      {
+        "subset": "Next Up",
+        "declared": 10,
+        "parsed": 10
+      },
+      {
+        "subset": "Spellbound",
+        "declared": 40,
+        "parsed": 40
+      },
+      {
+        "subset": "Titlists",
+        "declared": 5,
+        "parsed": 5
+      }
+    ]
+  },
+  "findings": []
+}

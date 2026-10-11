@@ -1,0 +1,132 @@
+{
+  "file": "2020-21-Donruss-Elite-Basketball-Checklist.xlsx",
+  "season": "2020-21",
+  "productLine": "Donruss Elite",
+  "ok": true,
+  "errors": 0,
+  "warnings": 0,
+  "accepted": 0,
+  "stats": {
+    "sheets": [
+      {
+        "sheet": "Base",
+        "numberedCardRows": 450,
+        "numberedCardsParsed": 450,
+        "cardsParsed": 450,
+        "subsets": 3,
+        "blocks": 1,
+        "notes": 0,
+        "unplaced": 0
+      },
+      {
+        "sheet": "Autographs",
+        "numberedCardRows": 131,
+        "numberedCardsParsed": 131,
+        "cardsParsed": 131,
+        "subsets": 6,
+        "blocks": 0,
+        "notes": 0,
+        "unplaced": 0
+      },
+      {
+        "sheet": "Inserts",
+        "numberedCardRows": 100,
+        "numberedCardsParsed": 100,
+        "cardsParsed": 100,
+        "subsets": 4,
+        "blocks": 0,
+        "notes": 0,
+        "unplaced": 0
+      }
+    ],
+    "subsets": 14,
+    "blocks": 1,
+    "parallels": 32,
+    "cards": 681,
+    "rookies": 150,
+    "rookiesFromBlocks": 50,
+    "rookiesFromTeams": {
+      "sourceRows": 50,
+      "matchedRows": 50,
+      "unmatched": []
+    },
+    "blockStats": [
+      {
+        "name": "Rookies",
+        "parent": "Base Set",
+        "from": 101,
+        "to": 150,
+        "expected": 50,
+        "parsed": 50
+      }
+    ],
+    "declaredCounts": [
+      {
+        "subset": "Base Set",
+        "declared": 150,
+        "parsed": 150
+      },
+      {
+        "subset": "Aspirations",
+        "declared": 150,
+        "parsed": 150
+      },
+      {
+        "subset": "Status",
+        "declared": 150,
+        "parsed": 150
+      },
+      {
+        "subset": "Elite Signatures",
+        "declared": 25,
+        "parsed": 25
+      },
+      {
+        "subset": "Elite Signatures Red",
+        "declared": 18,
+        "parsed": 18
+      },
+      {
+        "subset": "Passing the Torch Signatures",
+        "declared": 10,
+        "parsed": 10
+      },
+      {
+        "subset": "Pen Pals",
+        "declared": 40,
+        "parsed": 40
+      },
+      {
+        "subset": "Turn of the Century Signatures",
+        "declared": 25,
+        "parsed": 25
+      },
+      {
+        "subset": "Turn of the Century Signatures Red",
+        "declared": 13,
+        "parsed": 13
+      },
+      {
+        "subset": "Power Formulas",
+        "declared": 30,
+        "parsed": 30
+      },
+      {
+        "subset": "Primary Colors",
+        "declared": 10,
+        "parsed": 10
+      },
+      {
+        "subset": "Spellbound",
+        "declared": 40,
+        "parsed": 40
+      },
+      {
+        "subset": "Star Status",
+        "declared": 20,
+        "parsed": 20
+      }
+    ]
+  },
+  "findings": []
+}

@@ -1,0 +1,266 @@
+{
+  "file": "2023-24-Panini-Court-Kings-Basketball-Checklist.xlsx",
+  "season": "2023-24",
+  "productLine": "Court Kings",
+  "ok": true,
+  "errors": 0,
+  "warnings": 0,
+  "accepted": 1,
+  "stats": {
+    "sheets": [
+      {
+        "sheet": "Base",
+        "numberedCardRows": 198,
+        "numberedCardsParsed": 198,
+        "cardsParsed": 198,
+        "subsets": 1,
+        "blocks": 5,
+        "notes": 0,
+        "unplaced": 0
+      },
+      {
+        "sheet": "Autographs",
+        "numberedCardRows": 238,
+        "numberedCardsParsed": 238,
+        "cardsParsed": 238,
+        "subsets": 12,
+        "blocks": 0,
+        "notes": 0,
+        "unplaced": 0
+      },
+      {
+        "sheet": "Memorabilia",
+        "numberedCardRows": 100,
+        "numberedCardsParsed": 100,
+        "cardsParsed": 100,
+        "subsets": 3,
+        "blocks": 0,
+        "notes": 0,
+        "unplaced": 0
+      },
+      {
+        "sheet": "Inserts",
+        "numberedCardRows": 293,
+        "numberedCardsParsed": 293,
+        "cardsParsed": 293,
+        "subsets": 14,
+        "blocks": 0,
+        "notes": 1,
+        "unplaced": 0
+      }
+    ],
+    "subsets": 35,
+    "blocks": 5,
+    "parallels": 76,
+    "cards": 829,
+    "rookies": 131,
+    "rookiesFromBlocks": 131,
+    "rookiesFromTeams": {
+      "sourceRows": 0,
+      "matchedRows": 0,
+      "unmatched": []
+    },
+    "blockStats": [
+      {
+        "name": "Veterans",
+        "parent": "Base Set",
+        "from": 1,
+        "to": 67,
+        "expected": 67,
+        "parsed": 67
+      },
+      {
+        "name": "Rookies I",
+        "parent": "Base Set",
+        "from": 68,
+        "to": 100,
+        "expected": 33,
+        "parsed": 33
+      },
+      {
+        "name": "Rookies II",
+        "parent": "Base Set",
+        "from": 101,
+        "to": 133,
+        "expected": 33,
+        "parsed": 33
+      },
+      {
+        "name": "Rookies III",
+        "parent": "Base Set",
+        "from": 134,
+        "to": 166,
+        "expected": 33,
+        "parsed": 33
+      },
+      {
+        "name": "Rookies IV",
+        "parent": "Base Set",
+        "from": 168,
+        "to": 199,
+        "expected": 32,
+        "parsed": 32
+      }
+    ],
+    "declaredCounts": [
+      {
+        "subset": "Base Set",
+        "declared": 199,
+        "parsed": 198
+      },
+      {
+        "subset": "2023-24 Panini Private Signings",
+        "declared": 9,
+        "parsed": 9
+      },
+      {
+        "subset": "Brush Strokes",
+        "declared": 29,
+        "parsed": 29
+      },
+      {
+        "subset": "Fresh Paint",
+        "declared": 45,
+        "parsed": 45
+      },
+      {
+        "subset": "Heir Apparent",
+        "declared": 44,
+        "parsed": 44
+      },
+      {
+        "subset": "Impressionist Ink",
+        "declared": 27,
+        "parsed": 27
+      },
+      {
+        "subset": "Legacy Portrait Signatures",
+        "declared": 10,
+        "parsed": 10
+      },
+      {
+        "subset": "Legacy Portrait Signatures Amber",
+        "declared": 6,
+        "parsed": 6
+      },
+      {
+        "subset": "Legacy Portrait Signatures Masterpiece",
+        "declared": 10,
+        "parsed": 10
+      },
+      {
+        "subset": "Legacy Portrait Signatures Ruby",
+        "declared": 3,
+        "parsed": 3
+      },
+      {
+        "subset": "Legacy Portrait Signatures Sapphire",
+        "declared": 10,
+        "parsed": 10
+      },
+      {
+        "subset": "Legacy Portrait Signatures Violet",
+        "declared": 10,
+        "parsed": 10
+      },
+      {
+        "subset": "Masterstrokes",
+        "declared": 35,
+        "parsed": 35
+      },
+      {
+        "subset": "Art Nouveau",
+        "declared": 40,
+        "parsed": 40
+      },
+      {
+        "subset": "Artistic Endeavors",
+        "declared": 20,
+        "parsed": 20
+      },
+      {
+        "subset": "Debut Showcase Memorabilia",
+        "declared": 40,
+        "parsed": 40
+      },
+      {
+        "subset": "Acetate Rookies",
+        "declared": 25,
+        "parsed": 25
+      },
+      {
+        "subset": "Artistry in Motion",
+        "declared": 30,
+        "parsed": 30
+      },
+      {
+        "subset": "Aurora",
+        "declared": 17,
+        "parsed": 17
+      },
+      {
+        "subset": "Blank Slate",
+        "declared": 20,
+        "parsed": 20
+      },
+      {
+        "subset": "Double Exposure",
+        "declared": 30,
+        "parsed": 30
+      },
+      {
+        "subset": "Dressed to Impress",
+        "declared": 10,
+        "parsed": 10
+      },
+      {
+        "subset": "First Steps",
+        "declared": 10,
+        "parsed": 10
+      },
+      {
+        "subset": "Modern Strokes",
+        "declared": 30,
+        "parsed": 30
+      },
+      {
+        "subset": "Paint by Number",
+        "declared": 20,
+        "parsed": 20
+      },
+      {
+        "subset": "Rookie Exclusive",
+        "declared": 1,
+        "parsed": 1
+      },
+      {
+        "subset": "Self Expression",
+        "declared": 30,
+        "parsed": 30
+      },
+      {
+        "subset": "State of the Art",
+        "declared": 10,
+        "parsed": 10
+      },
+      {
+        "subset": "Water Color",
+        "declared": 30,
+        "parsed": 30
+      },
+      {
+        "subset": "Works in Progress",
+        "declared": 30,
+        "parsed": 30
+      }
+    ]
+  },
+  "findings": [
+    {
+      "level": "accepted",
+      "code": "declared_count",
+      "message": "Subset \"Base Set\": 199 cards declared, 198 parsed (1 missing)",
+      "acceptedReason": "The sheet declares 199 cards but the rookie sections run #168-199 after #166; row #167 does not exist in the file."
+    }
+  ]
+}

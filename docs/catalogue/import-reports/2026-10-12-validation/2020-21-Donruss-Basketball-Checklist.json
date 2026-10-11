@@ -1,0 +1,200 @@
+{
+  "file": "2020-21-Donruss-Basketball-Checklist.xlsx",
+  "season": "2020-21",
+  "productLine": "Donruss",
+  "ok": true,
+  "errors": 0,
+  "warnings": 0,
+  "accepted": 0,
+  "stats": {
+    "sheets": [
+      {
+        "sheet": "Base",
+        "numberedCardRows": 250,
+        "numberedCardsParsed": 250,
+        "cardsParsed": 250,
+        "subsets": 1,
+        "blocks": 2,
+        "notes": 0,
+        "unplaced": 0
+      },
+      {
+        "sheet": "Autographs",
+        "numberedCardRows": 248,
+        "numberedCardsParsed": 248,
+        "cardsParsed": 248,
+        "subsets": 5,
+        "blocks": 0,
+        "notes": 0,
+        "unplaced": 0
+      },
+      {
+        "sheet": "Memorabilia",
+        "numberedCardRows": 306,
+        "numberedCardsParsed": 306,
+        "cardsParsed": 306,
+        "subsets": 5,
+        "blocks": 0,
+        "notes": 0,
+        "unplaced": 0
+      },
+      {
+        "sheet": "Inserts",
+        "numberedCardRows": 200,
+        "numberedCardsParsed": 200,
+        "cardsParsed": 200,
+        "subsets": 12,
+        "blocks": 0,
+        "notes": 0,
+        "unplaced": 0
+      }
+    ],
+    "subsets": 25,
+    "blocks": 2,
+    "parallels": 83,
+    "cards": 1004,
+    "rookies": 50,
+    "rookiesFromBlocks": 50,
+    "rookiesFromTeams": {
+      "sourceRows": 50,
+      "matchedRows": 50,
+      "unmatched": []
+    },
+    "blockStats": [
+      {
+        "name": "Veterans",
+        "parent": "Base Set",
+        "from": 1,
+        "to": 200,
+        "expected": 200,
+        "parsed": 200
+      },
+      {
+        "name": "Rated Rookies",
+        "parent": "Base Set",
+        "from": 201,
+        "to": 250,
+        "expected": 50,
+        "parsed": 50
+      }
+    ],
+    "declaredCounts": [
+      {
+        "subset": "Base Set",
+        "declared": 250,
+        "parsed": 250
+      },
+      {
+        "subset": "Choice Signatures",
+        "declared": 40,
+        "parsed": 40
+      },
+      {
+        "subset": "Dominator Signatures",
+        "declared": 30,
+        "parsed": 30
+      },
+      {
+        "subset": "Hall Dominator Signatures",
+        "declared": 30,
+        "parsed": 30
+      },
+      {
+        "subset": "Rated Rookies Signatures",
+        "declared": 50,
+        "parsed": 50
+      },
+      {
+        "subset": "Signature Series",
+        "declared": 98,
+        "parsed": 98
+      },
+      {
+        "subset": "Jersey Kings",
+        "declared": 60,
+        "parsed": 60
+      },
+      {
+        "subset": "Jersey Kings Prime",
+        "declared": 40,
+        "parsed": 40
+      },
+      {
+        "subset": "Jersey Series",
+        "declared": 100,
+        "parsed": 100
+      },
+      {
+        "subset": "Jersey Series Prime",
+        "declared": 66,
+        "parsed": 66
+      },
+      {
+        "subset": "Rookie Jersey Kings",
+        "declared": 40,
+        "parsed": 40
+      },
+      {
+        "subset": "All-Time League Leaders",
+        "declared": 10,
+        "parsed": 10
+      },
+      {
+        "subset": "Complete Players",
+        "declared": 20,
+        "parsed": 20
+      },
+      {
+        "subset": "Craftsmen",
+        "declared": 15,
+        "parsed": 15
+      },
+      {
+        "subset": "Crunch Time",
+        "declared": 20,
+        "parsed": 20
+      },
+      {
+        "subset": "Fantasy Stars",
+        "declared": 5,
+        "parsed": 5
+      },
+      {
+        "subset": "Franchise Features",
+        "declared": 30,
+        "parsed": 30
+      },
+      {
+        "subset": "Great X-Pectations",
+        "declared": 25,
+        "parsed": 25
+      },
+      {
+        "subset": "Net Marvels",
+        "declared": 20,
+        "parsed": 20
+      },
+      {
+        "subset": "Power in the Paint",
+        "declared": 10,
+        "parsed": 10
+      },
+      {
+        "subset": "Retro Series",
+        "declared": 30,
+        "parsed": 30
+      },
+      {
+        "subset": "The Rookies",
+        "declared": 5,
+        "parsed": 5
+      },
+      {
+        "subset": "Zero Gravity",
+        "declared": 10,
+        "parsed": 10
+      }
+    ]
+  },
+  "findings": []
+}

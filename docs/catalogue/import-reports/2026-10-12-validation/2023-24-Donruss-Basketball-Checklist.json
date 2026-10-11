@@ -1,0 +1,197 @@
+{
+  "file": "2023-24-Donruss-Basketball-Checklist.xlsx",
+  "season": "2023-24",
+  "productLine": "Donruss",
+  "ok": true,
+  "errors": 0,
+  "warnings": 0,
+  "accepted": 0,
+  "stats": {
+    "sheets": [
+      {
+        "sheet": "Base",
+        "numberedCardRows": 250,
+        "numberedCardsParsed": 250,
+        "cardsParsed": 250,
+        "subsets": 1,
+        "blocks": 1,
+        "notes": 0,
+        "unplaced": 0
+      },
+      {
+        "sheet": "Autographs",
+        "numberedCardRows": 213,
+        "numberedCardsParsed": 213,
+        "cardsParsed": 213,
+        "subsets": 5,
+        "blocks": 0,
+        "notes": 0,
+        "unplaced": 0
+      },
+      {
+        "sheet": "Memorabilia",
+        "numberedCardRows": 0,
+        "numberedCardsParsed": 0,
+        "cardsParsed": 0,
+        "subsets": 0,
+        "blocks": 0,
+        "notes": 0,
+        "unplaced": 0
+      },
+      {
+        "sheet": "Inserts",
+        "numberedCardRows": 332,
+        "numberedCardsParsed": 332,
+        "cardsParsed": 332,
+        "subsets": 18,
+        "blocks": 0,
+        "notes": 0,
+        "unplaced": 0
+      }
+    ],
+    "subsets": 25,
+    "blocks": 1,
+    "parallels": 171,
+    "cards": 795,
+    "rookies": 50,
+    "rookiesFromBlocks": 50,
+    "rookiesFromTeams": {
+      "sourceRows": 0,
+      "matchedRows": 0,
+      "unmatched": []
+    },
+    "blockStats": [
+      {
+        "name": "Rated Rookies",
+        "parent": "Base Set",
+        "from": 201,
+        "to": 250,
+        "expected": 50,
+        "parsed": 50
+      }
+    ],
+    "declaredCounts": [
+      {
+        "subset": "Base Set",
+        "declared": 250,
+        "parsed": 250
+      },
+      {
+        "subset": "Dominators Autographs",
+        "declared": 21,
+        "parsed": 21
+      },
+      {
+        "subset": "Next Day Autographs",
+        "declared": 36,
+        "parsed": 36
+      },
+      {
+        "subset": "Rated Rookies Signatures",
+        "declared": 46,
+        "parsed": 46
+      },
+      {
+        "subset": "Rookie Dominators Autographs",
+        "declared": 23,
+        "parsed": 23
+      },
+      {
+        "subset": "Signature Series",
+        "declared": 87,
+        "parsed": 87
+      },
+      {
+        "subset": "Animation",
+        "declared": 10,
+        "parsed": 10
+      },
+      {
+        "subset": "Bomb Squad",
+        "declared": 20,
+        "parsed": 20
+      },
+      {
+        "subset": "Complete Players",
+        "declared": 10,
+        "parsed": 10
+      },
+      {
+        "subset": "Crunch Time",
+        "declared": 15,
+        "parsed": 15
+      },
+      {
+        "subset": "Fadeaway",
+        "declared": 15,
+        "parsed": 15
+      },
+      {
+        "subset": "Franchise Features",
+        "declared": 30,
+        "parsed": 30
+      },
+      {
+        "subset": "Great X-Pectations",
+        "declared": 25,
+        "parsed": 25
+      },
+      {
+        "subset": "Hardwood Masters",
+        "declared": 15,
+        "parsed": 15
+      },
+      {
+        "subset": "Magicians",
+        "declared": 10,
+        "parsed": 10
+      },
+      {
+        "subset": "Net Marvels",
+        "declared": 20,
+        "parsed": 20
+      },
+      {
+        "subset": "Next Day",
+        "declared": 13,
+        "parsed": 13
+      },
+      {
+        "subset": "Next Day Personal Edition",
+        "declared": 49,
+        "parsed": 49
+      },
+      {
+        "subset": "Night Moves",
+        "declared": 30,
+        "parsed": 30
+      },
+      {
+        "subset": "Playmakers",
+        "declared": 15,
+        "parsed": 15
+      },
+      {
+        "subset": "Retro Series",
+        "declared": 25,
+        "parsed": 25
+      },
+      {
+        "subset": "The Rookies",
+        "declared": 5,
+        "parsed": 5
+      },
+      {
+        "subset": "Unleashed",
+        "declared": 15,
+        "parsed": 15
+      },
+      {
+        "subset": "Zero Gravity",
+        "declared": 10,
+        "parsed": 10
+      }
+    ]
+  },
+  "findings": []
+}

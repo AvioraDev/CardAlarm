@@ -1,0 +1,331 @@
+{
+  "file": "2022-23-Panini-Court-Kings-Basketball-Checklist.xlsx",
+  "season": "2022-23",
+  "productLine": "Court Kings",
+  "ok": true,
+  "errors": 0,
+  "warnings": 1,
+  "accepted": 1,
+  "stats": {
+    "sheets": [
+      {
+        "sheet": "Base",
+        "numberedCardRows": 199,
+        "numberedCardsParsed": 199,
+        "cardsParsed": 199,
+        "subsets": 1,
+        "blocks": 5,
+        "notes": 1,
+        "unplaced": 0
+      },
+      {
+        "sheet": "Autographs",
+        "numberedCardRows": 643,
+        "numberedCardsParsed": 643,
+        "cardsParsed": 643,
+        "subsets": 24,
+        "blocks": 0,
+        "notes": 0,
+        "unplaced": 0
+      },
+      {
+        "sheet": "Memorabilia",
+        "numberedCardRows": 100,
+        "numberedCardsParsed": 100,
+        "cardsParsed": 100,
+        "subsets": 3,
+        "blocks": 0,
+        "notes": 0,
+        "unplaced": 0
+      },
+      {
+        "sheet": "Inserts",
+        "numberedCardRows": 292,
+        "numberedCardsParsed": 292,
+        "cardsParsed": 292,
+        "subsets": 14,
+        "blocks": 0,
+        "notes": 1,
+        "unplaced": 0
+      }
+    ],
+    "subsets": 47,
+    "blocks": 5,
+    "parallels": 57,
+    "cards": 1234,
+    "rookies": 0,
+    "rookiesFromBlocks": 0,
+    "rookiesFromTeams": {
+      "sourceRows": 0,
+      "matchedRows": 0,
+      "unmatched": []
+    },
+    "blockStats": [
+      {
+        "name": "I",
+        "parent": "Base Set",
+        "from": 68,
+        "to": 100,
+        "expected": 33,
+        "parsed": 33
+      },
+      {
+        "name": "II",
+        "parent": "Base Set",
+        "from": 101,
+        "to": 133,
+        "expected": 33,
+        "parsed": 33
+      },
+      {
+        "name": "III",
+        "parent": "Base Set",
+        "from": 134,
+        "to": 166,
+        "expected": 33,
+        "parsed": 33
+      },
+      {
+        "name": "IV",
+        "parent": "Base Set",
+        "from": 167,
+        "to": 199,
+        "expected": 33,
+        "parsed": 33
+      },
+      {
+        "name": "Base",
+        "parent": "Base Set",
+        "from": 1,
+        "to": 67,
+        "expected": 67,
+        "parsed": 67
+      }
+    ],
+    "declaredCounts": [
+      {
+        "subset": "Base Set",
+        "declared": 199,
+        "parsed": 199
+      },
+      {
+        "subset": "Brush Strokes",
+        "declared": 26,
+        "parsed": 26
+      },
+      {
+        "subset": "Brush Strokes Jade",
+        "declared": 11,
+        "parsed": 11
+      },
+      {
+        "subset": "Brush Strokes Masterpiece",
+        "declared": 30,
+        "parsed": 30
+      },
+      {
+        "subset": "Brush Strokes Pink",
+        "declared": 11,
+        "parsed": 11
+      },
+      {
+        "subset": "Brush Strokes Ruby",
+        "declared": 27,
+        "parsed": 27
+      },
+      {
+        "subset": "Brush Strokes Sapphire",
+        "declared": 28,
+        "parsed": 28
+      },
+      {
+        "subset": "Brush Strokes Violet",
+        "declared": 27,
+        "parsed": 27
+      },
+      {
+        "subset": "Fresh Paint",
+        "declared": 43,
+        "parsed": 43
+      },
+      {
+        "subset": "Heir Apparent",
+        "declared": 43,
+        "parsed": 43
+      },
+      {
+        "subset": "Impressionist Ink",
+        "declared": 25,
+        "parsed": 25
+      },
+      {
+        "subset": "Impressionist Ink Jade",
+        "declared": 12,
+        "parsed": 12
+      },
+      {
+        "subset": "Impressionist Ink Masterpiece",
+        "declared": 29,
+        "parsed": 29
+      },
+      {
+        "subset": "Impressionist Ink Pink",
+        "declared": 12,
+        "parsed": 12
+      },
+      {
+        "subset": "Impressionist Ink Ruby",
+        "declared": 25,
+        "parsed": 25
+      },
+      {
+        "subset": "Impressionist Ink Sapphire",
+        "declared": 28,
+        "parsed": 28
+      },
+      {
+        "subset": "Impressionist Ink Violet",
+        "declared": 27,
+        "parsed": 27
+      },
+      {
+        "subset": "Legacy Portrait Signatures",
+        "declared": 9,
+        "parsed": 9
+      },
+      {
+        "subset": "Masterstrokes",
+        "declared": 38,
+        "parsed": 38
+      },
+      {
+        "subset": "Masterstrokes Jade",
+        "declared": 19,
+        "parsed": 19
+      },
+      {
+        "subset": "Masterstrokes Masterpiece",
+        "declared": 39,
+        "parsed": 39
+      },
+      {
+        "subset": "Masterstrokes Pink",
+        "declared": 19,
+        "parsed": 19
+      },
+      {
+        "subset": "Masterstrokes Ruby",
+        "declared": 38,
+        "parsed": 38
+      },
+      {
+        "subset": "Masterstrokes Sapphire",
+        "declared": 39,
+        "parsed": 39
+      },
+      {
+        "subset": "Masterstrokes Violet",
+        "declared": 38,
+        "parsed": 38
+      },
+      {
+        "subset": "Art Nouveau",
+        "declared": 40,
+        "parsed": 40
+      },
+      {
+        "subset": "Artistic Endeavors",
+        "declared": 20,
+        "parsed": 20
+      },
+      {
+        "subset": "Rookie Expression Memorabilia",
+        "declared": 40,
+        "parsed": 40
+      },
+      {
+        "subset": "Acetate Rookies",
+        "declared": 25,
+        "parsed": 25
+      },
+      {
+        "subset": "Artistry in Motion",
+        "declared": 30,
+        "parsed": 30
+      },
+      {
+        "subset": "Aurora",
+        "declared": 17,
+        "parsed": 16
+      },
+      {
+        "subset": "Blank Slate",
+        "declared": 30,
+        "parsed": 30
+      },
+      {
+        "subset": "Double Exposure",
+        "declared": 30,
+        "parsed": 30
+      },
+      {
+        "subset": "Dressed to Impress",
+        "declared": 10,
+        "parsed": 10
+      },
+      {
+        "subset": "First Steps",
+        "declared": 10,
+        "parsed": 10
+      },
+      {
+        "subset": "Maestros",
+        "declared": 30,
+        "parsed": 30
+      },
+      {
+        "subset": "Modern Strokes",
+        "declared": 30,
+        "parsed": 30
+      },
+      {
+        "subset": "Paint by Number",
+        "declared": 10,
+        "parsed": 10
+      },
+      {
+        "subset": "Rookie Exclusive",
+        "declared": 1,
+        "parsed": 1
+      },
+      {
+        "subset": "State of the Art",
+        "declared": 10,
+        "parsed": 10
+      },
+      {
+        "subset": "Water Color",
+        "declared": 30,
+        "parsed": 30
+      },
+      {
+        "subset": "Works in Progress",
+        "declared": 30,
+        "parsed": 30
+      }
+    ]
+  },
+  "findings": [
+    {
+      "level": "accepted",
+      "code": "declared_count",
+      "message": "Subset \"Aurora\": 17 cards declared, 16 parsed (1 missing)",
+      "acceptedReason": "The sheet declares 17 cards but lists numbers 2-17; row #1 does not exist in the file."
+    },
+    {
+      "level": "warning",
+      "code": "rookies_not_marked_in_source",
+      "message": "The source marks no rookies (no RC flags in the Teams sheet, no rookie-named block), so no card is flagged as a rookie"
+    }
+  ]
+}

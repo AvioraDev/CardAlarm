@@ -1,0 +1,229 @@
+{
+  "file": "2020-21-Panini-Select-Basketball-Checklist.xlsx",
+  "season": "2020-21",
+  "productLine": "Select",
+  "ok": true,
+  "errors": 0,
+  "warnings": 1,
+  "accepted": 0,
+  "stats": {
+    "sheets": [
+      {
+        "sheet": "Base",
+        "numberedCardRows": 300,
+        "numberedCardsParsed": 300,
+        "cardsParsed": 300,
+        "subsets": 1,
+        "blocks": 3,
+        "notes": 0,
+        "unplaced": 0
+      },
+      {
+        "sheet": "Autographs",
+        "numberedCardRows": 379,
+        "numberedCardsParsed": 379,
+        "cardsParsed": 379,
+        "subsets": 12,
+        "blocks": 0,
+        "notes": 0,
+        "unplaced": 0
+      },
+      {
+        "sheet": "Memorabilia",
+        "numberedCardRows": 99,
+        "numberedCardsParsed": 99,
+        "cardsParsed": 99,
+        "subsets": 4,
+        "blocks": 0,
+        "notes": 0,
+        "unplaced": 0
+      },
+      {
+        "sheet": "Inserts",
+        "numberedCardRows": 210,
+        "numberedCardsParsed": 210,
+        "cardsParsed": 210,
+        "subsets": 9,
+        "blocks": 0,
+        "notes": 0,
+        "unplaced": 0
+      }
+    ],
+    "subsets": 29,
+    "blocks": 3,
+    "parallels": 214,
+    "cards": 988,
+    "rookies": 0,
+    "rookiesFromBlocks": 0,
+    "rookiesFromTeams": {
+      "sourceRows": 0,
+      "matchedRows": 0,
+      "unmatched": []
+    },
+    "blockStats": [
+      {
+        "name": "Concourse",
+        "parent": "Base Set",
+        "from": 1,
+        "to": 100,
+        "expected": 100,
+        "parsed": 100
+      },
+      {
+        "name": "Premier Level",
+        "parent": "Base Set",
+        "from": 101,
+        "to": 200,
+        "expected": 100,
+        "parsed": 100
+      },
+      {
+        "name": "Courtside",
+        "parent": "Base Set",
+        "from": 201,
+        "to": 300,
+        "expected": 100,
+        "parsed": 100
+      }
+    ],
+    "declaredCounts": [
+      {
+        "subset": "Base Set",
+        "declared": 300,
+        "parsed": 300
+      },
+      {
+        "subset": "Autographed Memorabilia",
+        "declared": 25,
+        "parsed": 25
+      },
+      {
+        "subset": "In Flight Signatures",
+        "declared": 30,
+        "parsed": 30
+      },
+      {
+        "subset": "Rookie Jersey Autographs",
+        "declared": 40,
+        "parsed": 40
+      },
+      {
+        "subset": "Rookie Signatures",
+        "declared": 40,
+        "parsed": 40
+      },
+      {
+        "subset": "Selection Committee Signatures",
+        "declared": 10,
+        "parsed": 10
+      },
+      {
+        "subset": "Signature Selections",
+        "declared": 50,
+        "parsed": 50
+      },
+      {
+        "subset": "Signatures",
+        "declared": 30,
+        "parsed": 30
+      },
+      {
+        "subset": "Signatures Neon Green Prizms",
+        "declared": 29,
+        "parsed": 29
+      },
+      {
+        "subset": "Signatures Neon Orange Pulsar Prizms FOTL",
+        "declared": 30,
+        "parsed": 30
+      },
+      {
+        "subset": "Signatures Neon Purple Pulsar Prizms FOTL",
+        "declared": 30,
+        "parsed": 30
+      },
+      {
+        "subset": "X-Factor Memorabilia Signatures",
+        "declared": 25,
+        "parsed": 25
+      },
+      {
+        "subset": "Youth Explosion Signatures",
+        "declared": 40,
+        "parsed": 40
+      },
+      {
+        "subset": "Draft Selections Memorabilia",
+        "declared": 30,
+        "parsed": 30
+      },
+      {
+        "subset": "Duet Selections Memorabilia",
+        "declared": 20,
+        "parsed": 20
+      },
+      {
+        "subset": "Selective Swatches",
+        "declared": 39,
+        "parsed": 39
+      },
+      {
+        "subset": "Sparks",
+        "declared": 10,
+        "parsed": 10
+      },
+      {
+        "subset": "Artistic Selections",
+        "declared": 10,
+        "parsed": 10
+      },
+      {
+        "subset": "En Fuego",
+        "declared": 15,
+        "parsed": 15
+      },
+      {
+        "subset": "Phenomenon",
+        "declared": 40,
+        "parsed": 40
+      },
+      {
+        "subset": "Rookie Selections",
+        "declared": 30,
+        "parsed": 30
+      },
+      {
+        "subset": "Select Company",
+        "declared": 24,
+        "parsed": 24
+      },
+      {
+        "subset": "Select Future",
+        "declared": 30,
+        "parsed": 30
+      },
+      {
+        "subset": "Select Numbers",
+        "declared": 40,
+        "parsed": 40
+      },
+      {
+        "subset": "Turbo Charged",
+        "declared": 6,
+        "parsed": 6
+      },
+      {
+        "subset": "Unstoppable",
+        "declared": 15,
+        "parsed": 15
+      }
+    ]
+  },
+  "findings": [
+    {
+      "level": "warning",
+      "code": "rookies_not_marked_in_source",
+      "message": "The source marks no rookies (no RC flags in the Teams sheet, no rookie-named block), so no card is flagged as a rookie"
+    }
+  ]
+}

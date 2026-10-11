@@ -1,0 +1,219 @@
+{
+  "file": "2020-21-Panini-Flux-Basketball-Checklist.xlsx",
+  "season": "2020-21",
+  "productLine": "Flux",
+  "ok": true,
+  "errors": 0,
+  "warnings": 0,
+  "accepted": 0,
+  "stats": {
+    "sheets": [
+      {
+        "sheet": "Base",
+        "numberedCardRows": 250,
+        "numberedCardsParsed": 250,
+        "cardsParsed": 250,
+        "subsets": 1,
+        "blocks": 0,
+        "notes": 0,
+        "unplaced": 0
+      },
+      {
+        "sheet": "Autographs",
+        "numberedCardRows": 304,
+        "numberedCardsParsed": 304,
+        "cardsParsed": 304,
+        "subsets": 10,
+        "blocks": 0,
+        "notes": 0,
+        "unplaced": 0
+      },
+      {
+        "sheet": "Inserts",
+        "numberedCardRows": 425,
+        "numberedCardsParsed": 425,
+        "cardsParsed": 425,
+        "subsets": 13,
+        "blocks": 5,
+        "notes": 0,
+        "unplaced": 0
+      }
+    ],
+    "subsets": 29,
+    "blocks": 5,
+    "parallels": 121,
+    "cards": 979,
+    "rookies": 50,
+    "rookiesFromBlocks": 0,
+    "rookiesFromTeams": {
+      "sourceRows": 50,
+      "matchedRows": 50,
+      "unmatched": []
+    },
+    "blockStats": [
+      {
+        "name": "Troposphere",
+        "parent": "Atmosphere",
+        "from": 1,
+        "to": 40,
+        "expected": 40,
+        "parsed": 40
+      },
+      {
+        "name": "Stratosphere",
+        "parent": "Atmosphere",
+        "from": 41,
+        "to": 65,
+        "expected": 25,
+        "parsed": 25
+      },
+      {
+        "name": "Mesosphere",
+        "parent": "Atmosphere",
+        "from": 66,
+        "to": 85,
+        "expected": 20,
+        "parsed": 20
+      },
+      {
+        "name": "Thermosphere",
+        "parent": "Atmosphere",
+        "from": 86,
+        "to": 95,
+        "expected": 10,
+        "parsed": 10
+      },
+      {
+        "name": "Exosphere",
+        "parent": "Atmosphere",
+        "from": 96,
+        "to": 100,
+        "expected": 5,
+        "parsed": 5
+      }
+    ],
+    "declaredCounts": [
+      {
+        "subset": "Base Set",
+        "declared": 250,
+        "parsed": 250
+      },
+      {
+        "subset": "Autograph Influx",
+        "declared": 30,
+        "parsed": 30
+      },
+      {
+        "subset": "Equinox Autographs",
+        "declared": 60,
+        "parsed": 60
+      },
+      {
+        "subset": "Equinox Rookie Autographs",
+        "declared": 40,
+        "parsed": 40
+      },
+      {
+        "subset": "Flux Freshman Signatures",
+        "declared": 10,
+        "parsed": 10
+      },
+      {
+        "subset": "Flux Rookie Signatures",
+        "declared": 40,
+        "parsed": 40
+      },
+      {
+        "subset": "Flux Signatures",
+        "declared": 49,
+        "parsed": 49
+      },
+      {
+        "subset": "Rookie Autograph Influx",
+        "declared": 30,
+        "parsed": 30
+      },
+      {
+        "subset": "Rookie Private Signings Icon Version",
+        "declared": 5,
+        "parsed": 5
+      },
+      {
+        "subset": "Swing Man Signatures",
+        "declared": 10,
+        "parsed": 10
+      },
+      {
+        "subset": "Ultraviolet Signatures",
+        "declared": 30,
+        "parsed": 30
+      },
+      {
+        "subset": "Atmosphere",
+        "declared": 100,
+        "parsed": 100
+      },
+      {
+        "subset": "D Lux",
+        "declared": 6,
+        "parsed": 6
+      },
+      {
+        "subset": "Deja Vu",
+        "declared": 40,
+        "parsed": 40
+      },
+      {
+        "subset": "Flow Motion",
+        "declared": 20,
+        "parsed": 20
+      },
+      {
+        "subset": "Fluid",
+        "declared": 20,
+        "parsed": 20
+      },
+      {
+        "subset": "Flux Appeal",
+        "declared": 30,
+        "parsed": 30
+      },
+      {
+        "subset": "Freshman Year",
+        "declared": 24,
+        "parsed": 24
+      },
+      {
+        "subset": "Full Capacity",
+        "declared": 25,
+        "parsed": 25
+      },
+      {
+        "subset": "Incoming",
+        "declared": 30,
+        "parsed": 30
+      },
+      {
+        "subset": "Rookie Influx",
+        "declared": 30,
+        "parsed": 30
+      },
+      {
+        "subset": "Titan",
+        "declared": 20,
+        "parsed": 20
+      },
+      {
+        "subset": "Titan Legends",
+        "declared": 10,
+        "parsed": 10
+      },
+      {
+        "subset": "Titan Rookie",
+        "declared": 70,
+        "parsed": 70
+      }
+    ]
+  },
+  "findings": []
+}

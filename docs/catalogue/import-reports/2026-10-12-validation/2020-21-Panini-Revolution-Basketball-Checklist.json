@@ -1,0 +1,108 @@
+{
+  "file": "2020-21-Panini-Revolution-Basketball-Checklist.xlsx",
+  "season": "2020-21",
+  "productLine": "Revolution",
+  "ok": true,
+  "errors": 0,
+  "warnings": 0,
+  "accepted": 0,
+  "stats": {
+    "sheets": [
+      {
+        "sheet": "Base",
+        "numberedCardRows": 150,
+        "numberedCardsParsed": 150,
+        "cardsParsed": 150,
+        "subsets": 1,
+        "blocks": 0,
+        "notes": 0,
+        "unplaced": 0
+      },
+      {
+        "sheet": "Autographs",
+        "numberedCardRows": 100,
+        "numberedCardsParsed": 100,
+        "cardsParsed": 100,
+        "subsets": 4,
+        "blocks": 0,
+        "notes": 0,
+        "unplaced": 0
+      },
+      {
+        "sheet": "Inserts",
+        "numberedCardRows": 100,
+        "numberedCardsParsed": 100,
+        "cardsParsed": 100,
+        "subsets": 5,
+        "blocks": 0,
+        "notes": 0,
+        "unplaced": 0
+      }
+    ],
+    "subsets": 10,
+    "blocks": 0,
+    "parallels": 43,
+    "cards": 350,
+    "rookies": 50,
+    "rookiesFromBlocks": 0,
+    "rookiesFromTeams": {
+      "sourceRows": 50,
+      "matchedRows": 50,
+      "unmatched": []
+    },
+    "blockStats": [],
+    "declaredCounts": [
+      {
+        "subset": "Base Set",
+        "declared": 150,
+        "parsed": 150
+      },
+      {
+        "subset": "Autographs",
+        "declared": 30,
+        "parsed": 30
+      },
+      {
+        "subset": "Autographs Fractal",
+        "declared": 30,
+        "parsed": 30
+      },
+      {
+        "subset": "Rookie Autographs",
+        "declared": 20,
+        "parsed": 20
+      },
+      {
+        "subset": "Rookie Autographs Chinese New Year",
+        "declared": 20,
+        "parsed": 20
+      },
+      {
+        "subset": "Liftoff!",
+        "declared": 10,
+        "parsed": 10
+      },
+      {
+        "subset": "Rookie Revolution",
+        "declared": 20,
+        "parsed": 20
+      },
+      {
+        "subset": "Shock Wave",
+        "declared": 25,
+        "parsed": 25
+      },
+      {
+        "subset": "Supernova",
+        "declared": 10,
+        "parsed": 10
+      },
+      {
+        "subset": "Vortex",
+        "declared": 35,
+        "parsed": 35
+      }
+    ]
+  },
+  "findings": []
+}

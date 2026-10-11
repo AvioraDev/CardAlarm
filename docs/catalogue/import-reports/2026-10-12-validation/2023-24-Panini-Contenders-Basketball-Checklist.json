@@ -1,0 +1,230 @@
+{
+  "file": "2023-24-Panini-Contenders-Basketball-Checklist.xlsx",
+  "season": "2023-24",
+  "productLine": "Contenders",
+  "ok": true,
+  "errors": 0,
+  "warnings": 0,
+  "accepted": 0,
+  "stats": {
+    "sheets": [
+      {
+        "sheet": "Base",
+        "numberedCardRows": 320,
+        "numberedCardsParsed": 320,
+        "cardsParsed": 320,
+        "subsets": 2,
+        "blocks": 2,
+        "notes": 0,
+        "unplaced": 0
+      },
+      {
+        "sheet": "Variations",
+        "numberedCardRows": 140,
+        "numberedCardsParsed": 140,
+        "cardsParsed": 140,
+        "subsets": 3,
+        "blocks": 0,
+        "notes": 0,
+        "unplaced": 0
+      },
+      {
+        "sheet": "Autographs",
+        "numberedCardRows": 154,
+        "numberedCardsParsed": 154,
+        "cardsParsed": 154,
+        "subsets": 8,
+        "blocks": 0,
+        "notes": 0,
+        "unplaced": 0
+      },
+      {
+        "sheet": "Memorabilia",
+        "numberedCardRows": 50,
+        "numberedCardsParsed": 50,
+        "cardsParsed": 50,
+        "subsets": 2,
+        "blocks": 0,
+        "notes": 0,
+        "unplaced": 0
+      },
+      {
+        "sheet": "Inserts",
+        "numberedCardRows": 275,
+        "numberedCardsParsed": 275,
+        "cardsParsed": 275,
+        "subsets": 12,
+        "blocks": 0,
+        "notes": 0,
+        "unplaced": 0
+      }
+    ],
+    "subsets": 29,
+    "blocks": 2,
+    "parallels": 106,
+    "cards": 939,
+    "rookies": 60,
+    "rookiesFromBlocks": 60,
+    "rookiesFromTeams": {
+      "sourceRows": 0,
+      "matchedRows": 0,
+      "unmatched": []
+    },
+    "blockStats": [
+      {
+        "name": "Rookie Ticket",
+        "parent": "Base Season Ticket",
+        "from": 101,
+        "to": 145,
+        "expected": 40,
+        "parsed": 40
+      },
+      {
+        "name": "Rookie Ticket Retail",
+        "parent": "Base Season Ticket",
+        "from": 146,
+        "to": 165,
+        "expected": 20,
+        "parsed": 20
+      }
+    ],
+    "declaredCounts": [
+      {
+        "subset": "Base Season Ticket",
+        "declared": 160,
+        "parsed": 160
+      },
+      {
+        "subset": "Ticket Stub",
+        "declared": 160,
+        "parsed": 160
+      },
+      {
+        "subset": "Season Ticket Photo Variation",
+        "declared": 60,
+        "parsed": 60
+      },
+      {
+        "subset": "Rookie Season Ticket Variations",
+        "declared": 40,
+        "parsed": 40
+      },
+      {
+        "subset": "Rookie Season Ticket Variations Ticket Stub",
+        "declared": 40,
+        "parsed": 40
+      },
+      {
+        "subset": "Contenders Autographs",
+        "declared": 38,
+        "parsed": 38
+      },
+      {
+        "subset": "Legendary Contenders Autographs",
+        "declared": 19,
+        "parsed": 19
+      },
+      {
+        "subset": "MVP Contenders Autographs",
+        "declared": 10,
+        "parsed": 10
+      },
+      {
+        "subset": "NBA Ink Autographs",
+        "declared": 27,
+        "parsed": 27
+      },
+      {
+        "subset": "NBA Ink Autographs Red",
+        "declared": 22,
+        "parsed": 22
+      },
+      {
+        "subset": "Veteran Season Ticket",
+        "declared": 9,
+        "parsed": 9
+      },
+      {
+        "subset": "Veteran Season Ticket Stub",
+        "declared": 9,
+        "parsed": 9
+      },
+      {
+        "subset": "Veteran Season Ticket Retail",
+        "declared": 20,
+        "parsed": 20
+      },
+      {
+        "subset": "Rookie Ticket Dual Swatches",
+        "declared": 10,
+        "parsed": 10
+      },
+      {
+        "subset": "Rookie Ticket Swatches",
+        "declared": 40,
+        "parsed": 40
+      },
+      {
+        "subset": "2023 Draft Class Contenders",
+        "declared": 25,
+        "parsed": 25
+      },
+      {
+        "subset": "Crown Jewels",
+        "declared": 25,
+        "parsed": 25
+      },
+      {
+        "subset": "Game Night Ticket",
+        "declared": 25,
+        "parsed": 25
+      },
+      {
+        "subset": "Historic Draft Class Contenders",
+        "declared": 25,
+        "parsed": 25
+      },
+      {
+        "subset": "License to Dominate",
+        "declared": 25,
+        "parsed": 25
+      },
+      {
+        "subset": "Lottery Ticket",
+        "declared": 14,
+        "parsed": 14
+      },
+      {
+        "subset": "Permit to Dominate",
+        "declared": 25,
+        "parsed": 25
+      },
+      {
+        "subset": "Rookie of the Year Contenders",
+        "declared": 18,
+        "parsed": 18
+      },
+      {
+        "subset": "Rookie Stallions",
+        "declared": 25,
+        "parsed": 25
+      },
+      {
+        "subset": "Suite Shots",
+        "declared": 30,
+        "parsed": 30
+      },
+      {
+        "subset": "Supernatural",
+        "declared": 28,
+        "parsed": 28
+      },
+      {
+        "subset": "Superstar Die-Cuts",
+        "declared": 10,
+        "parsed": 10
+      }
+    ]
+  },
+  "findings": []
+}

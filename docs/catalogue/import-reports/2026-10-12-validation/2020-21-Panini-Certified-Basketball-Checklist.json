@@ -1,0 +1,133 @@
+{
+  "file": "2020-21-Panini-Certified-Basketball-Checklist.xlsx",
+  "season": "2020-21",
+  "productLine": "Certified",
+  "ok": true,
+  "errors": 0,
+  "warnings": 0,
+  "accepted": 0,
+  "stats": {
+    "sheets": [
+      {
+        "sheet": "Base",
+        "numberedCardRows": 200,
+        "numberedCardsParsed": 200,
+        "cardsParsed": 200,
+        "subsets": 1,
+        "blocks": 0,
+        "notes": 0,
+        "unplaced": 0
+      },
+      {
+        "sheet": "Autographs",
+        "numberedCardRows": 200,
+        "numberedCardsParsed": 200,
+        "cardsParsed": 200,
+        "subsets": 7,
+        "blocks": 0,
+        "notes": 0,
+        "unplaced": 0
+      },
+      {
+        "sheet": "Memorabilia",
+        "numberedCardRows": 0,
+        "numberedCardsParsed": 0,
+        "cardsParsed": 0,
+        "subsets": 0,
+        "blocks": 0,
+        "notes": 0,
+        "unplaced": 0
+      },
+      {
+        "sheet": "Inserts",
+        "numberedCardRows": 150,
+        "numberedCardsParsed": 150,
+        "cardsParsed": 150,
+        "subsets": 5,
+        "blocks": 0,
+        "notes": 0,
+        "unplaced": 0
+      }
+    ],
+    "subsets": 13,
+    "blocks": 0,
+    "parallels": 60,
+    "cards": 550,
+    "rookies": 51,
+    "rookiesFromBlocks": 0,
+    "rookiesFromTeams": {
+      "sourceRows": 50,
+      "matchedRows": 50,
+      "unmatched": []
+    },
+    "blockStats": [],
+    "declaredCounts": [
+      {
+        "subset": "Base Set",
+        "declared": 200,
+        "parsed": 200
+      },
+      {
+        "subset": "Certified Signatures",
+        "declared": 40,
+        "parsed": 40
+      },
+      {
+        "subset": "Fabric of the Game Signatures Jersey Number",
+        "declared": 20,
+        "parsed": 20
+      },
+      {
+        "subset": "Fresh Faces Signatures",
+        "declared": 40,
+        "parsed": 40
+      },
+      {
+        "subset": "Freshman Fabric Signatures",
+        "declared": 40,
+        "parsed": 40
+      },
+      {
+        "subset": "Legacy Signatures",
+        "declared": 20,
+        "parsed": 20
+      },
+      {
+        "subset": "Signed, Sealed and Delivered",
+        "declared": 20,
+        "parsed": 20
+      },
+      {
+        "subset": "Sophomore Sensations Autographs",
+        "declared": 20,
+        "parsed": 20
+      },
+      {
+        "subset": "2020",
+        "declared": 30,
+        "parsed": 30
+      },
+      {
+        "subset": "Gold Team",
+        "declared": 30,
+        "parsed": 30
+      },
+      {
+        "subset": "Gold Team Rookies",
+        "declared": 10,
+        "parsed": 10
+      },
+      {
+        "subset": "Rookie Roll Call",
+        "declared": 50,
+        "parsed": 50
+      },
+      {
+        "subset": "The Mighty",
+        "declared": 30,
+        "parsed": 30
+      }
+    ]
+  },
+  "findings": []
+}

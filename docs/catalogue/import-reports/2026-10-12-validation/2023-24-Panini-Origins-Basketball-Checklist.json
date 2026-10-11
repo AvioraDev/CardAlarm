@@ -1,0 +1,209 @@
+{
+  "file": "2023-24-Panini-Origins-Basketball-Checklist.xlsx",
+  "season": "2023-24",
+  "productLine": "Origins",
+  "ok": true,
+  "errors": 0,
+  "warnings": 1,
+  "accepted": 0,
+  "stats": {
+    "sheets": [
+      {
+        "sheet": "Base",
+        "numberedCardRows": 115,
+        "numberedCardsParsed": 115,
+        "cardsParsed": 115,
+        "subsets": 2,
+        "blocks": 0,
+        "notes": 0,
+        "unplaced": 0
+      },
+      {
+        "sheet": "Autographs",
+        "numberedCardRows": 254,
+        "numberedCardsParsed": 254,
+        "cardsParsed": 254,
+        "subsets": 12,
+        "blocks": 0,
+        "notes": 0,
+        "unplaced": 0
+      },
+      {
+        "sheet": "Memorabilia",
+        "numberedCardRows": 60,
+        "numberedCardsParsed": 60,
+        "cardsParsed": 60,
+        "subsets": 2,
+        "blocks": 0,
+        "notes": 0,
+        "unplaced": 0
+      },
+      {
+        "sheet": "Inserts",
+        "numberedCardRows": 235,
+        "numberedCardsParsed": 235,
+        "cardsParsed": 235,
+        "subsets": 11,
+        "blocks": 0,
+        "notes": 0,
+        "unplaced": 0
+      }
+    ],
+    "subsets": 27,
+    "blocks": 0,
+    "parallels": 72,
+    "cards": 664,
+    "rookies": 0,
+    "rookiesFromBlocks": 0,
+    "rookiesFromTeams": {
+      "sourceRows": 0,
+      "matchedRows": 0,
+      "unmatched": []
+    },
+    "blockStats": [],
+    "declaredCounts": [
+      {
+        "subset": "Base Set",
+        "declared": 100,
+        "parsed": 100
+      },
+      {
+        "subset": "Base Variation",
+        "declared": 15,
+        "parsed": 15
+      },
+      {
+        "subset": "2023-24 Panini Calligraphy Signatures",
+        "declared": 3,
+        "parsed": 3
+      },
+      {
+        "subset": "2023-24 Panini Private Signings",
+        "declared": 2,
+        "parsed": 2
+      },
+      {
+        "subset": "Elevation Signatures",
+        "declared": 38,
+        "parsed": 38
+      },
+      {
+        "subset": "Elevation Signatures Red",
+        "declared": 30,
+        "parsed": 30
+      },
+      {
+        "subset": "Rookie Auto Booklet Patch",
+        "declared": 35,
+        "parsed": 35
+      },
+      {
+        "subset": "Rookie Autographs",
+        "declared": 36,
+        "parsed": 36
+      },
+      {
+        "subset": "Rookie Jersey Autographs",
+        "declared": 37,
+        "parsed": 37
+      },
+      {
+        "subset": "Six Star Signatures",
+        "declared": 2,
+        "parsed": 2
+      },
+      {
+        "subset": "Universal Autographs",
+        "declared": 19,
+        "parsed": 19
+      },
+      {
+        "subset": "Universal Autographs Pink",
+        "declared": 18,
+        "parsed": 18
+      },
+      {
+        "subset": "Universal Autographs Red",
+        "declared": 14,
+        "parsed": 14
+      },
+      {
+        "subset": "Universal Autographs Turquoise",
+        "declared": 20,
+        "parsed": 20
+      },
+      {
+        "subset": "Origins Memorabilia",
+        "declared": 20,
+        "parsed": 20
+      },
+      {
+        "subset": "Rookie Jumbo Jerseys",
+        "declared": 40,
+        "parsed": 40
+      },
+      {
+        "subset": "Big Bang",
+        "declared": 15,
+        "parsed": 15
+      },
+      {
+        "subset": "Catapults",
+        "declared": 25,
+        "parsed": 25
+      },
+      {
+        "subset": "Cosmic Storm",
+        "declared": 25,
+        "parsed": 25
+      },
+      {
+        "subset": "Dawn",
+        "declared": 25,
+        "parsed": 25
+      },
+      {
+        "subset": "Euphoria",
+        "declared": 25,
+        "parsed": 25
+      },
+      {
+        "subset": "Nucleus",
+        "declared": 25,
+        "parsed": 25
+      },
+      {
+        "subset": "Originals",
+        "declared": 25,
+        "parsed": 25
+      },
+      {
+        "subset": "Roots of Greatness",
+        "declared": 25,
+        "parsed": 25
+      },
+      {
+        "subset": "Snake Eyes",
+        "declared": 10,
+        "parsed": 10
+      },
+      {
+        "subset": "Taking the Leap",
+        "declared": 25,
+        "parsed": 25
+      },
+      {
+        "subset": "Tiger Eyes",
+        "declared": 10,
+        "parsed": 10
+      }
+    ]
+  },
+  "findings": [
+    {
+      "level": "warning",
+      "code": "rookies_not_marked_in_source",
+      "message": "The source marks no rookies (no RC flags in the Teams sheet, no rookie-named block), so no card is flagged as a rookie"
+    }
+  ]
+}

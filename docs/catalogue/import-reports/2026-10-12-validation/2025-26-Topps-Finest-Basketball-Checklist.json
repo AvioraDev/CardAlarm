@@ -1,0 +1,159 @@
+{
+  "file": "2025-26-Topps-Finest-Basketball-Checklist.xlsx",
+  "season": "2025-26",
+  "productLine": "Finest",
+  "ok": true,
+  "errors": 0,
+  "warnings": 1,
+  "accepted": 0,
+  "stats": {
+    "sheets": [
+      {
+        "sheet": "Base",
+        "numberedCardRows": 300,
+        "numberedCardsParsed": 300,
+        "cardsParsed": 300,
+        "subsets": 1,
+        "blocks": 3,
+        "notes": 2,
+        "unplaced": 0
+      },
+      {
+        "sheet": "Autographs",
+        "numberedCardRows": 0,
+        "numberedCardsParsed": 0,
+        "cardsParsed": 289,
+        "subsets": 6,
+        "blocks": 0,
+        "notes": 2,
+        "unplaced": 0
+      },
+      {
+        "sheet": "Inserts",
+        "numberedCardRows": 175,
+        "numberedCardsParsed": 175,
+        "cardsParsed": 175,
+        "subsets": 8,
+        "blocks": 0,
+        "notes": 0,
+        "unplaced": 0
+      }
+    ],
+    "subsets": 18,
+    "blocks": 3,
+    "parallels": 197,
+    "cards": 764,
+    "rookies": 0,
+    "rookiesFromBlocks": 0,
+    "rookiesFromTeams": {
+      "sourceRows": 0,
+      "matchedRows": 0,
+      "unmatched": []
+    },
+    "blockStats": [
+      {
+        "name": "Common",
+        "parent": "Base Set",
+        "from": 1,
+        "to": 100,
+        "expected": 100,
+        "parsed": 100
+      },
+      {
+        "name": "Uncommon",
+        "parent": "Base Set",
+        "from": 101,
+        "to": 200,
+        "expected": 100,
+        "parsed": 100
+      },
+      {
+        "name": "Rare",
+        "parent": "Base Set",
+        "from": 201,
+        "to": 300,
+        "expected": 100,
+        "parsed": 100
+      }
+    ],
+    "declaredCounts": [
+      {
+        "subset": "Finest Autographs",
+        "declared": 54,
+        "parsed": 54
+      },
+      {
+        "subset": "Finest Rookie Autographs",
+        "declared": 40,
+        "parsed": 40
+      },
+      {
+        "subset": "Baseline Autographs",
+        "declared": 50,
+        "parsed": 50
+      },
+      {
+        "subset": "Masters Autographs",
+        "declared": 47,
+        "parsed": 47
+      },
+      {
+        "subset": "Electrifying Signatures",
+        "declared": 49,
+        "parsed": 49
+      },
+      {
+        "subset": "Colossal Shots Autographs",
+        "declared": 49,
+        "parsed": 49
+      },
+      {
+        "subset": "Arrivals",
+        "declared": 30,
+        "parsed": 30
+      },
+      {
+        "subset": "First",
+        "declared": 30,
+        "parsed": 30
+      },
+      {
+        "subset": "Muse",
+        "declared": 30,
+        "parsed": 30
+      },
+      {
+        "subset": "Finishers",
+        "declared": 10,
+        "parsed": 10
+      },
+      {
+        "subset": "Pulse",
+        "declared": 20,
+        "parsed": 20
+      },
+      {
+        "subset": "The Man",
+        "declared": 20,
+        "parsed": 20
+      },
+      {
+        "subset": "Headliners",
+        "declared": 15,
+        "parsed": 15
+      },
+      {
+        "subset": "Aura",
+        "declared": 20,
+        "parsed": 20
+      }
+    ]
+  },
+  "findings": [
+    {
+      "level": "warning",
+      "code": "rookies_not_marked_in_source",
+      "message": "The source marks no rookies (no RC flags in the Teams sheet, no rookie-named block), so no card is flagged as a rookie"
+    }
+  ]
+}

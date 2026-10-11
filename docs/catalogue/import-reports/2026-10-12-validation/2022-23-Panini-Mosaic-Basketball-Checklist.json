@@ -1,0 +1,183 @@
+{
+  "file": "2022-23-Panini-Mosaic-Basketball-Checklist.xlsx",
+  "season": "2022-23",
+  "productLine": "Mosaic",
+  "ok": true,
+  "errors": 0,
+  "warnings": 0,
+  "accepted": 0,
+  "stats": {
+    "sheets": [
+      {
+        "sheet": "Base",
+        "numberedCardRows": 264,
+        "numberedCardsParsed": 264,
+        "cardsParsed": 264,
+        "subsets": 2,
+        "blocks": 0,
+        "notes": 0,
+        "unplaced": 0
+      },
+      {
+        "sheet": "Autographs",
+        "numberedCardRows": 387,
+        "numberedCardsParsed": 387,
+        "cardsParsed": 387,
+        "subsets": 7,
+        "blocks": 0,
+        "notes": 0,
+        "unplaced": 0
+      },
+      {
+        "sheet": "Inserts",
+        "numberedCardRows": 300,
+        "numberedCardsParsed": 300,
+        "cardsParsed": 300,
+        "subsets": 16,
+        "blocks": 0,
+        "notes": 0,
+        "unplaced": 0
+      }
+    ],
+    "subsets": 25,
+    "blocks": 0,
+    "parallels": 136,
+    "cards": 951,
+    "rookies": 64,
+    "rookiesFromBlocks": 0,
+    "rookiesFromTeams": {
+      "sourceRows": 50,
+      "matchedRows": 50,
+      "unmatched": []
+    },
+    "blockStats": [],
+    "declaredCounts": [
+      {
+        "subset": "Base Set",
+        "declared": 250,
+        "parsed": 250
+      },
+      {
+        "subset": "Rookie Variations Fast Break",
+        "declared": 14,
+        "parsed": 14
+      },
+      {
+        "subset": "Autographs Fast Break",
+        "declared": 96,
+        "parsed": 96
+      },
+      {
+        "subset": "Autographs Mosaic",
+        "declared": 59,
+        "parsed": 59
+      },
+      {
+        "subset": "Collage Autographs Mosaic",
+        "declared": 47,
+        "parsed": 47
+      },
+      {
+        "subset": "Pictographs Mosaic",
+        "declared": 48,
+        "parsed": 48
+      },
+      {
+        "subset": "Rookie Autographs Mosaic",
+        "declared": 40,
+        "parsed": 40
+      },
+      {
+        "subset": "Rookie Scripts",
+        "declared": 40,
+        "parsed": 40
+      },
+      {
+        "subset": "Scripts",
+        "declared": 57,
+        "parsed": 57
+      },
+      {
+        "subset": "Breakaway",
+        "declared": 20,
+        "parsed": 20
+      },
+      {
+        "subset": "Elevate",
+        "declared": 25,
+        "parsed": 25
+      },
+      {
+        "subset": "Epic Performers",
+        "declared": 20,
+        "parsed": 20
+      },
+      {
+        "subset": "Give and Go",
+        "declared": 15,
+        "parsed": 15
+      },
+      {
+        "subset": "Introductions",
+        "declared": 15,
+        "parsed": 15
+      },
+      {
+        "subset": "Jam Masters",
+        "declared": 20,
+        "parsed": 20
+      },
+      {
+        "subset": "Montage",
+        "declared": 30,
+        "parsed": 30
+      },
+      {
+        "subset": "Notoriety",
+        "declared": 10,
+        "parsed": 10
+      },
+      {
+        "subset": "Overdrive",
+        "declared": 25,
+        "parsed": 25
+      },
+      {
+        "subset": "Razzle Dazzle",
+        "declared": 15,
+        "parsed": 15
+      },
+      {
+        "subset": "Stained Glass",
+        "declared": 10,
+        "parsed": 10
+      },
+      {
+        "subset": "Stare Masters",
+        "declared": 25,
+        "parsed": 25
+      },
+      {
+        "subset": "Storm Chasers",
+        "declared": 15,
+        "parsed": 15
+      },
+      {
+        "subset": "Straight Fire",
+        "declared": 20,
+        "parsed": 20
+      },
+      {
+        "subset": "Swagger",
+        "declared": 15,
+        "parsed": 15
+      },
+      {
+        "subset": "Thunder Road",
+        "declared": 20,
+        "parsed": 20
+      }
+    ]
+  },
+  "findings": []
+}

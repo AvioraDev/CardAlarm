@@ -1,0 +1,237 @@
+{
+  "file": "2022-23-Donruss-Optic-Basketball-Checklist.xlsx",
+  "season": "2022-23",
+  "productLine": "Donruss Optic",
+  "ok": true,
+  "errors": 0,
+  "warnings": 0,
+  "accepted": 0,
+  "stats": {
+    "sheets": [
+      {
+        "sheet": "Base",
+        "numberedCardRows": 250,
+        "numberedCardsParsed": 250,
+        "cardsParsed": 250,
+        "subsets": 1,
+        "blocks": 1,
+        "notes": 0,
+        "unplaced": 0
+      },
+      {
+        "sheet": "Autographs",
+        "numberedCardRows": 764,
+        "numberedCardsParsed": 764,
+        "cardsParsed": 764,
+        "subsets": 21,
+        "blocks": 0,
+        "notes": 0,
+        "unplaced": 0
+      },
+      {
+        "sheet": "Inserts",
+        "numberedCardRows": 200,
+        "numberedCardsParsed": 200,
+        "cardsParsed": 200,
+        "subsets": 12,
+        "blocks": 0,
+        "notes": 0,
+        "unplaced": 0
+      }
+    ],
+    "subsets": 35,
+    "blocks": 1,
+    "parallels": 229,
+    "cards": 1214,
+    "rookies": 50,
+    "rookiesFromBlocks": 50,
+    "rookiesFromTeams": {
+      "sourceRows": 0,
+      "matchedRows": 0,
+      "unmatched": []
+    },
+    "blockStats": [
+      {
+        "name": "Rated Rookies",
+        "parent": "Base Set",
+        "from": 201,
+        "to": 250,
+        "expected": 50,
+        "parsed": 50
+      }
+    ],
+    "declaredCounts": [
+      {
+        "subset": "Base Set",
+        "declared": 250,
+        "parsed": 250
+      },
+      {
+        "subset": "Dominators Signatures",
+        "declared": 36,
+        "parsed": 36
+      },
+      {
+        "subset": "Fast Break Signatures",
+        "declared": 100,
+        "parsed": 100
+      },
+      {
+        "subset": "Opti-Graphs",
+        "declared": 26,
+        "parsed": 26
+      },
+      {
+        "subset": "Opti-Graphs Choice",
+        "declared": 50,
+        "parsed": 50
+      },
+      {
+        "subset": "Opti-Graphs Choice Black Gold",
+        "declared": 50,
+        "parsed": 50
+      },
+      {
+        "subset": "Opti-Graphs Gold",
+        "declared": 26,
+        "parsed": 26
+      },
+      {
+        "subset": "Opti-Graphs Gold Vinyl",
+        "declared": 26,
+        "parsed": 26
+      },
+      {
+        "subset": "Opti-Graphs Green Wave",
+        "declared": 48,
+        "parsed": 48
+      },
+      {
+        "subset": "Rated Rookies Signatures",
+        "declared": 50,
+        "parsed": 50
+      },
+      {
+        "subset": "Rated Rookies Signatures Premium Box Set",
+        "declared": 25,
+        "parsed": 25
+      },
+      {
+        "subset": "Retro Series Signatures",
+        "declared": 8,
+        "parsed": 8
+      },
+      {
+        "subset": "Retro Series Signatures Choice",
+        "declared": 20,
+        "parsed": 20
+      },
+      {
+        "subset": "Retro Series Signatures Choice Black Gold",
+        "declared": 20,
+        "parsed": 20
+      },
+      {
+        "subset": "Retro Series Signatures Gold",
+        "declared": 8,
+        "parsed": 8
+      },
+      {
+        "subset": "Retro Series Signatures Gold Vinyl",
+        "declared": 8,
+        "parsed": 8
+      },
+      {
+        "subset": "Retro Series Signatures Green Wave",
+        "declared": 20,
+        "parsed": 20
+      },
+      {
+        "subset": "Rookie Dominators Signatures",
+        "declared": 38,
+        "parsed": 38
+      },
+      {
+        "subset": "Rookie Optics Autographs",
+        "declared": 30,
+        "parsed": 30
+      },
+      {
+        "subset": "Signature Series",
+        "declared": 100,
+        "parsed": 100
+      },
+      {
+        "subset": "Signature Series Green Shock",
+        "declared": 59,
+        "parsed": 59
+      },
+      {
+        "subset": "The Elite Series Signatures",
+        "declared": 16,
+        "parsed": 16
+      },
+      {
+        "subset": "All-Stars",
+        "declared": 20,
+        "parsed": 20
+      },
+      {
+        "subset": "Elite Dominators",
+        "declared": 25,
+        "parsed": 25
+      },
+      {
+        "subset": "Express Lane",
+        "declared": 25,
+        "parsed": 25
+      },
+      {
+        "subset": "Lights Out",
+        "declared": 15,
+        "parsed": 15
+      },
+      {
+        "subset": "My House",
+        "declared": 20,
+        "parsed": 20
+      },
+      {
+        "subset": "Optical Illusions",
+        "declared": 5,
+        "parsed": 5
+      },
+      {
+        "subset": "Raining 3s",
+        "declared": 20,
+        "parsed": 20
+      },
+      {
+        "subset": "Splash!",
+        "declared": 15,
+        "parsed": 15
+      },
+      {
+        "subset": "Star Gazing",
+        "declared": 15,
+        "parsed": 15
+      },
+      {
+        "subset": "T-Minus 3...2...1...",
+        "declared": 15,
+        "parsed": 15
+      },
+      {
+        "subset": "The Rookies",
+        "declared": 5,
+        "parsed": 5
+      },
+      {
+        "subset": "Winner Stays",
+        "declared": 20,
+        "parsed": 20
+      }
+    ]
+  },
+  "findings": []
+}

@@ -1,0 +1,202 @@
+{
+  "file": "2021-22-Panini-Prizm-Basketball-Checklist.xlsx",
+  "season": "2021-22",
+  "productLine": "Prizm",
+  "ok": true,
+  "errors": 0,
+  "warnings": 0,
+  "accepted": 0,
+  "stats": {
+    "sheets": [
+      {
+        "sheet": "Base",
+        "numberedCardRows": 366,
+        "numberedCardsParsed": 366,
+        "cardsParsed": 366,
+        "subsets": 4,
+        "blocks": 0,
+        "notes": 0,
+        "unplaced": 0
+      },
+      {
+        "sheet": "Autographs",
+        "numberedCardRows": 302,
+        "numberedCardsParsed": 302,
+        "cardsParsed": 302,
+        "subsets": 8,
+        "blocks": 0,
+        "notes": 0,
+        "unplaced": 0
+      },
+      {
+        "sheet": "Memorabilia",
+        "numberedCardRows": 100,
+        "numberedCardsParsed": 100,
+        "cardsParsed": 100,
+        "subsets": 1,
+        "blocks": 0,
+        "notes": 0,
+        "unplaced": 0
+      },
+      {
+        "sheet": "Inserts",
+        "numberedCardRows": 247,
+        "numberedCardsParsed": 247,
+        "cardsParsed": 247,
+        "subsets": 12,
+        "blocks": 1,
+        "notes": 0,
+        "unplaced": 0
+      }
+    ],
+    "subsets": 26,
+    "blocks": 1,
+    "parallels": 148,
+    "cards": 1015,
+    "rookies": 70,
+    "rookiesFromBlocks": 0,
+    "rookiesFromTeams": {
+      "sourceRows": 56,
+      "matchedRows": 56,
+      "unmatched": []
+    },
+    "blockStats": [
+      {
+        "name": "Retail",
+        "parent": "NBA 75th Logo",
+        "from": 12,
+        "to": 22,
+        "expected": 11,
+        "parsed": 11
+      }
+    ],
+    "declaredCounts": [
+      {
+        "subset": "Base Set",
+        "declared": 330,
+        "parsed": 330
+      },
+      {
+        "subset": "Rookie Variations",
+        "declared": 14,
+        "parsed": 14
+      },
+      {
+        "subset": "Team Durant Retail Variations",
+        "declared": 11,
+        "parsed": 11
+      },
+      {
+        "subset": "Team LeBron Hobby Variations",
+        "declared": 11,
+        "parsed": 11
+      },
+      {
+        "subset": "Fast Break Autographs",
+        "declared": 59,
+        "parsed": 59
+      },
+      {
+        "subset": "Fast Break Rookie Autographs",
+        "declared": 39,
+        "parsed": 39
+      },
+      {
+        "subset": "Flashback Signatures",
+        "declared": 15,
+        "parsed": 15
+      },
+      {
+        "subset": "Rookie Private Signings Association Version",
+        "declared": 1,
+        "parsed": 1
+      },
+      {
+        "subset": "Rookie Private Signings Icon Version",
+        "declared": 3,
+        "parsed": 3
+      },
+      {
+        "subset": "Rookie Signatures",
+        "declared": 50,
+        "parsed": 50
+      },
+      {
+        "subset": "Sensational Signatures",
+        "declared": 85,
+        "parsed": 85
+      },
+      {
+        "subset": "Signatures",
+        "declared": 50,
+        "parsed": 50
+      },
+      {
+        "subset": "Sensational Swatches",
+        "declared": 100,
+        "parsed": 100
+      },
+      {
+        "subset": "75 Years of the NBA Optic",
+        "declared": 25,
+        "parsed": 25
+      },
+      {
+        "subset": "Dominance",
+        "declared": 25,
+        "parsed": 25
+      },
+      {
+        "subset": "Emergent",
+        "declared": 30,
+        "parsed": 30
+      },
+      {
+        "subset": "Fearless",
+        "declared": 20,
+        "parsed": 20
+      },
+      {
+        "subset": "Fireworks",
+        "declared": 25,
+        "parsed": 25
+      },
+      {
+        "subset": "Global Reach",
+        "declared": 10,
+        "parsed": 10
+      },
+      {
+        "subset": "Instant Impact",
+        "declared": 25,
+        "parsed": 25
+      },
+      {
+        "subset": "Mindset",
+        "declared": 15,
+        "parsed": 15
+      },
+      {
+        "subset": "NBA 75th Logo",
+        "declared": 22,
+        "parsed": 22
+      },
+      {
+        "subset": "Prizmatic",
+        "declared": 30,
+        "parsed": 30
+      },
+      {
+        "subset": "USA Basketball",
+        "declared": 10,
+        "parsed": 10
+      },
+      {
+        "subset": "Widescreen",
+        "declared": 10,
+        "parsed": 10
+      }
+    ]
+  },
+  "findings": []
+}

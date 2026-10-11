@@ -1,0 +1,249 @@
+{
+  "file": "2021-22-Panini-Court-Kings-Basketball-Checklist.xlsx",
+  "season": "2021-22",
+  "productLine": "Court Kings",
+  "ok": true,
+  "errors": 0,
+  "warnings": 0,
+  "accepted": 0,
+  "stats": {
+    "sheets": [
+      {
+        "sheet": "Base",
+        "numberedCardRows": 199,
+        "numberedCardsParsed": 199,
+        "cardsParsed": 199,
+        "subsets": 1,
+        "blocks": 5,
+        "notes": 0,
+        "unplaced": 0
+      },
+      {
+        "sheet": "Autographs",
+        "numberedCardRows": 251,
+        "numberedCardsParsed": 251,
+        "cardsParsed": 251,
+        "subsets": 10,
+        "blocks": 0,
+        "notes": 0,
+        "unplaced": 0
+      },
+      {
+        "sheet": "Memorabilia",
+        "numberedCardRows": 100,
+        "numberedCardsParsed": 100,
+        "cardsParsed": 100,
+        "subsets": 3,
+        "blocks": 0,
+        "notes": 0,
+        "unplaced": 0
+      },
+      {
+        "sheet": "Inserts",
+        "numberedCardRows": 293,
+        "numberedCardsParsed": 293,
+        "cardsParsed": 293,
+        "subsets": 14,
+        "blocks": 0,
+        "notes": 0,
+        "unplaced": 0
+      }
+    ],
+    "subsets": 33,
+    "blocks": 5,
+    "parallels": 77,
+    "cards": 843,
+    "rookies": 132,
+    "rookiesFromBlocks": 132,
+    "rookiesFromTeams": {
+      "sourceRows": 0,
+      "matchedRows": 0,
+      "unmatched": []
+    },
+    "blockStats": [
+      {
+        "name": "Veterans",
+        "parent": "Base Set",
+        "from": 1,
+        "to": 67,
+        "expected": 67,
+        "parsed": 67
+      },
+      {
+        "name": "Rookies I",
+        "parent": "Base Set",
+        "from": 68,
+        "to": 100,
+        "expected": 33,
+        "parsed": 33
+      },
+      {
+        "name": "Rookies II",
+        "parent": "Base Set",
+        "from": 101,
+        "to": 133,
+        "expected": 33,
+        "parsed": 33
+      },
+      {
+        "name": "Rookies III",
+        "parent": "Base Set",
+        "from": 134,
+        "to": 166,
+        "expected": 33,
+        "parsed": 33
+      },
+      {
+        "name": "Rookies IV",
+        "parent": "Base Set",
+        "from": 167,
+        "to": 199,
+        "expected": 33,
+        "parsed": 33
+      }
+    ],
+    "declaredCounts": [
+      {
+        "subset": "Base Set",
+        "declared": 199,
+        "parsed": 199
+      },
+      {
+        "subset": "Award-Winning Autographs",
+        "declared": 5,
+        "parsed": 5
+      },
+      {
+        "subset": "Brush Strokes",
+        "declared": 28,
+        "parsed": 28
+      },
+      {
+        "subset": "Brush Strokes Ruby",
+        "declared": 15,
+        "parsed": 15
+      },
+      {
+        "subset": "Fresh Paint",
+        "declared": 45,
+        "parsed": 45
+      },
+      {
+        "subset": "Heir Apparent",
+        "declared": 45,
+        "parsed": 45
+      },
+      {
+        "subset": "Holding Court Signatures",
+        "declared": 39,
+        "parsed": 39
+      },
+      {
+        "subset": "Holding Court Signatures Ruby",
+        "declared": 15,
+        "parsed": 15
+      },
+      {
+        "subset": "Impressionist Ink",
+        "declared": 30,
+        "parsed": 30
+      },
+      {
+        "subset": "Impressionist Ink Ruby",
+        "declared": 19,
+        "parsed": 19
+      },
+      {
+        "subset": "Legacy Portrait Signatures",
+        "declared": 10,
+        "parsed": 10
+      },
+      {
+        "subset": "Art Nouveau",
+        "declared": 40,
+        "parsed": 40
+      },
+      {
+        "subset": "Artistic Endeavors",
+        "declared": 20,
+        "parsed": 20
+      },
+      {
+        "subset": "Rookie Expression Memorabilia",
+        "declared": 40,
+        "parsed": 40
+      },
+      {
+        "subset": "Acetate Rookies",
+        "declared": 25,
+        "parsed": 25
+      },
+      {
+        "subset": "Artistry in Motion",
+        "declared": 30,
+        "parsed": 30
+      },
+      {
+        "subset": "Aurora",
+        "declared": 17,
+        "parsed": 17
+      },
+      {
+        "subset": "Blank Slate",
+        "declared": 30,
+        "parsed": 30
+      },
+      {
+        "subset": "Contemporaries",
+        "declared": 30,
+        "parsed": 30
+      },
+      {
+        "subset": "Dressed to Impress",
+        "declared": 10,
+        "parsed": 10
+      },
+      {
+        "subset": "First Steps",
+        "declared": 10,
+        "parsed": 10
+      },
+      {
+        "subset": "Graffiti Greats",
+        "declared": 30,
+        "parsed": 30
+      },
+      {
+        "subset": "Le Cinque Piu Belle",
+        "declared": 10,
+        "parsed": 10
+      },
+      {
+        "subset": "Maestros",
+        "declared": 30,
+        "parsed": 30
+      },
+      {
+        "subset": "Modern Strokes",
+        "declared": 30,
+        "parsed": 30
+      },
+      {
+        "subset": "Rookie Exclusive",
+        "declared": 1,
+        "parsed": 1
+      },
+      {
+        "subset": "State of the Art",
+        "declared": 10,
+        "parsed": 10
+      },
+      {
+        "subset": "Works in Progress",
+        "declared": 30,
+        "parsed": 30
+      }
+    ]
+  },
+  "findings": []
+}

@@ -1,0 +1,290 @@
+{
+  "file": "2023-24-Panini-NBA-Hoops-Basketball-Checklist.xlsx",
+  "season": "2023-24",
+  "productLine": "Hoops",
+  "ok": true,
+  "errors": 0,
+  "warnings": 0,
+  "accepted": 0,
+  "stats": {
+    "sheets": [
+      {
+        "sheet": "Base",
+        "numberedCardRows": 300,
+        "numberedCardsParsed": 300,
+        "cardsParsed": 300,
+        "subsets": 1,
+        "blocks": 2,
+        "notes": 0,
+        "unplaced": 0
+      },
+      {
+        "sheet": "Autographs",
+        "numberedCardRows": 406,
+        "numberedCardsParsed": 406,
+        "cardsParsed": 406,
+        "subsets": 10,
+        "blocks": 0,
+        "notes": 0,
+        "unplaced": 0
+      },
+      {
+        "sheet": "Memorabilia",
+        "numberedCardRows": 83,
+        "numberedCardsParsed": 83,
+        "cardsParsed": 83,
+        "subsets": 3,
+        "blocks": 0,
+        "notes": 0,
+        "unplaced": 0
+      },
+      {
+        "sheet": "Inserts",
+        "numberedCardRows": 498,
+        "numberedCardsParsed": 498,
+        "cardsParsed": 498,
+        "subsets": 27,
+        "blocks": 0,
+        "notes": 0,
+        "unplaced": 0
+      }
+    ],
+    "subsets": 43,
+    "blocks": 2,
+    "parallels": 88,
+    "cards": 1287,
+    "rookies": 50,
+    "rookiesFromBlocks": 50,
+    "rookiesFromTeams": {
+      "sourceRows": 50,
+      "matchedRows": 50,
+      "unmatched": []
+    },
+    "blockStats": [
+      {
+        "name": "Rookies",
+        "parent": "Base Set",
+        "from": 231,
+        "to": 280,
+        "expected": 50,
+        "parsed": 50
+      },
+      {
+        "name": "Hoops Tribute",
+        "parent": "Base Set",
+        "from": 281,
+        "to": 300,
+        "expected": 20,
+        "parsed": 20
+      }
+    ],
+    "declaredCounts": [
+      {
+        "subset": "Base Set",
+        "declared": 300,
+        "parsed": 300
+      },
+      {
+        "subset": "Base Hoops Tribute Premium Box Set Autographs",
+        "declared": 20,
+        "parsed": 20
+      },
+      {
+        "subset": "Calligraphy Signatures",
+        "declared": 28,
+        "parsed": 28
+      },
+      {
+        "subset": "Great SIGnificance",
+        "declared": 93,
+        "parsed": 93
+      },
+      {
+        "subset": "Hoops Art Signatures Horizontal",
+        "declared": 5,
+        "parsed": 5
+      },
+      {
+        "subset": "Hoops Art Signatures Vertical",
+        "declared": 5,
+        "parsed": 5
+      },
+      {
+        "subset": "Hoops Ink",
+        "declared": 49,
+        "parsed": 49
+      },
+      {
+        "subset": "Hot Signatures",
+        "declared": 50,
+        "parsed": 50
+      },
+      {
+        "subset": "Hot Signatures Rookies",
+        "declared": 49,
+        "parsed": 49
+      },
+      {
+        "subset": "Private Signings",
+        "declared": 59,
+        "parsed": 59
+      },
+      {
+        "subset": "Rookie Ink",
+        "declared": 48,
+        "parsed": 48
+      },
+      {
+        "subset": "Rise N Shine Memorabilia",
+        "declared": 35,
+        "parsed": 35
+      },
+      {
+        "subset": "Rookie Remembrance",
+        "declared": 15,
+        "parsed": 15
+      },
+      {
+        "subset": "Rookie Sweaters",
+        "declared": 33,
+        "parsed": 33
+      },
+      {
+        "subset": "Anti Gravity",
+        "declared": 20,
+        "parsed": 20
+      },
+      {
+        "subset": "Arriving Now",
+        "declared": 30,
+        "parsed": 30
+      },
+      {
+        "subset": "Attack the Rack",
+        "declared": 10,
+        "parsed": 10
+      },
+      {
+        "subset": "Championship Moments",
+        "declared": 10,
+        "parsed": 10
+      },
+      {
+        "subset": "City Edition",
+        "declared": 30,
+        "parsed": 30
+      },
+      {
+        "subset": "Dynamos",
+        "declared": 15,
+        "parsed": 15
+      },
+      {
+        "subset": "Extreme Team",
+        "declared": 15,
+        "parsed": 15
+      },
+      {
+        "subset": "Finals MVP",
+        "declared": 1,
+        "parsed": 1
+      },
+      {
+        "subset": "High Voltage",
+        "declared": 25,
+        "parsed": 25
+      },
+      {
+        "subset": "Highlights",
+        "declared": 5,
+        "parsed": 5
+      },
+      {
+        "subset": "HIPnotized",
+        "declared": 20,
+        "parsed": 20
+      },
+      {
+        "subset": "Hoopla",
+        "declared": 15,
+        "parsed": 15
+      },
+      {
+        "subset": "Hoops Throwback",
+        "declared": 25,
+        "parsed": 25
+      },
+      {
+        "subset": "Ignition",
+        "declared": 30,
+        "parsed": 30
+      },
+      {
+        "subset": "JAM-tastic",
+        "declared": 25,
+        "parsed": 25
+      },
+      {
+        "subset": "Now Playing",
+        "declared": 31,
+        "parsed": 31
+      },
+      {
+        "subset": "Presentations",
+        "declared": 20,
+        "parsed": 20
+      },
+      {
+        "subset": "Pure Players",
+        "declared": 10,
+        "parsed": 10
+      },
+      {
+        "subset": "Road to the Finals - Conference Finals",
+        "declared": 12,
+        "parsed": 12
+      },
+      {
+        "subset": "Road to the Finals - First Round Recap",
+        "declared": 8,
+        "parsed": 8
+      },
+      {
+        "subset": "Road to the Finals - NBA Championship",
+        "declared": 6,
+        "parsed": 6
+      },
+      {
+        "subset": "Road to the Finals - Second Round",
+        "declared": 26,
+        "parsed": 26
+      },
+      {
+        "subset": "Rookie Greetings",
+        "declared": 20,
+        "parsed": 20
+      },
+      {
+        "subset": "Rookie Special",
+        "declared": 4,
+        "parsed": 4
+      },
+      {
+        "subset": "Sheesh",
+        "declared": 25,
+        "parsed": 25
+      },
+      {
+        "subset": "Skyview",
+        "declared": 25,
+        "parsed": 25
+      },
+      {
+        "subset": "We Got Next",
+        "declared": 35,
+        "parsed": 35
+      }
+    ]
+  },
+  "findings": []
+}

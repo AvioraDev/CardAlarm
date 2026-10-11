@@ -1,0 +1,167 @@
+{
+  "file": "2022-23-Donruss-Basketball-Checklist.xlsx",
+  "season": "2022-23",
+  "productLine": "Donruss",
+  "ok": true,
+  "errors": 0,
+  "warnings": 0,
+  "accepted": 0,
+  "stats": {
+    "sheets": [
+      {
+        "sheet": "Base",
+        "numberedCardRows": 250,
+        "numberedCardsParsed": 250,
+        "cardsParsed": 250,
+        "subsets": 1,
+        "blocks": 1,
+        "notes": 0,
+        "unplaced": 0
+      },
+      {
+        "sheet": "Autographs",
+        "numberedCardRows": 186,
+        "numberedCardsParsed": 186,
+        "cardsParsed": 186,
+        "subsets": 3,
+        "blocks": 0,
+        "notes": 0,
+        "unplaced": 0
+      },
+      {
+        "sheet": "Memorabilia",
+        "numberedCardRows": 0,
+        "numberedCardsParsed": 0,
+        "cardsParsed": 0,
+        "subsets": 0,
+        "blocks": 0,
+        "notes": 0,
+        "unplaced": 0
+      },
+      {
+        "sheet": "Inserts",
+        "numberedCardRows": 240,
+        "numberedCardsParsed": 240,
+        "cardsParsed": 240,
+        "subsets": 14,
+        "blocks": 0,
+        "notes": 0,
+        "unplaced": 0
+      }
+    ],
+    "subsets": 19,
+    "blocks": 1,
+    "parallels": 116,
+    "cards": 676,
+    "rookies": 50,
+    "rookiesFromBlocks": 50,
+    "rookiesFromTeams": {
+      "sourceRows": 0,
+      "matchedRows": 0,
+      "unmatched": []
+    },
+    "blockStats": [
+      {
+        "name": "Rated Rookies",
+        "parent": "Base Set",
+        "from": 201,
+        "to": 250,
+        "expected": 50,
+        "parsed": 50
+      }
+    ],
+    "declaredCounts": [
+      {
+        "subset": "Base Set",
+        "declared": 250,
+        "parsed": 250
+      },
+      {
+        "subset": "Next Day Autographs",
+        "declared": 39,
+        "parsed": 39
+      },
+      {
+        "subset": "Rated Rookies Signatures",
+        "declared": 50,
+        "parsed": 50
+      },
+      {
+        "subset": "Signature Series",
+        "declared": 97,
+        "parsed": 97
+      },
+      {
+        "subset": "Animation",
+        "declared": 10,
+        "parsed": 10
+      },
+      {
+        "subset": "Bomb Squad",
+        "declared": 20,
+        "parsed": 20
+      },
+      {
+        "subset": "Complete Players",
+        "declared": 10,
+        "parsed": 10
+      },
+      {
+        "subset": "Craftsmen",
+        "declared": 15,
+        "parsed": 15
+      },
+      {
+        "subset": "Crunch Time",
+        "declared": 15,
+        "parsed": 15
+      },
+      {
+        "subset": "Franchise Features",
+        "declared": 30,
+        "parsed": 30
+      },
+      {
+        "subset": "Great X-Pectations",
+        "declared": 25,
+        "parsed": 25
+      },
+      {
+        "subset": "Magicians",
+        "declared": 10,
+        "parsed": 10
+      },
+      {
+        "subset": "Net Marvels",
+        "declared": 20,
+        "parsed": 20
+      },
+      {
+        "subset": "Night Moves",
+        "declared": 30,
+        "parsed": 30
+      },
+      {
+        "subset": "Production Line",
+        "declared": 10,
+        "parsed": 10
+      },
+      {
+        "subset": "Retro Series",
+        "declared": 25,
+        "parsed": 25
+      },
+      {
+        "subset": "The Rookies",
+        "declared": 5,
+        "parsed": 5
+      },
+      {
+        "subset": "Unleashed",
+        "declared": 15,
+        "parsed": 15
+      }
+    ]
+  },
+  "findings": []
+}

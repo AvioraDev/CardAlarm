@@ -1,0 +1,277 @@
+{
+  "file": "2023-24-Panini-Obsidian-Basketball-Checklist.xlsx",
+  "season": "2023-24",
+  "productLine": "Obsidian",
+  "ok": true,
+  "errors": 0,
+  "warnings": 0,
+  "accepted": 0,
+  "stats": {
+    "sheets": [
+      {
+        "sheet": "Base",
+        "numberedCardRows": 273,
+        "numberedCardsParsed": 273,
+        "cardsParsed": 273,
+        "subsets": 2,
+        "blocks": 1,
+        "notes": 0,
+        "unplaced": 0
+      },
+      {
+        "sheet": "Autographs",
+        "numberedCardRows": 564,
+        "numberedCardsParsed": 564,
+        "cardsParsed": 564,
+        "subsets": 20,
+        "blocks": 0,
+        "notes": 0,
+        "unplaced": 0
+      },
+      {
+        "sheet": "Memorabilia",
+        "numberedCardRows": 201,
+        "numberedCardsParsed": 201,
+        "cardsParsed": 201,
+        "subsets": 10,
+        "blocks": 0,
+        "notes": 0,
+        "unplaced": 0
+      },
+      {
+        "sheet": "Inserts",
+        "numberedCardRows": 200,
+        "numberedCardsParsed": 200,
+        "cardsParsed": 200,
+        "subsets": 8,
+        "blocks": 0,
+        "notes": 0,
+        "unplaced": 0
+      }
+    ],
+    "subsets": 41,
+    "blocks": 1,
+    "parallels": 131,
+    "cards": 1238,
+    "rookies": 40,
+    "rookiesFromBlocks": 40,
+    "rookiesFromTeams": {
+      "sourceRows": 0,
+      "matchedRows": 0,
+      "unmatched": []
+    },
+    "blockStats": [
+      {
+        "name": "Rookie Jersey Autographs",
+        "parent": "Base Set",
+        "from": 201,
+        "to": 240,
+        "expected": 40,
+        "parsed": 40
+      }
+    ],
+    "declaredCounts": [
+      {
+        "subset": "Base Set",
+        "declared": 240,
+        "parsed": 240
+      },
+      {
+        "subset": "Rookie Jersey Autographs Orange Flood Electric Etch",
+        "declared": 33,
+        "parsed": 33
+      },
+      {
+        "subset": "2023-24 Panini Private Signings",
+        "declared": 6,
+        "parsed": 6
+      },
+      {
+        "subset": "Galaxy Ink",
+        "declared": 49,
+        "parsed": 49
+      },
+      {
+        "subset": "Magmatic Signatures",
+        "declared": 49,
+        "parsed": 49
+      },
+      {
+        "subset": "Magmatic Signatures Orange Flood Electric Etch",
+        "declared": 42,
+        "parsed": 42
+      },
+      {
+        "subset": "Matrix Material Autos",
+        "declared": 18,
+        "parsed": 18
+      },
+      {
+        "subset": "Matrix Material Autos Orange Flood Electric Etch",
+        "declared": 17,
+        "parsed": 17
+      },
+      {
+        "subset": "Matrix Material Autos Purple Flood Electric Etch",
+        "declared": 18,
+        "parsed": 18
+      },
+      {
+        "subset": "Rookie Eruption Autographs",
+        "declared": 30,
+        "parsed": 30
+      },
+      {
+        "subset": "Rookie Eruption Autographs Orange Flood Electric Etch",
+        "declared": 23,
+        "parsed": 23
+      },
+      {
+        "subset": "Rookie Jersey Ink",
+        "declared": 40,
+        "parsed": 40
+      },
+      {
+        "subset": "Rookie Jersey Ink Orange Flood Electric Etch",
+        "declared": 32,
+        "parsed": 32
+      },
+      {
+        "subset": "Twilight Signatures",
+        "declared": 25,
+        "parsed": 25
+      },
+      {
+        "subset": "Twilight Signatures Electric Etch Blue",
+        "declared": 25,
+        "parsed": 25
+      },
+      {
+        "subset": "Twilight Signatures Electric Etch Deep Sea Mojo",
+        "declared": 27,
+        "parsed": 27
+      },
+      {
+        "subset": "Twilight Signatures Electric Etch Gold Flood",
+        "declared": 28,
+        "parsed": 28
+      },
+      {
+        "subset": "Twilight Signatures Electric Etch Green",
+        "declared": 27,
+        "parsed": 27
+      },
+      {
+        "subset": "Twilight Signatures Electric Etch Orange Flood",
+        "declared": 17,
+        "parsed": 17
+      },
+      {
+        "subset": "Twilight Signatures Electric Etch Purple Flood",
+        "declared": 23,
+        "parsed": 23
+      },
+      {
+        "subset": "Twilight Signatures Electric Etch Vibrant Mojo",
+        "declared": 28,
+        "parsed": 28
+      },
+      {
+        "subset": "Volcanic Signatures",
+        "declared": 40,
+        "parsed": 40
+      },
+      {
+        "subset": "Cutting Edge Memorabilia",
+        "declared": 20,
+        "parsed": 20
+      },
+      {
+        "subset": "Cutting Edge Memorabilia Deep Sea Mojo",
+        "declared": 18,
+        "parsed": 18
+      },
+      {
+        "subset": "Cutting Edge Memorabilia Gold Flood",
+        "declared": 17,
+        "parsed": 17
+      },
+      {
+        "subset": "Cutting Edge Memorabilia Green",
+        "declared": 8,
+        "parsed": 8
+      },
+      {
+        "subset": "Cutting Edge Memorabilia Orange Flood",
+        "declared": 20,
+        "parsed": 20
+      },
+      {
+        "subset": "Cutting Edge Memorabilia Purple Flood",
+        "declared": 20,
+        "parsed": 20
+      },
+      {
+        "subset": "Cutting Edge Memorabilia Vibrant Mojo",
+        "declared": 19,
+        "parsed": 19
+      },
+      {
+        "subset": "Eclipse Materials",
+        "declared": 30,
+        "parsed": 30
+      },
+      {
+        "subset": "Equinox Gear",
+        "declared": 19,
+        "parsed": 19
+      },
+      {
+        "subset": "Unbreakable Memorabilia",
+        "declared": 30,
+        "parsed": 30
+      },
+      {
+        "subset": "Black Color Blast",
+        "declared": 25,
+        "parsed": 25
+      },
+      {
+        "subset": "Equinox",
+        "declared": 40,
+        "parsed": 40
+      },
+      {
+        "subset": "Hotspot",
+        "declared": 20,
+        "parsed": 20
+      },
+      {
+        "subset": "Mist",
+        "declared": 25,
+        "parsed": 25
+      },
+      {
+        "subset": "Orbital",
+        "declared": 30,
+        "parsed": 30
+      },
+      {
+        "subset": "Supernova",
+        "declared": 10,
+        "parsed": 10
+      },
+      {
+        "subset": "Vitreous",
+        "declared": 15,
+        "parsed": 15
+      },
+      {
+        "subset": "Volcanix",
+        "declared": 35,
+        "parsed": 35
+      }
+    ]
+  },
+  "findings": []
+}

@@ -1,0 +1,168 @@
+{
+  "file": "2020-21-Donruss-Optic-Basketball-Checklist.xlsx",
+  "season": "2020-21",
+  "productLine": "Donruss Optic",
+  "ok": true,
+  "errors": 0,
+  "warnings": 0,
+  "accepted": 0,
+  "stats": {
+    "sheets": [
+      {
+        "sheet": "Base",
+        "numberedCardRows": 200,
+        "numberedCardsParsed": 200,
+        "cardsParsed": 200,
+        "subsets": 2,
+        "blocks": 0,
+        "notes": 0,
+        "unplaced": 0
+      },
+      {
+        "sheet": "Autographs",
+        "numberedCardRows": 376,
+        "numberedCardsParsed": 376,
+        "cardsParsed": 376,
+        "subsets": 8,
+        "blocks": 0,
+        "notes": 0,
+        "unplaced": 0
+      },
+      {
+        "sheet": "Memorabilia",
+        "numberedCardRows": 0,
+        "numberedCardsParsed": 0,
+        "cardsParsed": 0,
+        "subsets": 0,
+        "blocks": 0,
+        "notes": 0,
+        "unplaced": 0
+      },
+      {
+        "sheet": "Inserts",
+        "numberedCardRows": 200,
+        "numberedCardsParsed": 200,
+        "cardsParsed": 200,
+        "subsets": 12,
+        "blocks": 0,
+        "notes": 0,
+        "unplaced": 0
+      }
+    ],
+    "subsets": 22,
+    "blocks": 0,
+    "parallels": 241,
+    "cards": 776,
+    "rookies": 50,
+    "rookiesFromBlocks": 0,
+    "rookiesFromTeams": {
+      "sourceRows": 50,
+      "matchedRows": 50,
+      "unmatched": []
+    },
+    "blockStats": [],
+    "declaredCounts": [
+      {
+        "subset": "Dominators Signatures",
+        "declared": 40,
+        "parsed": 40
+      },
+      {
+        "subset": "Fast Break Signatures",
+        "declared": 100,
+        "parsed": 100
+      },
+      {
+        "subset": "Rated Rookies Signatures",
+        "declared": 50,
+        "parsed": 50
+      },
+      {
+        "subset": "Rated Rookies Signatures Premium Box Set",
+        "declared": 25,
+        "parsed": 25
+      },
+      {
+        "subset": "Retro Series Signatues",
+        "declared": 30,
+        "parsed": 30
+      },
+      {
+        "subset": "Rookie Dominators Signatures",
+        "declared": 30,
+        "parsed": 30
+      },
+      {
+        "subset": "Rookie Private Signings Association Version",
+        "declared": 1,
+        "parsed": 1
+      },
+      {
+        "subset": "Signature Series",
+        "declared": 100,
+        "parsed": 100
+      },
+      {
+        "subset": "Air Defense",
+        "declared": 5,
+        "parsed": 5
+      },
+      {
+        "subset": "All-Stars",
+        "declared": 20,
+        "parsed": 20
+      },
+      {
+        "subset": "Elite Dominators",
+        "declared": 25,
+        "parsed": 25
+      },
+      {
+        "subset": "Express Lane",
+        "declared": 25,
+        "parsed": 25
+      },
+      {
+        "subset": "Lights Out",
+        "declared": 15,
+        "parsed": 15
+      },
+      {
+        "subset": "My House",
+        "declared": 20,
+        "parsed": 20
+      },
+      {
+        "subset": "Raining 3s",
+        "declared": 20,
+        "parsed": 20
+      },
+      {
+        "subset": "Splash!",
+        "declared": 15,
+        "parsed": 15
+      },
+      {
+        "subset": "Star Gazing",
+        "declared": 15,
+        "parsed": 15
+      },
+      {
+        "subset": "T-Minus 3...2...1...",
+        "declared": 15,
+        "parsed": 15
+      },
+      {
+        "subset": "The Rookies",
+        "declared": 5,
+        "parsed": 5
+      },
+      {
+        "subset": "Winner Stays",
+        "declared": 20,
+        "parsed": 20
+      }
+    ]
+  },
+  "findings": []
+}

@@ -1,0 +1,274 @@
+{
+  "file": "2024-25-Panini-Prizm-Black-Basketball-Checklist.xlsx",
+  "season": "2024-25",
+  "productLine": "Prizm Black",
+  "ok": true,
+  "errors": 0,
+  "warnings": 2,
+  "accepted": 0,
+  "stats": {
+    "sheets": [
+      {
+        "sheet": "Base",
+        "numberedCardRows": 300,
+        "numberedCardsParsed": 300,
+        "cardsParsed": 300,
+        "subsets": 2,
+        "blocks": 0,
+        "notes": 0,
+        "unplaced": 0
+      },
+      {
+        "sheet": "Autographs",
+        "numberedCardRows": 1512,
+        "numberedCardsParsed": 1512,
+        "cardsParsed": 1512,
+        "subsets": 29,
+        "blocks": 0,
+        "notes": 0,
+        "unplaced": 0
+      },
+      {
+        "sheet": "Inserts",
+        "numberedCardRows": 200,
+        "numberedCardsParsed": 200,
+        "cardsParsed": 200,
+        "subsets": 10,
+        "blocks": 0,
+        "notes": 0,
+        "unplaced": 0
+      }
+    ],
+    "subsets": 41,
+    "blocks": 0,
+    "parallels": 122,
+    "cards": 2012,
+    "rookies": 0,
+    "rookiesFromBlocks": 0,
+    "rookiesFromTeams": {
+      "sourceRows": 0,
+      "matchedRows": 0,
+      "unmatched": []
+    },
+    "blockStats": [],
+    "declaredCounts": [
+      {
+        "subset": "Base Set",
+        "declared": 300,
+        "parsed": 300
+      },
+      {
+        "subset": "Base Legends",
+        "declared": 50,
+        "parsed": 50
+      },
+      {
+        "subset": "Base Autographs Prizms Silver",
+        "declared": 177,
+        "parsed": 177
+      },
+      {
+        "subset": "Base Autographs Prizms Blue Shimmer FOTL",
+        "declared": 72,
+        "parsed": 72
+      },
+      {
+        "subset": "Base Autographs Prizms Gold Shimmer FOTL",
+        "declared": 83,
+        "parsed": 83
+      },
+      {
+        "subset": "Base Autographs Prizms Gold Vinyl FOTL",
+        "declared": 92,
+        "parsed": 92
+      },
+      {
+        "subset": "Base Autographs Prizms Nebula FOTL",
+        "declared": 99,
+        "parsed": 99
+      },
+      {
+        "subset": "Base Legends Autographs Prizms Silver",
+        "declared": 44,
+        "parsed": 44
+      },
+      {
+        "subset": "Base Legends Autographs Prizms Blue Shimmer FOTL",
+        "declared": 37,
+        "parsed": 37
+      },
+      {
+        "subset": "Base Legends Autographs Prizms Gold Shimmer FOTL",
+        "declared": 40,
+        "parsed": 40
+      },
+      {
+        "subset": "Base Legends Autographs Prizms Gold Vinyl FOTL",
+        "declared": 43,
+        "parsed": 43
+      },
+      {
+        "subset": "Base Legends Autographs Prizms Nebula FOTL",
+        "declared": 45,
+        "parsed": 45
+      },
+      {
+        "subset": "Dual Autographs",
+        "declared": 19,
+        "parsed": 19
+      },
+      {
+        "subset": "Flashback Signatures",
+        "declared": 30,
+        "parsed": 30
+      },
+      {
+        "subset": "Prizmatrix Signatures",
+        "declared": 10,
+        "parsed": 10
+      },
+      {
+        "subset": "Prolific Signatures",
+        "declared": 40,
+        "parsed": 40
+      },
+      {
+        "subset": "Rookie Signatures",
+        "declared": 48,
+        "parsed": 50
+      },
+      {
+        "subset": "Rookie Signatures Prizms - Silver",
+        "declared": 37,
+        "parsed": 37
+      },
+      {
+        "subset": "Rookie Signatures Prizms - Red",
+        "declared": 35,
+        "parsed": 35
+      },
+      {
+        "subset": "Rookie Signatures Prizms - Blue",
+        "declared": 37,
+        "parsed": 37
+      },
+      {
+        "subset": "Rookie Signatures Prizms Blue Shimmer FOTL",
+        "declared": 24,
+        "parsed": 24
+      },
+      {
+        "subset": "Sensational Signatures",
+        "declared": 90,
+        "parsed": 90
+      },
+      {
+        "subset": "Sensational Signatures - Silver",
+        "declared": 77,
+        "parsed": 77
+      },
+      {
+        "subset": "Sensational Signatures - Red",
+        "declared": 63,
+        "parsed": 63
+      },
+      {
+        "subset": "Sensational Signatures - Blue",
+        "declared": 68,
+        "parsed": 68
+      },
+      {
+        "subset": "Sensational Signatures Prizms Blue Shimmer FOTL",
+        "declared": 42,
+        "parsed": 42
+      },
+      {
+        "subset": "Signatures",
+        "declared": 50,
+        "parsed": 50
+      },
+      {
+        "subset": "Signatures - Red",
+        "declared": 28,
+        "parsed": 28
+      },
+      {
+        "subset": "Signatures - Blue",
+        "declared": 35,
+        "parsed": 35
+      },
+      {
+        "subset": "Signatures Prizms Blue Shimmer FOTL",
+        "declared": 35,
+        "parsed": 35
+      },
+      {
+        "subset": "Triple Autographs",
+        "declared": 10,
+        "parsed": 10
+      },
+      {
+        "subset": "Color Blast",
+        "declared": 18,
+        "parsed": 18
+      },
+      {
+        "subset": "Color Blast Duals",
+        "declared": 22,
+        "parsed": 22
+      },
+      {
+        "subset": "Fireworks",
+        "declared": 25,
+        "parsed": 25
+      },
+      {
+        "subset": "Fractal",
+        "declared": 10,
+        "parsed": 10
+      },
+      {
+        "subset": "Groovy",
+        "declared": 25,
+        "parsed": 25
+      },
+      {
+        "subset": "Kaleidoscopic",
+        "declared": 30,
+        "parsed": 30
+      },
+      {
+        "subset": "Luck of the Lottery",
+        "declared": 14,
+        "parsed": 14
+      },
+      {
+        "subset": "Manga",
+        "declared": 15,
+        "parsed": 15
+      },
+      {
+        "subset": "Prizmania",
+        "declared": 20,
+        "parsed": 20
+      },
+      {
+        "subset": "Talismen",
+        "declared": 21,
+        "parsed": 21
+      }
+    ]
+  },
+  "findings": [
+    {
+      "level": "warning",
+      "code": "declared_count_stale",
+      "message": "Subset \"Rookie Signatures\": 48 cards declared, 50 listed"
+    },
+    {
+      "level": "warning",
+      "code": "rookies_not_marked_in_source",
+      "message": "The source marks no rookies (no RC flags in the Teams sheet, no rookie-named block), so no card is flagged as a rookie"
+    }
+  ]
+}
