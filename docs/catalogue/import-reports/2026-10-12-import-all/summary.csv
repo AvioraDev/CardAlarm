@@ -1,0 +1,2 @@
+file,season,product,ok,errors,accepted,warnings,subsets,blocks,parallels,cards,rookies,teams_rc_rows,teams_rc_matched,first_finding
+2023-24-Panini-Flawless-Basketball-Checklist.xlsx,2023-24,Flawless,yes,0,0,1,62,7,158,1389,0,0,0,"warning: The source marks no rookies (no RC flags in the Teams sheet, no rookie-named block), so rookie status of all 1389 cards is stored as unknown"

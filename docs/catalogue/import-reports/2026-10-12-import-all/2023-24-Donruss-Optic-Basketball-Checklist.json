@@ -1,0 +1,219 @@
+{
+  "file": "2023-24-Donruss-Optic-Basketball-Checklist.xlsx",
+  "season": "2023-24",
+  "productLine": "Donruss Optic",
+  "ok": true,
+  "errors": 0,
+  "warnings": 0,
+  "accepted": 1,
+  "stats": {
+    "sheets": [
+      {
+        "sheet": "Base",
+        "numberedCardRows": 299,
+        "numberedCardsParsed": 299,
+        "cardsParsed": 299,
+        "subsets": 1,
+        "blocks": 2,
+        "notes": 0,
+        "unplaced": 0
+      },
+      {
+        "sheet": "Autographs",
+        "numberedCardRows": 401,
+        "numberedCardsParsed": 401,
+        "cardsParsed": 401,
+        "subsets": 10,
+        "blocks": 0,
+        "notes": 0,
+        "unplaced": 0
+      },
+      {
+        "sheet": "Inserts",
+        "numberedCardRows": 270,
+        "numberedCardsParsed": 270,
+        "cardsParsed": 270,
+        "subsets": 15,
+        "blocks": 0,
+        "notes": 0,
+        "unplaced": 0
+      }
+    ],
+    "subsets": 28,
+    "blocks": 2,
+    "parallels": 241,
+    "cards": 970,
+    "rookies": 99,
+    "rookiesUnknown": 0,
+    "rookiesFromBlocks": 99,
+    "rookiesFromTeams": {
+      "sourceRows": 0,
+      "matchedRows": 0,
+      "unmatched": []
+    },
+    "blockStats": [
+      {
+        "name": "Rated Rookies",
+        "parent": "Base Set",
+        "from": 201,
+        "to": 250,
+        "expected": 50,
+        "parsed": 50
+      },
+      {
+        "name": "Rated Rookies Signatures",
+        "parent": "Base Set",
+        "from": 251,
+        "to": 300,
+        "expected": 50,
+        "parsed": 49
+      }
+    ],
+    "declaredCounts": [
+      {
+        "subset": "Base Set",
+        "declared": 299,
+        "parsed": 299
+      },
+      {
+        "subset": "Dominators Signatures",
+        "declared": 39,
+        "parsed": 39
+      },
+      {
+        "subset": "Fast Break Signatures",
+        "declared": 100,
+        "parsed": 100
+      },
+      {
+        "subset": "Opti-Graphs Holo",
+        "declared": 48,
+        "parsed": 48
+      },
+      {
+        "subset": "Rated Rookies Signatures Premium Box Set Blue",
+        "declared": 10,
+        "parsed": 10
+      },
+      {
+        "subset": "Retro Series Signatures Holo",
+        "declared": 19,
+        "parsed": 19
+      },
+      {
+        "subset": "Rookie Dominators Signatures",
+        "declared": 38,
+        "parsed": 38
+      },
+      {
+        "subset": "Rookie Dual Signatures Holo",
+        "declared": 5,
+        "parsed": 5
+      },
+      {
+        "subset": "Rookie Optics Autographs Holo",
+        "declared": 25,
+        "parsed": 25
+      },
+      {
+        "subset": "Signature Series",
+        "declared": 97,
+        "parsed": 97
+      },
+      {
+        "subset": "The Elite Series Signatues",
+        "declared": 20,
+        "parsed": 20
+      },
+      {
+        "subset": "Alter Ego",
+        "declared": 10,
+        "parsed": 10
+      },
+      {
+        "subset": "Elite Dominators",
+        "declared": 25,
+        "parsed": 25
+      },
+      {
+        "subset": "Express Lane",
+        "declared": 25,
+        "parsed": 25
+      },
+      {
+        "subset": "Lights Out",
+        "declared": 15,
+        "parsed": 15
+      },
+      {
+        "subset": "My House",
+        "declared": 20,
+        "parsed": 20
+      },
+      {
+        "subset": "Optical Illusions",
+        "declared": 5,
+        "parsed": 5
+      },
+      {
+        "subset": "Phazes",
+        "declared": 30,
+        "parsed": 30
+      },
+      {
+        "subset": "Raining 3s",
+        "declared": 20,
+        "parsed": 20
+      },
+      {
+        "subset": "Red Hot Rookies",
+        "declared": 15,
+        "parsed": 15
+      },
+      {
+        "subset": "Rising Suns",
+        "declared": 20,
+        "parsed": 20
+      },
+      {
+        "subset": "Slammy!",
+        "declared": 30,
+        "parsed": 30
+      },
+      {
+        "subset": "Splash",
+        "declared": 15,
+        "parsed": 15
+      },
+      {
+        "subset": "The Rookies",
+        "declared": 5,
+        "parsed": 5
+      },
+      {
+        "subset": "White Hot Rookies",
+        "declared": 15,
+        "parsed": 15
+      },
+      {
+        "subset": "Winner Stays",
+        "declared": 20,
+        "parsed": 20
+      }
+    ]
+  },
+  "findings": [
+    {
+      "level": "accepted",
+      "code": "block_count",
+      "message": "Block \"Rated Rookies Signatures\" (#251-300): 50 cards declared by the range, 49 parsed",
+      "detail": {
+        "sheet": "Base",
+        "subset": "Rated Rookies Signatures",
+        "declared": 50,
+        "parsed": 49
+      },
+      "acceptedReason": "The block range #251-300 implies 50 cards but the sheet lists 49; number #299 does not exist in the file."
+    }
+  ]
+}

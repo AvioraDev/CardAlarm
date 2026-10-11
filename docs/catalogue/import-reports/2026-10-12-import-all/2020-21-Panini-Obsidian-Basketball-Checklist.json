@@ -1,0 +1,343 @@
+{
+  "file": "2020-21-Panini-Obsidian-Basketball-Checklist.xlsx",
+  "season": "2020-21",
+  "productLine": "Obsidian",
+  "ok": true,
+  "errors": 0,
+  "warnings": 0,
+  "accepted": 0,
+  "stats": {
+    "sheets": [
+      {
+        "sheet": "Base",
+        "numberedCardRows": 240,
+        "numberedCardsParsed": 240,
+        "cardsParsed": 240,
+        "subsets": 1,
+        "blocks": 1,
+        "notes": 0,
+        "unplaced": 0
+      },
+      {
+        "sheet": "Autographs",
+        "numberedCardRows": 1487,
+        "numberedCardsParsed": 1487,
+        "cardsParsed": 1487,
+        "subsets": 46,
+        "blocks": 0,
+        "notes": 0,
+        "unplaced": 0
+      },
+      {
+        "sheet": "Memorabilia",
+        "numberedCardRows": 0,
+        "numberedCardsParsed": 0,
+        "cardsParsed": 0,
+        "subsets": 0,
+        "blocks": 0,
+        "notes": 0,
+        "unplaced": 0
+      },
+      {
+        "sheet": "Inserts",
+        "numberedCardRows": 150,
+        "numberedCardsParsed": 150,
+        "cardsParsed": 150,
+        "subsets": 6,
+        "blocks": 0,
+        "notes": 0,
+        "unplaced": 0
+      }
+    ],
+    "subsets": 54,
+    "blocks": 1,
+    "parallels": 71,
+    "cards": 1877,
+    "rookies": 90,
+    "rookiesUnknown": 0,
+    "rookiesFromBlocks": 40,
+    "rookiesFromTeams": {
+      "sourceRows": 50,
+      "matchedRows": 50,
+      "unmatched": []
+    },
+    "blockStats": [
+      {
+        "name": "Rookie Jersey Autographs",
+        "parent": "Base Set",
+        "from": 201,
+        "to": 240,
+        "expected": 40,
+        "parsed": 40
+      }
+    ],
+    "declaredCounts": [
+      {
+        "subset": "Base Set",
+        "declared": 240,
+        "parsed": 240
+      },
+      {
+        "subset": "Aurora Autographs",
+        "declared": 42,
+        "parsed": 42
+      },
+      {
+        "subset": "Aurora Autographs Electric Etch Green",
+        "declared": 43,
+        "parsed": 43
+      },
+      {
+        "subset": "Aurora Autographs Electric Etch Orange",
+        "declared": 41,
+        "parsed": 41
+      },
+      {
+        "subset": "Aurora Autographs Electric Etch Purple",
+        "declared": 35,
+        "parsed": 35
+      },
+      {
+        "subset": "Aurora Autographs Electric Etch Red",
+        "declared": 43,
+        "parsed": 43
+      },
+      {
+        "subset": "Aurora Autographs Electric Etch White Mojo",
+        "declared": 45,
+        "parsed": 45
+      },
+      {
+        "subset": "Aurora Autographs Electric Etch Yellow",
+        "declared": 43,
+        "parsed": 43
+      },
+      {
+        "subset": "Award Winning Autographs",
+        "declared": 3,
+        "parsed": 3
+      },
+      {
+        "subset": "Galaxy Autographs",
+        "declared": 49,
+        "parsed": 49
+      },
+      {
+        "subset": "Galaxy Autographs Electric Etch Green",
+        "declared": 49,
+        "parsed": 49
+      },
+      {
+        "subset": "Galaxy Autographs Electric Etch Orange",
+        "declared": 46,
+        "parsed": 46
+      },
+      {
+        "subset": "Galaxy Autographs Electric Etch Purple",
+        "declared": 44,
+        "parsed": 44
+      },
+      {
+        "subset": "Galaxy Autographs Electric Etch Red",
+        "declared": 49,
+        "parsed": 49
+      },
+      {
+        "subset": "Galaxy Autographs Electric Etch White Mojo",
+        "declared": 49,
+        "parsed": 49
+      },
+      {
+        "subset": "Galaxy Autographs Electric Etch Yellow",
+        "declared": 49,
+        "parsed": 49
+      },
+      {
+        "subset": "Lightning Strike Signatures",
+        "declared": 30,
+        "parsed": 30
+      },
+      {
+        "subset": "Lightning Strike Signatures Electric Etch Green",
+        "declared": 30,
+        "parsed": 30
+      },
+      {
+        "subset": "Lightning Strike Signatures Electric Etch Orange",
+        "declared": 26,
+        "parsed": 26
+      },
+      {
+        "subset": "Lightning Strike Signatures Electric Etch Purple",
+        "declared": 26,
+        "parsed": 26
+      },
+      {
+        "subset": "Lightning Strike Signatures Electric Etch Red",
+        "declared": 30,
+        "parsed": 30
+      },
+      {
+        "subset": "Lightning Strike Signatures Electric Etch White Mojo",
+        "declared": 30,
+        "parsed": 30
+      },
+      {
+        "subset": "Lightning Strike Signatures Electric Etch Yellow",
+        "declared": 30,
+        "parsed": 30
+      },
+      {
+        "subset": "Matrix Material Autos",
+        "declared": 20,
+        "parsed": 20
+      },
+      {
+        "subset": "Matrix Material Autos Electric Etch Green",
+        "declared": 20,
+        "parsed": 20
+      },
+      {
+        "subset": "Matrix Material Autos Electric Etch Orange",
+        "declared": 20,
+        "parsed": 20
+      },
+      {
+        "subset": "Matrix Material Autos Electric Etch Purple",
+        "declared": 20,
+        "parsed": 20
+      },
+      {
+        "subset": "Matrix Material Autos Electric Etch Red",
+        "declared": 20,
+        "parsed": 20
+      },
+      {
+        "subset": "Matrix Material Autos Electric Etch White Mojo",
+        "declared": 20,
+        "parsed": 20
+      },
+      {
+        "subset": "Matrix Material Autos Electric Etch Yellow",
+        "declared": 19,
+        "parsed": 19
+      },
+      {
+        "subset": "Onyx Autographs",
+        "declared": 28,
+        "parsed": 28
+      },
+      {
+        "subset": "Onyx Autographs Electric Etch Green",
+        "declared": 29,
+        "parsed": 29
+      },
+      {
+        "subset": "Onyx Autographs Electric Etch Orange",
+        "declared": 28,
+        "parsed": 28
+      },
+      {
+        "subset": "Onyx Autographs Electric Etch Purple",
+        "declared": 28,
+        "parsed": 28
+      },
+      {
+        "subset": "Onyx Autographs Electric Etch Red",
+        "declared": 30,
+        "parsed": 30
+      },
+      {
+        "subset": "Onyx Autographs Electric Etch White Mojo",
+        "declared": 30,
+        "parsed": 30
+      },
+      {
+        "subset": "Onyx Autographs Electric Etch Yellow",
+        "declared": 29,
+        "parsed": 29
+      },
+      {
+        "subset": "Rookie Jersey Ink",
+        "declared": 39,
+        "parsed": 39
+      },
+      {
+        "subset": "Rookie Private Signings Association Version",
+        "declared": 3,
+        "parsed": 3
+      },
+      {
+        "subset": "Spectra Hall of Fame Signatures",
+        "declared": 5,
+        "parsed": 5
+      },
+      {
+        "subset": "Volcanic Signatures",
+        "declared": 39,
+        "parsed": 39
+      },
+      {
+        "subset": "Volcanic Signatures Electric Etch Green",
+        "declared": 39,
+        "parsed": 39
+      },
+      {
+        "subset": "Volcanic Signatures Electric Etch Orange",
+        "declared": 36,
+        "parsed": 36
+      },
+      {
+        "subset": "Volcanic Signatures Electric Etch Purple",
+        "declared": 36,
+        "parsed": 36
+      },
+      {
+        "subset": "Volcanic Signatures Electric Etch Red",
+        "declared": 39,
+        "parsed": 39
+      },
+      {
+        "subset": "Volcanic Signatures Electric Etch White Mojo",
+        "declared": 39,
+        "parsed": 39
+      },
+      {
+        "subset": "Volcanic Signatures Electric Etch Yellow",
+        "declared": 39,
+        "parsed": 39
+      },
+      {
+        "subset": "Eclipse",
+        "declared": 40,
+        "parsed": 40
+      },
+      {
+        "subset": "Mist",
+        "declared": 25,
+        "parsed": 25
+      },
+      {
+        "subset": "Pitch Black",
+        "declared": 30,
+        "parsed": 30
+      },
+      {
+        "subset": "Supernova",
+        "declared": 10,
+        "parsed": 10
+      },
+      {
+        "subset": "Tunnel Vision",
+        "declared": 20,
+        "parsed": 20
+      },
+      {
+        "subset": "Vitreous",
+        "declared": 25,
+        "parsed": 25
+      }
+    ]
+  },
+  "findings": []
+}

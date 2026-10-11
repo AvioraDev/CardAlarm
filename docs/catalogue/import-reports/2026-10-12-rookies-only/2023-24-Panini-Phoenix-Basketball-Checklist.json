@@ -1,0 +1,401 @@
+{
+  "file": "2023-24-Panini-Phoenix-Basketball-Checklist.xlsx",
+  "season": "2023-24",
+  "productLine": "Phoenix",
+  "ok": true,
+  "errors": 0,
+  "warnings": 1,
+  "accepted": 0,
+  "stats": {
+    "sheets": [
+      {
+        "sheet": "Base",
+        "numberedCardRows": 300,
+        "numberedCardsParsed": 300,
+        "cardsParsed": 300,
+        "subsets": 1,
+        "blocks": 0,
+        "notes": 0,
+        "unplaced": 0
+      },
+      {
+        "sheet": "Autographs",
+        "numberedCardRows": 757,
+        "numberedCardsParsed": 757,
+        "cardsParsed": 757,
+        "subsets": 34,
+        "blocks": 0,
+        "notes": 0,
+        "unplaced": 0
+      },
+      {
+        "sheet": "Memorabilia",
+        "numberedCardRows": 259,
+        "numberedCardsParsed": 259,
+        "cardsParsed": 259,
+        "subsets": 12,
+        "blocks": 0,
+        "notes": 0,
+        "unplaced": 0
+      },
+      {
+        "sheet": "Inserts",
+        "numberedCardRows": 400,
+        "numberedCardsParsed": 400,
+        "cardsParsed": 400,
+        "subsets": 17,
+        "blocks": 0,
+        "notes": 0,
+        "unplaced": 0
+      }
+    ],
+    "subsets": 64,
+    "blocks": 0,
+    "parallels": 338,
+    "cards": 1716,
+    "rookies": 50,
+    "rookiesUnknown": 0,
+    "rookiesFromBlocks": 0,
+    "rookiesFromTeams": {
+      "sourceRows": 50,
+      "matchedRows": 50,
+      "unmatched": []
+    },
+    "blockStats": [],
+    "declaredCounts": [
+      {
+        "subset": "Base Set",
+        "declared": 250,
+        "parsed": 300
+      },
+      {
+        "subset": "2023 Hoops Calligraphy Signatures",
+        "declared": 1,
+        "parsed": 1
+      },
+      {
+        "subset": "2023 Hoops Private Signings",
+        "declared": 8,
+        "parsed": 8
+      },
+      {
+        "subset": "Ascension Autographs",
+        "declared": 24,
+        "parsed": 24
+      },
+      {
+        "subset": "Ascension Autographs Orange",
+        "declared": 16,
+        "parsed": 16
+      },
+      {
+        "subset": "Ascension Autographs Purple",
+        "declared": 20,
+        "parsed": 20
+      },
+      {
+        "subset": "Ascension Autographs Yellow",
+        "declared": 22,
+        "parsed": 22
+      },
+      {
+        "subset": "Calligraphy",
+        "declared": 35,
+        "parsed": 35
+      },
+      {
+        "subset": "Calligraphy Blue",
+        "declared": 29,
+        "parsed": 29
+      },
+      {
+        "subset": "Calligraphy Orange",
+        "declared": 21,
+        "parsed": 21
+      },
+      {
+        "subset": "Calligraphy Purple",
+        "declared": 13,
+        "parsed": 13
+      },
+      {
+        "subset": "Calligraphy Yellow",
+        "declared": 21,
+        "parsed": 21
+      },
+      {
+        "subset": "Crusade Signatures",
+        "declared": 49,
+        "parsed": 49
+      },
+      {
+        "subset": "Dual Rookie Jersey Autographs",
+        "declared": 5,
+        "parsed": 5
+      },
+      {
+        "subset": "Fuego Autographs",
+        "declared": 24,
+        "parsed": 24
+      },
+      {
+        "subset": "Fuego Autographs Orange",
+        "declared": 18,
+        "parsed": 18
+      },
+      {
+        "subset": "Fuego Autographs Purple",
+        "declared": 19,
+        "parsed": 19
+      },
+      {
+        "subset": "Hall of Fame Autographs",
+        "declared": 10,
+        "parsed": 10
+      },
+      {
+        "subset": "Honored",
+        "declared": 10,
+        "parsed": 10
+      },
+      {
+        "subset": "Inferno Etchings",
+        "declared": 20,
+        "parsed": 20
+      },
+      {
+        "subset": "Inferno Etchings Purple",
+        "declared": 14,
+        "parsed": 14
+      },
+      {
+        "subset": "Mythical Autographs",
+        "declared": 28,
+        "parsed": 28
+      },
+      {
+        "subset": "Mythical Autographs Orange",
+        "declared": 21,
+        "parsed": 21
+      },
+      {
+        "subset": "Mythical Autographs Purple",
+        "declared": 23,
+        "parsed": 23
+      },
+      {
+        "subset": "Mythical Autographs Yellow",
+        "declared": 23,
+        "parsed": 23
+      },
+      {
+        "subset": "Phoenix Autographs",
+        "declared": 40,
+        "parsed": 40
+      },
+      {
+        "subset": "Phoenix Rookie Autographs",
+        "declared": 25,
+        "parsed": 25
+      },
+      {
+        "subset": "Rookie Jersey Autographs",
+        "declared": 40,
+        "parsed": 40
+      },
+      {
+        "subset": "Rookie Signs",
+        "declared": 30,
+        "parsed": 30
+      },
+      {
+        "subset": "Scorched Signatures",
+        "declared": 22,
+        "parsed": 22
+      },
+      {
+        "subset": "Stellar Signatures",
+        "declared": 30,
+        "parsed": 30
+      },
+      {
+        "subset": "Stellar Signatures International Red",
+        "declared": 28,
+        "parsed": 28
+      },
+      {
+        "subset": "Stellar Signatures Orange",
+        "declared": 23,
+        "parsed": 23
+      },
+      {
+        "subset": "Stellar Signatures Purple",
+        "declared": 22,
+        "parsed": 22
+      },
+      {
+        "subset": "Stellar Signatures Yellow",
+        "declared": 23,
+        "parsed": 23
+      },
+      {
+        "subset": "Fire Fabrics",
+        "declared": 24,
+        "parsed": 24
+      },
+      {
+        "subset": "Fire Fabrics Blue",
+        "declared": 9,
+        "parsed": 9
+      },
+      {
+        "subset": "Fire Fabrics Gold",
+        "declared": 19,
+        "parsed": 19
+      },
+      {
+        "subset": "Rookie Jumbo Memorabilia",
+        "declared": 25,
+        "parsed": 25
+      },
+      {
+        "subset": "Rookie Memorabilia",
+        "declared": 25,
+        "parsed": 25
+      },
+      {
+        "subset": "Veteran Materials",
+        "declared": 25,
+        "parsed": 25
+      },
+      {
+        "subset": "Veteran Materials Blue",
+        "declared": 15,
+        "parsed": 15
+      },
+      {
+        "subset": "Veteran Materials Gold",
+        "declared": 17,
+        "parsed": 17
+      },
+      {
+        "subset": "Veteran Materials Gold Vinyl",
+        "declared": 25,
+        "parsed": 25
+      },
+      {
+        "subset": "Veteran Materials Orange",
+        "declared": 25,
+        "parsed": 25
+      },
+      {
+        "subset": "Veteran Materials Purple",
+        "declared": 25,
+        "parsed": 25
+      },
+      {
+        "subset": "Veteran Materials Yellow",
+        "declared": 25,
+        "parsed": 25
+      },
+      {
+        "subset": "Archetype",
+        "declared": 25,
+        "parsed": 25
+      },
+      {
+        "subset": "Court of the Kings",
+        "declared": 25,
+        "parsed": 25
+      },
+      {
+        "subset": "Crusade",
+        "declared": 25,
+        "parsed": 25
+      },
+      {
+        "subset": "Fade To Black",
+        "declared": 25,
+        "parsed": 25
+      },
+      {
+        "subset": "Fire Forged",
+        "declared": 25,
+        "parsed": 25
+      },
+      {
+        "subset": "Genies",
+        "declared": 25,
+        "parsed": 25
+      },
+      {
+        "subset": "Instant Phenom",
+        "declared": 25,
+        "parsed": 25
+      },
+      {
+        "subset": "Metropolis",
+        "declared": 10,
+        "parsed": 10
+      },
+      {
+        "subset": "Mystique",
+        "declared": 25,
+        "parsed": 25
+      },
+      {
+        "subset": "Operation Detonation",
+        "declared": 25,
+        "parsed": 25
+      },
+      {
+        "subset": "Paragon",
+        "declared": 25,
+        "parsed": 25
+      },
+      {
+        "subset": "Phoenician",
+        "declared": 15,
+        "parsed": 15
+      },
+      {
+        "subset": "Pyro",
+        "declared": 25,
+        "parsed": 25
+      },
+      {
+        "subset": "Rookie Rising",
+        "declared": 25,
+        "parsed": 25
+      },
+      {
+        "subset": "Shooting Stars",
+        "declared": 25,
+        "parsed": 25
+      },
+      {
+        "subset": "Temple Men",
+        "declared": 25,
+        "parsed": 25
+      },
+      {
+        "subset": "Thrillers",
+        "declared": 25,
+        "parsed": 25
+      }
+    ]
+  },
+  "findings": [
+    {
+      "level": "warning",
+      "code": "declared_count_stale",
+      "message": "Subset \"Base Set\": 250 cards declared, 300 listed",
+      "detail": {
+        "sheet": "Base",
+        "subset": "Base Set",
+        "declared": 250,
+        "parsed": 300
+      }
+    }
+  ]
+}

@@ -1,0 +1,190 @@
+{
+  "file": "2022-23-Panini-Origins-Basketball-Checklist.xlsx",
+  "season": "2022-23",
+  "productLine": "Origins",
+  "ok": true,
+  "errors": 0,
+  "warnings": 1,
+  "accepted": 0,
+  "stats": {
+    "sheets": [
+      {
+        "sheet": "Base",
+        "numberedCardRows": 110,
+        "numberedCardsParsed": 110,
+        "cardsParsed": 110,
+        "subsets": 2,
+        "blocks": 0,
+        "notes": 0,
+        "unplaced": 0
+      },
+      {
+        "sheet": "Autographs",
+        "numberedCardRows": 219,
+        "numberedCardsParsed": 219,
+        "cardsParsed": 219,
+        "subsets": 8,
+        "blocks": 0,
+        "notes": 0,
+        "unplaced": 0
+      },
+      {
+        "sheet": "Memorabilia",
+        "numberedCardRows": 60,
+        "numberedCardsParsed": 60,
+        "cardsParsed": 60,
+        "subsets": 2,
+        "blocks": 0,
+        "notes": 0,
+        "unplaced": 0
+      },
+      {
+        "sheet": "Inserts",
+        "numberedCardRows": 240,
+        "numberedCardsParsed": 240,
+        "cardsParsed": 240,
+        "subsets": 11,
+        "blocks": 0,
+        "notes": 0,
+        "unplaced": 0
+      }
+    ],
+    "subsets": 23,
+    "blocks": 0,
+    "parallels": 69,
+    "cards": 629,
+    "rookies": 0,
+    "rookiesUnknown": 629,
+    "rookiesFromBlocks": 0,
+    "rookiesFromTeams": {
+      "sourceRows": 0,
+      "matchedRows": 0,
+      "unmatched": []
+    },
+    "blockStats": [],
+    "declaredCounts": [
+      {
+        "subset": "Base Set",
+        "declared": 100,
+        "parsed": 100
+      },
+      {
+        "subset": "Base Variations",
+        "declared": 10,
+        "parsed": 10
+      },
+      {
+        "subset": "Elevation Signatures",
+        "declared": 40,
+        "parsed": 40
+      },
+      {
+        "subset": "Rookie Auto Booklet Patch",
+        "declared": 40,
+        "parsed": 40
+      },
+      {
+        "subset": "Rookie Autographs",
+        "declared": 40,
+        "parsed": 40
+      },
+      {
+        "subset": "Rookie Jersey Autographs",
+        "declared": 40,
+        "parsed": 40
+      },
+      {
+        "subset": "Rookie Jersey Autographs Red",
+        "declared": 29,
+        "parsed": 29
+      },
+      {
+        "subset": "Six Star Signatures",
+        "declared": 2,
+        "parsed": 2
+      },
+      {
+        "subset": "Universal Autographs",
+        "declared": 20,
+        "parsed": 20
+      },
+      {
+        "subset": "Universal Autographs Red",
+        "declared": 8,
+        "parsed": 8
+      },
+      {
+        "subset": "Origins Memorabilia",
+        "declared": 20,
+        "parsed": 20
+      },
+      {
+        "subset": "Rookie Jumbo Jerseys",
+        "declared": 40,
+        "parsed": 40
+      },
+      {
+        "subset": "Big Bang",
+        "declared": 15,
+        "parsed": 15
+      },
+      {
+        "subset": "Catapults",
+        "declared": 25,
+        "parsed": 25
+      },
+      {
+        "subset": "Dawn",
+        "declared": 25,
+        "parsed": 25
+      },
+      {
+        "subset": "Euphoria",
+        "declared": 25,
+        "parsed": 25
+      },
+      {
+        "subset": "Nucleus",
+        "declared": 25,
+        "parsed": 25
+      },
+      {
+        "subset": "Originals",
+        "declared": 25,
+        "parsed": 25
+      },
+      {
+        "subset": "Roots Of Greatness",
+        "declared": 25,
+        "parsed": 25
+      },
+      {
+        "subset": "Snake Eyes",
+        "declared": 10,
+        "parsed": 10
+      },
+      {
+        "subset": "Taking the Leap",
+        "declared": 25,
+        "parsed": 25
+      },
+      {
+        "subset": "Team Origins",
+        "declared": 25,
+        "parsed": 25
+      },
+      {
+        "subset": "Tiger Eyes",
+        "declared": 15,
+        "parsed": 15
+      }
+    ]
+  },
+  "findings": [
+    {
+      "level": "warning",
+      "code": "rookies_not_marked_in_source",
+      "message": "The source marks no rookies (no RC flags in the Teams sheet, no rookie-named block), so rookie status of all 629 cards is stored as unknown"
+    }
+  ]
+}

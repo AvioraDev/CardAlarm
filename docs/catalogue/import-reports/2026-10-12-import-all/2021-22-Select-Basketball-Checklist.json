@@ -1,0 +1,282 @@
+{
+  "file": "2021-22-Select-Basketball-Checklist.xlsx",
+  "season": "2021-22",
+  "productLine": "Select",
+  "ok": true,
+  "errors": 0,
+  "warnings": 1,
+  "accepted": 1,
+  "stats": {
+    "sheets": [
+      {
+        "sheet": "Base",
+        "numberedCardRows": 300,
+        "numberedCardsParsed": 300,
+        "cardsParsed": 300,
+        "subsets": 1,
+        "blocks": 3,
+        "notes": 0,
+        "unplaced": 0
+      },
+      {
+        "sheet": "Autographs",
+        "numberedCardRows": 476,
+        "numberedCardsParsed": 476,
+        "cardsParsed": 476,
+        "subsets": 19,
+        "blocks": 0,
+        "notes": 0,
+        "unplaced": 0
+      },
+      {
+        "sheet": "Memorabilia",
+        "numberedCardRows": 100,
+        "numberedCardsParsed": 100,
+        "cardsParsed": 100,
+        "subsets": 4,
+        "blocks": 0,
+        "notes": 0,
+        "unplaced": 0
+      },
+      {
+        "sheet": "Inserts",
+        "numberedCardRows": 235,
+        "numberedCardsParsed": 235,
+        "cardsParsed": 235,
+        "subsets": 10,
+        "blocks": 0,
+        "notes": 1,
+        "unplaced": 0
+      }
+    ],
+    "subsets": 37,
+    "blocks": 3,
+    "parallels": 227,
+    "cards": 1111,
+    "rookies": 0,
+    "rookiesUnknown": 1111,
+    "rookiesFromBlocks": 0,
+    "rookiesFromTeams": {
+      "sourceRows": 0,
+      "matchedRows": 0,
+      "unmatched": []
+    },
+    "blockStats": [
+      {
+        "name": "Concourse",
+        "parent": "Base Set",
+        "from": 1,
+        "to": 100,
+        "expected": 100,
+        "parsed": 100
+      },
+      {
+        "name": "Premier Level",
+        "parent": "Base Set",
+        "from": 101,
+        "to": 200,
+        "expected": 100,
+        "parsed": 100
+      },
+      {
+        "name": "Courtside",
+        "parent": "Base Set",
+        "from": 201,
+        "to": 300,
+        "expected": 100,
+        "parsed": 100
+      }
+    ],
+    "declaredCounts": [
+      {
+        "subset": "Base Set",
+        "declared": 300,
+        "parsed": 300
+      },
+      {
+        "subset": "Autographed Memorabilia",
+        "declared": 24,
+        "parsed": 24
+      },
+      {
+        "subset": "Autographed Memorabilia Black Prizms",
+        "declared": 25,
+        "parsed": 25
+      },
+      {
+        "subset": "Autographed Memorabilia Gold Prizms",
+        "declared": 25,
+        "parsed": 25
+      },
+      {
+        "subset": "Autographed Memorabilia Purple Prizms",
+        "declared": 24,
+        "parsed": 23
+      },
+      {
+        "subset": "Autographed Memorabilia Tie-Dye Prizms",
+        "declared": 25,
+        "parsed": 25
+      },
+      {
+        "subset": "In Flight Signatures",
+        "declared": 30,
+        "parsed": 30
+      },
+      {
+        "subset": "Rookie Jersey Autographs",
+        "declared": 40,
+        "parsed": 40
+      },
+      {
+        "subset": "Rookie Private Signings Icon Version",
+        "declared": 1,
+        "parsed": 1
+      },
+      {
+        "subset": "Rookie Signatures",
+        "declared": 40,
+        "parsed": 40
+      },
+      {
+        "subset": "Selection Committee Signatures",
+        "declared": 8,
+        "parsed": 8
+      },
+      {
+        "subset": "Selection Committee Signatures Black Prizms",
+        "declared": 9,
+        "parsed": 9
+      },
+      {
+        "subset": "Selection Committee Signatures Gold Prizms",
+        "declared": 8,
+        "parsed": 8
+      },
+      {
+        "subset": "Selection Committee Signatures Green Ice Prizms",
+        "declared": 6,
+        "parsed": 6
+      },
+      {
+        "subset": "Signature Selections",
+        "declared": 50,
+        "parsed": 50
+      },
+      {
+        "subset": "Signature Selection Green Ice Prizms",
+        "declared": 44,
+        "parsed": 44
+      },
+      {
+        "subset": "Signatures",
+        "declared": 30,
+        "parsed": 30
+      },
+      {
+        "subset": "X-Factor Memorabilia Signatures",
+        "declared": 24,
+        "parsed": 24
+      },
+      {
+        "subset": "X-Factor Memorabilia Signatures Purple Prizms",
+        "declared": 24,
+        "parsed": 24
+      },
+      {
+        "subset": "Youth Explosion Signatures",
+        "declared": 40,
+        "parsed": 40
+      },
+      {
+        "subset": "Draft Selections Memorabilia",
+        "declared": 30,
+        "parsed": 30
+      },
+      {
+        "subset": "Selective Swatches",
+        "declared": 40,
+        "parsed": 40
+      },
+      {
+        "subset": "Sparks",
+        "declared": 10,
+        "parsed": 10
+      },
+      {
+        "subset": "Throwback Memorabilia",
+        "declared": 20,
+        "parsed": 20
+      },
+      {
+        "subset": "75 Years of the NBA",
+        "declared": 25,
+        "parsed": 25
+      },
+      {
+        "subset": "Artistic Selections",
+        "declared": 10,
+        "parsed": 10
+      },
+      {
+        "subset": "En Fuego",
+        "declared": 15,
+        "parsed": 15
+      },
+      {
+        "subset": "Phenomenon",
+        "declared": 40,
+        "parsed": 40
+      },
+      {
+        "subset": "Rookie Revolution",
+        "declared": 30,
+        "parsed": 30
+      },
+      {
+        "subset": "Select Company",
+        "declared": 20,
+        "parsed": 20
+      },
+      {
+        "subset": "Select Future",
+        "declared": 30,
+        "parsed": 30
+      },
+      {
+        "subset": "Select Numbers",
+        "declared": 40,
+        "parsed": 40
+      },
+      {
+        "subset": "Turbo Charged",
+        "declared": 10,
+        "parsed": 10
+      },
+      {
+        "subset": "Unstoppable",
+        "declared": 15,
+        "parsed": 15
+      }
+    ]
+  },
+  "findings": [
+    {
+      "level": "accepted",
+      "code": "declared_count",
+      "message": "Subset \"Autographed Memorabilia Purple Prizms\": 24 cards declared, 23 parsed (1 missing)",
+      "detail": {
+        "sheet": "Autographs",
+        "subset": "Autographed Memorabilia Purple Prizms",
+        "declared": 24,
+        "parsed": 23
+      },
+      "acceptedReason": "The sheet declares 24 cards but skips row #5 (the numbers run 4, 6, 7); raw rows checked."
+    },
+    {
+      "level": "warning",
+      "code": "rookies_not_marked_in_source",
+      "message": "The source marks no rookies (no RC flags in the Teams sheet, no rookie-named block), so rookie status of all 1111 cards is stored as unknown"
+    }
+  ]
+}

@@ -1,0 +1,249 @@
+{
+  "file": "2024-25-Donruss-Basketball-Checklist.xlsx",
+  "season": "2024-25",
+  "productLine": "Donruss",
+  "ok": true,
+  "errors": 0,
+  "warnings": 0,
+  "accepted": 0,
+  "stats": {
+    "sheets": [
+      {
+        "sheet": "Base",
+        "numberedCardRows": 474,
+        "numberedCardsParsed": 474,
+        "cardsParsed": 474,
+        "subsets": 5,
+        "blocks": 3,
+        "notes": 0,
+        "unplaced": 0
+      },
+      {
+        "sheet": "Autographs",
+        "numberedCardRows": 290,
+        "numberedCardsParsed": 290,
+        "cardsParsed": 290,
+        "subsets": 7,
+        "blocks": 0,
+        "notes": 0,
+        "unplaced": 0
+      },
+      {
+        "sheet": "Inserts",
+        "numberedCardRows": 438,
+        "numberedCardsParsed": 438,
+        "cardsParsed": 438,
+        "subsets": 21,
+        "blocks": 0,
+        "notes": 0,
+        "unplaced": 0
+      }
+    ],
+    "subsets": 36,
+    "blocks": 3,
+    "parallels": 255,
+    "cards": 1202,
+    "rookies": 100,
+    "rookiesUnknown": 0,
+    "rookiesFromBlocks": 100,
+    "rookiesFromTeams": {
+      "sourceRows": 0,
+      "matchedRows": 0,
+      "unmatched": []
+    },
+    "blockStats": [
+      {
+        "name": "Rated Rookies",
+        "parent": "Base Set",
+        "from": 201,
+        "to": 250,
+        "expected": 50,
+        "parsed": 50
+      },
+      {
+        "name": "Rated Rookie Signatures",
+        "parent": "Base Set",
+        "from": 251,
+        "to": 300,
+        "expected": 50,
+        "parsed": 50
+      },
+      {
+        "name": "Rated Rookies Signatures",
+        "parent": "Base Set",
+        "from": 0,
+        "to": 0,
+        "expected": 0,
+        "parsed": 0
+      }
+    ],
+    "declaredCounts": [
+      {
+        "subset": "Base Set",
+        "declared": 300,
+        "parsed": 300
+      },
+      {
+        "subset": "Rated Rookies Signatures Holo Pink Laser",
+        "declared": 43,
+        "parsed": 43
+      },
+      {
+        "subset": "Rated Rookies Signatures Holo Purple Laser",
+        "declared": 43,
+        "parsed": 43
+      },
+      {
+        "subset": "Rated Rookies Signatures Holo Yellow Laser",
+        "declared": 43,
+        "parsed": 43
+      },
+      {
+        "subset": "Rated Rookies Signatures Swirlorama",
+        "declared": 45,
+        "parsed": 45
+      },
+      {
+        "subset": "Dominators Autographs",
+        "declared": 25,
+        "parsed": 25
+      },
+      {
+        "subset": "Net Marvels Signatures",
+        "declared": 25,
+        "parsed": 25
+      },
+      {
+        "subset": "Next Day Autographs",
+        "declared": 37,
+        "parsed": 37
+      },
+      {
+        "subset": "Retro 2014 Autos",
+        "declared": 25,
+        "parsed": 25
+      },
+      {
+        "subset": "Signature Series",
+        "declared": 93,
+        "parsed": 93
+      },
+      {
+        "subset": "Signature Series Winter",
+        "declared": 61,
+        "parsed": 61
+      },
+      {
+        "subset": "Treasured Materials Signatures",
+        "declared": 24,
+        "parsed": 24
+      },
+      {
+        "subset": "Animation",
+        "declared": 15,
+        "parsed": 15
+      },
+      {
+        "subset": "Around the World",
+        "declared": 15,
+        "parsed": 15
+      },
+      {
+        "subset": "Bomb Squad",
+        "declared": 20,
+        "parsed": 20
+      },
+      {
+        "subset": "Crunch Time",
+        "declared": 15,
+        "parsed": 15
+      },
+      {
+        "subset": "Fadeaway",
+        "declared": 20,
+        "parsed": 20
+      },
+      {
+        "subset": "Franchise Features",
+        "declared": 30,
+        "parsed": 30
+      },
+      {
+        "subset": "Great X-Pectations",
+        "declared": 25,
+        "parsed": 25
+      },
+      {
+        "subset": "Hardwood Masters",
+        "declared": 15,
+        "parsed": 15
+      },
+      {
+        "subset": "Magicians",
+        "declared": 10,
+        "parsed": 10
+      },
+      {
+        "subset": "Net Marvels",
+        "declared": 25,
+        "parsed": 25
+      },
+      {
+        "subset": "Next Day",
+        "declared": 13,
+        "parsed": 13
+      },
+      {
+        "subset": "Night Moves",
+        "declared": 30,
+        "parsed": 30
+      },
+      {
+        "subset": "Optic Rated Rookies Preview Holo",
+        "declared": 50,
+        "parsed": 50
+      },
+      {
+        "subset": "Pass the Rock",
+        "declared": 10,
+        "parsed": 10
+      },
+      {
+        "subset": "PlayMakers",
+        "declared": 20,
+        "parsed": 20
+      },
+      {
+        "subset": "Retro Rated Rookie Box Topper",
+        "declared": 25,
+        "parsed": 25
+      },
+      {
+        "subset": "Snow Globe",
+        "declared": 50,
+        "parsed": 50
+      },
+      {
+        "subset": "Swish",
+        "declared": 20,
+        "parsed": 20
+      },
+      {
+        "subset": "The Rookies",
+        "declared": 5,
+        "parsed": 5
+      },
+      {
+        "subset": "Unleashed",
+        "declared": 15,
+        "parsed": 15
+      },
+      {
+        "subset": "Zero Gravity",
+        "declared": 10,
+        "parsed": 10
+      }
+    ]
+  },
+  "findings": []
+}

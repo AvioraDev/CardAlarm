@@ -1,0 +1,216 @@
+{
+  "file": "2024-25-Panini-Revolution-Basketball-Checklist.xlsx",
+  "season": "2024-25",
+  "productLine": "Revolution",
+  "ok": true,
+  "errors": 0,
+  "warnings": 0,
+  "accepted": 0,
+  "stats": {
+    "sheets": [
+      {
+        "sheet": "Base",
+        "numberedCardRows": 190,
+        "numberedCardsParsed": 190,
+        "cardsParsed": 190,
+        "subsets": 2,
+        "blocks": 2,
+        "notes": 0,
+        "unplaced": 0
+      },
+      {
+        "sheet": "Autographs",
+        "numberedCardRows": 462,
+        "numberedCardsParsed": 462,
+        "cardsParsed": 462,
+        "subsets": 12,
+        "blocks": 0,
+        "notes": 0,
+        "unplaced": 0
+      },
+      {
+        "sheet": "Inserts",
+        "numberedCardRows": 350,
+        "numberedCardsParsed": 350,
+        "cardsParsed": 350,
+        "subsets": 14,
+        "blocks": 0,
+        "notes": 0,
+        "unplaced": 0
+      }
+    ],
+    "subsets": 30,
+    "blocks": 2,
+    "parallels": 111,
+    "cards": 1002,
+    "rookies": 50,
+    "rookiesUnknown": 0,
+    "rookiesFromBlocks": 50,
+    "rookiesFromTeams": {
+      "sourceRows": 0,
+      "matchedRows": 0,
+      "unmatched": []
+    },
+    "blockStats": [
+      {
+        "name": "Rookies",
+        "parent": "Base Set",
+        "from": 101,
+        "to": 150,
+        "expected": 50,
+        "parsed": 50
+      },
+      {
+        "name": "Legends",
+        "parent": "Base Set",
+        "from": 151,
+        "to": 175,
+        "expected": 25,
+        "parsed": 25
+      }
+    ],
+    "declaredCounts": [
+      {
+        "subset": "Base Set",
+        "declared": 175,
+        "parsed": 175
+      },
+      {
+        "subset": "Rookie Variations",
+        "declared": 15,
+        "parsed": 15
+      },
+      {
+        "subset": "Around the Rim Autographs",
+        "declared": 24,
+        "parsed": 24
+      },
+      {
+        "subset": "Around the Rim Autographs Impact",
+        "declared": 14,
+        "parsed": 14
+      },
+      {
+        "subset": "Around the Rim Autographs Infinite",
+        "declared": 24,
+        "parsed": 24
+      },
+      {
+        "subset": "Around the Rim Autographs Kaleido",
+        "declared": 25,
+        "parsed": 25
+      },
+      {
+        "subset": "Autographs",
+        "declared": 39,
+        "parsed": 39
+      },
+      {
+        "subset": "Autographs Chinese New Year",
+        "declared": 42,
+        "parsed": 42
+      },
+      {
+        "subset": "Autographs Chinese New Year Holo Gold",
+        "declared": 45,
+        "parsed": 45
+      },
+      {
+        "subset": "Autographs Impact",
+        "declared": 31,
+        "parsed": 31
+      },
+      {
+        "subset": "Autographs Infinite",
+        "declared": 46,
+        "parsed": 46
+      },
+      {
+        "subset": "Autographs Kaleido",
+        "declared": 50,
+        "parsed": 50
+      },
+      {
+        "subset": "Revolution Signatures",
+        "declared": 97,
+        "parsed": 97
+      },
+      {
+        "subset": "Rookie Autographs",
+        "declared": 25,
+        "parsed": 25
+      },
+      {
+        "subset": "Hardwood Legacy",
+        "declared": 25,
+        "parsed": 25
+      },
+      {
+        "subset": "Kaboom Horizontal",
+        "declared": 35,
+        "parsed": 35
+      },
+      {
+        "subset": "Kaboom Vertical",
+        "declared": 30,
+        "parsed": 30
+      },
+      {
+        "subset": "Liftoff!",
+        "declared": 15,
+        "parsed": 15
+      },
+      {
+        "subset": "New Wave",
+        "declared": 25,
+        "parsed": 25
+      },
+      {
+        "subset": "Prime Time Performers",
+        "declared": 30,
+        "parsed": 30
+      },
+      {
+        "subset": "Revolutionary",
+        "declared": 30,
+        "parsed": 30
+      },
+      {
+        "subset": "Ring Bearers",
+        "declared": 15,
+        "parsed": 15
+      },
+      {
+        "subset": "Rookie Revolution",
+        "declared": 20,
+        "parsed": 20
+      },
+      {
+        "subset": "Showstoppers",
+        "declared": 25,
+        "parsed": 25
+      },
+      {
+        "subset": "Star Factor",
+        "declared": 25,
+        "parsed": 25
+      },
+      {
+        "subset": "Star Gazing",
+        "declared": 25,
+        "parsed": 25
+      },
+      {
+        "subset": "Supernova",
+        "declared": 25,
+        "parsed": 25
+      },
+      {
+        "subset": "Vortex",
+        "declared": 25,
+        "parsed": 25
+      }
+    ]
+  },
+  "findings": []
+}

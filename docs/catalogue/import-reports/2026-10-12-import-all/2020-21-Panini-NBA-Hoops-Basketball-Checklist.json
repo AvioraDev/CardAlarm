@@ -1,0 +1,264 @@
+{
+  "file": "2020-21-Panini-NBA-Hoops-Basketball-Checklist.xlsx",
+  "season": "2020-21",
+  "productLine": "Hoops",
+  "ok": true,
+  "errors": 0,
+  "warnings": 0,
+  "accepted": 0,
+  "stats": {
+    "sheets": [
+      {
+        "sheet": "Base",
+        "numberedCardRows": 270,
+        "numberedCardsParsed": 270,
+        "cardsParsed": 270,
+        "subsets": 1,
+        "blocks": 3,
+        "notes": 0,
+        "unplaced": 0
+      },
+      {
+        "sheet": "Autographs",
+        "numberedCardRows": 367,
+        "numberedCardsParsed": 367,
+        "cardsParsed": 367,
+        "subsets": 8,
+        "blocks": 0,
+        "notes": 1,
+        "unplaced": 0
+      },
+      {
+        "sheet": "Memorabilia",
+        "numberedCardRows": 95,
+        "numberedCardsParsed": 95,
+        "cardsParsed": 95,
+        "subsets": 3,
+        "blocks": 0,
+        "notes": 0,
+        "unplaced": 0
+      },
+      {
+        "sheet": "Inserts",
+        "numberedCardRows": 480,
+        "numberedCardsParsed": 480,
+        "cardsParsed": 480,
+        "subsets": 22,
+        "blocks": 0,
+        "notes": 0,
+        "unplaced": 0
+      }
+    ],
+    "subsets": 37,
+    "blocks": 3,
+    "parallels": 140,
+    "cards": 1212,
+    "rookies": 50,
+    "rookiesUnknown": 0,
+    "rookiesFromBlocks": 50,
+    "rookiesFromTeams": {
+      "sourceRows": 50,
+      "matchedRows": 50,
+      "unmatched": []
+    },
+    "blockStats": [
+      {
+        "name": "Veterans",
+        "parent": "Base Set",
+        "from": 1,
+        "to": 200,
+        "expected": 200,
+        "parsed": 200
+      },
+      {
+        "name": "Rookies",
+        "parent": "Base Set",
+        "from": 201,
+        "to": 250,
+        "expected": 50,
+        "parsed": 50
+      },
+      {
+        "name": "Hoops Tribute",
+        "parent": "Base Set",
+        "from": 251,
+        "to": 270,
+        "expected": 20,
+        "parsed": 20
+      }
+    ],
+    "declaredCounts": [
+      {
+        "subset": "Base Set",
+        "declared": 270,
+        "parsed": 270
+      },
+      {
+        "subset": "Base Hoops Tribute Premium Box Set Autographs",
+        "declared": 20,
+        "parsed": 20
+      },
+      {
+        "subset": "Great SIGnificance",
+        "declared": 99,
+        "parsed": 99
+      },
+      {
+        "subset": "Hoops Art Signatures",
+        "declared": 10,
+        "parsed": 10
+      },
+      {
+        "subset": "Hoops Ink",
+        "declared": 49,
+        "parsed": 49
+      },
+      {
+        "subset": "Hot Signatures",
+        "declared": 50,
+        "parsed": 50
+      },
+      {
+        "subset": "Hot Signatures Hyper Gold",
+        "declared": 39,
+        "parsed": 39
+      },
+      {
+        "subset": "Hot Signatures Rookies",
+        "declared": 50,
+        "parsed": 50
+      },
+      {
+        "subset": "Rookie Ink",
+        "declared": 50,
+        "parsed": 50
+      },
+      {
+        "subset": "Rise N Shine Memorabilia",
+        "declared": 39,
+        "parsed": 39
+      },
+      {
+        "subset": "Rookie Remembrance",
+        "declared": 20,
+        "parsed": 20
+      },
+      {
+        "subset": "Rookie Sweaters",
+        "declared": 36,
+        "parsed": 36
+      },
+      {
+        "subset": "Arriving Now",
+        "declared": 25,
+        "parsed": 25
+      },
+      {
+        "subset": "Back Stage Pass",
+        "declared": 10,
+        "parsed": 10
+      },
+      {
+        "subset": "City Edition",
+        "declared": 30,
+        "parsed": 30
+      },
+      {
+        "subset": "Class of 2020",
+        "declared": 15,
+        "parsed": 15
+      },
+      {
+        "subset": "Courtside",
+        "declared": 15,
+        "parsed": 15
+      },
+      {
+        "subset": "Frequent Flyers",
+        "declared": 15,
+        "parsed": 15
+      },
+      {
+        "subset": "Future Legends of the Game",
+        "declared": 25,
+        "parsed": 25
+      },
+      {
+        "subset": "High Voltage",
+        "declared": 25,
+        "parsed": 25
+      },
+      {
+        "subset": "Highlights",
+        "declared": 5,
+        "parsed": 5
+      },
+      {
+        "subset": "HIPnotized",
+        "declared": 20,
+        "parsed": 20
+      },
+      {
+        "subset": "Jersey Swap",
+        "declared": 10,
+        "parsed": 10
+      },
+      {
+        "subset": "Legends of the Ball",
+        "declared": 15,
+        "parsed": 15
+      },
+      {
+        "subset": "Legends of the Game",
+        "declared": 75,
+        "parsed": 75
+      },
+      {
+        "subset": "Lights, Camera, Action",
+        "declared": 30,
+        "parsed": 30
+      },
+      {
+        "subset": "Now Playing",
+        "declared": 33,
+        "parsed": 33
+      },
+      {
+        "subset": "Prime Twine",
+        "declared": 25,
+        "parsed": 25
+      },
+      {
+        "subset": "Rookie Special",
+        "declared": 2,
+        "parsed": 2
+      },
+      {
+        "subset": "SLAM",
+        "declared": 20,
+        "parsed": 20
+      },
+      {
+        "subset": "Spark Plugs",
+        "declared": 15,
+        "parsed": 15
+      },
+      {
+        "subset": "Vanity Plates",
+        "declared": 25,
+        "parsed": 25
+      },
+      {
+        "subset": "We Got Next",
+        "declared": 25,
+        "parsed": 25
+      },
+      {
+        "subset": "Zero Gravity",
+        "declared": 20,
+        "parsed": 20
+      }
+    ]
+  },
+  "findings": []
+}

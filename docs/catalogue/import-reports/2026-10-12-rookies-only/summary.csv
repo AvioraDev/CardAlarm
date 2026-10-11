@@ -1,0 +1,14 @@
+file,season,product,ok,errors,accepted,warnings,subsets,blocks,parallels,cards,rookies,teams_rc_rows,teams_rc_matched,first_finding
+2024-25-Panini-Prizm-Black-Basketball-Checklist.xlsx,2024-25,Prizm Black,yes,0,0,2,41,0,122,2012,0,0,0,"warning: Subset ""Rookie Signatures"": 48 cards declared, 50 listed"
+2024-25-Panini-Silhouette-Basketball-Checklist(1).xlsx,2024-25,Silhouette,yes,0,0,2,83,0,116,3419,0,0,0,"warning: Subset ""Jumbo Memorabilia"": 87 cards declared, 90 listed"
+2025-26-Topps-Basketball-Checklist.xlsx,2025-26,Topps,yes,0,0,2,59,0,6,2148,48,0,0,"warning: Subset ""1980-81 Topps Basketball Triple Autographs"": 10 cards declared, 30 listed"
+2020-21-Panini-Prizm-Basketball-Checklist.xlsx,2020-21,Prizm,yes,0,0,0,21,0,118,1089,64,50,50,
+2020-21-Panini-Revolution-Basketball-Checklist.xlsx,2020-21,Revolution,yes,0,0,0,10,0,43,350,50,50,50,
+2022-23-Panini-Mosaic-Basketball-Checklist.xlsx,2022-23,Mosaic,yes,0,0,0,25,0,136,951,64,50,50,
+2022-23-Panini-Origins-Basketball-Checklist.xlsx,2022-23,Origins,yes,0,0,1,23,0,69,629,0,0,0,"warning: The source marks no rookies (no RC flags in the Teams sheet, no rookie-named block), so rookie status of all 629 cards is stored as unknown"
+2022-23-Panini-Prizm-Basketball-Checklist.xlsx,2022-23,Prizm,yes,0,0,1,22,0,120,995,0,0,0,"warning: The source marks no rookies (no RC flags in the Teams sheet, no rookie-named block), so rookie status of all 995 cards is stored as unknown"
+2023-24-Panini-Origins-Basketball-Checklist.xlsx,2023-24,Origins,yes,0,0,1,27,0,72,664,0,0,0,"warning: The source marks no rookies (no RC flags in the Teams sheet, no rookie-named block), so rookie status of all 664 cards is stored as unknown"
+2023-24-Panini-Phoenix-Basketball-Checklist.xlsx,2023-24,Phoenix,yes,0,0,1,64,0,338,1716,50,50,50,"warning: Subset ""Base Set"": 250 cards declared, 300 listed"
+2023-24-Panini-Prizm-Basketball-Checklist.xlsx,2023-24,Prizm,yes,0,0,1,31,0,158,1377,0,0,0,"warning: The source marks no rookies (no RC flags in the Teams sheet, no rookie-named block), so rookie status of all 1377 cards is stored as unknown"
+2023-24-Panini-Revolution-Basketball-Checklist.xlsx,2023-24,Revolution,yes,0,0,0,15,0,69,443,60,50,50,
+2024-25-Panini-Prizm-Basketball-Checklist.xlsx,2024-25,Prizm,yes,0,0,2,34,0,234,1418,0,0,0,"warning: Subset ""Rookie Signatures"": 40 cards declared, 49 listed"

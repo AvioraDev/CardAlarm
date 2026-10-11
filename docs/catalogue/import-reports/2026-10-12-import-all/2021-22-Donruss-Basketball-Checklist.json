@@ -1,0 +1,173 @@
+{
+  "file": "2021-22-Donruss-Basketball-Checklist.xlsx",
+  "season": "2021-22",
+  "productLine": "Donruss",
+  "ok": true,
+  "errors": 0,
+  "warnings": 0,
+  "accepted": 0,
+  "stats": {
+    "sheets": [
+      {
+        "sheet": "Base",
+        "numberedCardRows": 250,
+        "numberedCardsParsed": 250,
+        "cardsParsed": 250,
+        "subsets": 1,
+        "blocks": 1,
+        "notes": 0,
+        "unplaced": 0
+      },
+      {
+        "sheet": "Autographs",
+        "numberedCardRows": 185,
+        "numberedCardsParsed": 185,
+        "cardsParsed": 185,
+        "subsets": 3,
+        "blocks": 0,
+        "notes": 0,
+        "unplaced": 0
+      },
+      {
+        "sheet": "Memorabilia",
+        "numberedCardRows": 149,
+        "numberedCardsParsed": 149,
+        "cardsParsed": 149,
+        "subsets": 3,
+        "blocks": 0,
+        "notes": 0,
+        "unplaced": 0
+      },
+      {
+        "sheet": "Inserts",
+        "numberedCardRows": 200,
+        "numberedCardsParsed": 200,
+        "cardsParsed": 200,
+        "subsets": 12,
+        "blocks": 0,
+        "notes": 0,
+        "unplaced": 0
+      }
+    ],
+    "subsets": 20,
+    "blocks": 1,
+    "parallels": 134,
+    "cards": 784,
+    "rookies": 50,
+    "rookiesUnknown": 0,
+    "rookiesFromBlocks": 50,
+    "rookiesFromTeams": {
+      "sourceRows": 50,
+      "matchedRows": 50,
+      "unmatched": []
+    },
+    "blockStats": [
+      {
+        "name": "Rated Rookies",
+        "parent": "Base Set",
+        "from": 201,
+        "to": 250,
+        "expected": 50,
+        "parsed": 50
+      }
+    ],
+    "declaredCounts": [
+      {
+        "subset": "Base Set",
+        "declared": 250,
+        "parsed": 250
+      },
+      {
+        "subset": "Next Day Autographs",
+        "declared": 40,
+        "parsed": 40
+      },
+      {
+        "subset": "Rated Rookies Signatures",
+        "declared": 49,
+        "parsed": 49
+      },
+      {
+        "subset": "Signature Series",
+        "declared": 96,
+        "parsed": 96
+      },
+      {
+        "subset": "Jersey Kings",
+        "declared": 60,
+        "parsed": 60
+      },
+      {
+        "subset": "Jerseys Kings Prime",
+        "declared": 49,
+        "parsed": 49
+      },
+      {
+        "subset": "Rookie Jersey Kings",
+        "declared": 40,
+        "parsed": 40
+      },
+      {
+        "subset": "Complete Players",
+        "declared": 20,
+        "parsed": 20
+      },
+      {
+        "subset": "Craftsmen",
+        "declared": 15,
+        "parsed": 15
+      },
+      {
+        "subset": "Crunch Time",
+        "declared": 20,
+        "parsed": 20
+      },
+      {
+        "subset": "Duos",
+        "declared": 5,
+        "parsed": 5
+      },
+      {
+        "subset": "Franchise Features",
+        "declared": 30,
+        "parsed": 30
+      },
+      {
+        "subset": "Great X-Pectations",
+        "declared": 25,
+        "parsed": 25
+      },
+      {
+        "subset": "Magicians",
+        "declared": 10,
+        "parsed": 10
+      },
+      {
+        "subset": "Net Marvels",
+        "declared": 20,
+        "parsed": 20
+      },
+      {
+        "subset": "Power in the Paint",
+        "declared": 10,
+        "parsed": 10
+      },
+      {
+        "subset": "Production Line",
+        "declared": 10,
+        "parsed": 10
+      },
+      {
+        "subset": "Retro Series",
+        "declared": 30,
+        "parsed": 30
+      },
+      {
+        "subset": "The Rookies",
+        "declared": 5,
+        "parsed": 5
+      }
+    ]
+  },
+  "findings": []
+}

@@ -1,0 +1,233 @@
+{
+  "file": "2020-21-Panini-Mosaic-Basketball-Checklist.xlsx",
+  "season": "2020-21",
+  "productLine": "Mosaic",
+  "ok": true,
+  "errors": 0,
+  "warnings": 0,
+  "accepted": 0,
+  "stats": {
+    "sheets": [
+      {
+        "sheet": "Base",
+        "numberedCardRows": 314,
+        "numberedCardsParsed": 314,
+        "cardsParsed": 314,
+        "subsets": 2,
+        "blocks": 6,
+        "notes": 0,
+        "unplaced": 0
+      },
+      {
+        "sheet": "Autographs",
+        "numberedCardRows": 304,
+        "numberedCardsParsed": 304,
+        "cardsParsed": 304,
+        "subsets": 8,
+        "blocks": 0,
+        "notes": 0,
+        "unplaced": 0
+      },
+      {
+        "sheet": "Inserts",
+        "numberedCardRows": 300,
+        "numberedCardsParsed": 300,
+        "cardsParsed": 300,
+        "subsets": 15,
+        "blocks": 0,
+        "notes": 0,
+        "unplaced": 0
+      }
+    ],
+    "subsets": 31,
+    "blocks": 6,
+    "parallels": 131,
+    "cards": 918,
+    "rookies": 58,
+    "rookiesUnknown": 0,
+    "rookiesFromBlocks": 45,
+    "rookiesFromTeams": {
+      "sourceRows": 45,
+      "matchedRows": 45,
+      "unmatched": []
+    },
+    "blockStats": [
+      {
+        "name": "Base",
+        "parent": "Base Set",
+        "from": 1,
+        "to": 200,
+        "expected": 200,
+        "parsed": 200
+      },
+      {
+        "name": "Rookies",
+        "parent": "Base Set",
+        "from": 201,
+        "to": 245,
+        "expected": 45,
+        "parsed": 45
+      },
+      {
+        "name": "National Pride",
+        "parent": "Base Set",
+        "from": 246,
+        "to": 260,
+        "expected": 15,
+        "parsed": 15
+      },
+      {
+        "name": "NBA Debut",
+        "parent": "Base Set",
+        "from": 261,
+        "to": 280,
+        "expected": 20,
+        "parsed": 20
+      },
+      {
+        "name": "All-Time Greats",
+        "parent": "Base Set",
+        "from": 281,
+        "to": 295,
+        "expected": 15,
+        "parsed": 15
+      },
+      {
+        "name": "Finals MVPs",
+        "parent": "Base Set",
+        "from": 296,
+        "to": 300,
+        "expected": 5,
+        "parsed": 5
+      }
+    ],
+    "declaredCounts": [
+      {
+        "subset": "Base Set",
+        "declared": 300,
+        "parsed": 300
+      },
+      {
+        "subset": "Rooke Variations",
+        "declared": 14,
+        "parsed": 14
+      },
+      {
+        "subset": "Autographs Fast Break",
+        "declared": 100,
+        "parsed": 100
+      },
+      {
+        "subset": "Autographs Mosaic",
+        "declared": 60,
+        "parsed": 60
+      },
+      {
+        "subset": "Award-Winning Autographs",
+        "declared": 4,
+        "parsed": 4
+      },
+      {
+        "subset": "Rookie Autographs Mosaic",
+        "declared": 39,
+        "parsed": 39
+      },
+      {
+        "subset": "Rookie Private Signings Association Version",
+        "declared": 1,
+        "parsed": 1
+      },
+      {
+        "subset": "Rookie Private Signings Icon Version",
+        "declared": 1,
+        "parsed": 1
+      },
+      {
+        "subset": "Rookie Scripts",
+        "declared": 40,
+        "parsed": 40
+      },
+      {
+        "subset": "Scripts",
+        "declared": 59,
+        "parsed": 59
+      },
+      {
+        "subset": "Bang!",
+        "declared": 15,
+        "parsed": 15
+      },
+      {
+        "subset": "Blue Chips",
+        "declared": 15,
+        "parsed": 15
+      },
+      {
+        "subset": "Center Stage",
+        "declared": 30,
+        "parsed": 30
+      },
+      {
+        "subset": "Elevate",
+        "declared": 25,
+        "parsed": 25
+      },
+      {
+        "subset": "HoloFame",
+        "declared": 20,
+        "parsed": 20
+      },
+      {
+        "subset": "Introductions",
+        "declared": 10,
+        "parsed": 10
+      },
+      {
+        "subset": "Jam Masters",
+        "declared": 20,
+        "parsed": 20
+      },
+      {
+        "subset": "Men of Mastery",
+        "declared": 20,
+        "parsed": 20
+      },
+      {
+        "subset": "Montage",
+        "declared": 30,
+        "parsed": 30
+      },
+      {
+        "subset": "Overdrive",
+        "declared": 25,
+        "parsed": 25
+      },
+      {
+        "subset": "Stained Glass",
+        "declared": 10,
+        "parsed": 10
+      },
+      {
+        "subset": "Stare Masters",
+        "declared": 25,
+        "parsed": 25
+      },
+      {
+        "subset": "Straight Fire",
+        "declared": 20,
+        "parsed": 20
+      },
+      {
+        "subset": "Swagger",
+        "declared": 15,
+        "parsed": 15
+      },
+      {
+        "subset": "Will to Win",
+        "declared": 20,
+        "parsed": 20
+      }
+    ]
+  },
+  "findings": []
+}

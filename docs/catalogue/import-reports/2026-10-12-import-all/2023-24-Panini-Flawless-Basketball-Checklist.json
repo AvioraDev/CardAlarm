@@ -1,0 +1,392 @@
+{
+  "file": "2023-24-Panini-Flawless-Basketball-Checklist.xlsx",
+  "season": "2023-24",
+  "productLine": "Flawless",
+  "ok": true,
+  "errors": 0,
+  "warnings": 1,
+  "accepted": 0,
+  "stats": {
+    "sheets": [
+      {
+        "sheet": "Base",
+        "numberedCardRows": 200,
+        "numberedCardsParsed": 200,
+        "cardsParsed": 200,
+        "subsets": 1,
+        "blocks": 7,
+        "notes": 0,
+        "unplaced": 0
+      },
+      {
+        "sheet": "Autographs",
+        "numberedCardRows": 592,
+        "numberedCardsParsed": 592,
+        "cardsParsed": 592,
+        "subsets": 30,
+        "blocks": 0,
+        "notes": 0,
+        "unplaced": 0
+      },
+      {
+        "sheet": "Memorabilia",
+        "numberedCardRows": 522,
+        "numberedCardsParsed": 522,
+        "cardsParsed": 522,
+        "subsets": 17,
+        "blocks": 0,
+        "notes": 0,
+        "unplaced": 0
+      },
+      {
+        "sheet": "Inserts",
+        "numberedCardRows": 75,
+        "numberedCardsParsed": 75,
+        "cardsParsed": 75,
+        "subsets": 7,
+        "blocks": 0,
+        "notes": 0,
+        "unplaced": 0
+      }
+    ],
+    "subsets": 62,
+    "blocks": 7,
+    "parallels": 158,
+    "cards": 1389,
+    "rookies": 0,
+    "rookiesUnknown": 1389,
+    "rookiesFromBlocks": 0,
+    "rookiesFromTeams": {
+      "sourceRows": 0,
+      "matchedRows": 0,
+      "unmatched": []
+    },
+    "blockStats": [
+      {
+        "name": "Generational Talent",
+        "parent": "Base Set",
+        "from": 96,
+        "to": 100,
+        "expected": 5,
+        "parsed": 5
+      },
+      {
+        "name": "Legends",
+        "parent": "Base Set",
+        "from": 101,
+        "to": 120,
+        "expected": 20,
+        "parsed": 20
+      },
+      {
+        "name": "All-Stars",
+        "parent": "Base Set",
+        "from": 121,
+        "to": 140,
+        "expected": 20,
+        "parsed": 20
+      },
+      {
+        "name": "Flawless Drafts",
+        "parent": "Base Set",
+        "from": 141,
+        "to": 150,
+        "expected": 10,
+        "parsed": 10
+      },
+      {
+        "name": "Flawless Leaders",
+        "parent": "Base Set",
+        "from": 151,
+        "to": 165,
+        "expected": 15,
+        "parsed": 15
+      },
+      {
+        "name": "Flawless Championships",
+        "parent": "Base Set",
+        "from": 166,
+        "to": 175,
+        "expected": 10,
+        "parsed": 10
+      },
+      {
+        "name": "All NBA",
+        "parent": "Base Set",
+        "from": 176,
+        "to": 200,
+        "expected": 25,
+        "parsed": 25
+      }
+    ],
+    "declaredCounts": [
+      {
+        "subset": "Base Set",
+        "declared": 200,
+        "parsed": 200
+      },
+      {
+        "subset": "All-NBA Ink",
+        "declared": 22,
+        "parsed": 22
+      },
+      {
+        "subset": "Championship Tags Autographs",
+        "declared": 20,
+        "parsed": 20
+      },
+      {
+        "subset": "Draft Gem Signatures",
+        "declared": 39,
+        "parsed": 39
+      },
+      {
+        "subset": "Dual Laundry Tag Autographs",
+        "declared": 1,
+        "parsed": 1
+      },
+      {
+        "subset": "Dual Patch Autographs",
+        "declared": 3,
+        "parsed": 3
+      },
+      {
+        "subset": "Enshrined Signatures",
+        "declared": 16,
+        "parsed": 16
+      },
+      {
+        "subset": "Excellence Signatures",
+        "declared": 30,
+        "parsed": 30
+      },
+      {
+        "subset": "Flawless Achievements",
+        "declared": 13,
+        "parsed": 13
+      },
+      {
+        "subset": "Flawless Autographs",
+        "declared": 36,
+        "parsed": 36
+      },
+      {
+        "subset": "Flawless Dual Inscriptions",
+        "declared": 1,
+        "parsed": 1
+      },
+      {
+        "subset": "Flawless Dual Signatures Booklet Platinum",
+        "declared": 3,
+        "parsed": 3
+      },
+      {
+        "subset": "Flawless Finishes",
+        "declared": 17,
+        "parsed": 17
+      },
+      {
+        "subset": "Flawless Loyal Greats",
+        "declared": 8,
+        "parsed": 8
+      },
+      {
+        "subset": "Flawless Patch Autographs",
+        "declared": 36,
+        "parsed": 36
+      },
+      {
+        "subset": "Flawless Penmanship",
+        "declared": 20,
+        "parsed": 20
+      },
+      {
+        "subset": "Flawless Performances",
+        "declared": 16,
+        "parsed": 16
+      },
+      {
+        "subset": "Flawless Scoring Title Autographs",
+        "declared": 13,
+        "parsed": 13
+      },
+      {
+        "subset": "Flawless Shade Signatures",
+        "declared": 38,
+        "parsed": 38
+      },
+      {
+        "subset": "Hall of Fame Gems Autographs Platinum",
+        "declared": 3,
+        "parsed": 3
+      },
+      {
+        "subset": "Horizontal Patch Auto",
+        "declared": 30,
+        "parsed": 30
+      },
+      {
+        "subset": "Laundry Tags Autographs",
+        "declared": 14,
+        "parsed": 14
+      },
+      {
+        "subset": "Logoman Autographs",
+        "declared": 33,
+        "parsed": 33
+      },
+      {
+        "subset": "Premium Ink",
+        "declared": 16,
+        "parsed": 16
+      },
+      {
+        "subset": "Rookie Autographs",
+        "declared": 22,
+        "parsed": 22
+      },
+      {
+        "subset": "Signature Gems Platinum",
+        "declared": 5,
+        "parsed": 5
+      },
+      {
+        "subset": "Star Swatch Signatures",
+        "declared": 11,
+        "parsed": 11
+      },
+      {
+        "subset": "Vertical Patch Auto",
+        "declared": 34,
+        "parsed": 34
+      },
+      {
+        "subset": "Championship Tags",
+        "declared": 20,
+        "parsed": 20
+      },
+      {
+        "subset": "Diamond Swatches",
+        "declared": 104,
+        "parsed": 104
+      },
+      {
+        "subset": "Dual Logoman",
+        "declared": 13,
+        "parsed": 13
+      },
+      {
+        "subset": "Dual Patches",
+        "declared": 39,
+        "parsed": 39
+      },
+      {
+        "subset": "Dual Patches Ruby",
+        "declared": 30,
+        "parsed": 30
+      },
+      {
+        "subset": "Flawless Memorabilia",
+        "declared": 50,
+        "parsed": 50
+      },
+      {
+        "subset": "Fully Endorsed",
+        "declared": 25,
+        "parsed": 25
+      },
+      {
+        "subset": "Legacy Patches",
+        "declared": 8,
+        "parsed": 8
+      },
+      {
+        "subset": "Logoman",
+        "declared": 30,
+        "parsed": 30
+      },
+      {
+        "subset": "Mastercraft",
+        "declared": 15,
+        "parsed": 15
+      },
+      {
+        "subset": "Patches",
+        "declared": 60,
+        "parsed": 60
+      },
+      {
+        "subset": "Patches Ruby",
+        "declared": 51,
+        "parsed": 51
+      },
+      {
+        "subset": "Premium Memorabilia",
+        "declared": 24,
+        "parsed": 24
+      },
+      {
+        "subset": "Specialty Patch Booklet Platinum",
+        "declared": 9,
+        "parsed": 9
+      },
+      {
+        "subset": "Star Swatches",
+        "declared": 19,
+        "parsed": 19
+      },
+      {
+        "subset": "Tag Team",
+        "declared": 15,
+        "parsed": 15
+      },
+      {
+        "subset": "Triple Logoman",
+        "declared": 10,
+        "parsed": 10
+      },
+      {
+        "subset": "Career Milestones",
+        "declared": 15,
+        "parsed": 15
+      },
+      {
+        "subset": "Every Player, Every Game",
+        "declared": 30,
+        "parsed": 30
+      },
+      {
+        "subset": "The Finals",
+        "declared": 6,
+        "parsed": 6
+      },
+      {
+        "subset": "Larry O'Brien Trophy Gems",
+        "declared": 7,
+        "parsed": 7
+      },
+      {
+        "subset": "NBA Cup Gems",
+        "declared": 4,
+        "parsed": 4
+      },
+      {
+        "subset": "NBA Finals Gems Platinum",
+        "declared": 4,
+        "parsed": 4
+      },
+      {
+        "subset": "Team Logo Gems",
+        "declared": 9,
+        "parsed": 9
+      }
+    ]
+  },
+  "findings": [
+    {
+      "level": "warning",
+      "code": "rookies_not_marked_in_source",
+      "message": "The source marks no rookies (no RC flags in the Teams sheet, no rookie-named block), so rookie status of all 1389 cards is stored as unknown"
+    }
+  ]
+}

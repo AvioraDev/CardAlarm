@@ -1,0 +1,501 @@
+{
+  "file": "2024-25-Panini-Silhouette-Basketball-Checklist(1).xlsx",
+  "season": "2024-25",
+  "productLine": "Silhouette",
+  "ok": true,
+  "errors": 0,
+  "warnings": 2,
+  "accepted": 0,
+  "stats": {
+    "sheets": [
+      {
+        "sheet": "Base",
+        "numberedCardRows": 100,
+        "numberedCardsParsed": 100,
+        "cardsParsed": 100,
+        "subsets": 1,
+        "blocks": 0,
+        "notes": 0,
+        "unplaced": 0
+      },
+      {
+        "sheet": "Autographs",
+        "numberedCardRows": 907,
+        "numberedCardsParsed": 907,
+        "cardsParsed": 907,
+        "subsets": 25,
+        "blocks": 0,
+        "notes": 0,
+        "unplaced": 0
+      },
+      {
+        "sheet": "Memorabilia",
+        "numberedCardRows": 2182,
+        "numberedCardsParsed": 2182,
+        "cardsParsed": 2182,
+        "subsets": 47,
+        "blocks": 0,
+        "notes": 0,
+        "unplaced": 0
+      },
+      {
+        "sheet": "Inserts",
+        "numberedCardRows": 230,
+        "numberedCardsParsed": 230,
+        "cardsParsed": 230,
+        "subsets": 10,
+        "blocks": 0,
+        "notes": 0,
+        "unplaced": 0
+      }
+    ],
+    "subsets": 83,
+    "blocks": 0,
+    "parallels": 116,
+    "cards": 3419,
+    "rookies": 0,
+    "rookiesUnknown": 3419,
+    "rookiesFromBlocks": 0,
+    "rookiesFromTeams": {
+      "sourceRows": 0,
+      "matchedRows": 0,
+      "unmatched": []
+    },
+    "blockStats": [],
+    "declaredCounts": [
+      {
+        "subset": "Base Set",
+        "declared": 100,
+        "parsed": 100
+      },
+      {
+        "subset": "Framed Signatures",
+        "declared": 15,
+        "parsed": 15
+      },
+      {
+        "subset": "Franchise Greats Signature Booklets",
+        "declared": 8,
+        "parsed": 8
+      },
+      {
+        "subset": "Jumbo Patch Autograph Booklets",
+        "declared": 9,
+        "parsed": 9
+      },
+      {
+        "subset": "NBA Cup Autographs",
+        "declared": 30,
+        "parsed": 30
+      },
+      {
+        "subset": "Passing the Torch",
+        "declared": 15,
+        "parsed": 15
+      },
+      {
+        "subset": "Profile Signatures",
+        "declared": 15,
+        "parsed": 15
+      },
+      {
+        "subset": "Quad Autographs",
+        "declared": 7,
+        "parsed": 7
+      },
+      {
+        "subset": "Rookie Season Ticket",
+        "declared": 34,
+        "parsed": 34
+      },
+      {
+        "subset": "Rookie Season Ticket - Ticket Stub",
+        "declared": 33,
+        "parsed": 33
+      },
+      {
+        "subset": "Rookie Season Ticket -The Finals Ticket",
+        "declared": 14,
+        "parsed": 14
+      },
+      {
+        "subset": "Rookie Season Ticket - FOTL Red",
+        "declared": 34,
+        "parsed": 34
+      },
+      {
+        "subset": "Rookie Season Ticket - FOTL Black",
+        "declared": 34,
+        "parsed": 34
+      },
+      {
+        "subset": "Silhouette Autographs",
+        "declared": 95,
+        "parsed": 95
+      },
+      {
+        "subset": "Silhouette Autographs Holo Silver",
+        "declared": 74,
+        "parsed": 74
+      },
+      {
+        "subset": "Silhouette Autographs Holo Gold",
+        "declared": 85,
+        "parsed": 85
+      },
+      {
+        "subset": "Silhouette Autographs FOTL Red",
+        "declared": 80,
+        "parsed": 80
+      },
+      {
+        "subset": "Silhouette Autographs FOTL Black",
+        "declared": 86,
+        "parsed": 86
+      },
+      {
+        "subset": "Silhouette Autographs Holo Platinum",
+        "declared": 89,
+        "parsed": 89
+      },
+      {
+        "subset": "Triple Autographs",
+        "declared": 15,
+        "parsed": 15
+      },
+      {
+        "subset": "Veteran Season Ticket",
+        "declared": 34,
+        "parsed": 34
+      },
+      {
+        "subset": "Veteran Season Ticket - The Finals Ticket",
+        "declared": 27,
+        "parsed": 27
+      },
+      {
+        "subset": "Veteran Season Ticket - Ticket Stub",
+        "declared": 34,
+        "parsed": 34
+      },
+      {
+        "subset": "Veteran Season Ticket - Cracked Ice Ticket",
+        "declared": 34,
+        "parsed": 34
+      },
+      {
+        "subset": "VS 1 on 1 Autograph Booklets",
+        "declared": 3,
+        "parsed": 3
+      },
+      {
+        "subset": "2024-25 Panini Basketball - Calligraphy Signatures",
+        "declared": 3,
+        "parsed": 3
+      },
+      {
+        "subset": "All Star Booklet",
+        "declared": 1,
+        "parsed": 1
+      },
+      {
+        "subset": "All Star Laundry Tag NBA Logos",
+        "declared": 16,
+        "parsed": 16
+      },
+      {
+        "subset": "Dual Materials",
+        "declared": 40,
+        "parsed": 40
+      },
+      {
+        "subset": "Dual Materials Holo Platinum",
+        "declared": 39,
+        "parsed": 39
+      },
+      {
+        "subset": "Duo Memorabilia",
+        "declared": 8,
+        "parsed": 8
+      },
+      {
+        "subset": "Duo Memorabilia Holo Platinum",
+        "declared": 8,
+        "parsed": 8
+      },
+      {
+        "subset": "Hardwood Classic Night Patches",
+        "declared": 6,
+        "parsed": 6
+      },
+      {
+        "subset": "Holiday Laundry Tags",
+        "declared": 17,
+        "parsed": 17
+      },
+      {
+        "subset": "Holiday Logoman",
+        "declared": 22,
+        "parsed": 22
+      },
+      {
+        "subset": "Jumbo Memorabilia",
+        "declared": 87,
+        "parsed": 90
+      },
+      {
+        "subset": "Jumbo Memorabilia Holo Silver",
+        "declared": 39,
+        "parsed": 39
+      },
+      {
+        "subset": "Jumbo Memorabilia Holo Gold",
+        "declared": 69,
+        "parsed": 69
+      },
+      {
+        "subset": "Jumbo Memorabilia Holo Platinum",
+        "declared": 90,
+        "parsed": 90
+      },
+      {
+        "subset": "Jumbo Memorabilia FOTL",
+        "declared": 79,
+        "parsed": 79
+      },
+      {
+        "subset": "Jumbo Patch Booklet",
+        "declared": 7,
+        "parsed": 7
+      },
+      {
+        "subset": "NBA Finals Dual Memorabilia",
+        "declared": 11,
+        "parsed": 11
+      },
+      {
+        "subset": "NBA Finals Jumbo Memorabilia",
+        "declared": 20,
+        "parsed": 20
+      },
+      {
+        "subset": "NBA Finals Jumbo Memorabilia Holo Silver",
+        "declared": 6,
+        "parsed": 6
+      },
+      {
+        "subset": "NBA Finals Jumbo Memorabilia Holo Gold",
+        "declared": 10,
+        "parsed": 10
+      },
+      {
+        "subset": "NBA Finals Jumbo Memorabilia Holo Platinum",
+        "declared": 12,
+        "parsed": 12
+      },
+      {
+        "subset": "NBA Finals Memorabilia",
+        "declared": 36,
+        "parsed": 36
+      },
+      {
+        "subset": "NBA Finals Memorabilia Bronze",
+        "declared": 8,
+        "parsed": 8
+      },
+      {
+        "subset": "NBA Finals Memorabilia Holo Silver",
+        "declared": 29,
+        "parsed": 29
+      },
+      {
+        "subset": "NBA Finals Memorabilia Holo Gold",
+        "declared": 34,
+        "parsed": 34
+      },
+      {
+        "subset": "NBA Finals Memorabilia Holo Platinum",
+        "declared": 39,
+        "parsed": 39
+      },
+      {
+        "subset": "NBA Finals Memorabilia - NBA Laundry ID tag",
+        "declared": 16,
+        "parsed": 16
+      },
+      {
+        "subset": "NBA Finals Memorabilia - Special Team Patch",
+        "declared": 6,
+        "parsed": 6
+      },
+      {
+        "subset": "NBA Gear",
+        "declared": 50,
+        "parsed": 50
+      },
+      {
+        "subset": "NBA Gear Holo Platinum",
+        "declared": 48,
+        "parsed": 48
+      },
+      {
+        "subset": "NBA Relics",
+        "declared": 100,
+        "parsed": 100
+      },
+      {
+        "subset": "NBA Relics Holo Silver",
+        "declared": 63,
+        "parsed": 63
+      },
+      {
+        "subset": "NBA Relics Holo Gold",
+        "declared": 90,
+        "parsed": 90
+      },
+      {
+        "subset": "NBA Relics Holo Platinum",
+        "declared": 100,
+        "parsed": 100
+      },
+      {
+        "subset": "NBA Relics FOTL",
+        "declared": 92,
+        "parsed": 92
+      },
+      {
+        "subset": "Silhouettes",
+        "declared": 92,
+        "parsed": 92
+      },
+      {
+        "subset": "Silhouettes Holo Silver",
+        "declared": 47,
+        "parsed": 47
+      },
+      {
+        "subset": "Silhouettes Holo Gold",
+        "declared": 78,
+        "parsed": 78
+      },
+      {
+        "subset": "Silhouettes Holo Platinum",
+        "declared": 91,
+        "parsed": 91
+      },
+      {
+        "subset": "Silhouettes FOTL",
+        "declared": 87,
+        "parsed": 87
+      },
+      {
+        "subset": "Specialty Patches",
+        "declared": 35,
+        "parsed": 35
+      },
+      {
+        "subset": "Stat Line Memorabilia Booklet",
+        "declared": 10,
+        "parsed": 10
+      },
+      {
+        "subset": "Threads",
+        "declared": 100,
+        "parsed": 100
+      },
+      {
+        "subset": "Threads Holo Silver",
+        "declared": 66,
+        "parsed": 66
+      },
+      {
+        "subset": "Threads Holo Gold",
+        "declared": 83,
+        "parsed": 83
+      },
+      {
+        "subset": "Threads Holo Platinum",
+        "declared": 99,
+        "parsed": 99
+      },
+      {
+        "subset": "Threads FOTL",
+        "declared": 88,
+        "parsed": 88
+      },
+      {
+        "subset": "VS 1 on 1 Booklet",
+        "declared": 5,
+        "parsed": 5
+      },
+      {
+        "subset": "Base Gala",
+        "declared": 25,
+        "parsed": 25
+      },
+      {
+        "subset": "Contour",
+        "declared": 25,
+        "parsed": 25
+      },
+      {
+        "subset": "Game 7",
+        "declared": 15,
+        "parsed": 15
+      },
+      {
+        "subset": "Hand Crafted",
+        "declared": 15,
+        "parsed": 15
+      },
+      {
+        "subset": "Pillars of the Game",
+        "declared": 25,
+        "parsed": 25
+      },
+      {
+        "subset": "Superstars Die Cut",
+        "declared": 30,
+        "parsed": 30
+      },
+      {
+        "subset": "The Kings Court",
+        "declared": 15,
+        "parsed": 15
+      },
+      {
+        "subset": "Unparalleled",
+        "declared": 30,
+        "parsed": 30
+      },
+      {
+        "subset": "Vanta",
+        "declared": 25,
+        "parsed": 25
+      },
+      {
+        "subset": "White Night",
+        "declared": 25,
+        "parsed": 25
+      }
+    ]
+  },
+  "findings": [
+    {
+      "level": "warning",
+      "code": "declared_count_stale",
+      "message": "Subset \"Jumbo Memorabilia\": 87 cards declared, 90 listed",
+      "detail": {
+        "sheet": "Memorabilia",
+        "subset": "Jumbo Memorabilia",
+        "declared": 87,
+        "parsed": 90
+      }
+    },
+    {
+      "level": "warning",
+      "code": "rookies_not_marked_in_source",
+      "message": "The source marks no rookies (no RC flags in the Teams sheet, no rookie-named block), so rookie status of all 3419 cards is stored as unknown"
+    }
+  ]
+}

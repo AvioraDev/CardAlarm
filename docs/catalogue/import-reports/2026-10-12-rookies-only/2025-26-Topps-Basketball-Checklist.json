@@ -1,0 +1,387 @@
+{
+  "file": "2025-26-Topps-Basketball-Checklist.xlsx",
+  "season": "2025-26",
+  "productLine": "Topps",
+  "ok": true,
+  "errors": 0,
+  "warnings": 2,
+  "accepted": 0,
+  "stats": {
+    "sheets": [
+      {
+        "sheet": "Base",
+        "numberedCardRows": 325,
+        "numberedCardsParsed": 325,
+        "cardsParsed": 325,
+        "subsets": 3,
+        "blocks": 0,
+        "notes": 0,
+        "unplaced": 0
+      },
+      {
+        "sheet": "Autographs",
+        "numberedCardRows": 199,
+        "numberedCardsParsed": 199,
+        "cardsParsed": 619,
+        "subsets": 18,
+        "blocks": 0,
+        "notes": 0,
+        "unplaced": 0
+      },
+      {
+        "sheet": "Memorabilia",
+        "numberedCardRows": 0,
+        "numberedCardsParsed": 0,
+        "cardsParsed": 348,
+        "subsets": 9,
+        "blocks": 0,
+        "notes": 0,
+        "unplaced": 0
+      },
+      {
+        "sheet": "Inserts",
+        "numberedCardRows": 756,
+        "numberedCardsParsed": 756,
+        "cardsParsed": 856,
+        "subsets": 29,
+        "blocks": 0,
+        "notes": 0,
+        "unplaced": 0
+      }
+    ],
+    "subsets": 59,
+    "blocks": 0,
+    "parallels": 6,
+    "cards": 2148,
+    "rookies": 48,
+    "rookiesUnknown": 0,
+    "rookiesFromBlocks": 0,
+    "rookiesFromTeams": {
+      "sourceRows": 0,
+      "matchedRows": 0,
+      "unmatched": []
+    },
+    "blockStats": [],
+    "declaredCounts": [
+      {
+        "subset": "Base Set",
+        "declared": 300,
+        "parsed": 300
+      },
+      {
+        "subset": "Combo Cards",
+        "declared": 30,
+        "parsed": 30
+      },
+      {
+        "subset": "Base - Player Number Variation",
+        "declared": 25,
+        "parsed": 25
+      },
+      {
+        "subset": "Flagship Real Ones Autographs",
+        "declared": 42,
+        "parsed": 42
+      },
+      {
+        "subset": "1980-81 Topps Basketball Autographs",
+        "declared": 44,
+        "parsed": 44
+      },
+      {
+        "subset": "1980-81 Topps Chrome Basketball Veteran Autographs",
+        "declared": 45,
+        "parsed": 45
+      },
+      {
+        "subset": "Marks of Excellence",
+        "declared": 38,
+        "parsed": 38
+      },
+      {
+        "subset": "Contemporary Marks",
+        "declared": 37,
+        "parsed": 37
+      },
+      {
+        "subset": "Havoc Marks",
+        "declared": 19,
+        "parsed": 19
+      },
+      {
+        "subset": "Topps Notch Signatures",
+        "declared": 38,
+        "parsed": 38
+      },
+      {
+        "subset": "New Applicants Autographs",
+        "declared": 38,
+        "parsed": 38
+      },
+      {
+        "subset": "Signed and Sealed",
+        "declared": 19,
+        "parsed": 19
+      },
+      {
+        "subset": "Rookie Photo Shoot Autographs",
+        "declared": 40,
+        "parsed": 40
+      },
+      {
+        "subset": "1980-81 Topps Rookie Autographs",
+        "declared": 40,
+        "parsed": 40
+      },
+      {
+        "subset": "Flagship Real Ones Rookie Autographs",
+        "declared": 39,
+        "parsed": 39
+      },
+      {
+        "subset": "1980-81 Topps Basketball Triple Autographs",
+        "declared": 10,
+        "parsed": 30
+      },
+      {
+        "subset": "Rookie Photo Shoot Dual Autographs",
+        "declared": 10,
+        "parsed": 20
+      },
+      {
+        "subset": "Retail Rush Signatures",
+        "declared": 50,
+        "parsed": 50
+      },
+      {
+        "subset": "1980-81 Topps Chrome Rookie Autographs",
+        "declared": 40,
+        "parsed": 40
+      },
+      {
+        "subset": "Shopping Spree Signatures",
+        "declared": 39,
+        "parsed": 39
+      },
+      {
+        "subset": "Flagship Real One Autographs - Spike Lee",
+        "declared": 1,
+        "parsed": 1
+      },
+      {
+        "subset": "Rise to the Occasion Relics",
+        "declared": 39,
+        "parsed": 39
+      },
+      {
+        "subset": "Own The Game",
+        "declared": 40,
+        "parsed": 40
+      },
+      {
+        "subset": "Rookie Roundball Remnants",
+        "declared": 20,
+        "parsed": 20
+      },
+      {
+        "subset": "Franchise Fabrics",
+        "declared": 39,
+        "parsed": 39
+      },
+      {
+        "subset": "Swish and Stitch Relics",
+        "declared": 40,
+        "parsed": 40
+      },
+      {
+        "subset": "Woven Wonders Relics",
+        "declared": 20,
+        "parsed": 20
+      },
+      {
+        "subset": "Flagship Real One Relics",
+        "declared": 50,
+        "parsed": 50
+      },
+      {
+        "subset": "Store Exclusive Relics",
+        "declared": 50,
+        "parsed": 50
+      },
+      {
+        "subset": "Retail Ripper Relics",
+        "declared": 50,
+        "parsed": 50
+      },
+      {
+        "subset": "The Daily Dribble",
+        "declared": 40,
+        "parsed": 40
+      },
+      {
+        "subset": "New School",
+        "declared": 40,
+        "parsed": 40
+      },
+      {
+        "subset": "1980-81 Topps Chrome Basketball",
+        "declared": 100,
+        "parsed": 100
+      },
+      {
+        "subset": "Levitation",
+        "declared": 20,
+        "parsed": 20
+      },
+      {
+        "subset": "No Limit",
+        "declared": 40,
+        "parsed": 40
+      },
+      {
+        "subset": "Stars of the NBA",
+        "declared": 30,
+        "parsed": 30
+      },
+      {
+        "subset": "Rise to Stardom",
+        "declared": 20,
+        "parsed": 20
+      },
+      {
+        "subset": "MVP Vault",
+        "declared": 10,
+        "parsed": 10
+      },
+      {
+        "subset": "Comic Court",
+        "declared": 20,
+        "parsed": 20
+      },
+      {
+        "subset": "Home Court",
+        "declared": 10,
+        "parsed": 10
+      },
+      {
+        "subset": "Sonic Boom",
+        "declared": 20,
+        "parsed": 20
+      },
+      {
+        "subset": "Sole Ambition",
+        "declared": 10,
+        "parsed": 10
+      },
+      {
+        "subset": "8-Bit Ballers",
+        "declared": 40,
+        "parsed": 40
+      },
+      {
+        "subset": "Generation Now",
+        "declared": 30,
+        "parsed": 30
+      },
+      {
+        "subset": "Power Players",
+        "declared": 20,
+        "parsed": 20
+      },
+      {
+        "subset": "Clutch City Prospects",
+        "declared": 10,
+        "parsed": 10
+      },
+      {
+        "subset": "All Kings",
+        "declared": 25,
+        "parsed": 25
+      },
+      {
+        "subset": "Hardwood Stars",
+        "declared": 20,
+        "parsed": 20
+      },
+      {
+        "subset": "Companion Cards",
+        "declared": 16,
+        "parsed": 16
+      },
+      {
+        "subset": "Companion Cards SPs",
+        "declared": 5,
+        "parsed": 5
+      },
+      {
+        "subset": "Oversized Topps Cards",
+        "declared": 16,
+        "parsed": 16
+      },
+      {
+        "subset": "Oversized Topps Cards SPs",
+        "declared": 5,
+        "parsed": 5
+      },
+      {
+        "subset": "Scan and Slam",
+        "declared": 50,
+        "parsed": 50
+      },
+      {
+        "subset": "Social Media Follow Back Redemptions",
+        "declared": 10,
+        "parsed": 10
+      },
+      {
+        "subset": "Limited Stock Legends",
+        "declared": 50,
+        "parsed": 50
+      },
+      {
+        "subset": "Class of '25",
+        "declared": 20,
+        "parsed": 20
+      },
+      {
+        "subset": "Big Box Ballers",
+        "declared": 50,
+        "parsed": 50
+      },
+      {
+        "subset": "1980-81 Topps Basketball",
+        "declared": 99,
+        "parsed": 99
+      },
+      {
+        "subset": "Fanatics Authentic Redemptions",
+        "declared": 30,
+        "parsed": 30
+      }
+    ]
+  },
+  "findings": [
+    {
+      "level": "warning",
+      "code": "declared_count_stale",
+      "message": "Subset \"1980-81 Topps Basketball Triple Autographs\": 10 cards declared, 30 listed",
+      "detail": {
+        "sheet": "Autographs",
+        "subset": "1980-81 Topps Basketball Triple Autographs",
+        "declared": 10,
+        "parsed": 30
+      }
+    },
+    {
+      "level": "warning",
+      "code": "declared_count_stale",
+      "message": "Subset \"Rookie Photo Shoot Dual Autographs\": 10 cards declared, 20 listed",
+      "detail": {
+        "sheet": "Autographs",
+        "subset": "Rookie Photo Shoot Dual Autographs",
+        "declared": 10,
+        "parsed": 20
+      }
+    }
+  ]
+}

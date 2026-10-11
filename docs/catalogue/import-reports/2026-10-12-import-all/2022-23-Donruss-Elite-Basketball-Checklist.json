@@ -1,0 +1,206 @@
+{
+  "file": "2022-23-Donruss-Elite-Basketball-Checklist.xlsx",
+  "season": "2022-23",
+  "productLine": "Donruss Elite",
+  "ok": true,
+  "errors": 0,
+  "warnings": 0,
+  "accepted": 1,
+  "stats": {
+    "sheets": [
+      {
+        "sheet": "Base",
+        "numberedCardRows": 750,
+        "numberedCardsParsed": 750,
+        "cardsParsed": 750,
+        "subsets": 3,
+        "blocks": 1,
+        "notes": 0,
+        "unplaced": 0
+      },
+      {
+        "sheet": "Autographs",
+        "numberedCardRows": 297,
+        "numberedCardsParsed": 297,
+        "cardsParsed": 297,
+        "subsets": 8,
+        "blocks": 0,
+        "notes": 0,
+        "unplaced": 0
+      },
+      {
+        "sheet": "Memorabilia",
+        "numberedCardRows": 0,
+        "numberedCardsParsed": 0,
+        "cardsParsed": 0,
+        "subsets": 0,
+        "blocks": 0,
+        "notes": 0,
+        "unplaced": 0
+      },
+      {
+        "sheet": "Inserts",
+        "numberedCardRows": 230,
+        "numberedCardsParsed": 230,
+        "cardsParsed": 230,
+        "subsets": 12,
+        "blocks": 0,
+        "notes": 0,
+        "unplaced": 0
+      }
+    ],
+    "subsets": 24,
+    "blocks": 1,
+    "parallels": 100,
+    "cards": 1277,
+    "rookies": 150,
+    "rookiesUnknown": 0,
+    "rookiesFromBlocks": 50,
+    "rookiesFromTeams": {
+      "sourceRows": 50,
+      "matchedRows": 50,
+      "unmatched": []
+    },
+    "blockStats": [
+      {
+        "name": "Rookies",
+        "parent": "Base Set",
+        "from": 201,
+        "to": 250,
+        "expected": 50,
+        "parsed": 50
+      }
+    ],
+    "declaredCounts": [
+      {
+        "subset": "Base Set",
+        "declared": 250,
+        "parsed": 250
+      },
+      {
+        "subset": "Aspirations",
+        "declared": 250,
+        "parsed": 250
+      },
+      {
+        "subset": "Status",
+        "declared": 250,
+        "parsed": 250
+      },
+      {
+        "subset": "Elite Signatures",
+        "declared": 25,
+        "parsed": 25
+      },
+      {
+        "subset": "GenreGraphs",
+        "declared": 25,
+        "parsed": 23
+      },
+      {
+        "subset": "Impact Impressions",
+        "declared": 60,
+        "parsed": 60
+      },
+      {
+        "subset": "New Breed Autographs",
+        "declared": 50,
+        "parsed": 50
+      },
+      {
+        "subset": "Passing the Torch Signatures",
+        "declared": 9,
+        "parsed": 9
+      },
+      {
+        "subset": "Pen Pals",
+        "declared": 40,
+        "parsed": 40
+      },
+      {
+        "subset": "Rookie Yearbook Autographs",
+        "declared": 40,
+        "parsed": 40
+      },
+      {
+        "subset": "Turn of the Century Signatures",
+        "declared": 50,
+        "parsed": 50
+      },
+      {
+        "subset": "Back to the Future",
+        "declared": 10,
+        "parsed": 10
+      },
+      {
+        "subset": "Clarity",
+        "declared": 30,
+        "parsed": 30
+      },
+      {
+        "subset": "Deck",
+        "declared": 30,
+        "parsed": 30
+      },
+      {
+        "subset": "Dimensions",
+        "declared": 15,
+        "parsed": 15
+      },
+      {
+        "subset": "Full Throttle",
+        "declared": 10,
+        "parsed": 10
+      },
+      {
+        "subset": "Glass Masters",
+        "declared": 10,
+        "parsed": 10
+      },
+      {
+        "subset": "Next Up",
+        "declared": 10,
+        "parsed": 10
+      },
+      {
+        "subset": "Power Formulas",
+        "declared": 30,
+        "parsed": 30
+      },
+      {
+        "subset": "Spellbound",
+        "declared": 40,
+        "parsed": 40
+      },
+      {
+        "subset": "Star Status",
+        "declared": 20,
+        "parsed": 20
+      },
+      {
+        "subset": "Title Waves",
+        "declared": 20,
+        "parsed": 20
+      },
+      {
+        "subset": "Titlists",
+        "declared": 5,
+        "parsed": 5
+      }
+    ]
+  },
+  "findings": [
+    {
+      "level": "accepted",
+      "code": "declared_count",
+      "message": "Subset \"GenreGraphs\": 25 cards declared, 23 parsed (2 missing)",
+      "detail": {
+        "sheet": "Autographs",
+        "subset": "GenreGraphs",
+        "declared": 25,
+        "parsed": 23
+      },
+      "acceptedReason": "The sheet declares 25 cards but lists 23; numbers #5 and #8 do not exist in the file."
+    }
+  ]
+}
