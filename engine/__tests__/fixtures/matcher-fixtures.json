@@ -151,10 +151,10 @@
       },
       "expected": {
         "outcome": "unmatched",
-        "unmatchedReason": "sport_unresolved; catalogue_gap_or_out_of_scope",
+        "unmatchedReason": "catalogue_gap",
         "itemType": "single_card",
-        "sport": "unresolved",
-        "sportSource": "none",
+        "sport": "basketball",
+        "sportSource": "catalogue_product_match (once 2025-26 Topps Bowman Basketball is imported)",
         "product": null,
         "subset": null,
         "cardNumber": "BCP-10",
@@ -179,18 +179,29 @@
           "slug_names_a_different_card (Allen Iverson, \"-copy\")",
           "store_product_type_untrusted (\"NBA Sports Card\" is spnz blanket category)",
           "store_tags_untrusted (copied from the duplicated listing)",
-          "no_basketball_bowman_in_catalogue"
+          "bowman_basketball_exists_but_not_catalogued",
+          "store_product_type_still_untrusted"
         ],
         "reasons": [
-          "No Bowman checklist in the catalogue",
-          "Sport must not be decided by the brand prior \"Bowman = baseball\", nor by the store product_type"
+          "2025-26 Topps Bowman Basketball is not in the catalogue",
+          "Sport must come from the catalogue product, not from the store product_type or the slug"
         ]
       },
       "catalogueCheck": {
         "status": "not_in_catalogue",
-        "detail": "No Bowman product exists in the catalogue. If a basketball Bowman checklist is imported and lists BCP-10 Henderson, this becomes a match; until then it is unmatched."
+        "detail": "Product exists in the real world and is basketball (see externalVerification); it is not imported. D-007 puts current Topps and Bowman basketball in v1.0 scope."
       },
-      "differsFromBrief": "The brief frames Jev as simply wrong. The stored evidence shows Jev answered sport=basketball at confidence 1.0 and was accepted with product_not_in_catalogue, because the store product_type \"NBA Sports Card\" and the Henderson tag came from a duplicated NBA listing. The acceptance rule requires no catalogue grounding."
+      "differsFromBrief": "The brief says sport is unresolved and Bowman means baseball is a prior. Verified: Bowman basketball exists and lists BCP-10 Henderson, so the card IS basketball. Jev answered basketball correctly but for the wrong reason (store product_type copied from a duplicated NBA listing). The earlier accuracy-set label \"baseball\" was wrong and has been corrected.",
+      "externalVerification": {
+        "status": "resolved",
+        "answer": "Yes. Shelton Henderson (Miami) is BCP-10 in the Chrome Prospects checklist of 2025-26 Topps Bowman Basketball (released 2026-04-22). The product is basketball. He also has CPA-SH (Chrome Prospect Autographs), FS-SH (Future Script) and BPP-10 (Paper Prospects).",
+        "sources": [
+          "https://degreegrading.com/checklists/2025-26-bowman-basketball/",
+          "https://www.checklistinsider.com/2025-26-bowman-basketball"
+        ],
+        "notChecked": "The \"Reptilian Refractor\" parallel name was not found in either source. Beckett page was in maintenance."
+      },
+      "expectedOnceCatalogued": "confirmed: 2025-26 Topps Bowman Basketball, Chrome Prospects BCP-10 Shelton Henderson; parallel \"Reptilian Refractor\" unverified."
     },
     {
       "fixture": 4,
@@ -611,7 +622,7 @@
         "isAutograph": null,
         "flags": [
           "player_only_in_description",
-          "h2_is_box_format_not_parallel (unverified)",
+          "h2_is_box_format_not_parallel",
           "no_card_number"
         ],
         "reasons": [
@@ -623,7 +634,16 @@
         "status": "differs_from_brief",
         "detail": "There is no 2024-25 Select product in the catalogue (2024-25 has Donruss, Optic, Hoops, Origins, Prizm, Prizm Black, Revolution, Silhouette). The Disco Blue /25 vs Tie-Dye /25 ambiguity cannot be checked."
       },
-      "differsFromBrief": "The brief expects Possible. With the current catalogue this is unmatched (catalogue gap) because 2024-25 Select has not been imported."
+      "differsFromBrief": "The brief expects Possible with the parallel ambiguous between Disco Blue and Tie-Dye. With the current catalogue this is unmatched (2024-25 Select not imported). Once imported, the box format H2 narrows the /25 parallel to Blue Disco (single source), so the ambiguity is resolvable.",
+      "externalVerification": {
+        "status": "resolved (single source)",
+        "answer": "H2 is a box format (\"H2 (Hybrid)\"; \"H2 Box: 6 cards per pack, 4 packs per box, 20 boxes per case\"). The /25 parallels listed are Tie-Dye /25 (Hobby-exclusive) and Blue Disco /25 (H2-exclusive). H2 boxes carry the Disco parallels.",
+        "sources": [
+          "https://www.cardboardconnection.com/2024-25-panini-select-basketball-set-review-and-checklist"
+        ],
+        "notChecked": "Single source. Whether the /25 parallels differ by Concourse / Premier Level / Courtside tier was not checked. Beckett page not fetched (maintenance)."
+      },
+      "expectedOnceCatalogued": "possible: 2024-25 Select, Michael Porter Jr, no card number; parallel inferred as Blue Disco /25 because H2 boxes carry the Disco parallels and Tie-Dye /25 is Hobby-exclusive (single source)."
     },
     {
       "fixture": 11,
@@ -669,20 +689,29 @@
           "value": false,
           "source": "none"
         },
-        "isAutograph": false,
+        "isAutograph": "unknown",
         "flags": [
-          "facsimile_signature_is_not_autograph",
+          "autograph_status_unknown_without_matched_row",
           "title_regex_flags_signature_as_autograph"
         ],
         "reasons": [
-          "1994-95 Upper Deck / Collector's Choice not in the catalogue"
+          "1994-95 Upper Deck Collector's Choice is not in the catalogue"
         ]
       },
       "catalogueCheck": {
         "status": "not_in_catalogue",
-        "detail": "Not catalogued. The Collector's Choice attribution is from the brief and is unverified; the listing title and slug say \"Upper Deck\"."
+        "detail": "Not catalogued. Product identified from marketplace listing titles as 1994-95 Upper Deck Collector's Choice; checklist page itself not read."
       },
-      "differsFromBrief": "Root cause confirmed in code: title-fields.ts isAutograph matches /signatures?/ and the Jev classifier only ever upgrades isAutograph from the subset kind; it never clears it."
+      "differsFromBrief": "Root cause confirmed in code: title-fields.ts isAutograph matches /signatures?/ and the Jev classifier only ever upgrades isAutograph from the subset kind; it never clears it.",
+      "externalVerification": {
+        "status": "partly resolved",
+        "answer": "Product: 1994-95 Upper Deck Collector's Choice (Upper Deck brand). Card #184 Shaquille O'Neal is titled \"Tip Offs\"; the parallel is \"Silver Signature\" (COMC: \"Silver Foil Signature\"). International (Japanese) Silver Foil Signature variants also exist.",
+        "sources": [
+          "COMC and eBay listing titles returned by search (COMC pages themselves returned HTTP 403): https://www.comc.com/Cards/Basketball/1994-95/Upper_Deck_Collectors_Choice_-_Base_-_Silver_Signature/184/Shaquille_ONeal/1438979",
+          "https://www.ebay.com/itm/185366721865"
+        ],
+        "unresolved": "Whether the Silver Signature is a printed facsimile or an autograph is NOT stated in any source I could read. Unresolved. Per D-006 autograph status is \"unknown\" with no matched row."
+      }
     },
     {
       "fixture": 12,
@@ -730,7 +759,7 @@
         "isAutograph": null,
         "flags": [
           "player_inferred_from_nickname: \"CJ\"",
-          "hrx_unverified"
+          "hrx_is_an_insert_in_2013-14_panini_prizm (marketplace titles)"
         ],
         "reasons": [
           "No HRX product in the catalogue",
@@ -739,9 +768,20 @@
       },
       "catalogueCheck": {
         "status": "not_in_catalogue",
-        "detail": "HRX is not catalogued and I could not verify what it is. 2021-22 Hoops lists a CJ McCollum Hot Signatures card, which says nothing about a 2013 card."
+        "detail": "2013-14 Panini Prizm is not in the catalogue."
       },
-      "differsFromBrief": "Jev stored this as accepted at confidence 1.0 with playerSource \"catalogue\" and no product. The acceptance rule needs only item type, sport and a player at >= 0.7, so an inferred nickname and a missing product pass."
+      "differsFromBrief": "Jev stored this as accepted at confidence 1.0 with playerSource \"catalogue\" and no product. The acceptance rule needs only item type, sport and a player at >= 0.7, so an inferred nickname and a missing product pass.",
+      "externalVerification": {
+        "status": "partly resolved",
+        "answer": "HRX is not a standalone product: marketplace titles describe \"2013-14 Panini Prizm - HRX Rookies #5 - C.J. McCollum\", an insert set inside 2013-14 Panini Prizm (other HRX Rookies cards seen: Shane Larkin #20, Ryan Kelly #18). C.J. McCollum is #5.",
+        "sources": [
+          "https://www.comc.com/Cards/Basketball/2013-14/Panini_Prizm_-_HRX_Rookies/5/CJ_McCollum/7072732 (title from search; page returned 403)",
+          "https://www.amazon.com/McCollum-Rookie-2013-14-Panini-Prizm/dp/B0CWVHM81Q",
+          "https://hollywoodcollectibles.com/products/c-j-mccollum-2013-panini-hrx-rookie-card"
+        ],
+        "unresolved": "The full HRX Rookies player list could not be read (TCDb returned 403, Beckett in maintenance), so whether another CJ/C.J. appears in the insert is UNRESOLVED. The listing has no card number."
+      },
+      "expectedOnceCatalogued": "possible: 2013-14 Panini Prizm, HRX Rookies insert, player inferred CJ McCollum (#5), because the listing gives only a first-name nickname and no card number."
     },
     {
       "fixture": 13,
@@ -767,9 +807,12 @@
         "itemType": "single_card",
         "sport": "basketball",
         "sportSource": "player_evidence (Steven Adams, tags NBA)",
-        "product": null,
+        "product": {
+          "season": "2013-14",
+          "productLine": "Crusade"
+        },
         "subset": null,
-        "cardNumber": null,
+        "cardNumber": "71 (derived from the checklist; not stated in the listing)",
         "players": [
           {
             "name": "Steven Adams",
@@ -788,7 +831,7 @@
         },
         "isAutograph": null,
         "flags": [
-          "crusade_may_be_product_or_subset (unverified)"
+          "crusade_is_the_product (Cardboard Connection)"
         ],
         "reasons": [
           "No 2013-14 checklist in the catalogue"
@@ -798,7 +841,16 @@
         "status": "not_in_catalogue",
         "detail": "Unverified. 2013-14 is outside the catalogue. 2020-21 Chronicles has a Crusade block (see fixture 17), supporting the brief note that Crusade is also a subset name."
       },
-      "differsFromBrief": null
+      "differsFromBrief": null,
+      "externalVerification": {
+        "status": "resolved (single source)",
+        "answer": "Crusade is a standalone 2013-14 Panini basketball product. Steven Adams is #71 in the Crusade set (\"71 Steven Adams\"); he is also #123 in the Rookies Set and #5 in Apprentice Signatures. Orange Die-Cut #/99 is a Crusade parallel and does not apply to the separate 2013-14 Panini base set.",
+        "sources": [
+          "https://www.cardboardconnection.com/2013-14-panini-crusade-basketball-cards"
+        ],
+        "notChecked": "Single source (Cardboard Connection). The card-number answer comes from quoted lines on that page."
+      },
+      "expectedOnceCatalogued": "possible: 2013-14 Panini Crusade, Steven Adams #71, Orange Die-Cut /99. The listing states no card number, so it stays Possible."
     },
     {
       "fixture": 14,

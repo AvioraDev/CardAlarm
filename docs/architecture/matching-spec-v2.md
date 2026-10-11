@@ -1,6 +1,6 @@
 # Matcher error analysis and matching spec (v2 draft)
 
-Status: **design only, pending founder approval.** No matcher code has been changed.
+Status: **decisions D-005, D-006 accepted and D-007 accepted (provisional) on 2026-10-12.** This document changes no matcher code; the first code change is CAR-78 (separate PR).
 Date: 2026-10-12. Evidence base: the 20 listings, the code on `main` (`affe796`), the live catalogue and classification tables, and `docs/ai/cardalarm-master-context.md`, `docs/architecture/*`, `docs/CardAlarm_MVP_PROMPT_ROADMAP.md`.
 
 Fixtures: `engine/__tests__/fixtures/matcher-fixtures.json` (20 listings, expected outcomes, catalogue verification per fixture).
@@ -59,6 +59,14 @@ The fixtures follow the catalogue. These differ from the brief (all verified by 
 | 18 | Supernatural numbered 99 down to 1 | Catalogued as separate parallels (Playoff Ticket /99, Cracked Ice /25, Championship Edition /1). An unnumbered listing is the base insert. |
 
 Not verifiable with the current catalogue (marked `not_in_catalogue` in the fixtures): #2, #3, #10, #11, #12, #13, #15, #20. I could not confirm "Collector's Choice" (#11), what HRX is (#12), or whether Crusade is the product (#13).
+
+### 3.1 Corrections after outside verification (12 Oct 2026)
+
+- **Fixture 3 flips.** Shelton Henderson BCP-10 is in **2025-26 Topps Bowman Basketball**, so the card is basketball (two checklists; section 8). The earlier labelled-set label "baseball" came from the brand prior this spec forbids, and is corrected. Jev's "basketball" answer was right, though for the wrong reason (a store `product_type` copied from an NBA listing), so the acceptance rule is still wrong: it must require a catalogue product. Expected today: `catalogue_gap`; once Bowman basketball is imported: confirmed.
+- **Fixture 10** gains a resolution: H2 is a box format and the /25 parallels are Tie-Dye (Hobby-exclusive) and Blue Disco (H2-exclusive), so H2 plus /25 points to Blue Disco once 2024-25 Select is imported.
+- **Fixture 11:** product resolved as 1994-95 Upper Deck Collector's Choice; autograph vs facsimile is **unresolved**, so autograph status is "unknown".
+- **Fixture 12:** HRX is the "HRX Rookies" insert inside 2013-14 Panini Prizm (CJ McCollum #5); other CJ players in the insert are unresolved.
+- **Fixture 13:** Crusade is the product; the card is #71.
 
 ## 4. Principles
 
@@ -141,9 +149,24 @@ Tiers map to the master context (section 11): high 0.90-1.00, strong 0.75-0.89, 
 
 **Acceptance rule (replaces Jev's):** a classification may be used for watchlist matching only if it is grounded in a catalogue product (so sport is `derived`, not guessed). No catalogue product means `catalogue_gap` and never `accepted`. Model confidence is an input, never the grounding.
 
-### 5.9 Where Jev fits
+### 5.8.1 What customers see for listings with no catalogue product (D-005, accepted)
 
-Keep Jev as a **closed-set chooser inside this pipeline**: code builds candidate lists from the catalogue and validates the answer against the catalogue; Jev picks among the options. Its answers become `stated` or `derived` only after the catalogue confirms them. Sport is no longer a separate Jev question; it is derived from the matched product, and the sport question is kept only to detect positive out-of-scope evidence. This also addresses the master-context conflict (D-006).
+- They may appear only in a **separate section of the matching player's watchlist**.
+- Show **only what the store provides**: title, photo, price and a link. Show no set, parallel, card number or autograph status, because none is confirmed.
+- They **never trigger alerts**. Alerts go to confirmed matches only. Opt-in alerts for possible matches are a later decision.
+- Wording avoids internal jargon. Suggested: "We found this listing for [player] but couldn't confirm the exact card." Flagged for beta testing.
+- They **never count as confirmed matches** in any metric, export or downstream stage.
+
+### 5.9 Where Jev fits (D-006, accepted)
+
+Jev has a bounded role, which is how it satisfies the master context's "rules-first, explainable, not a black-box AI matcher" rule:
+
+- **Rules generate the candidates.** Jev may only choose from catalogue rows produced by year, set, card number and player matching.
+- **Rules decide acceptance.** A match is accepted only if it maps to a catalogue row and the card number and player agree with that row. Jev's score is a tiebreaker within the allowed candidates and can never bypass these rules. With a single exact candidate there is nothing to tie-break, so rules accept it.
+- **Sport, product type, insert or subset, and autograph status come from the matched catalogue row.** With no matched row, autograph status is "unknown", never "yes".
+- **Matcher version and Jev's score are recorded on every match**, so Jev's contribution can be measured separately.
+
+Implementation note (CAR-78): for listings that match no catalogue row, item-type and sport hints are still stored, labelled as hints, and used only to tell "not a basketball card" from "catalogue gap". They can never accept a match.
 
 ### 5.10 Photos
 
@@ -156,13 +179,23 @@ Out of scope. Image verification was considered and cancelled for cost (CAR-70).
 | Active basketball singles (Jev-classified, active stores) | 10,786 |
 | Product resolved in catalogue | 4,343 (40%) |
 | Product not resolved | 6,443 (60%) |
-| of which year before 2010 | 2,638 |
-| of which 2010-2018 | 984 |
-| of which 2019 or later | 2,215 |
-| of which no year parsed | 606 |
 | Catalogue | 57 products, 2019-20 to 2025-26 |
 
-Two different problems: (a) **2019+ products not yet imported** (about 2,215 listings; cheap, the importer exists, source files are checklists), and (b) **pre-2019 vintage** (about 3,600 listings; needs a decision on scope and source data). See D-007.
+Frequency table (task 3.1, deterministic title parser, not Jev): `docs/accuracy/unmatched-frequency-001.csv`.
+
+| View | Listings | Share of unmatched |
+|---|---|---|
+| 2019-20 onward | 2,283 | 35% |
+| of which the product is already catalogued (matcher misses) | 416 | 6% |
+| of which a real gap | 1,867 | 29% |
+| Before 2019 | 3,917 | 61% |
+| Unparsed (kept separate) | 243 | 4% |
+
+Findings: the largest single group is 146 listings (2.3%); the ten largest real gaps cover 722 listings (11%). Importing checklists cannot fix the 60% alone; vintage is most of the volume, so the D-005 path carries most of it. 416 listings are matcher misses on catalogued products (CAR-79), not import work.
+
+Proposed import order (D-007, provisional; **no import before the importer fix, CAR-77**): 2019-20 Hoops Premium Stock (146), 2019-20 Prizm (133), 2022-23 Chronicles (112), 2025-26 Topps Chrome (81), 2023-24 Recon (47), 2021-22 Illusions (43), 2019-20 Status (41), 2020-21 Contenders (40), 2020-21 Court Kings (40), 2025-26 Topps Hoops (39). Also in scope per D-007: **2025-26 Topps Bowman Basketball** (fixture 3), and 2024-25 Select (fixture 10).
+
+Importer audit (task 3.2): `docs/architecture/checklist-importer-audit.md`. 2,618 of the 4,343 catalogue-resolved classifications point at a product the importer got wrong, so the importer fix precedes every import.
 
 ## 7. Rollout (smallest first)
 
@@ -177,30 +210,37 @@ Each phase ships alone and can be measured with the accuracy set (CAR-63) and th
 | E | Multi-player cards, subset ambiguity rule | #15, #1, #16 |
 | F | Catalogue-gap queue in admin; vendor profiling | all gaps |
 
-## 8. Assumptions and unverified items
+## 8. Verification status of the open items (2026-10-12)
 
-Everything below was **not** verified against a checklist and is an assumption:
+Researched from outside checklists. Where a source could not be read, the item is unresolved; I did not fall back on what usually happens.
 
-- Brief's claims about *Collector's Choice* for the 1994 Shaq card (#11), *HRX* (#12), and *Crusade* as the product for 2013-14 (#13).
-- That Luxury Box is a product/variation name for 2007 Topps (#2).
-- That H2 is a box format and that Disco Blue and Tie-Dye are both /25 in 2024-25 Select (#10). Select 2024-25 is not in the catalogue.
-- That "Mosaic Prizm" corresponds to the parallel named "Mosaic" in the Will to Win insert (#7).
-- That Bowman basketball exists with a BCP-10 Shelton Henderson, and that he is not a baseball prospect (#3). Not catalogued.
-- That the live page titles equal the stored titles (#7 suggests they may differ).
-- That the importer, not the source file, drops the Optic 2020-21 base Rated Rookie card for Pokusevski (#14). Not investigated.
-- That `checklist_cards.is_rookie` is under-populated because of the importer (705 of 63,336), not because the checklists omit it. Not investigated.
-- The vendor-profiling design assumes enough confirmed corrections will exist; there are currently 4 `match_feedback` rows.
+| # | Question | Status | Answer and sources |
+|---|---|---|---|
+| 3 | Is Shelton Henderson BCP-10 in a Bowman basketball release? | **Resolved (2 sources)** | Yes: Chrome Prospects BCP-10 Shelton Henderson (Miami) in **2025-26 Topps Bowman Basketball**, released 2026-04-22. Also CPA-SH, FS-SH, BPP-10. [degreegrading.com](https://degreegrading.com/checklists/2025-26-bowman-basketball/), [checklistinsider.com](https://www.checklistinsider.com/2025-26-bowman-basketball). The "Reptilian Refractor" name was not found in either. Beckett was in maintenance. **Consequence:** the card is basketball; the earlier "baseball" accuracy label was wrong and is corrected. |
+| 10 | Is H2 a box format? Which 2024-25 Select parallels are /25? | **Resolved (single source)** | H2 is a box format ("H2 Box: 6 cards per pack, 4 packs per box"). The /25 parallels are Tie-Dye (Hobby-exclusive) and Blue Disco (H2-exclusive); H2 boxes carry the Disco parallels. [cardboardconnection.com](https://www.cardboardconnection.com/2024-25-panini-select-basketball-set-review-and-checklist). Not checked: whether tiers (Concourse / Premier / Courtside) change the /25 parallels. **Consequence:** H2 plus /25 points to Blue Disco, so the parallel is resolvable once the product is imported. |
+| 11 | Is "Tip-Offs Silver Signature" #184 Shaq from 1994-95 Collector's Choice? | **Partly resolved** | Product and number: yes, 1994-95 Upper Deck Collector's Choice, #184 titled "Tip Offs", parallel "Silver Signature" (COMC: "Silver Foil Signature"; International variants exist). Source: COMC and eBay listing titles from search; the pages themselves returned HTTP 403. **Unresolved:** whether the signature is printed facsimile or an autograph. No readable source states it. Autograph status stays "unknown". |
+| 12 | What is the 2013 Panini HRX product, and which CJ players appear? | **Partly resolved** | HRX is an **insert (HRX Rookies) inside 2013-14 Panini Prizm**, not a standalone product; C.J. McCollum is #5 (also seen: Shane Larkin #20, Ryan Kelly #18). Sources: marketplace titles ([Amazon](https://www.amazon.com/McCollum-Rookie-2013-14-Panini-Prizm/dp/B0CWVHM81Q), [Hollywood Collectibles](https://hollywoodcollectibles.com/products/c-j-mccollum-2013-panini-hrx-rookie-card), COMC and eBay titles). **Unresolved:** the full HRX Rookies list, so whether another CJ/C.J. appears. TCDb returned 403 and Beckett was down. |
+| 13 | Is Crusade the product for the 2013-14 Steven Adams card, and what number? | **Resolved (single source)** | Crusade is a standalone 2013-14 Panini basketball product; "71 Steven Adams" in the Crusade set (also #123 Rookies Set, #5 Apprentice Signatures). Orange Die-Cut /99 is a Crusade parallel and does not apply to the separate base set. [cardboardconnection.com](https://www.cardboardconnection.com/2013-14-panini-crusade-basketball-cards). |
 
-## 9. Decisions needed
+Sources that failed: beckett.com (maintenance redirect), comc.com / tcdb.com / sportscardspro.com (HTTP 403), sportscardradio.com (connection refused).
 
-- **D-005:** What customers see for listings with strong player evidence but no catalogue product (catalogue gap). Options: hide until the catalogue covers them; show as Possible; show only for player-only watchlists. Changes customer-visible behaviour.
-- **D-006:** Jev's role against the master context ("rules-first, not a black-box AI matcher"). Recommendation: closed-set chooser, validated by the catalogue, never the grounding (5.9). Extends D-001.
-- **D-007:** Catalogue scope and priority: import the 2019+ gaps first, and decide whether v1.0 covers pre-2019 vintage (3,600 listings) and from which source.
-- Image verification: no new Decision. It stays cancelled (CAR-70); revisit only if the labelled set shows photo-caused misses.
+Remaining assumptions (not verified):
+
+- That "Mosaic Prizm" in fixture 7 corresponds to the parallel named "Mosaic" in the Will to Win insert.
+- That live page titles equal the stored titles (fixture 7 suggests the brief saw a different title).
+- The vendor-profiling design assumes enough confirmed corrections will exist; there are 4 `match_feedback` rows today.
+- Rookie semantics per product (whether "Rated Rookies" always means rookie).
+
+## 9. Decisions (recorded 2026-10-12)
+
+- **D-005 accepted** (CAR-73): see 5.8.1.
+- **D-006 accepted** (CAR-74): see 5.9.
+- **D-007 accepted, provisional** (CAR-75): v1.0 confirmed scope is 2019-20 onward plus current releases, including Topps and Bowman basketball. Pre-2019 listings use the D-005 path; import selected older products only where the frequency table shows large clusters; choose import order by listing volume. Provisional until the frequency table is reviewed.
+- Image verification: no new Decision. It stays cancelled (CAR-70).
 
 ## 10. Linear
 
-Project: NBA Singles MVP (the P1 to P5 phase projects do not exist in the workspace; `[P3]` is in the title).
+Projects: P1 MVP Verification, P2 Durable Scan Platform, P3 Identity & Accuracy, P4 Consumer Completeness, P5 Beta & Launch (created 2026-10-12). CAR-73 to CAR-88 are in P3.
 
 | Issue | What | Depends on |
 |---|---|---|
@@ -208,7 +248,7 @@ Project: NBA Singles MVP (the P1 to P5 phase projects do not exist in the worksp
 | CAR-74 | Decision D-006: Jev's role against the master context | CAR-59 |
 | CAR-75 | Decision D-007: catalogue scope and import priority | none |
 | CAR-76 | Structured match evidence (value, status, source) | none |
-| CAR-77 | Importer: sub-block ranges, per-block parallels, rookie flags | none |
+| CAR-77 | Importer fix: subset detection, base blocks, rookie flags, validation (blocks all imports, CAR-85) | none |
 | CAR-78 | Acceptance requires catalogue grounding; sport derived from product | CAR-76, CAR-73, CAR-74 |
 | CAR-79 | Single exact product candidate accepted in code; distinct reasons | CAR-76 |
 | CAR-80 | Autograph / relic from the checklist row | CAR-76 |
