@@ -101,7 +101,7 @@ export function productClassificationLateralJoinSql(): string {
        select *
        from public.product_classifications pc
        where pc.store_product_id = sp.id
-         and pc.classifier_type in ('jev', 'deterministic')
+         and pc.classifier_type = 'deterministic'
        order by (pc.classifier_type = 'jev') desc, pc.updated_at desc
        limit 1
      ) pc on true`;
@@ -115,7 +115,7 @@ export function buildCanonicalBackfillSql(rule: CanonicalBackfillRule): Backfill
     "sp.is_active = true",
     "sp.current_availability = true",
     "pc.category = 'NBA'",
-    // A Jev classification only counts once it is accepted; the deterministic one is a fallback.
+    // D-001: Jev runs in shadow, so readers only see deterministic rows. The jev branches below take effect again if the filter above is widened.
     "(pc.classifier_type <> 'jev' or pc.review_status = 'accepted')",
   ];
 

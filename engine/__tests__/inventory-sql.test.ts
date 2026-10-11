@@ -207,7 +207,7 @@ describe('canonical inventory SQL helpers', () => {
     const matchJoin = inventoryMatchSetJoinSql();
 
     expect(classificationJoin).toContain('select distinct on (pc.store_product_id)');
-    expect(classificationJoin).toContain("pc.classifier_type in ('jev', 'deterministic')");
+    expect(classificationJoin).toContain("pc.classifier_type = 'deterministic'");
     expect(classificationJoin).toContain("order by pc.store_product_id, (pc.classifier_type = 'jev') desc, pc.updated_at desc");
     expect(classificationJoin).toContain(') pc on pc.store_product_id = sp.id');
     expect(classificationJoin).not.toContain('lateral');

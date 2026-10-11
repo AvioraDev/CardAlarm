@@ -42,7 +42,7 @@ export async function reconcileActiveWatchlistMatches(db: DbClient): Promise<num
        select *
        from public.product_classifications pc
        where pc.store_product_id = sp.id
-         and pc.classifier_type in ('jev', 'deterministic')
+         and pc.classifier_type = 'deterministic'
        order by (pc.classifier_type = 'jev') desc, pc.updated_at desc
        limit 1
      ) pc on true
