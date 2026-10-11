@@ -169,7 +169,8 @@ export function buildCanonicalBackfillSql(rule: CanonicalBackfillRule): Backfill
 
   const minimumConfidence = numeric(rule.minimum_match_confidence, 0.75);
   const minimumConfidencePlaceholder = addParam(params, minimumConfidence);
-  const confidenceSql = `greatest(coalesce(case when pc.classifier_type = 'jev' then pc.confidence else pcm.confidence end, 0), ${minimumConfidencePlaceholder})`;
+  // The stored confidence is the classifier's real score. The rule's minimum only raises the bar for Current; it never lifts a weak match.
+  const confidenceSql = "coalesce(case when pc.classifier_type = 'jev' then pc.confidence else pcm.confidence end, 0)";
 
   return {
     params,
@@ -194,7 +195,7 @@ export function buildCanonicalBackfillSql(rule: CanonicalBackfillRule): Backfill
        pcm.id,
        ${confidenceSql}::numeric(5, 4),
        case
-         when (pc.classifier_type <> 'jev' and pcm.status = 'possible') or ${confidenceSql} < 0.75 then 'possible'
+         when (pc.classifier_type <> 'jev' and pcm.status = 'possible') or ${confidenceSql} < greatest(${minimumConfidencePlaceholder}::numeric, 0.75) then 'possible'
          else 'current'
        end,
        now(),

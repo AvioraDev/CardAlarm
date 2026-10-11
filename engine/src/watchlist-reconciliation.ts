@@ -25,10 +25,10 @@ export async function reconcileActiveWatchlistMatches(db: DbClient): Promise<num
        sp.source,
        sp.external_product_id,
        pcm.id,
-       greatest(coalesce(case when pc.classifier_type = 'jev' then pc.confidence else pcm.confidence end, 0), coalesce(wr.minimum_match_confidence, 0.75))::numeric(5, 4),
+       coalesce(case when pc.classifier_type = 'jev' then pc.confidence else pcm.confidence end, 0)::numeric(5, 4),
        case
          when (pc.classifier_type <> 'jev' and pcm.status = 'possible')
-           or greatest(coalesce(case when pc.classifier_type = 'jev' then pc.confidence else pcm.confidence end, 0), coalesce(wr.minimum_match_confidence, 0.75)) < 0.75
+           or coalesce(case when pc.classifier_type = 'jev' then pc.confidence else pcm.confidence end, 0) < greatest(coalesce(wr.minimum_match_confidence, 0.75), 0.75)
            then 'possible'
          else 'current'
        end,
