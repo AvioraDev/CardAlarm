@@ -3,10 +3,7 @@ import path from 'node:path';
 import { createHash } from 'node:crypto';
 import { Pool, PoolClient, type QueryResult, type QueryResultRow } from 'pg';
 import type {
-  ChecklistRow,
-  ListingInsert,
   ListingRow,
-  WatchlistRow,
   ScanRunRow,
   ScanMode,
   StoreScanRunUpdate,
@@ -117,12 +114,21 @@ function elapsedMs(startedAt: bigint): number {
   return Number(process.hrtime.bigint() - startedAt) / 1_000_000;
 }
 
+// Opening a connection costs several round trips to a distant database, so idle connections are kept
+// for minutes rather than pg's default of 10 seconds.
+function poolIdleTimeoutMs(): number {
+  const parsed = Number(process.env.POSTGRES_POOL_IDLE_TIMEOUT_MS);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : 5 * 60 * 1000;
+}
+
 export function getDb(): Pool {
   if (pool) return pool;
   pool = new Pool({
     connectionString: normalizeConnectionString(connectionString()),
     ssl: sslConfig(),
     max: Number(process.env.POSTGRES_POOL_MAX ?? 8),
+    idleTimeoutMillis: poolIdleTimeoutMs(),
+    keepAlive: true,
   });
   return pool;
 }
@@ -163,25 +169,6 @@ async function query<T extends QueryResultRow = QueryResultRow>(
     logQueryTiming(sql, elapsedMs(startedAt), null, false);
     throw error;
   }
-}
-
-function parseJson(value: string): unknown {
-  if (!value) return null;
-  try {
-    return JSON.parse(value);
-  } catch {
-    return value;
-  }
-}
-
-function matchedFieldsFor(listing: ListingInsert): string[] {
-  return [
-    listing.playerName ? 'player' : null,
-    listing.setName ? 'set' : null,
-    listing.cardNumber ? 'card_number' : null,
-    listing.variant ? 'parallel' : null,
-    listing.isSerial ? 'serial' : null,
-  ].filter((field): field is string => Boolean(field));
 }
 
 type ExistingSourceProductCacheRow = Pick<
@@ -662,6 +649,26 @@ export async function markSourceProductsMatched(
   );
 }
 
+export async function countMissingSourceProducts(
+  db: DbClient,
+  source: string,
+  scanToken: string
+): Promise<{ available: number; missing: number }> {
+  const result = await query<{ available: string; missing: string }>(
+    db,
+    `select
+       count(*) as available,
+       count(*) filter (where last_seen_scan_token is distinct from $2) as missing
+     from source_products
+     where source = $1 and available = true`,
+    [source, scanToken]
+  );
+  return {
+    available: Number(result.rows[0]?.available ?? 0),
+    missing: Number(result.rows[0]?.missing ?? 0),
+  };
+}
+
 export async function markMissingSourceProductsOOS(
   db: DbClient,
   source: string,
@@ -777,178 +784,6 @@ export async function reconcileSourceAvailability(
     );
     return updatedFeed.rowCount ?? 0;
   });
-}
-
-export async function getChecklistBySetAndNumber(
-  db: DbClient,
-  setNameFragment: string,
-  cardNumber: string
-): Promise<ChecklistRow | undefined> {
-  const result = await query<ChecklistRow>(
-    db,
-    `select * from reference_checklists
-     where card_number = $1 and set_name ilike $2
-     limit 1`,
-    [cardNumber, `%${setNameFragment}%`]
-  );
-  return result.rows[0];
-}
-
-export async function getChecklistByNumber(db: DbClient, cardNumber: string): Promise<ChecklistRow[]> {
-  const result = await query<ChecklistRow>(db, 'select * from reference_checklists where card_number = $1', [cardNumber]);
-  return result.rows;
-}
-
-export async function getChecklistsByNumbers(db: DbClient, cardNumbers: string[]): Promise<ChecklistRow[]> {
-  const uniqueCardNumbers = [...new Set(cardNumbers.map(value => value.trim()).filter(Boolean))];
-  if (uniqueCardNumbers.length === 0) return [];
-
-  const result = await query<ChecklistRow>(
-    db,
-    `select *
-     from reference_checklists
-     where card_number = any($1::text[])`,
-    [uniqueCardNumbers]
-  );
-  return result.rows;
-}
-
-export async function getAllChecklistPlayerNames(db: DbClient): Promise<string[]> {
-  const result = await query<{ player_name: string }>(db, 'select distinct player_name from reference_checklists where player_name is not null');
-  return result.rows.map(row => row.player_name);
-}
-
-export async function getActiveWatchlistPlayers(db: DbClient): Promise<WatchlistRow[]> {
-  const userWatchlistResult = await query<WatchlistRow>(
-    db,
-    `select
-       wr.id,
-       coalesce(nullif(split_part(wr.include_terms, ',', 1), ''), w.name) as player_name,
-       concat_ws(', ', wr.parallel, wr.product_line, wr.brand) as variants,
-       wr.card_number as target_numbers,
-       w.is_active
-     from watchlist_rules wr
-     join watchlists w on w.id = wr.watchlist_id
-     where w.is_active = true
-       and (
-         nullif(wr.include_terms, '') is not null
-         or nullif(w.name, '') is not null
-       )
-     order by player_name`
-  );
-
-  if (userWatchlistResult.rows.length > 0) return userWatchlistResult.rows;
-
-  const legacyResult = await query<WatchlistRow>(
-    db,
-    'select * from watchlist where is_active = true order by player_name'
-  );
-  return legacyResult.rows;
-}
-
-export async function isPlayerOnWatchlist(db: DbClient, playerName: string): Promise<boolean> {
-  const result = await query(db, 'select 1 from watchlist where player_name ilike $1 and is_active = true limit 1', [playerName]);
-  return result.rowCount !== null && result.rowCount > 0;
-}
-
-export async function upsertListing(db: DbClient, listing: ListingInsert): Promise<boolean> {
-  const inserted = await withTransaction(async client => {
-    const result = await client.query(
-      `insert into listings_feed (
-        external_id, source, title, price, url, image_url, match_type,
-        year, set_name, card_number, player_name, variant,
-        is_serial, serial_number, serial_current, serial_limit, is_auto, is_rookie, category,
-        match_confidence, match_status, match_reasons, unmatched_fields, matcher_version
-      ) values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22::jsonb,$23::jsonb,$24)
-      on conflict (source, external_id) do update set
-        is_oos = false,
-        price = excluded.price,
-        title = excluded.title,
-        image_url = excluded.image_url,
-        match_type = excluded.match_type,
-        year = excluded.year,
-        set_name = excluded.set_name,
-        card_number = excluded.card_number,
-        player_name = excluded.player_name,
-        variant = excluded.variant,
-        is_serial = excluded.is_serial,
-        serial_number = excluded.serial_number,
-        serial_current = excluded.serial_current,
-        serial_limit = excluded.serial_limit,
-        is_auto = excluded.is_auto,
-        is_rookie = excluded.is_rookie,
-        category = excluded.category,
-        match_confidence = excluded.match_confidence,
-        match_status = excluded.match_status,
-        match_reasons = excluded.match_reasons,
-        unmatched_fields = excluded.unmatched_fields,
-        matcher_version = excluded.matcher_version`,
-      [
-        listing.externalId,
-        listing.source,
-        listing.title,
-        listing.price,
-        listing.url,
-        listing.imageUrl,
-        listing.matchType,
-        listing.year,
-        listing.setName,
-        listing.cardNumber,
-        listing.playerName,
-        listing.variant,
-        listing.isSerial,
-        listing.serialNumber,
-        listing.serialCurrent,
-        listing.serialLimit,
-        listing.isAuto,
-        listing.isRookie,
-        listing.category,
-        listing.matchConfidence,
-        listing.matchStatus,
-        JSON.stringify(listing.matchReasons),
-        JSON.stringify(listing.unmatchedFields),
-        listing.matcherVersion,
-      ]
-    );
-
-    await upsertProductCardMatch(client, listing);
-    return (result.rowCount ?? 0) > 0;
-  });
-  return inserted;
-}
-
-async function upsertProductCardMatch(db: DbClient, listing: ListingInsert): Promise<void> {
-  const storeProduct = await db.query<{ id: number }>(
-    'select id from store_products where source = $1 and external_product_id = $2',
-    [listing.source, listing.externalId]
-  );
-  await db.query(
-    `insert into product_card_matches (
-      store_product_id, source, external_id, matched_player_name, confidence, status,
-      matched_fields, match_reasons, unmatched_fields, matcher_version
-    ) values ($1,$2,$3,$4,$5,$6,$7::jsonb,$8::jsonb,$9::jsonb,$10)
-    on conflict (source, external_id, matcher_version) do update set
-      store_product_id = excluded.store_product_id,
-      matched_player_name = excluded.matched_player_name,
-      confidence = excluded.confidence,
-      status = excluded.status,
-      matched_fields = excluded.matched_fields,
-      match_reasons = excluded.match_reasons,
-      unmatched_fields = excluded.unmatched_fields,
-      updated_at = now()`,
-    [
-      storeProduct.rows[0]?.id ?? null,
-      listing.source,
-      listing.externalId,
-      listing.playerName,
-      listing.matchConfidence,
-      listing.matchStatus,
-      JSON.stringify(matchedFieldsFor(listing)),
-      JSON.stringify(listing.matchReasons),
-      JSON.stringify(listing.unmatchedFields),
-      listing.matcherVersion,
-    ]
-  );
 }
 
 export async function markOOS(db: DbClient, externalId: string, source: string): Promise<void> {

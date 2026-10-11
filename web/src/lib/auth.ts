@@ -1,4 +1,5 @@
 import "server-only";
+import { cache } from "react";
 import { redirect } from "next/navigation";
 import { createClient } from "./supabase/server";
 
@@ -8,7 +9,10 @@ export type AuthProfile = {
   role: "user" | "admin";
 };
 
-export async function getCurrentUser() {
+// The layout and the page both need the signed-in user and profile. Each lookup is a network call to
+// Supabase, so they are memoised for the duration of one request. The cache never outlives the request,
+// so one user's result cannot be served to another.
+export const getCurrentUser = cache(async () => {
   const supabase = await createClient();
   const {
     data: { user },
@@ -17,9 +21,9 @@ export async function getCurrentUser() {
 
   if (error) return null;
   return user;
-}
+});
 
-export async function ensureProfile(userId: string, email?: string | null): Promise<AuthProfile> {
+export const ensureProfile = cache(async (userId: string, email?: string | null): Promise<AuthProfile> => {
   const supabase = await createClient();
   const existing = await getProfileByUserId(userId);
   if (existing) return existing;
@@ -33,9 +37,9 @@ export async function ensureProfile(userId: string, email?: string | null): Prom
 
   if (error) throw new Error(error.message);
   return data;
-}
+});
 
-async function getProfileByUserId(userId: string): Promise<AuthProfile | null> {
+const getProfileByUserId = cache(async (userId: string): Promise<AuthProfile | null> => {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("profiles")
@@ -45,7 +49,7 @@ async function getProfileByUserId(userId: string): Promise<AuthProfile | null> {
 
   if (error) throw new Error(error.message);
   return data;
-}
+});
 
 export async function getCurrentProfile(): Promise<AuthProfile | null> {
   const user = await getCurrentUser();

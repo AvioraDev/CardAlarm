@@ -92,6 +92,13 @@ function elapsedMs(startedAt: bigint): number {
   return Number(process.hrtime.bigint() - startedAt) / 1_000_000;
 }
 
+// Opening a connection costs several round trips to a distant database, so idle connections are kept
+// for minutes rather than pg's default of 10 seconds.
+function poolIdleTimeoutMs(): number {
+  const parsed = Number(process.env.POSTGRES_POOL_IDLE_TIMEOUT_MS);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : 5 * 60 * 1000;
+}
+
 export function getDb(): Pool {
   if (pool) return pool;
   const selectedConnectionString = connectionString();
@@ -101,6 +108,8 @@ export function getDb(): Pool {
       ? undefined
       : { rejectUnauthorized: process.env.POSTGRES_SSL_REJECT_UNAUTHORIZED !== 'false' },
     max: Number(process.env.POSTGRES_POOL_MAX ?? 8),
+    idleTimeoutMillis: poolIdleTimeoutMs(),
+    keepAlive: true,
   });
   pool.on('error', (error) => {
     console.error(`CardAlarm database pool error for ${dbTarget(selectedConnectionString)}:`, error.message);

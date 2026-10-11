@@ -39,10 +39,12 @@ export default async function AdminInventoryPage({ searchParams }: AdminInventor
     Object.entries(filters).filter(([, value]) => value !== undefined && value !== "")
   ) as FilterOptions;
 
+  const statsPromise = getFeedStats(cleanFilters);
   const [feed, stats, unfilteredStats, facets] = await Promise.all([
     getActiveFeed(cleanFilters, { limit: pageSize, offset: (currentPage - 1) * pageSize }),
-    getFeedStats(cleanFilters),
-    Object.keys(cleanFilters).length > 0 ? getFeedStats() : getFeedStats(cleanFilters),
+    statsPromise,
+    // With no filters the two figures are the same query, so it runs once.
+    Object.keys(cleanFilters).length > 0 ? getFeedStats() : statsPromise,
     getFilterFacets(),
   ]);
 

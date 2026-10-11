@@ -16,6 +16,7 @@ import {
   markStoreScanSucceeded,
   markMissingSourceProductsOOS,
   markSourceProductsMatched,
+  countMissingSourceProducts,
   updateStoreScanRun,
   upsertSourceProducts,
 } from './db';
@@ -24,6 +25,10 @@ import { reconcileActiveWatchlistMatches } from './watchlist-reconciliation';
 const PAGE_SIZE = Number(process.env.CARDALARM_PAGE_SIZE ?? 100);
 const EARLY_STOP_UNCHANGED_PAGES = Number(process.env.CARDALARM_EARLY_STOP_UNCHANGED_PAGES ?? 2);
 const FETCH_TIMEOUT_MS = Number(process.env.CARDALARM_FETCH_TIMEOUT_MS ?? 15000);
+const FETCH_MAX_ATTEMPTS = 3;
+const FETCH_RETRY_BASE_MS = 2000;
+const FETCH_RETRY_MAX_MS = 30000;
+const OOS_MIN_GUARDED_PRODUCTS = 20;
 const IDENTITY_EVALUATION_VERSION = 'deterministic-title-v1';
 const PAGE_CONCURRENCY = scanPageConcurrency();
 
@@ -46,12 +51,15 @@ export type SourceScanProgress = {
   pagesFetched: number;
   lastPageFetched: number | null;
   stopReason: StopReason | null;
+  oosSkippedReason?: OosSkippedReason | null;
   fetchDurationMs: number;
   cacheDurationMs: number;
   matchDurationMs: number;
   postScanDurationMs: number;
   totalDurationMs: number;
 };
+
+export type OosSkippedReason = 'fetch_error' | 'early_stop' | 'no_products' | 'missing_ratio_exceeded';
 
 export type SourceScanMetadata = SourceScanProgress & {
   phase: SourceScanPhase;
@@ -114,6 +122,48 @@ export async function runWithConcurrency<T, R>(
   return results;
 }
 
+/**
+ * A 'full' scan job walks every store to the end of its feed, whatever the store's own strategy.
+ * Only a complete walk can prove a product is gone, so this is the mode that marks products unavailable.
+ */
+export function sourceForScanMode(source: SourceConfig, mode: ScanMode): SourceConfig {
+  if (mode !== 'full') return source;
+  return { ...source, scanStrategy: 'full', earlyStopEnabled: false };
+}
+
+export function oosMaxMissingRatio(value: string | number | undefined = process.env.CARDALARM_OOS_MAX_MISSING_RATIO): number {
+  const parsed = value === undefined ? 0.6 : Number(value);
+  return Number.isFinite(parsed) && parsed > 0 && parsed <= 1 ? parsed : 0.6;
+}
+
+/**
+ * Refuses to mark a store's products unavailable when a "complete" walk is missing an implausible share
+ * of them, which is what a truncated or partially blocked feed looks like.
+ */
+export function exceedsOosMissingRatio(
+  counts: { available: number; missing: number },
+  maxRatio = oosMaxMissingRatio()
+): boolean {
+  if (counts.available < OOS_MIN_GUARDED_PRODUCTS) return false;
+  return counts.missing / counts.available > maxRatio;
+}
+
+export function isRetryableStatus(status: number): boolean {
+  return status === 408 || status === 429 || status >= 500;
+}
+
+export function retryDelayMs(attempt: number, retryAfterHeader: string | null = null): number {
+  const retryAfterSeconds = retryAfterHeader === null ? NaN : Number(retryAfterHeader);
+  if (Number.isFinite(retryAfterSeconds) && retryAfterSeconds > 0) {
+    return Math.min(FETCH_RETRY_MAX_MS, Math.trunc(retryAfterSeconds * 1000));
+  }
+  return Math.min(FETCH_RETRY_MAX_MS, FETCH_RETRY_BASE_MS * 2 ** Math.max(0, attempt - 1));
+}
+
+function sleep(ms: number): Promise<void> {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 export function scanDelayConfig(
   minValue: string | number | undefined = process.env.CARDALARM_SCAN_DELAY_MIN_MS,
   maxValue: string | number | undefined = process.env.CARDALARM_SCAN_DELAY_MAX_MS
@@ -132,6 +182,7 @@ type SourceScanResult = {
   skipped: number;
   matched: number;
   markedOOS: number;
+  oosSkippedReason: OosSkippedReason | null;
   pagesFetched: number;
   lastPageFetched: number | null;
   stoppedEarly: boolean;
@@ -192,15 +243,33 @@ function buildIdentityContextHash(): string {
   return hashJson({ classifierVersion: IDENTITY_EVALUATION_VERSION });
 }
 
+type PageFetchAttempt = { products: ShopifyProduct[] | null; retryAfterMs: number | null };
+
 async function fetchProductPage(
   baseUrl: string,
   page: number
 ): Promise<ShopifyProduct[] | null> {
   const url = `${normalizeBaseUrl(baseUrl)}/products.json?limit=${PAGE_SIZE}&page=${page}`;
+  console.log(`  ↳ Fetching page ${page}: ${url}`);
+
+  for (let attempt = 1; attempt <= FETCH_MAX_ATTEMPTS; attempt++) {
+    const result = await fetchProductPageOnce(url, page);
+    if (result.products) return result.products;
+    if (result.retryAfterMs === null || attempt === FETCH_MAX_ATTEMPTS) return null;
+
+    // Honour the server's Retry-After when it is longer than our own backoff.
+    const waitMs = Math.max(result.retryAfterMs, retryDelayMs(attempt));
+    console.log(`  ↳ Retrying page ${page} in ${waitMs}ms (attempt ${attempt + 1} of ${FETCH_MAX_ATTEMPTS})`);
+    await sleep(waitMs);
+  }
+
+  return null;
+}
+
+async function fetchProductPageOnce(url: string, page: number): Promise<PageFetchAttempt> {
   const startedAt = Date.now();
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
-  console.log(`  ↳ Fetching page ${page}: ${url}`);
 
   try {
     const response = await fetch(url, {
@@ -212,23 +281,26 @@ async function fetchProductPage(
     });
     if (!response.ok) {
       console.error(`  ✗ HTTP ${response.status} from ${url}`);
-      return null;
+      return {
+        products: null,
+        retryAfterMs: isRetryableStatus(response.status) ? retryDelayMs(1, response.headers.get('retry-after')) : null,
+      };
     }
 
     const data = (await response.json()) as ShopifyProductsResponse;
     // A 200 without a products array (blocked, unpublished, API change) is a failed fetch, not an empty catalogue.
     if (!data || !Array.isArray(data.products)) {
       console.error(`  ✗ Unexpected response shape from ${url}`);
-      return null;
+      return { products: null, retryAfterMs: null };
     }
     const products = data.products;
     console.log(`  ↳ Page ${page} fetched ${products.length} products in ${Date.now() - startedAt}ms`);
-    return products;
+    return { products, retryAfterMs: null };
   } catch (err) {
     const error = err instanceof Error ? err : new Error(String(err));
     const isTimeout = error.name === 'AbortError';
     console.error(`  ✗ ${isTimeout ? 'Timeout' : 'Network error'} fetching ${url} after ${Date.now() - startedAt}ms:`, error.message);
-    return null;
+    return { products: null, retryAfterMs: 0 };
   } finally {
     clearTimeout(timeout);
   }
@@ -295,6 +367,7 @@ async function processSource(
   let hadFetchError = false;
   let stoppedEarlyFromCache = false;
   let stopReason: StopReason | null = null;
+  let oosSkippedReason: OosSkippedReason | null = null;
   let fetchDurationMs = 0;
   let cacheDurationMs = 0;
   let matchDurationMs = 0;
@@ -309,6 +382,7 @@ async function processSource(
     pagesFetched,
     lastPageFetched,
     stopReason,
+    oosSkippedReason,
     fetchDurationMs,
     cacheDurationMs,
     matchDurationMs,
@@ -421,8 +495,18 @@ async function processSource(
   await publishProgress('post_scan_mark_matched');
   await markSourceProductsMatched(db, source.slug, evaluatedCacheRows, identityContextHash);
   let markedOOS = 0;
-  // Never mark a store out of stock from a walk that saw no products at all.
-  if (!hadFetchError && !stoppedEarlyFromCache && fetched > 0) {
+  // Only a complete walk proves a product is gone. Never mark a store out of stock from a walk that
+  // failed, stopped early, or saw no products at all.
+  if (hadFetchError) {
+    oosSkippedReason = 'fetch_error';
+  } else if (stoppedEarlyFromCache) {
+    oosSkippedReason = 'early_stop';
+  } else if (fetched === 0) {
+    oosSkippedReason = 'no_products';
+  } else if (exceedsOosMissingRatio(await countMissingSourceProducts(db, source.slug, scanToken))) {
+    oosSkippedReason = 'missing_ratio_exceeded';
+    console.warn(`  ⚠ Skipping out-of-stock marking for ${source.slug}: too many products missing from a complete walk`);
+  } else {
     await publishProgress('post_scan_mark_oos');
     markedOOS = await markMissingSourceProductsOOS(db, source.slug, scanToken);
   }
@@ -446,6 +530,7 @@ async function processSource(
     skipped,
     matched,
     markedOOS,
+    oosSkippedReason,
     pagesFetched,
     lastPageFetched,
     stoppedEarly: stoppedEarlyFromCache,
@@ -461,13 +546,24 @@ async function processSource(
 interface ScanOptions {
   mode: ScanMode;
   onProgress?: (progress: { processed: number; matched: number }) => Promise<void>;
+  /** Runs after every store has been scanned and before watchlists are reconciled. */
+  beforeReconcile?: () => Promise<void>;
 }
+
+export type IngestionCycleResult = {
+  processed: number;
+  matched: number;
+  completedStores: number;
+  failedStores: number;
+  storeErrors: string[];
+};
 
 export async function runIngestionCycle(
   db: DbClient,
-  sources: SourceConfig[],
-  options: ScanOptions = { mode: 'full' }
-): Promise<{ processed: number; matched: number }> {
+  configuredSources: SourceConfig[],
+  options: ScanOptions = { mode: 'watchlist' }
+): Promise<IngestionCycleResult> {
+  const sources = configuredSources.map(source => sourceForScanMode(source, options.mode));
   const identityContextHash = buildIdentityContextHash();
   const runToken = `${Date.now()}-${crypto.randomUUID()}`;
   const storeConcurrency = scanStoreConcurrency();
@@ -519,6 +615,7 @@ export async function runIngestionCycle(
           pagesFetched: sourceResult.pagesFetched,
           lastPageFetched: sourceResult.lastPageFetched,
           stopReason: sourceResult.stopReason,
+          oosSkippedReason: sourceResult.oosSkippedReason,
           fetchDurationMs: sourceResult.fetchDurationMs,
           cacheDurationMs: sourceResult.cacheDurationMs,
           matchDurationMs: sourceResult.matchDurationMs,
@@ -559,6 +656,7 @@ export async function runIngestionCycle(
   let reconciledMatches = 0;
 
   try {
+    await options.beforeReconcile?.();
     reconciledMatches = await reconcileActiveWatchlistMatches(db);
     const alertsQueued = await enqueueAlertCandidates(db);
     const alertsProcessed = await processPendingAlerts(db);
@@ -580,9 +678,16 @@ export async function runIngestionCycle(
     `\n✅ Ingestion complete. Fetched: ${totalFetched}, Processed: ${totalProcessed}, Skipped cache: ${totalSkipped}, Matched: ${totalMatched}, Marked OOS: ${totalMarkedOOS}, Completed stores: ${completedStoreCount}, Failed stores: ${failedStoreCount}`
   );
 
-  if (sourceErrors.length > 0) {
-    throw new Error(`One or more store scans failed after all stores settled: ${sourceErrors.join('; ')}`);
+  // One broken store must not fail the stores that scanned cleanly; only a run where nothing succeeded fails.
+  if (sourceErrors.length > 0 && completedStoreCount === 0) {
+    throw new Error(`All store scans failed: ${sourceErrors.join('; ')}`);
   }
 
-  return { processed: totalProcessed, matched: reconciledMatches || totalMatched };
+  return {
+    processed: totalProcessed,
+    matched: reconciledMatches || totalMatched,
+    completedStores: completedStoreCount,
+    failedStores: failedStoreCount,
+    storeErrors: sourceErrors,
+  };
 }
