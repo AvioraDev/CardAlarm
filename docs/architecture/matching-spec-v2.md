@@ -106,7 +106,7 @@ Plus `confidence_tier`, `match_reasons[]`, `flags[]`, `matcher_version`. Today t
 1. **Year is a soft constraint.** Normalise; allow +/- 1 season. If the exact-year search finds nothing, widen and record `year_widened` in the reasons (#19). Widening caps the result at Possible.
 2. **Set / subset / insert come from the catalogue vocabulary for that year.** Only names that exist in the year-scoped checklists are accepted. Match on normalised tokens ignoring spaces and punctuation ("Super Natural" = "Supernatural", "Shock Wave" is one name).
 3. **Product match is deterministic when unambiguous.** If exactly one product has its alias and season in the title, accept it in code; use the model only to arbitrate between several candidates (fixes #9's 0.04).
-4. **Card number before player.** Set + number is nearly a unique key within a subset. Cross-check the player; disagreement caps at Possible. Where several subsets contain the same number and player (#1, #16), prefer the base subset unless the title names the other, and record `subset_candidates`.
+4. **Card number before player.** Set + number is nearly a unique key within a subset. Cross-check the player; **a number that is not this player's card in the product is `unmatched` with reason `card_number_conflict` and no product is recorded** (founder decision 2026-10-12: a wrong product guess is a bad match; the listing still reaches the player's watchlist through the D-005 path). Where several subsets contain the same number and player (#1, #16), prefer the base subset unless the title names the other, and record `subset_candidates`.
 5. **Player resolution** uses stated names first, then the alias table, then description. Multiple players are allowed (#15). Alias- or nickname-derived players are `inferred`.
 6. **Insert / subset is read from the matched checklist row**, never from keywords.
 7. **Parallel resolves last** against that subset's own parallel list, longest-match, with serial agreement. If the serial fits more than one parallel, keep the card and flag `parallel_ambiguous`. A parallel absent from the catalogue is `parallel_unresolved` and does not block the card match (#17).
@@ -166,7 +166,7 @@ Jev has a bounded role, which is how it satisfies the master context's "rules-fi
 - **Sport, product type, insert or subset, and autograph status come from the matched catalogue row.** With no matched row, autograph status is "unknown", never "yes".
 - **Matcher version and Jev's score are recorded on every match**, so Jev's contribution can be measured separately.
 
-Implementation note (CAR-78): for listings that match no catalogue row, item-type and sport hints are still stored, labelled as hints, and used only to tell "not a basketball card" from "catalogue gap". They can never accept a match.
+Implementation note (CAR-78, founder decision 2026-10-12): for listings that match no catalogue row, item-type and sport hints are still stored, labelled as hints, and used only to tell "not a basketball card" from "catalogue gap". They can never accept a match, drive an alert or change what customers see. **A hint may mark a listing `out_of_scope` only when no known NBA player is named in the title, a tag or the product type**; with one named, a confident hint for another sport leaves it `unmatched` (the model once said soccer for a basketball card).
 
 ### 5.10 Photos
 
