@@ -116,6 +116,8 @@ function productAliases(productLine: string): string[] {
   if (normalized.startsWith('donruss optic')) aliases.add(normalized.replace(/^donruss /, ''));
   if (normalized === 'hoops') aliases.add('nba hoops');
   if (normalized === 'topps') aliases.add('topps basketball');
+  // Panini's 2021-22 Elite is sold as "Donruss Elite" by every other year and store.
+  if (normalized === 'elite') aliases.add('donruss elite');
   // Stores write "Topps Chrome Cosmic" for the product Topps calls "Cosmic Chrome".
   if (normalized === 'cosmic chrome') aliases.add('chrome cosmic');
   return [...aliases].sort((a, b) => b.length - a.length);
@@ -123,6 +125,15 @@ function productAliases(productLine: string): string[] {
 
 function containsPhrase(haystack: string, phrase: string): boolean {
   return ` ${haystack} `.includes(` ${phrase} `);
+}
+
+
+/** The seasons either side of a catalogue season: "2020-21" -> ["2019-20", "2021-22"]. */
+export function adjacentSeasons(season: string): string[] {
+  const start = Number(/\d{4}/.exec(season)?.[0]);
+  if (!Number.isFinite(start)) return [];
+  const label = (year: number): string => `${year}-${String((year + 1) % 100).padStart(2, '0')}`;
+  return [label(start - 1), label(start + 1)];
 }
 
 export class CatalogueIndex {
@@ -210,15 +221,28 @@ export class CatalogueIndex {
   /** Products whose line is named in the text, restricted to the given seasons when the title states one. */
   findProducts(texts: string[], seasonCandidates: string[]): CatalogueProduct[] {
     const haystack = texts.map(normalizeCatalogueName).join(' | ');
-    const matches: Array<{ product: CatalogueProduct; aliasLength: number }> = [];
+    const matches: Array<{ product: CatalogueProduct; alias: string; aliasLength: number }> = [];
 
     for (const product of this.products) {
       if (seasonCandidates.length > 0 && !seasonCandidates.includes(product.season)) continue;
       const alias = product.aliases.find(candidate => containsPhrase(haystack, candidate));
-      if (alias) matches.push({ product, aliasLength: alias.length });
+      if (alias) matches.push({ product, alias, aliasLength: alias.length });
     }
 
-    return matches
+    // "Donruss Optic" in a title also contains "Donruss". When one candidate's matched phrase sits inside
+    // another's in the same season, the longer, more specific product is the one the title names.
+    const specific = matches.filter(
+      match =>
+        !matches.some(
+          other =>
+            other !== match &&
+            other.product.season === match.product.season &&
+            other.aliasLength > match.aliasLength &&
+            ` ${other.alias} `.includes(` ${match.alias} `)
+        )
+    );
+
+    return specific
       .sort((a, b) => b.aliasLength - a.aliasLength || b.product.season.localeCompare(a.product.season))
       .slice(0, MAX_PRODUCT_CANDIDATES)
       .map(match => match.product);
@@ -243,6 +267,42 @@ export class CatalogueIndex {
       return byPlayer.length > 0 ? byPlayer : byNumber;
     }
     return number ? byNumber : byPlayer;
+  }
+
+
+  /**
+   * Catalogue players whose full name is written, as a whole phrase, in the text. Longest names first.
+   * Unlike findPlayers this offers no near-misses, so a single result can be accepted by rule.
+   */
+  findExactPlayers(text: string): CataloguePlayer[] {
+    const tokens = normalizeCatalogueName(text).split(' ').filter(Boolean);
+    const found = new Map<string, CataloguePlayer>();
+    for (let size = Math.min(MAX_PLAYER_NAME_TOKENS, tokens.length); size >= 2; size--) {
+      for (let start = 0; start + size <= tokens.length; start++) {
+        const player = this.playersByName.get(playerKey(tokens.slice(start, start + size).join(' ')));
+        if (player) found.set(player.normalizedName, player);
+      }
+    }
+    // A longer name contains shorter ones ("Jaime Jaquez Jr" contains "Jaime Jaquez"); keep the longest.
+    const names = [...found.values()].sort((a, b) => b.normalizedName.length - a.normalizedName.length);
+    return names.filter(
+      (player, index) => !names.slice(0, index).some(longer => longer.normalizedName.includes(player.normalizedName))
+    );
+  }
+
+  /** Cards in the product where BOTH the card number and the player agree with the title. */
+  findAgreeingCards(product: CatalogueProduct, cardNumber: string, playerName: string): CatalogueCard[] {
+    const number = cardNumber.toLowerCase();
+    const player = playerKey(playerName);
+    return product.subsets
+      .flatMap(subset => subset.cards)
+      .filter(card => card.cardNumber?.toLowerCase() === number && playerKey(card.playerName) === player);
+  }
+
+  /** Every card of the player in the product, across subsets. */
+  playerCards(product: CatalogueProduct, playerName: string): CatalogueCard[] {
+    const player = playerKey(playerName);
+    return product.subsets.flatMap(subset => subset.cards).filter(card => playerKey(card.playerName) === player);
   }
 
   /**

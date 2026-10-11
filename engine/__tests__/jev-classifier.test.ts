@@ -7,6 +7,7 @@ import {
 import {
   CatalogueIndex,
   playerKey,
+  productAliases,
   storeProvidedNames,
   titleNameSpans,
   type CatalogueProduct,
@@ -272,10 +273,22 @@ describe('catalogue candidates', () => {
 
   it('restricts products to the stated season and prefers the longest product name', () => {
     const found = catalogue.findProducts(['2023-24 Panini Donruss Optic #1 Victor Wembanyama'], ['2023-24']);
-    expect(found.map(product => product.productLine)).toEqual(['Donruss Optic', 'Donruss']);
+    // "Donruss" is only the start of "Donruss Optic", so the title names the more specific product.
+    expect(found.map(product => product.productLine)).toEqual(['Donruss Optic']);
     expect(catalogue.findProducts(['2023-24 Panini Prizm #1'], ['2023-24']).map(product => product.id)).toEqual([1]);
     expect(catalogue.findProducts(['Panini Prizm Silver'], []).map(product => product.season)).toEqual(['2023-24', '2022-23']);
     expect(catalogue.findProducts(['2023-24 Panini Prizm EuroLeague'], ['2019-20'])).toEqual([]);
+  });
+
+  it('finds the product catalogued as "Elite" when the title says "Donruss Elite", without ambiguity', () => {
+    const product = (id: number, productLine: string): CatalogueProduct => ({
+      id, season: '2021-22', brand: 'Panini', productLine, aliases: productAliases(productLine), subsets: [],
+    });
+    const index = new CatalogueIndex({ products: [product(1, 'Donruss'), product(2, 'Elite')] });
+
+    expect(index.findProducts(['2021-22 Donruss Elite #141 Zion Williamson'], ['2021-22']).map(found => found.productLine)).toEqual(['Elite']);
+    // A title that names only one of them still finds that one.
+    expect(index.findProducts(['2021-22 Panini Donruss #1 Test Player'], ['2021-22']).map(found => found.productLine)).toEqual(['Donruss']);
   });
 
   it('narrows cards by number and player, trusting the player when they disagree', () => {
@@ -400,16 +413,16 @@ describe('classifyListing', () => {
     expect(jev.asked).toHaveLength(1);
   });
 
-  it('sends a low-confidence triage decision to review instead of acting on it', async () => {
+  it('does not act on a low-confidence hint; with no catalogue product the listing is unmatched', async () => {
     const jev = scriptedJev({ item_type: { choice: 'single_card' }, sport: { choice: 'soccer', confidence: 0.4 } });
 
     const result = await classifyListing(evidence('2023 Panini Select Lime Green Premier 009/499'), catalogue, jev);
 
-    expect(result.reviewStatus).toBe('needs_review');
-    expect(result.reviewReasons).toContain('low_confidence_sport');
+    expect(result.reviewStatus).toBe('unmatched');
+    expect(result.reviewReasons).toEqual(expect.arrayContaining(['product_not_in_catalogue', 'no_player']));
   });
 
-  it('uses a store-published name for a player the catalogue does not know', async () => {
+  it('keeps a store-published name for a player the catalogue does not know, but never accepts it (D-005)', async () => {
     const jev = scriptedJev({
       item_type: { choice: 'single_card' },
       sport: { choice: 'basketball' },
@@ -422,11 +435,20 @@ describe('classifyListing', () => {
       jev
     );
 
-    expect(result).toMatchObject({ playerName: 'Rolando Blackman', playerSource: 'store', playerId: null, reviewStatus: 'accepted' });
+    expect(result).toMatchObject({
+      playerName: 'Rolando Blackman',
+      playerSource: 'store',
+      playerId: null,
+      reviewStatus: 'unmatched',
+      grounded: false,
+      card: null,
+      isAutograph: null,
+    });
     expect(result.reviewReasons).toContain('product_not_in_catalogue');
+    expect(result.matchedFields).toEqual([]);
   });
 
-  it('falls back to a name span in the title when no candidate is known', async () => {
+  it('falls back to a name span in the title for the watchlist section, but the listing stays unmatched', async () => {
     const jev = scriptedJev({
       item_type: { choice: 'single_card' },
       sport: { choice: 'basketball' },
@@ -435,30 +457,204 @@ describe('classifyListing', () => {
 
     const result = await classifyListing(evidence('1991 Upper Deck #94 DAVID ROBINSON Spurs Checklist'), catalogue, jev);
 
-    expect(result).toMatchObject({ playerName: 'David Robinson', playerSource: 'title', reviewStatus: 'accepted' });
+    expect(result).toMatchObject({ playerName: 'David Robinson', playerSource: 'title', reviewStatus: 'unmatched' });
   });
 
-  it('names the player from the card number when the title names nobody', async () => {
+  it('derives the player from the card number when the title names nobody, and caps the result at Possible', async () => {
     const jev = scriptedJev({
       item_type: { choice: 'single_card' },
       sport: { choice: 'basketball' },
-      product: { choice: '2023-24 Panini Prizm' },
       parallel: { choice: 'base' },
     });
 
     const result = await classifyListing(evidence('2023-24 Panini Prizm #301'), catalogue, jev);
 
-    expect(result).toMatchObject({ playerName: 'Kobe Bryant', playerSource: 'checklist', parallelStatus: 'base', reviewStatus: 'accepted' });
+    expect(result).toMatchObject({ playerName: 'Kobe Bryant', playerSource: 'checklist', parallelStatus: 'base', reviewStatus: 'possible' });
+    expect(result.reviewReasons).toContain('player_derived_from_card_number');
     expect(result.subset?.id).toBe(12);
   });
 
-  it('leaves a basketball single with no identifiable player in review', async () => {
+  it('leaves a basketball single with no identifiable player unmatched', async () => {
     const jev = scriptedJev({ item_type: { choice: 'single_card' }, sport: { choice: 'basketball' } });
 
     const result = await classifyListing(evidence('1996 Upper Deck Space Jam #JS3'), catalogue, jev);
 
-    expect(result.reviewStatus).toBe('needs_review');
+    expect(result.reviewStatus).toBe('unmatched');
     expect(result.reviewReasons).toContain('no_player');
+  });
+});
+
+describe('classifyListing: rules decide acceptance, the model only tie-breaks (D-006)', () => {
+  const catalogue = testCatalogue();
+  const listing = '2023-24 Panini Prizm #136 Victor Wembanyama';
+
+  it('accepts a title whose product, number and player agree with a catalogue row, without asking the model about them', async () => {
+    const jev = scriptedJev({ item_type: { choice: 'single_card' }, sport: { choice: 'basketball' }, parallel: { choice: 'base' } });
+
+    const result = await classifyListing(evidence(listing), catalogue, jev);
+
+    expect(result.reviewStatus).toBe('accepted');
+    expect(result.card?.id).toBe(1);
+    expect(result.matchedFields).toEqual(expect.arrayContaining(['product', 'player', 'card_number', 'subset']));
+    expect(result.matcherVersion).toBe('jev-catalogue-v2');
+    // The player and the product each had one exact candidate, so neither was put to the model.
+    expect(Object.keys(jev.asked[0]!)).toEqual(['item_type', 'sport']);
+  });
+
+  it('takes sport and item type from the matched row, whatever the model hinted (fixture 1)', async () => {
+    const jev = scriptedJev({
+      item_type: { choice: 'single_card' },
+      sport: { choice: 'soccer', confidence: 0.43 },
+      parallel: { choice: 'base' },
+    });
+
+    const result = await classifyListing(evidence(listing), catalogue, jev);
+
+    expect(result).toMatchObject({ reviewStatus: 'accepted', sport: 'basketball', itemType: 'single_card', grounded: true });
+    // What the model said is still recorded, apart from what the catalogue confirmed.
+    expect(result.hints).toMatchObject({ sport: 'soccer', sportConfidence: 0.43 });
+  });
+
+  it('does not accept a confident model answer when no catalogue row exists (fixture 3)', async () => {
+    const jev = scriptedJev({ item_type: { choice: 'single_card' }, sport: { choice: 'basketball', confidence: 1 } });
+
+    const result = await classifyListing(
+      evidence('2025 Topps Bowman Chrome #BCP-10 Victor Wembanyama Reptilian Refractor'),
+      catalogue,
+      jev
+    );
+
+    expect(result.reviewStatus).toBe('unmatched');
+    expect(result.card).toBeNull();
+    expect(result.reviewReasons).toContain('product_not_in_catalogue');
+  });
+
+  it('is Possible, not accepted, when the number is not this player\'s card in the product', async () => {
+    const jev = scriptedJev({ item_type: { choice: 'single_card' }, sport: { choice: 'basketball' } });
+
+    const result = await classifyListing(evidence('2023-24 Panini Prizm #999 Victor Wembanyama'), catalogue, jev);
+
+    expect(result.reviewStatus).toBe('possible');
+    expect(result.reviewReasons).toContain('card_number_not_for_this_player');
+    expect(result.card).toBeNull();
+    expect(result.confidence).toBeLessThanOrEqual(0.74);
+  });
+
+  it('is Possible when the title has no card number', async () => {
+    const jev = scriptedJev({ item_type: { choice: 'single_card' }, sport: { choice: 'basketball' } });
+
+    const result = await classifyListing(evidence('2023-24 Panini Prizm Victor Wembanyama Silver'), catalogue, jev);
+
+    expect(result.reviewStatus).toBe('possible');
+    expect(result.reviewReasons).toContain('no_card_number');
+  });
+
+  it('reports autograph status as unknown without a matched row, and from the subset kind with one', async () => {
+    const unmatched = await classifyListing(
+      evidence('1991 Upper Deck #87 Silver Signature Rolando Blackman', { tags: ['Rolando Blackman'] }),
+      catalogue,
+      scriptedJev({ item_type: { choice: 'single_card' }, sport: { choice: 'basketball' }, player: { choice: 'Rolando Blackman' } })
+    );
+    expect(unmatched.isAutograph).toBeNull();
+    expect(unmatched.fields.isAutograph).toBe(true);
+
+    const matched = await classifyListing(
+      evidence('2023-24 Panini Prizm #136 Victor Wembanyama Rookie Signatures Auto'),
+      catalogue,
+      scriptedJev({ item_type: { choice: 'single_card' }, sport: { choice: 'basketball' }, subset: { choice: 'Rookie Signatures' }, parallel: { choice: 'base' } })
+    );
+    expect(matched).toMatchObject({ reviewStatus: 'accepted', isAutograph: true });
+    expect(matched.subset?.kind).toBe('autograph');
+  });
+
+  it('does not call a signature word an autograph when the matched row is a base card, and leaves it unknown if no row is chosen', async () => {
+    const result = await classifyListing(
+      evidence('2023-24 Panini Prizm #136 Victor Wembanyama Silver Signature'),
+      catalogue,
+      scriptedJev({ item_type: { choice: 'single_card' }, sport: { choice: 'basketball' }, subset: { choice: 'Base Set' }, parallel: { choice: 'Silver Prizms' } })
+    );
+
+    expect(result.fields.isAutograph).toBe(true);
+    expect(result.isAutograph).toBe(false);
+
+    // If the model cannot choose between the base and autograph subsets, the answer is unknown, not "yes".
+    const undecided = await classifyListing(
+      evidence('2023-24 Panini Prizm #136 Victor Wembanyama Silver Signature'),
+      catalogue,
+      scriptedJev({ item_type: { choice: 'single_card' }, sport: { choice: 'basketball' }, parallel: { choice: 'Silver Prizms' } })
+    );
+    expect(undecided).toMatchObject({ reviewStatus: 'possible', isAutograph: null });
+    expect(undecided.reviewReasons).toContain('subset_unresolved');
+  });
+
+  it('records a rejected candidate as such, not as "not in catalogue" (fixture 9)', async () => {
+    // "Prizm" alone matches two seasons' products when the title states no season.
+    const jev = scriptedJev({
+      item_type: { choice: 'single_card' },
+      sport: { choice: 'basketball' },
+      player: { choice: 'Victor Wembanyama' },
+      product: { choice: 'none_of_these', confidence: 0.9 },
+    });
+
+    const result = await classifyListing(evidence('Panini Prizm Victor Wembanyama Silver'), catalogue, jev);
+
+    expect(result.reviewStatus).toBe('unmatched');
+    expect(result.reviewReasons).toContain('product_candidate_rejected');
+    expect(result.reviewReasons).not.toContain('product_not_in_catalogue');
+  });
+
+  it('rules a listing out of scope only on positive evidence, never on absence from the catalogue', async () => {
+    const box = await classifyListing(
+      evidence('2024-25 Panini Select Basketball Mega Box'),
+      catalogue,
+      scriptedJev({ item_type: { choice: 'sealed_product', confidence: 0.95 }, sport: { choice: 'basketball' } })
+    );
+    expect(box.reviewStatus).toBe('out_of_scope');
+
+    const gap = await classifyListing(
+      evidence('2007 Topps #21 Kevin Garnett Luxury Box', { tags: ['Kevin Garnett'] }),
+      catalogue,
+      scriptedJev({ item_type: { choice: 'sealed_product', confidence: 0.47 }, sport: { choice: 'basketball' }, player: { choice: 'Kevin Garnett' } })
+    );
+    expect(gap.reviewStatus).toBe('unmatched');
+  });
+
+  it('widens the season by one when the card is not in the stated year, and says so (fixture 19)', async () => {
+    const row = (id: number, subsetId: number, cardNumber: string, playerName: string) => ({
+      id,
+      subsetId,
+      playerId: id + 1000,
+      cardNumber,
+      playerName,
+      normalizedPlayerName: playerName.toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim(),
+      isRookie: false,
+    });
+    const wide = new CatalogueIndex({
+      products: [
+        {
+          id: 50, season: '2020-21', brand: 'Panini', productLine: 'Hoops', aliases: ['hoops'],
+          subsets: [{ id: 500, productId: 50, name: 'Base Set', kind: 'base', parallels: [], cards: [row(500, 500, '20', 'Aron Baynes')] }],
+        },
+        {
+          id: 51, season: '2021-22', brand: 'Panini', productLine: 'Hoops', aliases: ['hoops'],
+          subsets: [
+            { id: 510, productId: 51, name: 'Skyview', kind: 'insert', parallels: [], cards: [row(510, 510, '20', 'Ja Morant')] },
+            { id: 511, productId: 51, name: 'Base Set', kind: 'base', parallels: [], cards: [row(511, 511, '20', 'Bam Adebayo')] },
+          ],
+        },
+      ],
+    });
+
+    const result = await classifyListing(
+      evidence('2020-21 Panini Hoops #20 Ja Morant Sky View'),
+      wide,
+      scriptedJev({ item_type: { choice: 'single_card' }, sport: { choice: 'basketball' } })
+    );
+
+    expect(result).toMatchObject({ reviewStatus: 'possible', yearWidened: '2020-21 -> 2021-22' });
+    expect(result.product?.season).toBe('2021-22');
+    expect(result.subset?.name).toBe('Skyview');
+    expect(result.reviewReasons).toContain('year_widened');
   });
 });
 
