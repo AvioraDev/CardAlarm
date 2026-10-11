@@ -15,8 +15,9 @@ import {
   inventoryClassificationJoinSql,
   buildInventoryWhereSql,
   buildWatchlistMatchWhereSql,
+  inventoryClassificationSetJoinSql,
   inventoryListingSelectSql,
-  inventoryMatchJoinSql,
+  inventoryMatchSetJoinSql,
   storeJoinSql,
   userFeedbackStateJoinSql,
   watchlistInventoryListingSelectSql,
@@ -67,8 +68,8 @@ export async function getActiveFeed(
        ${inventoryListingSelectSql()}
      FROM public.store_products sp
      ${storeJoinSql()}
-     ${inventoryMatchJoinSql()}
-     ${inventoryClassificationJoinSql()}
+     ${inventoryMatchSetJoinSql()}
+     ${inventoryClassificationSetJoinSql()}
      WHERE ${whereSql}
      ORDER BY sp.last_checked_at DESC NULLS LAST, sp.last_seen_at DESC, sp.created_at DESC
      LIMIT $${params.length + 1}
@@ -107,18 +108,33 @@ async function count(sql: string, params: unknown[]): Promise<number> {
 
 export async function getFeedStats(filters: FilterOptions = {}): Promise<FeedStats> {
   const { whereSql, params } = buildInventoryWhereSql(filters);
-  const fromSql = `FROM public.store_products sp ${inventoryMatchJoinSql()} ${inventoryClassificationJoinSql()} WHERE ${whereSql}`;
+  // One pass over the inventory for all six figures, so they always describe the same set of listings.
+  const rows = await query<Record<keyof FeedStats, number>>(
+    `select
+       count(*)::int as total,
+       (count(*) filter (where pcm.id is not null))::int as direct,
+       (count(*) filter (where pcm.id is null))::int as stealth,
+       (count(*) filter (where pcm.id is not null and coalesce(pcm.status, 'confirmed') != 'possible'))::int as confirmed,
+       (count(*) filter (where pcm.status = 'possible'))::int as possible,
+       (count(*) filter (
+         where coalesce(pc.is_serial, coalesce(pcm.matched_fields, '[]'::jsonb) ? 'serial', false) = true
+       ))::int as serialized
+     from public.store_products sp
+     ${inventoryMatchSetJoinSql()}
+     ${inventoryClassificationSetJoinSql()}
+     where ${whereSql}`,
+    params,
+  );
+  const row = rows[0];
 
-  const [total, direct, stealth, confirmed, possible, serialized] = await Promise.all([
-    count(`SELECT COUNT(*) as c ${fromSql}`, params),
-    count(`SELECT COUNT(*) as c ${fromSql} AND pcm.id IS NOT NULL`, params),
-    count(`SELECT COUNT(*) as c ${fromSql} AND pcm.id IS NULL`, params),
-    count(`SELECT COUNT(*) as c ${fromSql} AND pcm.id IS NOT NULL AND COALESCE(pcm.status, 'confirmed') != 'possible'`, params),
-    count(`SELECT COUNT(*) as c ${fromSql} AND pcm.status = 'possible'`, params),
-    count(`SELECT COUNT(*) as c ${fromSql} AND coalesce(pc.is_serial, coalesce(pcm.matched_fields, '[]'::jsonb) ? 'serial', false) = true`, params),
-  ]);
-
-  return { total, direct, stealth, confirmed, possible, serialized };
+  return {
+    total: Number(row?.total ?? 0),
+    direct: Number(row?.direct ?? 0),
+    stealth: Number(row?.stealth ?? 0),
+    confirmed: Number(row?.confirmed ?? 0),
+    possible: Number(row?.possible ?? 0),
+    serialized: Number(row?.serialized ?? 0),
+  };
 }
 
 export async function getUserWatchlistStats(userId: string, filters: FilterOptions = {}): Promise<WatchlistDashboardStats> {
@@ -164,35 +180,45 @@ export async function getActiveUserWatchlistChips(userId: string): Promise<Watch
 
 export async function getFilterFacets(filters: FilterOptions = {}): Promise<FilterFacets> {
   const { whereSql, params } = buildInventoryWhereSql(filters);
+  const facetExpressions: Record<keyof FilterFacets, string> = {
+    sources: "sp.source",
+    years: "pc.year",
+    setNames: "coalesce(pc.set_name, pc.product_line)",
+    players: "coalesce(pcm.matched_player_name, pc.player_name)",
+    variants: "coalesce(pc.variant_name, pc.parallel_name, pc.insert_name)",
+    categories: "pc.category",
+  };
+  const facetKeys = Object.keys(facetExpressions) as Array<keyof FilterFacets>;
 
-  async function getFacet(expression: string): Promise<FacetItem[]> {
-    return query<FacetItem>(
-      `select value, count
-       from (
-         select ${expression} as value, count(*)::int as count
-         from public.store_products sp
-         ${inventoryMatchJoinSql()}
-         ${inventoryClassificationJoinSql()}
-         where ${whereSql}
-           and ${expression} is not null
-           and ${expression} != ''
-         group by ${expression}
-       ) facets
-       order by lower(value) asc, value asc`,
-      params
-    );
-  }
+  // The inventory is read once into `scoped`; each facet is then a cheap group-by over that one result.
+  const rows = await query<FacetItem & { facet: keyof FilterFacets }>(
+    `with scoped as materialized (
+       select
+         ${facetKeys.map((key) => `${facetExpressions[key]} as ${key.toLowerCase()}`).join(",\n         ")}
+       from public.store_products sp
+       ${inventoryMatchSetJoinSql()}
+       ${inventoryClassificationSetJoinSql()}
+       where ${whereSql}
+     )
+     select facet, value, count
+     from (
+       ${facetKeys
+         .map(
+           (key) => `select '${key}' as facet, ${key.toLowerCase()} as value, count(*)::int as count
+       from scoped
+       where ${key.toLowerCase()} is not null
+         and ${key.toLowerCase()} != ''
+       group by ${key.toLowerCase()}`,
+         )
+         .join("\n       union all\n       ")}
+     ) facets
+     order by facet, lower(value) asc, value asc`,
+    params,
+  );
 
-  const [sources, years, setNames, players, variants, categories] = await Promise.all([
-    getFacet("sp.source"),
-    getFacet("pc.year"),
-    getFacet("coalesce(pc.set_name, pc.product_line)"),
-    getFacet("coalesce(pcm.matched_player_name, pc.player_name)"),
-    getFacet("coalesce(pc.variant_name, pc.parallel_name, pc.insert_name)"),
-    getFacet("pc.category"),
-  ]);
-
-  return { sources, years, setNames, players, variants, categories };
+  const facets: FilterFacets = { sources: [], years: [], setNames: [], players: [], variants: [], categories: [] };
+  for (const { facet, value, count: facetCount } of rows) facets[facet].push({ value, count: facetCount });
+  return facets;
 }
 
 export async function getUserWatchlistFilterFacets(

@@ -6,7 +6,6 @@ const WATCHLIST_MATCH_ACTIVE_WHERE = `
   AND w.is_active = true
   AND sp.is_active = true
   AND sp.current_availability = true`;
-const CLASSIFIER_VERSION = "deterministic-title-v1";
 const TITLE_SERIAL_SIGNAL = "coalesce(sp.title, '') ~* '\\m(\\d{1,4}\\s*/\\s*\\d{1,5}|#?/\\s*\\d{1,5})\\M'";
 const TITLE_AUTO_SIGNAL = "coalesce(sp.title, '') ~* '\\m(auto|autograph)\\M'";
 const TITLE_ROOKIE_SIGNAL = "coalesce(sp.title, '') ~* '\\m(rc|rookie)\\M'";
@@ -203,10 +202,39 @@ export function inventoryClassificationJoinSql(): string {
        select *
        from public.product_classifications pc
        where pc.store_product_id = sp.id
-         and pc.classifier_type = 'deterministic'
-       order by (pc.classifier_version = '${CLASSIFIER_VERSION}') desc, pc.updated_at desc
+         and pc.classifier_type in ('jev', 'deterministic')
+       order by (pc.classifier_type = 'jev') desc, pc.updated_at desc
        limit 1
      ) pc on true`;
+}
+
+/**
+ * Set-based forms of the two joins above, for queries that read the whole inventory. The lateral forms
+ * run one lookup per listing, which suits the handful of rows behind a watchlist but costs tens of
+ * thousands of lookups across all listings. These pick each listing's row once and hash-join it.
+ * They expose only the columns the inventory selects and filters read.
+ */
+export function inventoryMatchSetJoinSql(): string {
+  return `left join (
+       select distinct on (pcm.store_product_id)
+         pcm.store_product_id, pcm.id, pcm.matched_player_name, pcm.matched_fields, pcm.confidence,
+         pcm.status, pcm.match_reasons, pcm.unmatched_fields, pcm.matcher_version
+       from public.product_card_matches pcm
+       where pcm.store_product_id is not null
+       order by pcm.store_product_id, pcm.confidence desc, pcm.updated_at desc
+     ) pcm on pcm.store_product_id = sp.id`;
+}
+
+export function inventoryClassificationSetJoinSql(): string {
+  return `left join (
+       select distinct on (pc.store_product_id)
+         pc.store_product_id, pc.year, pc.category, pc.product_line, pc.set_name, pc.card_number,
+         pc.player_name, pc.variant_name, pc.parallel_name, pc.insert_name, pc.is_rookie, pc.is_auto,
+         pc.is_serial, pc.serial_number, pc.serial_current, pc.serial_limit
+       from public.product_classifications pc
+       where pc.classifier_type in ('jev', 'deterministic')
+       order by pc.store_product_id, (pc.classifier_type = 'jev') desc, pc.updated_at desc
+     ) pc on pc.store_product_id = sp.id`;
 }
 
 export function watchlistInventoryMatchJoinSql(): string {

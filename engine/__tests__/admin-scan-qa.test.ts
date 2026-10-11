@@ -23,7 +23,8 @@ describe('admin scan QA page', () => {
     expect(helper).toContain('from public.watchlist_matches wm');
     expect(helper).toContain('join public.store_products sp on sp.id = wm.store_product_id');
     expect(helper).toContain('from public.product_classifications pc');
-    expect(helper).toContain("pc.classifier_type = 'deterministic'");
+    expect(helper).toContain("pc.classifier_type in ('jev', 'deterministic')");
+    expect(helper).toContain("order by (pc.classifier_type = 'jev') desc, pc.updated_at desc");
     expect(helper).toContain('left join public.product_card_matches pcm on pcm.id = wm.product_card_match_id');
     expect(helper).toContain('limit $${params.length}');
   });

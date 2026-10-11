@@ -4,8 +4,10 @@ import {
   buildInventoryWhereSql,
   buildWatchlistMatchWhereSql,
   inventoryClassificationJoinSql,
+  inventoryClassificationSetJoinSql,
   inventoryListingSelectSql,
   inventoryMatchJoinSql,
+  inventoryMatchSetJoinSql,
   storeJoinSql,
   watchlistInventoryListingSelectSql,
   watchlistInventoryMatchJoinSql,
@@ -157,15 +159,61 @@ describe('canonical inventory SQL helpers', () => {
   it('builds facets from product_classifications while preserving product_card_matches', () => {
     const queriesSource = fs.readFileSync(path.resolve(__dirname, '..', '..', 'web', 'src', 'lib', 'queries.ts'), 'utf8');
 
-    expect(queriesSource).toContain('getFacet("pc.year")');
-    expect(queriesSource).toContain('getFacet("coalesce(pc.set_name, pc.product_line)")');
-    expect(queriesSource).toContain('getFacet("coalesce(pcm.matched_player_name, pc.player_name)")');
-    expect(queriesSource).toContain('getFacet("coalesce(pc.variant_name, pc.parallel_name, pc.insert_name)")');
-    expect(queriesSource).toContain('getFacet("pc.category")');
-    expect(queriesSource).toContain('inventoryClassificationJoinSql()');
-    expect(queriesSource).toContain(') facets');
-    expect(queriesSource).toContain('order by lower(value) asc, value asc');
+    const functionSource = queriesSource.slice(
+      queriesSource.indexOf('export async function getFilterFacets'),
+      queriesSource.indexOf('export async function getUserWatchlistFilterFacets'),
+    );
+
+    expect(functionSource).toContain('years: "pc.year"');
+    expect(functionSource).toContain('setNames: "coalesce(pc.set_name, pc.product_line)"');
+    expect(functionSource).toContain('players: "coalesce(pcm.matched_player_name, pc.player_name)"');
+    expect(functionSource).toContain('variants: "coalesce(pc.variant_name, pc.parallel_name, pc.insert_name)"');
+    expect(functionSource).toContain('categories: "pc.category"');
+    expect(functionSource).toContain('inventoryClassificationSetJoinSql()');
+    expect(functionSource).toContain(') facets');
+    expect(functionSource).toContain('lower(value) asc, value asc');
     expect(queriesSource).not.toContain('ORDER BY count DESC');
+  });
+
+  it('reads the whole inventory once per request, not once per listing or per figure', () => {
+    const queriesSource = fs.readFileSync(path.resolve(__dirname, '..', '..', 'web', 'src', 'lib', 'queries.ts'), 'utf8');
+    const inventorySource = queriesSource.slice(
+      queriesSource.indexOf('export async function getActiveFeed'),
+      queriesSource.indexOf('export async function getUserWatchlistFeed'),
+    );
+    const statsSource = queriesSource.slice(
+      queriesSource.indexOf('export async function getFeedStats'),
+      queriesSource.indexOf('export async function getUserWatchlistStats'),
+    );
+    const facetsSource = queriesSource.slice(
+      queriesSource.indexOf('export async function getFilterFacets'),
+      queriesSource.indexOf('export async function getUserWatchlistFilterFacets'),
+    );
+
+    // Whole-inventory queries use the set-based joins; the per-listing lateral joins are for watchlist rows.
+    for (const source of [inventorySource, statsSource, facetsSource]) {
+      expect(source).toContain('inventoryMatchSetJoinSql()');
+      expect(source).toContain('inventoryClassificationSetJoinSql()');
+      expect(source).not.toContain('inventoryClassificationJoinSql()');
+      expect(source).not.toContain('Promise.all');
+    }
+    expect(statsSource).toContain('count(*) filter (where pcm.id is not null)');
+    expect(facetsSource).toContain('with scoped as materialized');
+    expect(facetsSource).toContain('union all');
+  });
+
+  it('builds set-based joins that pick one row per listing, Jev first', () => {
+    const classificationJoin = inventoryClassificationSetJoinSql();
+    const matchJoin = inventoryMatchSetJoinSql();
+
+    expect(classificationJoin).toContain('select distinct on (pc.store_product_id)');
+    expect(classificationJoin).toContain("pc.classifier_type in ('jev', 'deterministic')");
+    expect(classificationJoin).toContain("order by pc.store_product_id, (pc.classifier_type = 'jev') desc, pc.updated_at desc");
+    expect(classificationJoin).toContain(') pc on pc.store_product_id = sp.id');
+    expect(classificationJoin).not.toContain('lateral');
+    expect(matchJoin).toContain('select distinct on (pcm.store_product_id)');
+    expect(matchJoin).toContain('order by pcm.store_product_id, pcm.confidence desc, pcm.updated_at desc');
+    expect(matchJoin).not.toContain('lateral');
   });
 
   it('builds user watchlist-scoped facets from watchlist matches', () => {

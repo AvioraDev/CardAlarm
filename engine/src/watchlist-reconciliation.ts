@@ -1,7 +1,9 @@
 import type { DbClient } from './db';
 
-const CLASSIFIER_VERSION = 'deterministic-title-v1';
-
+/**
+ * Matches active watchlist rules against classified inventory. The Jev classification is used when a
+ * listing has one; the deterministic one is only a fallback for listings Jev has not reached yet.
+ */
 export async function reconcileActiveWatchlistMatches(db: DbClient): Promise<number> {
   const result = await db.query(
     `insert into public.watchlist_matches (
@@ -23,10 +25,10 @@ export async function reconcileActiveWatchlistMatches(db: DbClient): Promise<num
        sp.source,
        sp.external_product_id,
        pcm.id,
-       greatest(coalesce(pcm.confidence, 0), coalesce(wr.minimum_match_confidence, 0.75))::numeric(5, 4),
+       greatest(coalesce(case when pc.classifier_type = 'jev' then pc.confidence else pcm.confidence end, 0), coalesce(wr.minimum_match_confidence, 0.75))::numeric(5, 4),
        case
-         when pcm.status = 'possible'
-           or greatest(coalesce(pcm.confidence, 0), coalesce(wr.minimum_match_confidence, 0.75)) < 0.75
+         when (pc.classifier_type <> 'jev' and pcm.status = 'possible')
+           or greatest(coalesce(case when pc.classifier_type = 'jev' then pc.confidence else pcm.confidence end, 0), coalesce(wr.minimum_match_confidence, 0.75)) < 0.75
            then 'possible'
          else 'current'
        end,
@@ -40,8 +42,8 @@ export async function reconcileActiveWatchlistMatches(db: DbClient): Promise<num
        select *
        from public.product_classifications pc
        where pc.store_product_id = sp.id
-         and pc.classifier_type = 'deterministic'
-       order by (pc.classifier_version = '${CLASSIFIER_VERSION}') desc, pc.updated_at desc
+         and pc.classifier_type in ('jev', 'deterministic')
+       order by (pc.classifier_type = 'jev') desc, pc.updated_at desc
        limit 1
      ) pc on true
      left join lateral (
@@ -53,6 +55,7 @@ export async function reconcileActiveWatchlistMatches(db: DbClient): Promise<num
      ) pcm on true
      where w.is_active = true
        and pc.category = 'NBA'
+       and (pc.classifier_type <> 'jev' or pc.review_status = 'accepted')
        and (
          wr.player_id is not null
          or nullif(wr.include_terms, '') is not null
@@ -70,6 +73,7 @@ export async function reconcileActiveWatchlistMatches(db: DbClient): Promise<num
        )
        and (
          wr.player_id is null
+         or pc.player_id = wr.player_id
          or pcm.matched_player_id = wr.player_id
          or (p.full_name is not null and pc.player_name ilike p.full_name)
        )

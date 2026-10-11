@@ -110,23 +110,42 @@ export async function completeScanJob(
   db: DbClient,
   job: Pick<ScanJobRow, 'id' | 'scan_run_id'>,
   workerId: string,
-  result: { processed: number; matched: number }
+  result: {
+    processed: number;
+    matched: number;
+    completedStores?: number;
+    failedStores?: number;
+    storeErrors?: string[];
+  }
 ): Promise<void> {
+  const storeErrors = result.storeErrors ?? [];
   await db.query(
     `update public.scan_jobs
      set status = 'completed',
          processed = $3,
          matched = $4,
-         error = null,
+         completed_stores = $5,
+         failed_stores = $6,
+         error = $7,
          completed_at = now(),
          heartbeat_at = now(),
          locked_by = null,
          locked_at = null,
-         metadata = coalesce(metadata, '{}'::jsonb) || jsonb_build_object('completedAt', now())
+         metadata = coalesce(metadata, '{}'::jsonb) || jsonb_build_object('completedAt', now(), 'storeErrors', $8::jsonb)
      where id = $1
        and locked_by = $2
        and status = 'running'`,
-    [job.id, workerId, result.processed, result.matched]
+    [
+      job.id,
+      workerId,
+      result.processed,
+      result.matched,
+      result.completedStores ?? 0,
+      result.failedStores ?? 0,
+      // The job still completed; the error column names the stores that did not.
+      storeErrors.length > 0 ? `${storeErrors.length} store scan(s) failed: ${storeErrors.join('; ')}` : null,
+      JSON.stringify(storeErrors),
+    ]
   );
 
   if (job.scan_run_id !== null) {

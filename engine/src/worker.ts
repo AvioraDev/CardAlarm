@@ -11,6 +11,8 @@ import {
   recoverStaleStoreScanJobs,
   type ScanJobRow,
 } from './scan-jobs';
+import { classifyPendingListings, jevClassificationEnabled, type PendingClassificationResult } from './classify/pending';
+import { enqueueDueScheduledScans } from './scheduler';
 import { loadScanSources, NO_SCAN_SOURCES_MESSAGE } from './sources';
 import type { ScanMode, SourceConfig } from './types';
 
@@ -22,7 +24,18 @@ type WorkerDeps = {
   idlePollIntervalMs?: number;
   logger?: WorkerLogger;
   loadSources?: (db: DbClient) => Promise<SourceConfig[]>;
-  runCycle?: typeof runIngestionCycle;
+  runCycle?: (...args: Parameters<typeof runIngestionCycle>) => Promise<ScanCycleResult>;
+  enqueueScheduledScans?: (db: DbClient) => Promise<{ mode: ScanMode; scanJobId: number } | null>;
+  classifyPending?: (db: DbClient) => Promise<PendingClassificationResult>;
+};
+
+// Store counts are optional so a cycle that only reports totals still completes the job.
+type ScanCycleResult = {
+  processed: number;
+  matched: number;
+  completedStores?: number;
+  failedStores?: number;
+  storeErrors?: string[];
 };
 
 export type WorkerOnceResult = {
@@ -72,6 +85,24 @@ function startHeartbeat(
   return interval;
 }
 
+/**
+ * Classifies listings the scan found new or changed, before watchlists are reconciled against them.
+ * A classification failure is logged and retried after the next scan instead of failing the scan job.
+ */
+async function classifyAfterScan(db: DbClient, deps: WorkerDeps, logger: WorkerLogger): Promise<void> {
+  if (!deps.classifyPending && !jevClassificationEnabled()) return;
+  try {
+    const result = await (deps.classifyPending ?? classifyPendingListings)(db);
+    if (result.classified > 0 || result.failed > 0) {
+      logger.info(
+        `Classified ${result.classified} listings with Jev (${result.failed} failed, ${result.inputTokens} input tokens).`
+      );
+    }
+  } catch (error) {
+    logger.error(`Listing classification failed: ${error instanceof Error ? error.message : String(error)}`);
+  }
+}
+
 export async function runWorkerOnce(
   db: DbClient,
   deps: WorkerDeps = {}
@@ -110,6 +141,7 @@ export async function runWorkerOnce(
 
     const result = await runCycle(db, sources, {
       mode,
+      beforeReconcile: () => classifyAfterScan(db, deps, logger),
       onProgress: async progress => {
         if (job.scan_run_id !== null) {
           await db.query(
@@ -130,6 +162,9 @@ export async function runWorkerOnce(
 
     await completeScanJob(db, job, workerId, result);
     logger.info(`Scan job #${job.id} completed. Processed: ${result.processed}, matched: ${result.matched}.`);
+    if (result.failedStores) {
+      logger.error(`Scan job #${job.id} had ${result.failedStores} failed store(s): ${(result.storeErrors ?? []).join('; ')}`);
+    }
     return { claimed: true, succeeded: true, scanJobId: job.id };
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
@@ -150,9 +185,19 @@ export async function runWorkerLoop(
     deps.idlePollIntervalMs ??
     parsePositiveInteger(process.env.CARDALARM_WORKER_POLL_INTERVAL_MS, 30_000);
 
+  const enqueueScheduledScans = deps.enqueueScheduledScans ?? enqueueDueScheduledScans;
+
   logger.info(`Scan worker loop started. Idle poll interval: ${idlePollIntervalMs}ms.`);
 
   while (true) {
+    try {
+      const scheduled = await enqueueScheduledScans(db);
+      if (scheduled) logger.info(`Enqueued scheduled ${scheduled.mode} scan job #${scheduled.scanJobId}.`);
+    } catch (error) {
+      // A scheduling failure must not stop the worker from draining jobs that are already queued.
+      logger.error(`Scheduled scan enqueue failed: ${error instanceof Error ? error.message : String(error)}`);
+    }
+
     const result = await runWorkerOnce(db, deps);
     if (!result.claimed) await delay(idlePollIntervalMs);
   }

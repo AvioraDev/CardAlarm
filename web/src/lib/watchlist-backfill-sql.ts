@@ -25,8 +25,6 @@ export type BackfillSql = {
   params: unknown[];
 };
 
-const CLASSIFIER_VERSION = "deterministic-title-v1";
-
 function terms(value: string | null): string[] {
   if (!value) return [];
   return value
@@ -103,8 +101,8 @@ export function productClassificationLateralJoinSql(): string {
        select *
        from public.product_classifications pc
        where pc.store_product_id = sp.id
-         and pc.classifier_type = 'deterministic'
-       order by (pc.classifier_version = '${CLASSIFIER_VERSION}') desc, pc.updated_at desc
+         and pc.classifier_type in ('jev', 'deterministic')
+       order by (pc.classifier_type = 'jev') desc, pc.updated_at desc
        limit 1
      ) pc on true`;
 }
@@ -117,12 +115,15 @@ export function buildCanonicalBackfillSql(rule: CanonicalBackfillRule): Backfill
     "sp.is_active = true",
     "sp.current_availability = true",
     "pc.category = 'NBA'",
+    // A Jev classification only counts once it is accepted; the deterministic one is a fallback.
+    "(pc.classifier_type <> 'jev' or pc.review_status = 'accepted')",
   ];
 
   if (rule.player_id) {
     const playerId = addParam(params, rule.player_id);
     conditions.push(`(
-      pcm.matched_player_id = ${playerId}
+      pc.player_id = ${playerId}
+      or pcm.matched_player_id = ${playerId}
       or exists (
         select 1
         from public.players p
@@ -168,7 +169,7 @@ export function buildCanonicalBackfillSql(rule: CanonicalBackfillRule): Backfill
 
   const minimumConfidence = numeric(rule.minimum_match_confidence, 0.75);
   const minimumConfidencePlaceholder = addParam(params, minimumConfidence);
-  const confidenceSql = `greatest(coalesce(pcm.confidence, 0), ${minimumConfidencePlaceholder})`;
+  const confidenceSql = `greatest(coalesce(case when pc.classifier_type = 'jev' then pc.confidence else pcm.confidence end, 0), ${minimumConfidencePlaceholder})`;
 
   return {
     params,
@@ -193,7 +194,7 @@ export function buildCanonicalBackfillSql(rule: CanonicalBackfillRule): Backfill
        pcm.id,
        ${confidenceSql}::numeric(5, 4),
        case
-         when pcm.status = 'possible' or ${confidenceSql} < 0.75 then 'possible'
+         when (pc.classifier_type <> 'jev' and pcm.status = 'possible') or ${confidenceSql} < 0.75 then 'possible'
          else 'current'
        end,
        now(),

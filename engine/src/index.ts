@@ -1,55 +1,29 @@
-import cron from 'node-cron';
-import { getDb, closeDb } from './db';
-import { runIngestionCycle } from './ingest';
-import { runAvailabilityCheck } from './availability';
-import { loadScanSources, NO_SCAN_SOURCES_MESSAGE } from './sources';
+import { closeDb, getDb } from './db';
+import { runWorkerLoop } from './worker';
 
-async function ingest(): Promise<void> {
-  const db = getDb();
-  const sources = await loadScanSources(db);
-  if (sources.length === 0) throw new Error(NO_SCAN_SOURCES_MESSAGE);
-  console.log(`\n${'═'.repeat(60)}`);
-  console.log(`  CardAlarm Ingestion — ${new Date().toLocaleString()}`);
-  console.log(`  Sources: ${sources.map(s => s.name).join(', ')}`);
-  console.log(`${'═'.repeat(60)}`);
-  await runIngestionCycle(db, sources);
+/**
+ * Long-running engine entrypoint. Scans are scheduled and claimed through the scan_jobs queue,
+ * so this only keeps the worker loop alive.
+ */
+async function main(): Promise<void> {
+  console.log('CardAlarm Engine starting...');
+  try {
+    await runWorkerLoop(getDb());
+  } finally {
+    await closeDb();
+  }
 }
 
-async function checkAvailability(): Promise<void> {
-  const db = getDb();
-  const sources = await loadScanSources(db);
-  if (sources.length === 0) throw new Error(NO_SCAN_SOURCES_MESSAGE);
-  console.log(`\n${'─'.repeat(60)}`);
-  console.log(`  CardAlarm OOS Watchdog — ${new Date().toLocaleString()}`);
-  console.log(`${'─'.repeat(60)}`);
-  await runAvailabilityCheck(db, sources);
+async function shutdown(): Promise<void> {
+  console.log('CardAlarm Engine shutting down...');
+  await closeDb();
+  process.exit(0);
 }
 
-// ── Bootstrap ──────────────────────────────────────────────────────
+process.on('SIGINT', shutdown);
+process.on('SIGTERM', shutdown);
 
-console.log('🟢 CardAlarm Engine starting...');
-
-// Run one immediate ingestion cycle on startup
-ingest().catch(err => console.error('Initial ingestion failed:', err));
-
-// Primary ingestion: every 15 minutes
-cron.schedule('*/15 * * * *', () => {
-  ingest().catch(err => console.error('Ingestion cycle failed:', err));
-});
-
-// OOS watchdog: every 30 minutes, offset by 7 min to avoid overlap
-cron.schedule('7,37 * * * *', () => {
-  checkAvailability().catch(err => console.error('Availability check failed:', err));
-});
-
-// Graceful shutdown
-process.on('SIGINT', async () => {
-  console.log('\n🔴 CardAlarm Engine shutting down...');
-  await closeDb();
-  process.exit(0);
-});
-
-process.on('SIGTERM', async () => {
-  await closeDb();
-  process.exit(0);
+main().catch(error => {
+  console.error('CardAlarm Engine crashed:', error instanceof Error ? error.message : String(error));
+  process.exitCode = 1;
 });

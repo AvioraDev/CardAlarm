@@ -21,20 +21,12 @@ describe('CAR-25 reference checklist performance', () => {
     expect(migration).toContain('idx_reference_checklists_set_name_trgm');
   });
 
-  it('loads checklist rows by card number in one batched query', () => {
-    expect(dbSource).toContain('export async function getChecklistsByNumbers');
-    expect(dbSource).toContain('where card_number = any($1::text[])');
-    expect(dbSource).toContain('uniqueCardNumbers.length === 0');
-  });
-
-  it('keeps batched checklist lookup available for legacy dry-run matching without scan-loop use', () => {
-    const matchSource = readRootFile('engine', 'src', 'match.ts');
+  it('keeps reference checklist lookups out of the scan loop and the engine database layer', () => {
     const ingestSource = readRootFile('engine', 'src', 'ingest.ts');
 
-    expect(matchSource).toContain('ChecklistLookupCache');
-    expect(matchSource).toContain('getBySetAndNumber');
-    expect(matchSource).toContain('getByNumber');
-    expect(ingestSource).not.toContain('getChecklistsByNumbers');
+    // The title matcher that read reference_checklists is gone; listings resolve against checklist_* tables.
+    expect(ingestSource).not.toContain('reference_checklists');
+    expect(dbSource).not.toContain('reference_checklists');
   });
 
   it('documents the before and after query profile', () => {
