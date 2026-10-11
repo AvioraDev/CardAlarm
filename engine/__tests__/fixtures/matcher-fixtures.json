@@ -1,0 +1,1247 @@
+{
+  "description": "Matcher fixtures: 20 real listings with expected outcomes, verified against the catalogue on 2026-10-12. No test consumes this yet; the spec is pending founder approval.",
+  "outcomes": {
+    "confirmed": 10,
+    "possible": 2,
+    "unmatched": 8
+  },
+  "fixtures": [
+    {
+      "fixture": 1,
+      "storeProductId": 209,
+      "input": {
+        "store": "topplay",
+        "title": "2024-25 Panini Revolution #121 Bub Carrington",
+        "description": " \n 2024-25 Panini Revolution #121 Bub Carrington \n   \n \n  All ca  rds are sleeved and top loaded, Condition of card as is in photo.  ",
+        "url": "https://topplaysportscards.co.nz/products/2024-25-panini-revolution-121-bub-carrington",
+        "handle": "2024-25-panini-revolution-121-bub-carrington",
+        "productType": null,
+        "tags": [
+          "Bub Carrrington",
+          "Rookie"
+        ],
+        "vendor": "topplaysportscards",
+        "price": "3.00",
+        "imageUrl": "https://cdn.shopify.com/s/files/1/0560/7945/0160/files/OnlineCardsBASE018.jpg?v=1773533218"
+      },
+      "expected": {
+        "outcome": "confirmed",
+        "unmatchedReason": null,
+        "itemType": "single_card",
+        "sport": "basketball",
+        "sportSource": "catalogue_product_match",
+        "product": {
+          "season": "2024-25",
+          "productLine": "Revolution"
+        },
+        "subset": {
+          "name": "Base Set",
+          "kind": "base"
+        },
+        "cardNumber": "121",
+        "players": [
+          {
+            "name": "Bub Carrington",
+            "status": "stated",
+            "source": "title"
+          }
+        ],
+        "parallel": {
+          "name": null,
+          "serialLimit": null,
+          "status": "none"
+        },
+        "isRookie": {
+          "value": true,
+          "source": "store_tag_only"
+        },
+        "isAutograph": null,
+        "flags": [
+          "subset_ambiguous: Base Set | Rookie Variations (both base, #121, same player)",
+          "player_tag_misspelled: \"Bub Carrrington\""
+        ],
+        "reasons": [
+          "Product 2024-25 Panini Revolution found in title (Jev product confidence 1.0)",
+          "Card #121 + player agree in catalogue",
+          "Sport derived from catalogue product, not from a separate sport guess"
+        ]
+      },
+      "catalogueCheck": {
+        "status": "verified",
+        "detail": "Base Set #121 and Rookie Variations #121 both list Bub Carrington. Catalogue is_rookie is false for both; rookie status comes only from the store tag \"Rookie\"."
+      },
+      "differsFromBrief": "The brief says Jev \"accepted\" the soccer guess. It did not: review_status was needs_review (reason low_confidence_sport, sport 0.43). The real defect is that the sport question was asked independently although the product match (confidence 1.0) already implied basketball."
+    },
+    {
+      "fixture": 2,
+      "storeProductId": 32443,
+      "input": {
+        "store": "spnz",
+        "title": "2007 Topps #21 Kevin Garnett Luxury Box",
+        "description": " 2007 Topps #21  \n Kevin Garnett Luxury Box ",
+        "url": "https://sportscards.co.nz/products/2007-topps-21-kevin-garnett-luxury-box",
+        "handle": "2007-topps-21-kevin-garnett-luxury-box",
+        "productType": "NBA Sports Card",
+        "tags": [
+          "Kevin Garnett",
+          "Minnesota Timberwolves",
+          "Raw"
+        ],
+        "vendor": "Sportscard Investor NZ",
+        "price": "5.00",
+        "imageUrl": "https://cdn.shopify.com/s/files/1/0804/1322/9346/files/PhotoRoom-20231223-171231.png?v=1703305684"
+      },
+      "expected": {
+        "outcome": "unmatched",
+        "unmatchedReason": "catalogue_gap",
+        "itemType": "single_card",
+        "sport": "basketball",
+        "sportSource": "player_evidence (Kevin Garnett, NBA player, tag Minnesota Timberwolves)",
+        "product": null,
+        "subset": null,
+        "cardNumber": "21",
+        "players": [
+          {
+            "name": "Kevin Garnett",
+            "status": "stated",
+            "source": "title"
+          }
+        ],
+        "parallel": {
+          "name": null,
+          "serialLimit": null,
+          "status": "none"
+        },
+        "isRookie": {
+          "value": false,
+          "source": "none"
+        },
+        "isAutograph": null,
+        "flags": [
+          "never_sealed_product: card number #21 plus a named player are positive single-card evidence",
+          "luxury_box_is_product_or_variation_name (unverified)"
+        ],
+        "reasons": [
+          "No 2007-08 Topps checklist in the catalogue (catalogue starts at 2019-20)"
+        ]
+      },
+      "catalogueCheck": {
+        "status": "not_in_catalogue",
+        "detail": "Catalogue holds 57 products, 2019-20 to 2025-26 only. \"Luxury Box\" cannot be classified as parallel or product name without its checklist."
+      },
+      "differsFromBrief": null
+    },
+    {
+      "fixture": 3,
+      "storeProductId": 181889,
+      "input": {
+        "store": "spnz",
+        "title": "2025 Topps Bowman Chrome #BCP-10 Shelton Henderson Reptilian Refractor 1st Bowman",
+        "description": " 2025 Topps Bowman Chrome #BCP-10 \n Shelton Henderson Reptilian Refractor 1st Bowman ",
+        "url": "https://sportscards.co.nz/products/2025-topps-bowman-chrome-yk-17-allen-iverson-young-kings-copy",
+        "handle": "2025-topps-bowman-chrome-yk-17-allen-iverson-young-kings-copy",
+        "productType": "NBA Sports Card",
+        "tags": [
+          "Raw",
+          "Shelton Henderson"
+        ],
+        "vendor": "Sportscard Investor NZ",
+        "price": "10.00",
+        "imageUrl": "https://cdn.shopify.com/s/files/1/0804/1322/9346/files/rn-image_picker_lib_temp_59081a8b-6730-49fa-9b55-a0e5241f1172.jpg?v=1778904535"
+      },
+      "expected": {
+        "outcome": "unmatched",
+        "unmatchedReason": "sport_unresolved; catalogue_gap_or_out_of_scope",
+        "itemType": "single_card",
+        "sport": "unresolved",
+        "sportSource": "none",
+        "product": null,
+        "subset": null,
+        "cardNumber": "BCP-10",
+        "players": [
+          {
+            "name": "Shelton Henderson",
+            "status": "stated",
+            "source": "title"
+          }
+        ],
+        "parallel": {
+          "name": "Reptilian Refractor",
+          "serialLimit": null,
+          "status": "unresolved"
+        },
+        "isRookie": {
+          "value": false,
+          "source": "none"
+        },
+        "isAutograph": null,
+        "flags": [
+          "slug_names_a_different_card (Allen Iverson, \"-copy\")",
+          "store_product_type_untrusted (\"NBA Sports Card\" is spnz blanket category)",
+          "store_tags_untrusted (copied from the duplicated listing)",
+          "no_basketball_bowman_in_catalogue"
+        ],
+        "reasons": [
+          "No Bowman checklist in the catalogue",
+          "Sport must not be decided by the brand prior \"Bowman = baseball\", nor by the store product_type"
+        ]
+      },
+      "catalogueCheck": {
+        "status": "not_in_catalogue",
+        "detail": "No Bowman product exists in the catalogue. If a basketball Bowman checklist is imported and lists BCP-10 Henderson, this becomes a match; until then it is unmatched."
+      },
+      "differsFromBrief": "The brief frames Jev as simply wrong. The stored evidence shows Jev answered sport=basketball at confidence 1.0 and was accepted with product_not_in_catalogue, because the store product_type \"NBA Sports Card\" and the Henderson tag came from a duplicated NBA listing. The acceptance rule requires no catalogue grounding."
+    },
+    {
+      "fixture": 4,
+      "storeProductId": 2257,
+      "input": {
+        "store": "topplay",
+        "title": "2020-21 Panini NBA Hoops - Purple #36 Karl-Anthony Towns",
+        "description": " 2019-20 Panini Court Kings #4 Karl-Anthony Towns \n  All ca rds are sleeved and top loaded, Condition of card as is in photo.  ",
+        "url": "https://topplaysportscards.co.nz/products/2020-21-panini-nba-hoops-purple-36-karl-anthony-towns",
+        "handle": "2020-21-panini-nba-hoops-purple-36-karl-anthony-towns",
+        "productType": null,
+        "tags": [
+          "Karl-Anthony Towns"
+        ],
+        "vendor": "topplaysportscards",
+        "price": "3.00",
+        "imageUrl": "https://cdn.shopify.com/s/files/1/0560/7945/0160/files/1-3556.jpg?v=1715235229"
+      },
+      "expected": {
+        "outcome": "confirmed",
+        "unmatchedReason": null,
+        "itemType": "single_card",
+        "sport": "basketball",
+        "sportSource": "catalogue_product_match",
+        "product": {
+          "season": "2020-21",
+          "productLine": "Hoops"
+        },
+        "subset": {
+          "name": "Base Set",
+          "kind": "base"
+        },
+        "cardNumber": "36",
+        "players": [
+          {
+            "name": "Karl-Anthony Towns",
+            "status": "stated",
+            "source": "title"
+          }
+        ],
+        "parallel": {
+          "name": "Purple",
+          "serialLimit": null,
+          "status": "matched"
+        },
+        "isRookie": {
+          "value": false,
+          "source": "none"
+        },
+        "isAutograph": null,
+        "flags": [
+          "description_conflict_ignored: \"2019-20 Panini Court Kings #4\" does not resolve (2019-20 Court Kings not in catalogue)"
+        ],
+        "reasons": [
+          "Title resolves to a real card (2020-21 Hoops #36 Karl-Anthony Towns); description reading does not"
+        ]
+      },
+      "catalogueCheck": {
+        "status": "verified",
+        "detail": "2020-21 Hoops Base Set #36 = Karl-Anthony Towns; base parallels include \"Purple\" (and \"Purple Explosion\", which must lose to the exact name)."
+      },
+      "differsFromBrief": "The description is rejected because it does not resolve in the catalogue, not because it fails validation against a catalogued alternative: 2019-20 Court Kings is not catalogued."
+    },
+    {
+      "fixture": 5,
+      "storeProductId": 6374,
+      "input": {
+        "store": "topplay",
+        "title": "2020-21 Panini Prizm - Red White & Blue Prizm #19 Allen Iverson",
+        "description": " 2019-20 Panini Prizm #6 Allen Iverson \n  All cards are sleeved and top loaded, Condition of card as is in photo.  ",
+        "url": "https://topplaysportscards.co.nz/products/2020-21-panini-prizm-red-white-blue-prizm-19-allen-iverson",
+        "handle": "2020-21-panini-prizm-red-white-blue-prizm-19-allen-iverson",
+        "productType": null,
+        "tags": [
+          "Allen Iverson"
+        ],
+        "vendor": "topplaysportscards",
+        "price": "5.00",
+        "imageUrl": "https://cdn.shopify.com/s/files/1/0560/7945/0160/products/00-179.jpg?v=1652681533"
+      },
+      "expected": {
+        "outcome": "confirmed",
+        "unmatchedReason": null,
+        "itemType": "single_card",
+        "sport": "basketball",
+        "sportSource": "catalogue_product_match",
+        "product": {
+          "season": "2020-21",
+          "productLine": "Prizm"
+        },
+        "subset": {
+          "name": "Base Set",
+          "kind": "base"
+        },
+        "cardNumber": "19",
+        "players": [
+          {
+            "name": "Allen Iverson",
+            "status": "stated",
+            "source": "title"
+          }
+        ],
+        "parallel": {
+          "name": "Red, White and Blue Prizms",
+          "serialLimit": null,
+          "status": "matched"
+        },
+        "isRookie": {
+          "value": false,
+          "source": "none"
+        },
+        "isAutograph": null,
+        "flags": [
+          "description_conflict_ignored: \"2019-20 Panini Prizm #6\" does not resolve (2019-20 Prizm not in catalogue)"
+        ],
+        "reasons": [
+          "2020-21 Prizm #19 is Allen Iverson in the catalogue",
+          "Longest-match: \"Red White & Blue\" beats \"Blue\""
+        ]
+      },
+      "catalogueCheck": {
+        "status": "verified",
+        "detail": "2020-21 Prizm Base Set #19 = Allen Iverson; parallel \"Red, White and Blue Prizms\" exists in the base parallels (separate from Blue Prizms /199, Blue Ice, Blue Wave)."
+      },
+      "differsFromBrief": null
+    },
+    {
+      "fixture": 6,
+      "storeProductId": 1214,
+      "input": {
+        "store": "topplay",
+        "title": "2020-21 Panini Revolution - Shock Wave #5 Damian Lillard",
+        "description": " 2020-21 Panini Revolution - Shock Wave #5 Damian Lillard \n  \n  All ca rds are sleeved and top loaded, Condition of card as is in photo.  ",
+        "url": "https://topplaysportscards.co.nz/products/2020-21-panini-revolution-shock-wave-5-damian-lillard",
+        "handle": "2020-21-panini-revolution-shock-wave-5-damian-lillard",
+        "productType": null,
+        "tags": [
+          "Damian Lillard"
+        ],
+        "vendor": "topplaysportscards",
+        "price": "3.00",
+        "imageUrl": "https://cdn.shopify.com/s/files/1/0560/7945/0160/files/OnlineCards-Basketball011.jpg?v=1758847691"
+      },
+      "expected": {
+        "outcome": "confirmed",
+        "unmatchedReason": null,
+        "itemType": "single_card",
+        "sport": "basketball",
+        "sportSource": "catalogue_product_match",
+        "product": {
+          "season": "2020-21",
+          "productLine": "Revolution"
+        },
+        "subset": {
+          "name": "Shock Wave",
+          "kind": "insert"
+        },
+        "cardNumber": "5",
+        "players": [
+          {
+            "name": "Damian Lillard",
+            "status": "stated",
+            "source": "title"
+          }
+        ],
+        "parallel": {
+          "name": null,
+          "serialLimit": null,
+          "status": "none"
+        },
+        "isRookie": {
+          "value": false,
+          "source": "none"
+        },
+        "isAutograph": null,
+        "flags": [],
+        "reasons": [
+          "Insert subset taken from the checklist row, not from keywords",
+          "Standard truncated \"Shock Wave\" to \"Wave\"; catalogue name is \"Shock Wave\" (two words)"
+        ]
+      },
+      "catalogueCheck": {
+        "status": "verified",
+        "detail": "2020-21 Revolution subset \"Shock Wave\" #5 = Damian Lillard. Note #5 in the Vortex subset is Bradley Beal: the same number resolves to different cards in different subsets."
+      },
+      "differsFromBrief": null
+    },
+    {
+      "fixture": 7,
+      "storeProductId": 5569,
+      "input": {
+        "store": "topplay",
+        "title": "2020-21 Panini Mosaic - Will to Win - Mosaic Prizm #5 Bradley Beal",
+        "description": " 2020-21 Panini Mosaic - Will to Win - Mosaic Prizm #5 Bradley Beal \n  All cards are sleeved and top loaded, Condition of card as is in photo  \n   ",
+        "url": "https://topplaysportscards.co.nz/products/2020-21-panini-mosaic-will-to-win-mosaic-prizm-5-bradley-beal",
+        "handle": "2020-21-panini-mosaic-will-to-win-mosaic-prizm-5-bradley-beal",
+        "productType": null,
+        "tags": [
+          "Bradley Beal"
+        ],
+        "vendor": "topplaysportscards",
+        "price": "3.00",
+        "imageUrl": "https://cdn.shopify.com/s/files/1/0560/7945/0160/products/0000-044.png?v=1662712780"
+      },
+      "expected": {
+        "outcome": "confirmed",
+        "unmatchedReason": null,
+        "itemType": "single_card",
+        "sport": "basketball",
+        "sportSource": "catalogue_product_match",
+        "product": {
+          "season": "2020-21",
+          "productLine": "Mosaic"
+        },
+        "subset": {
+          "name": "Will to Win",
+          "kind": "insert"
+        },
+        "cardNumber": "5",
+        "players": [
+          {
+            "name": "Bradley Beal",
+            "status": "stated",
+            "source": "title"
+          }
+        ],
+        "parallel": {
+          "name": "Mosaic",
+          "serialLimit": null,
+          "status": "ambiguous"
+        },
+        "isRookie": {
+          "value": false,
+          "source": "none"
+        },
+        "isAutograph": null,
+        "flags": [
+          "parallel_ambiguous: \"Mosaic Prizm\" in title; catalogue parallel is named \"Mosaic\" for this insert"
+        ],
+        "reasons": [
+          "Set, insert, number and player agree",
+          "Parallel left ambiguous rather than forced"
+        ]
+      },
+      "catalogueCheck": {
+        "status": "verified",
+        "detail": "2020-21 Mosaic subset \"Will to Win\" #5 = Bradley Beal. Parallels for the insert: Mosaic, Green Mosaic, Blue/Green/Orange/Pink Fluorescent Mosaic, Reactive Blue/Yellow Mosaic."
+      },
+      "differsFromBrief": "The brief says the year is not in the visible title. The stored title is \"2020-21 Panini Mosaic - Will to Win - Mosaic Prizm #5 Bradley Beal\", so the year IS present and the card is Confirmed, not Possible. Only the parallel is ambiguous. (If the live page title differs from the stored title, that is itself a stale-field signal.)"
+    },
+    {
+      "fixture": 8,
+      "storeProductId": 29565,
+      "input": {
+        "store": "spnz",
+        "title": "2023-24 Panini Revolution #12 Jalen Hood-Schifino Rookie Card Vortex",
+        "description": " 2023-24 Panini Revolution #12  \n Jalen Hood-Schifino Rookie Card Vortex ",
+        "url": "https://sportscards.co.nz/products/2023-24-panini-revolution-12-jalen-hood-schifino-rookie-card-vortex",
+        "handle": "2023-24-panini-revolution-12-jalen-hood-schifino-rookie-card-vortex",
+        "productType": "NBA Sports Card",
+        "tags": [
+          "Jalen Hood-Schifino",
+          "lakers",
+          "Raw"
+        ],
+        "vendor": "Sportscard Investor NZ",
+        "price": "5.00",
+        "imageUrl": "https://cdn.shopify.com/s/files/1/0804/1322/9346/files/Photoroom-20240411-204855.png?v=1712826193"
+      },
+      "expected": {
+        "outcome": "confirmed",
+        "unmatchedReason": null,
+        "itemType": "single_card",
+        "sport": "basketball",
+        "sportSource": "catalogue_product_match",
+        "product": {
+          "season": "2023-24",
+          "productLine": "Revolution"
+        },
+        "subset": {
+          "name": "Vortex",
+          "kind": "insert"
+        },
+        "cardNumber": "12",
+        "players": [
+          {
+            "name": "Jalen Hood-Schifino",
+            "status": "stated",
+            "source": "title"
+          }
+        ],
+        "parallel": {
+          "name": null,
+          "serialLimit": null,
+          "status": "none"
+        },
+        "isRookie": {
+          "value": true,
+          "source": "title_rookie_card"
+        },
+        "isAutograph": null,
+        "flags": [],
+        "reasons": [
+          "Vortex is an insert subset in the checklist with its own parallels; title names none"
+        ]
+      },
+      "catalogueCheck": {
+        "status": "verified",
+        "detail": "2023-24 Revolution subset \"Vortex\" #12 = Jalen Hood-Schifino. Catalogue is_rookie is false; rookie comes from the title."
+      },
+      "differsFromBrief": null
+    },
+    {
+      "fixture": 9,
+      "storeProductId": 288,
+      "input": {
+        "store": "topplay",
+        "title": "2024-25 Panini Donruss International Red Stars #30 Cam Reddish /125",
+        "description": " \n 2024-25 Panini Donruss International Red Stars #30 Cam Reddish /125 \n   \n \n  All ca  rds are sleeved and top loaded, Condition of card as is in photo.  ",
+        "url": "https://topplaysportscards.co.nz/products/2024-25-panini-donruss-international-red-stars-30-cam-reddish-125",
+        "handle": "2024-25-panini-donruss-international-red-stars-30-cam-reddish-125",
+        "productType": null,
+        "tags": [
+          "Cam Reddish"
+        ],
+        "vendor": "topplaysportscards",
+        "price": "4.00",
+        "imageUrl": "https://cdn.shopify.com/s/files/1/0560/7945/0160/files/OnlineCardsNBA385.jpg?v=1772236730"
+      },
+      "expected": {
+        "outcome": "confirmed",
+        "unmatchedReason": null,
+        "itemType": "single_card",
+        "sport": "basketball",
+        "sportSource": "catalogue_product_match",
+        "product": {
+          "season": "2024-25",
+          "productLine": "Donruss"
+        },
+        "subset": {
+          "name": "Base Set",
+          "kind": "base"
+        },
+        "cardNumber": "30",
+        "players": [
+          {
+            "name": "Cam Reddish",
+            "status": "stated",
+            "source": "title"
+          }
+        ],
+        "parallel": {
+          "name": "International Red Stars",
+          "serialLimit": 125,
+          "status": "matched"
+        },
+        "isRookie": {
+          "value": false,
+          "source": "none"
+        },
+        "isAutograph": null,
+        "flags": [
+          "jev_product_lookup_miss: model gave the Donruss product 0.04 despite an exact name+season match"
+        ],
+        "reasons": [
+          "Serial /125 agrees with the catalogued parallel"
+        ]
+      },
+      "catalogueCheck": {
+        "status": "differs_from_brief",
+        "detail": "Catalogue: 2024-25 Donruss Base Set #30 = Cam Reddish, and \"International Red Stars /125\" is a PARALLEL of the base set. There is no \"International Stars\" insert subset at #30."
+      },
+      "differsFromBrief": "The brief calls International Stars an insert with a Red /125 parallel. The catalogue holds it as a base-set parallel named \"International Red Stars /125\". The catalogue wins (Principle 1). Jev miss was product_confidence 0.04 on a single exact candidate, recorded as product_not_in_catalogue, which is misleading: the product is in the catalogue."
+    },
+    {
+      "fixture": 10,
+      "storeProductId": 25072,
+      "input": {
+        "store": "dimecity",
+        "title": "2024-25 Select H2 /25",
+        "description": " 2024-25 Michael Porter Jr Select H2 /25  \n Lovely Card Of MPJ  ",
+        "url": "https://dimecitycards.co.nz/products/2024-25-select-h2-25",
+        "handle": "2024-25-select-h2-25",
+        "productType": "Michael Porter Jr",
+        "tags": [
+          "NBA",
+          "Single"
+        ],
+        "vendor": "Dime City Sports Cards",
+        "price": "14.99",
+        "imageUrl": "https://cdn.shopify.com/s/files/1/0415/7436/7385/files/262A08B9-10F7-41DC-A367-59A643EE99F0.jpg?v=1764279647"
+      },
+      "expected": {
+        "outcome": "unmatched",
+        "unmatchedReason": "catalogue_gap",
+        "itemType": "single_card",
+        "sport": "basketball",
+        "sportSource": "player_evidence (Michael Porter Jr, NBA player, from description)",
+        "product": null,
+        "subset": null,
+        "cardNumber": null,
+        "players": [
+          {
+            "name": "Michael Porter Jr",
+            "status": "stated",
+            "source": "description"
+          }
+        ],
+        "parallel": {
+          "name": null,
+          "serialLimit": 25,
+          "status": "unresolved"
+        },
+        "isRookie": {
+          "value": false,
+          "source": "none"
+        },
+        "isAutograph": null,
+        "flags": [
+          "player_only_in_description",
+          "h2_is_box_format_not_parallel (unverified)",
+          "no_card_number"
+        ],
+        "reasons": [
+          "2024-25 Select is not in the catalogue, so neither card nor parallel can be resolved"
+        ],
+        "expectedOnceCatalogued": "possible: 2024-25 Select, Michael Porter Jr, no card number, parallel ambiguous between /25 parallels (as in the brief)."
+      },
+      "catalogueCheck": {
+        "status": "differs_from_brief",
+        "detail": "There is no 2024-25 Select product in the catalogue (2024-25 has Donruss, Optic, Hoops, Origins, Prizm, Prizm Black, Revolution, Silhouette). The Disco Blue /25 vs Tie-Dye /25 ambiguity cannot be checked."
+      },
+      "differsFromBrief": "The brief expects Possible. With the current catalogue this is unmatched (catalogue gap) because 2024-25 Select has not been imported."
+    },
+    {
+      "fixture": 11,
+      "storeProductId": 32585,
+      "input": {
+        "store": "spnz",
+        "title": "1994 Upper Deck #184 Shaquille O'Neal Tip Offs Silver Signature",
+        "description": " 1994 Upper Deck #184  \n Shaquille O'Neal Tip Offs Silver Signature ",
+        "url": "https://sportscards.co.nz/products/1994-upper-deck-184-shaquille-oneal-tip-offs-silver-signature",
+        "handle": "1994-upper-deck-184-shaquille-oneal-tip-offs-silver-signature",
+        "productType": "NBA Sports Card",
+        "tags": [
+          "Orlando Magic",
+          "Raw",
+          "Shaq"
+        ],
+        "vendor": "Sportscard Investor NZ",
+        "price": "7.50",
+        "imageUrl": "https://cdn.shopify.com/s/files/1/0804/1322/9346/files/PhotoRoom-20231217-111544.png?v=1702765858"
+      },
+      "expected": {
+        "outcome": "unmatched",
+        "unmatchedReason": "catalogue_gap",
+        "itemType": "single_card",
+        "sport": "basketball",
+        "sportSource": "player_evidence (Shaquille O'Neal)",
+        "product": null,
+        "subset": null,
+        "cardNumber": "184",
+        "players": [
+          {
+            "name": "Shaquille O'Neal",
+            "status": "stated",
+            "source": "title"
+          }
+        ],
+        "parallel": {
+          "name": "Silver Signature",
+          "serialLimit": null,
+          "status": "unresolved"
+        },
+        "isRookie": {
+          "value": false,
+          "source": "none"
+        },
+        "isAutograph": false,
+        "flags": [
+          "facsimile_signature_is_not_autograph",
+          "title_regex_flags_signature_as_autograph"
+        ],
+        "reasons": [
+          "1994-95 Upper Deck / Collector's Choice not in the catalogue"
+        ]
+      },
+      "catalogueCheck": {
+        "status": "not_in_catalogue",
+        "detail": "Not catalogued. The Collector's Choice attribution is from the brief and is unverified; the listing title and slug say \"Upper Deck\"."
+      },
+      "differsFromBrief": "Root cause confirmed in code: title-fields.ts isAutograph matches /signatures?/ and the Jev classifier only ever upgrades isAutograph from the subset kind; it never clears it."
+    },
+    {
+      "fixture": 12,
+      "storeProductId": 25430,
+      "input": {
+        "store": "dimecity",
+        "title": "Panini 2013 HRX Rookie Card",
+        "description": " CJ Panini HRX Rookie Card  ",
+        "url": "https://dimecitycards.co.nz/products/panini-2013-hrx-rookie-card",
+        "handle": "panini-2013-hrx-rookie-card",
+        "productType": "CJ McCollum",
+        "tags": [
+          "NBA",
+          "Single"
+        ],
+        "vendor": "Dime City Sports Cards",
+        "price": "14.99",
+        "imageUrl": "https://cdn.shopify.com/s/files/1/0415/7436/7385/products/image_4a4199cf-8a64-4373-bcdc-e8148931bec3.jpg?v=1635925644"
+      },
+      "expected": {
+        "outcome": "unmatched",
+        "unmatchedReason": "catalogue_gap",
+        "itemType": "single_card",
+        "sport": "basketball",
+        "sportSource": "store_product_type_only (untrusted)",
+        "product": null,
+        "subset": null,
+        "cardNumber": null,
+        "players": [
+          {
+            "name": "CJ McCollum",
+            "status": "inferred",
+            "source": "description_first_name_nickname"
+          }
+        ],
+        "parallel": {
+          "name": null,
+          "serialLimit": null,
+          "status": "none"
+        },
+        "isRookie": {
+          "value": true,
+          "source": "title"
+        },
+        "isAutograph": null,
+        "flags": [
+          "player_inferred_from_nickname: \"CJ\"",
+          "hrx_unverified"
+        ],
+        "reasons": [
+          "No HRX product in the catalogue",
+          "Inferred player must not be stored as stated"
+        ]
+      },
+      "catalogueCheck": {
+        "status": "not_in_catalogue",
+        "detail": "HRX is not catalogued and I could not verify what it is. 2021-22 Hoops lists a CJ McCollum Hot Signatures card, which says nothing about a 2013 card."
+      },
+      "differsFromBrief": "Jev stored this as accepted at confidence 1.0 with playerSource \"catalogue\" and no product. The acceptance rule needs only item type, sport and a player at >= 0.7, so an inferred nickname and a missing product pass."
+    },
+    {
+      "fixture": 13,
+      "storeProductId": 188800,
+      "input": {
+        "store": "dimecity",
+        "title": "2013-14 Panini Crusade Basketball Orange Die-Cut /99",
+        "description": " Steven Adams 2013-14 Panini Crusade Basketball Orange Die-Cut /99 \n Simply Stunning Card ",
+        "url": "https://dimecitycards.co.nz/products/2013-14-panini-crusade-basketball-orange-die-cut-99",
+        "handle": "2013-14-panini-crusade-basketball-orange-die-cut-99",
+        "productType": "Steven Adams",
+        "tags": [
+          "NBA",
+          "Single"
+        ],
+        "vendor": "Dime City Sports Cards Limited",
+        "price": "79.99",
+        "imageUrl": "https://cdn.shopify.com/s/files/1/0415/7436/7385/files/F651C9B2-06BE-4B94-A7BB-D01FFACA4E8E.jpg?v=1789768977"
+      },
+      "expected": {
+        "outcome": "unmatched",
+        "unmatchedReason": "catalogue_gap",
+        "itemType": "single_card",
+        "sport": "basketball",
+        "sportSource": "player_evidence (Steven Adams, tags NBA)",
+        "product": null,
+        "subset": null,
+        "cardNumber": null,
+        "players": [
+          {
+            "name": "Steven Adams",
+            "status": "stated",
+            "source": "description"
+          }
+        ],
+        "parallel": {
+          "name": "Orange Die-Cut",
+          "serialLimit": 99,
+          "status": "unresolved"
+        },
+        "isRookie": {
+          "value": false,
+          "source": "none"
+        },
+        "isAutograph": null,
+        "flags": [
+          "crusade_may_be_product_or_subset (unverified)"
+        ],
+        "reasons": [
+          "No 2013-14 checklist in the catalogue"
+        ]
+      },
+      "catalogueCheck": {
+        "status": "not_in_catalogue",
+        "detail": "Unverified. 2013-14 is outside the catalogue. 2020-21 Chronicles has a Crusade block (see fixture 17), supporting the brief note that Crusade is also a subset name."
+      },
+      "differsFromBrief": null
+    },
+    {
+      "fixture": 14,
+      "storeProductId": 25406,
+      "input": {
+        "store": "dimecity",
+        "title": "Panini Optic 2020-21 Rated Rookie Silver Prizm",
+        "description": " Poku Silver Optic rated rookie  ",
+        "url": "https://dimecitycards.co.nz/products/panini-optic-2020-21-rated-rookie-silver-prizm",
+        "handle": "panini-optic-2020-21-rated-rookie-silver-prizm",
+        "productType": "Aleksej Pokusevski",
+        "tags": [
+          "NBA",
+          "Single"
+        ],
+        "vendor": "Dime City Sports Cards",
+        "price": "3.99",
+        "imageUrl": "https://cdn.shopify.com/s/files/1/0415/7436/7385/products/image_cce2ce02-265e-4ca8-bff7-1e5eaf9aed60.heic?v=1662600414"
+      },
+      "expected": {
+        "outcome": "possible",
+        "unmatchedReason": null,
+        "itemType": "single_card",
+        "sport": "basketball",
+        "sportSource": "catalogue_product_match",
+        "product": {
+          "season": "2020-21",
+          "productLine": "Donruss Optic"
+        },
+        "subset": null,
+        "cardNumber": null,
+        "players": [
+          {
+            "name": "Aleksej Pokusevski",
+            "status": "inferred",
+            "source": "alias_poku"
+          }
+        ],
+        "parallel": {
+          "name": "Silver",
+          "serialLimit": null,
+          "status": "unresolved"
+        },
+        "isRookie": {
+          "value": true,
+          "source": "title_rated_rookie"
+        },
+        "isAutograph": null,
+        "flags": [
+          "no_card_number",
+          "player_alias_unconfirmed (player_aliases table is empty)",
+          "base_card_missing_from_catalogue"
+        ],
+        "reasons": [
+          "Set and player agree but there is no card number and the player came from a nickname"
+        ]
+      },
+      "catalogueCheck": {
+        "status": "differs_from_brief",
+        "detail": "The 2020-21 Optic catalogue lists Pokusevski only in autograph subsets (Fast Break Signatures #67, Rated Rookies Signatures #167, Rookie Dominators #17, Signature Series #67). His base Rated Rookie card is not in the catalogue."
+      },
+      "differsFromBrief": "The brief expects Confirmed with a catalogued alias. player_aliases has zero rows, nothing reads it, and with no card number plus an alias the brief own rules give Possible. The base rookie card is also absent from the catalogue (importer or source gap, to investigate)."
+    },
+    {
+      "fixture": 15,
+      "storeProductId": 6242,
+      "input": {
+        "store": "topplay",
+        "title": "2008-09 Fleer Hot Prospects - Alumni Mates #AM-9 Shaquille O'Neal, Glen Davis",
+        "description": " 2008-09 Fleer Hot Prospects - Alumni Mates #AM-9 Shaquille O'Neal, Glen Davis \n  All ca rds are sleeved and top loaded, Condition of card as is in photo.  ",
+        "url": "https://topplaysportscards.co.nz/products/2008-09-fleer-hot-prospects-alumni-mates-am-9-shaquille-oneal-glen-davis",
+        "handle": "2008-09-fleer-hot-prospects-alumni-mates-am-9-shaquille-oneal-glen-davis",
+        "productType": null,
+        "tags": [
+          "Glen Davis",
+          "Shaquille O'Neal"
+        ],
+        "vendor": "topplaysportscards",
+        "price": "2.00",
+        "imageUrl": "https://cdn.shopify.com/s/files/1/0560/7945/0160/products/00-791.jpg?v=1656744202"
+      },
+      "expected": {
+        "outcome": "unmatched",
+        "unmatchedReason": "catalogue_gap",
+        "itemType": "single_card",
+        "sport": "basketball",
+        "sportSource": "player_evidence (Shaquille O'Neal, Glen Davis)",
+        "product": null,
+        "subset": null,
+        "cardNumber": "AM-9",
+        "players": [
+          {
+            "name": "Shaquille O'Neal",
+            "status": "stated",
+            "source": "title"
+          },
+          {
+            "name": "Glen Davis",
+            "status": "stated",
+            "source": "title"
+          }
+        ],
+        "parallel": {
+          "name": null,
+          "serialLimit": null,
+          "status": "none"
+        },
+        "isRookie": {
+          "value": false,
+          "source": "none"
+        },
+        "isAutograph": null,
+        "flags": [
+          "dual_player_card"
+        ],
+        "reasons": [
+          "2008-09 Fleer Hot Prospects is not in the catalogue"
+        ],
+        "expectedOnceCatalogued": "confirmed: 2008-09 Fleer Hot Prospects, Alumni Mates #AM-9, players Shaquille O'Neal and Glen Davis."
+      },
+      "catalogueCheck": {
+        "status": "not_in_catalogue",
+        "detail": "Not catalogued. If imported, expected outcome is the brief: Confirmed, 2008-09 Fleer Hot Prospects Alumni Mates #AM-9, both players."
+      },
+      "differsFromBrief": "Jev scored 0.0: playerConfidence 0.62 (< 0.7) so no player, plus product_not_in_catalogue. catalogue-index.ts also skips multi-player cards when building the player index (\"A / B\" names are never matched)."
+    },
+    {
+      "fixture": 16,
+      "storeProductId": 26987,
+      "input": {
+        "store": "spnz",
+        "title": "2023-24 Panini Contenders #47 Aaron Gordon Season Ticket",
+        "description": " 2023-24 Panini Contenders #47 Aaron Gordon Season Ticket ",
+        "url": "https://sportscards.co.nz/products/2023-24-panini-contenders-47-aaron-gordon-season-ticket",
+        "handle": "2023-24-panini-contenders-47-aaron-gordon-season-ticket",
+        "productType": "NBA Sports Card",
+        "tags": [
+          "Aaron Gordon",
+          "Denver Nuggets",
+          "Raw"
+        ],
+        "vendor": "Sportscard Investor NZ",
+        "price": "3.00",
+        "imageUrl": "https://cdn.shopify.com/s/files/1/0804/1322/9346/files/rn-image_picker_lib_temp_80a60246-cfb2-444b-85d2-964c78bc557e.jpg?v=1735869089"
+      },
+      "expected": {
+        "outcome": "confirmed",
+        "unmatchedReason": null,
+        "itemType": "single_card",
+        "sport": "basketball",
+        "sportSource": "catalogue_product_match",
+        "product": {
+          "season": "2023-24",
+          "productLine": "Contenders"
+        },
+        "subset": {
+          "name": "Base Season Ticket",
+          "kind": "base"
+        },
+        "cardNumber": "47",
+        "players": [
+          {
+            "name": "Aaron Gordon",
+            "status": "stated",
+            "source": "title"
+          }
+        ],
+        "parallel": {
+          "name": null,
+          "serialLimit": null,
+          "status": "none"
+        },
+        "isRookie": {
+          "value": false,
+          "source": "none"
+        },
+        "isAutograph": null,
+        "flags": [
+          "season_ticket_is_the_base_subset_name"
+        ],
+        "reasons": [
+          "\"Season Ticket\" consumed as the catalogued base subset, so it cannot enter the player name"
+        ]
+      },
+      "catalogueCheck": {
+        "status": "verified",
+        "detail": "2023-24 Contenders subset \"Base Season Ticket\" #47 = Aaron Gordon. A second base-kind subset \"Ticket Stub\" is also #47 Aaron Gordon (/50 numbered); the absence of /50 selects Season Ticket."
+      },
+      "differsFromBrief": null
+    },
+    {
+      "fixture": 17,
+      "storeProductId": 31613,
+      "input": {
+        "store": "spnz",
+        "title": "2020-21 Panini Chronicles Rookies And Stars #523 James Wiseman Rookie Card Crusade Silver",
+        "description": " 2020-21 Panini Chronicles Rookies And Stars #523 \n James Wiseman Rookie Card Crusade Silver ",
+        "url": "https://sportscards.co.nz/products/2020-21-panini-chronicles-rookies-and-stars-523-james-wiseman-rookie-card-crusade-silver",
+        "handle": "2020-21-panini-chronicles-rookies-and-stars-523-james-wiseman-rookie-card-crusade-silver",
+        "productType": "NBA Sports Card",
+        "tags": [
+          "Golden State Warriors",
+          "James Wiseman",
+          "Raw"
+        ],
+        "vendor": "Sportscard Investor NZ",
+        "price": "10.00",
+        "imageUrl": "https://cdn.shopify.com/s/files/1/0804/1322/9346/files/PhotoRoom-20240102-174004.png?v=1704170452"
+      },
+      "expected": {
+        "outcome": "confirmed",
+        "unmatchedReason": null,
+        "itemType": "single_card",
+        "sport": "basketball",
+        "sportSource": "catalogue_product_match",
+        "product": {
+          "season": "2020-21",
+          "productLine": "Chronicles"
+        },
+        "subset": {
+          "name": "Base (Crusade block #516-545)",
+          "kind": "base"
+        },
+        "cardNumber": "523",
+        "players": [
+          {
+            "name": "James Wiseman",
+            "status": "stated",
+            "source": "title"
+          }
+        ],
+        "parallel": {
+          "name": "Silver",
+          "serialLimit": null,
+          "status": "unresolved"
+        },
+        "isRookie": {
+          "value": true,
+          "source": "title"
+        },
+        "isAutograph": null,
+        "flags": [
+          "title_block_name_conflicts_with_card_number: \"Rookies and Stars\" is #651-675",
+          "parallel_not_in_imported_catalogue",
+          "importer_flattened_base_blocks"
+        ],
+        "reasons": [
+          "Card number #523 is inside the Crusade block #516-545; the number overrides the \"Rookies and Stars\" text"
+        ]
+      },
+      "catalogueCheck": {
+        "status": "verified",
+        "detail": "Source checklist (docs/sets/incoming/2020-21-Panini-Chronicles-Basketball-Checklist.xlsx, sheet Base) declares \"Crusade - #516-545\" and \"Rookies and Stars - #651-675\". The importer stored #523 under \"Base Set\" and its base parallels (Asia, Blue /99, Bronze, Gold /10, Green, Green Ice, Lucky Envelopes /8, Pink, Platinum /1, Purple /49, Red /149, Teal) contain no Silver/Crusade parallel."
+      },
+      "differsFromBrief": "The brief is right about the Crusade block, but the catalogue cannot yet express it: sub-block ranges are dropped on import, so subset and the \"Crusade Silver\" parallel cannot be matched. Card-level match is still Confirmed (product + number + player)."
+    },
+    {
+      "fixture": 18,
+      "storeProductId": 28102,
+      "input": {
+        "store": "spnz",
+        "title": "2023-24 Panini Contenders #26 Kyrie Irving Super Natural",
+        "description": " 2023-24 Panini Contenders #26 \n Kyrie Irving Super Natural ",
+        "url": "https://sportscards.co.nz/products/2023-24-panini-contenders-26-kyrie-irving-super-natural",
+        "handle": "2023-24-panini-contenders-26-kyrie-irving-super-natural",
+        "productType": "NBA Sports Card",
+        "tags": [
+          "Dallas Mavericks",
+          "Kyrie Irving",
+          "Raw"
+        ],
+        "vendor": "Sportscard Investor NZ",
+        "price": "5.00",
+        "imageUrl": "https://cdn.shopify.com/s/files/1/0804/1322/9346/files/Photoroom-20240728-104835.png?v=1722121522"
+      },
+      "expected": {
+        "outcome": "confirmed",
+        "unmatchedReason": null,
+        "itemType": "single_card",
+        "sport": "basketball",
+        "sportSource": "catalogue_product_match",
+        "product": {
+          "season": "2023-24",
+          "productLine": "Contenders"
+        },
+        "subset": {
+          "name": "Supernatural",
+          "kind": "insert"
+        },
+        "cardNumber": "26",
+        "players": [
+          {
+            "name": "Kyrie Irving",
+            "status": "stated",
+            "source": "title"
+          }
+        ],
+        "parallel": {
+          "name": null,
+          "serialLimit": null,
+          "status": "none"
+        },
+        "isRookie": {
+          "value": false,
+          "source": "none"
+        },
+        "isAutograph": null,
+        "flags": [],
+        "reasons": [
+          "\"Super Natural\" matched to catalogued \"Supernatural\" ignoring the space",
+          "No serial in the listing, so the base insert"
+        ]
+      },
+      "catalogueCheck": {
+        "status": "verified",
+        "detail": "2023-24 Contenders subset \"Supernatural\" #26 = Kyrie Irving. Catalogued parallels: Championship Edition /1, Cracked Ice /25, Playoff Ticket /99."
+      },
+      "differsFromBrief": "The brief says Supernatural is \"numbered 99 down to 1\". The catalogue lists those as separate parallels (Playoff Ticket /99, Cracked Ice /25, Championship Edition /1); the unnumbered listing is the base insert."
+    },
+    {
+      "fixture": 19,
+      "storeProductId": 33928,
+      "input": {
+        "store": "spnz",
+        "title": "2020-21 Panini Hoops #20 JA Morant Sky View",
+        "description": " 2020-21 Panini Hoops #20  \n JA Morant Sky View ",
+        "url": "https://sportscards.co.nz/products/2020-21-panini-hoops-20-ja-morant-sky-view",
+        "handle": "2020-21-panini-hoops-20-ja-morant-sky-view",
+        "productType": "NBA Sports Card",
+        "tags": [
+          "JA Morant",
+          "Memphis Grizzlies",
+          "Raw"
+        ],
+        "vendor": "Sportscard Investor NZ",
+        "price": "5.00",
+        "imageUrl": "https://cdn.shopify.com/s/files/1/0804/1322/9346/files/20231014-163502.jpg?v=1697256430"
+      },
+      "expected": {
+        "outcome": "possible",
+        "unmatchedReason": null,
+        "itemType": "single_card",
+        "sport": "basketball",
+        "sportSource": "catalogue_product_match",
+        "product": {
+          "season": "2021-22",
+          "productLine": "Hoops"
+        },
+        "subset": {
+          "name": "Skyview",
+          "kind": "insert"
+        },
+        "cardNumber": "20",
+        "players": [
+          {
+            "name": "Ja Morant",
+            "status": "stated",
+            "source": "title"
+          }
+        ],
+        "parallel": {
+          "name": null,
+          "serialLimit": null,
+          "status": "none"
+        },
+        "isRookie": {
+          "value": false,
+          "source": "none"
+        },
+        "isAutograph": null,
+        "flags": [
+          "year_widened: title says 2020-21, catalogue has Skyview #20 Ja Morant in 2021-22"
+        ],
+        "reasons": [
+          "Year widened by one season and recorded",
+          "Skyview exists only in 2021-22 Hoops"
+        ]
+      },
+      "catalogueCheck": {
+        "status": "verified",
+        "detail": "2021-22 Hoops subset \"Skyview\" #20 = Ja Morant (parallels: Green Ice, Holo, Winter, Winter Holo). 2020-21 Hoops #20 is Aron Baynes (base) and has no Skyview."
+      },
+      "differsFromBrief": null
+    },
+    {
+      "fixture": 20,
+      "storeProductId": 188894,
+      "input": {
+        "store": "spnz",
+        "title": "2002 Upper Deck #79 Kobe Bryant MVP",
+        "description": " 2002 Upper Deck #79 \n Kobe Bryant MVP ",
+        "url": "https://sportscards.co.nz/products/2009-10-upper-deck-79-kobe-bryant-copy",
+        "handle": "2009-10-upper-deck-79-kobe-bryant-copy",
+        "productType": "NBA Sports Card",
+        "tags": [
+          "Kobe Bryant",
+          "lakers",
+          "Raw"
+        ],
+        "vendor": "Sportscard Investor NZ",
+        "price": "20.00",
+        "imageUrl": "https://cdn.shopify.com/s/files/1/0804/1322/9346/files/rn-image_picker_lib_temp_5829b91f-cece-4336-a1b4-0bf526840271.png?v=1788073748"
+      },
+      "expected": {
+        "outcome": "unmatched",
+        "unmatchedReason": "catalogue_gap",
+        "itemType": "single_card",
+        "sport": "basketball",
+        "sportSource": "player_evidence (Kobe Bryant)",
+        "product": null,
+        "subset": null,
+        "cardNumber": "79",
+        "players": [
+          {
+            "name": "Kobe Bryant",
+            "status": "stated",
+            "source": "title"
+          }
+        ],
+        "parallel": {
+          "name": null,
+          "serialLimit": null,
+          "status": "none"
+        },
+        "isRookie": {
+          "value": false,
+          "source": "none"
+        },
+        "isAutograph": null,
+        "flags": [
+          "slug_year_conflict_ignored (2009-10, \"-copy\")",
+          "mvp_is_product_name (unverified)"
+        ],
+        "reasons": [
+          "2002-03 Upper Deck MVP is not in the catalogue"
+        ],
+        "expectedOnceCatalogued": "confirmed: 2002-03 Upper Deck MVP #79 Kobe Bryant (as in the brief)."
+      },
+      "catalogueCheck": {
+        "status": "not_in_catalogue",
+        "detail": "Not catalogued, unverified."
+      },
+      "differsFromBrief": null
+    }
+  ]
+}
