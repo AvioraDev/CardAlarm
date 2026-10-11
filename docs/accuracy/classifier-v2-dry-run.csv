@@ -1,0 +1,401 @@
+store_product_id,title,old_status,old_product,old_card_matched,new_status,new_product,new_card,matched_fields,reasons
+47,2025 Panini Combat Anthology - Blue Fireworks #67 Liz Carmouche /125,out_of_scope,,no,out_of_scope,,,,product_not_in_catalogue
+89,2025 Topps Universe WWE #182 Legends - Stacy Keibler,out_of_scope,,no,out_of_scope,,,,player_not_in_product
+168,2024-25 Panini Revolution - Blue Storm #97 Fred VanVleet,accepted,Revolution,yes,accepted,2024-25 Revolution,#97 Fred VanVleet (Base Set),"product,player,card_number,subset,parallel",
+189,2024-25 Panini Revolution - Blue Storm #117 KJ Simpson Jr.,accepted,Revolution,yes,accepted,2024-25 Revolution,#117 KJ Simpson Jr. (Base Set),"product,player,card_number,subset,parallel",
+217,2024-25 Panini Revolution - Hardwood Legacy #11 Kareem Abdul-Jabbar,accepted,Revolution,yes,accepted,2024-25 Revolution,#11 Kareem Abdul-Jabbar (Hardwood Legacy),"product,player,card_number,subset",
+270,2024-25 Panini Prizm Blue Sparkle Prizm #153 Khris Middleton /144,accepted,Prizm,yes,accepted,2024-25 Prizm,#153 Khris Middleton (Base Set),"product,player,card_number,subset,parallel,serial_limit",
+276,2024-25 Panini Select Blue Scope Prizm #58 Keldon Johnson /249,accepted,,no,possible,2024-25 Prizm,,"product,player",card_number_not_for_this_player
+288,2024-25 Panini Donruss International Red Stars #30 Cam Reddish /125,accepted,,no,accepted,2024-25 Donruss,#30 Cam Reddish (Base Set),"product,player,card_number,subset,parallel,serial_limit",
+307,2024-25 Panini Donruss Optic - White Hot Rookies #14 Alexandre Sarr,accepted,Donruss Optic,yes,accepted,2024-25 Donruss Optic,#14 Alexandre Sarr (White Hot Rookies),"product,player,card_number,subset",parallel_unknown
+330,2024-25 Panini Donruss Optic - White Hot Rookies - Purple Prizm #7 Tristan da Silva,needs_review,Donruss Optic,yes,accepted,2024-25 Donruss Optic,#7 Tristan da Silva (White Hot Rookies),"product,player,card_number,subset",parallel_unknown
+353,2024-25 Panini Mosaic Fluorescent Purple Mosaic Prizm #30 Ben Simmons /249,accepted,,no,possible,2024-25 Prizm,,"product,player",card_number_not_for_this_player
+634,"2023 Panini Select WWE Silver Prizm #118 ""Rowdy"" Roddy Piper",out_of_scope,,no,out_of_scope,,,,product_candidate_rejected ; no_player
+678,2021 Topps - Major League Materials #MLM-FT Fernando Tatis Jr.,out_of_scope,,no,out_of_scope,,,,product_not_in_catalogue
+705,2010-11 Panini Gold Standard #25 Al Horford /299,accepted,,no,unmatched,,,,product_not_in_catalogue
+734,2017-18 Panini NBA Hoops #291 Kobe Bryant Career Tribute - Kobe Bryant,accepted,,no,unmatched,,,,product_not_in_catalogue
+756,2021-22 Panini Donruss Optic Pink Velocity Prizm #96 Kyrie Irving /79,accepted,Donruss Optic,yes,accepted,2021-22 Donruss Optic,#96 Kyrie Irving (Base Set),"product,player,card_number,subset,parallel,serial_limit",
+782,2020 Panini Contenders - Rookie Ticket Swatches Variation #RSV-LSH  Laviska Shenault Jr.,out_of_scope,,no,out_of_scope,,,,product_not_in_catalogue
+789,2020 Panini Limited - Rookie Jumbo Jerseys #RJ-CA Cam Akers /199,out_of_scope,,no,out_of_scope,,,,product_not_in_catalogue
+808,2007-08 Upper Deck Sweet Shot #80 Rashard Lewis /350,accepted,,no,unmatched,,,,product_not_in_catalogue
+885,2022 Topps Series 1 - Diamond Greats Die-Cuts - Black #DGDC-14 Vladimir Guerrero /299,out_of_scope,,no,out_of_scope,,,,product_not_in_catalogue
+904,2008-09 Upper Deck MVP - Kobe Bryant MVP - Black Border #KB-85 Kobe Bryant,accepted,,no,unmatched,,,,product_not_in_catalogue
+933,2018-19 Panini NBA Hoops #296 Hoops Tribute - Kobe Bryant,accepted,,no,unmatched,,,,product_not_in_catalogue
+937,2015-16 Panini Excalibur - Team Titans #10 Kobe Bryant,accepted,,no,unmatched,,,,product_not_in_catalogue
+958,2016-17 Panini Totally Certified - Energizers #8 Stephen Curry,accepted,,no,unmatched,,,,product_not_in_catalogue
+965,2018-19 Panini Certified - Priority Mail #PM-7 LeBron James,accepted,,no,unmatched,,,,product_not_in_catalogue
+1043,2024 Panini Photogenic WWE #176 The Hurricane,out_of_scope,,no,out_of_scope,,,,product_not_in_catalogue
+1170,2025-26 Premier League #384 Eric Cantona,out_of_scope,,no,out_of_scope,,,,product_not_in_catalogue
+1203,2020-21 Panini Revolution - Liftoff! #7 Ja Morant,accepted,Revolution,yes,accepted,2020-21 Revolution,#7 Ja Morant (Liftoff!),"product,player,card_number,subset",
+1222,2020-21 Panini Revolution - Shock Wave #8 Devin Booker,accepted,Revolution,yes,accepted,2020-21 Revolution,#8 Devin Booker (Shock Wave),"product,player,card_number,subset",
+1224,2020-21 Panini Revolution - Shock Wave #18 Stephen Curry,accepted,Revolution,yes,accepted,2020-21 Revolution,#18 Stephen Curry (Shock Wave),"product,player,card_number,subset",
+1239,2024-25 Panini NBA Hoops - #296 Hoops Tribute - Shaquille O'Neal,accepted,Hoops,yes,accepted,2024-25 Hoops,#296 Shaquille O'Neal (Base Set),"product,player,card_number,subset",parallel_unknown
+1255,2024-25 Panini Select - En Fuego #9 Luka Doncic,accepted,,no,unmatched,,,,product_not_in_catalogue
+1259,2024-25 Panini Court Kings - Self Expression #11 Luka Doncic,accepted,,no,unmatched,,,,product_not_in_catalogue
+1308,2022 Topps Archives - Topps Postcards #PC-1 Mike Trout,out_of_scope,,no,out_of_scope,,,,product_not_in_catalogue
+1319,2021-22 Topps Museum Collection UCL - Gold #44 Federico Chiesa /50,out_of_scope,,no,out_of_scope,,,,product_not_in_catalogue
+1362,2020 Panini Donruss Elite #9 Josh Allen,out_of_scope,,no,out_of_scope,,,,player_not_in_product
+1410,2023-24 Donruss Elite - Orange #239 Rayan Rupert RC,needs_review,Donruss Elite,no,possible,2023-24 Donruss Elite,,"product,player,parallel",subset_unresolved
+1464,2017 Upper Deck Marvel Guardians of the Galaxy Volume 2 - Galactic Garb #SM-19 Drax,out_of_scope,,no,out_of_scope,,,,product_not_in_catalogue ; no_player
+1518,2022 Panini Mosaic #294 Super Bowl MVPs - Aaron Rodgers,out_of_scope,,no,out_of_scope,,,,product_candidate_rejected
+1548,2024 Parkside NTT IndyCar Premier Edition - Iconic Images #II-13 Scott Dixon,out_of_scope,,no,out_of_scope,,,,product_not_in_catalogue
+1597,2023-24 Panini Donruss Optic - Holo Fast Break Prizm #19 Nikola Jokic,accepted,Donruss Optic,yes,accepted,2023-24 Donruss Optic,#19 Nikola Jokic (Base Set),"product,player,card_number,subset,parallel",
+1683,2023 Panini Select - Silver Prizm #95 Concourse - Derrick Henry,out_of_scope,,no,out_of_scope,,,,player_not_in_product
+1733,2022-23 Donruss Elite - Full Throttle #5 Trae Young,accepted,Donruss Elite,yes,accepted,2022-23 Donruss Elite,#5 Trae Young (Full Throttle),"product,player,card_number,subset",
+1745,2018-19 Panini NBA Hoops #297 Hoops Tribute - Kareem Abdul-Jabbar,accepted,,no,unmatched,,,,product_not_in_catalogue
+1817,2022 Panini Rookies & Stars - Star Search #SS-MC  Matt Corral,out_of_scope,,no,out_of_scope,,,,product_not_in_catalogue
+1864,2005-06 Ultimate Collection - Blue #62 Damon Stoudamire /125,accepted,,no,unmatched,,,,product_not_in_catalogue
+1913,2022 Upper Deck Marvel Allure - Yellow Taxi #66 Taika Waititi as Korg,out_of_scope,,no,out_of_scope,,,,product_not_in_catalogue
+1919,2022 Upper Deck Marvel Allure - Red Prism #36 Zoe Saldana as Gamora,out_of_scope,,no,out_of_scope,,,,product_not_in_catalogue
+1957,1998-99 Upper Deck #164 To The Net - Shaquille O'Neal,accepted,,no,unmatched,,,,product_not_in_catalogue
+2069,2022-23 Panini Mosaic - Silver Fast Break Prizm #129 Josh Giddey,accepted,Mosaic,yes,accepted,2022-23 Mosaic,#129 Josh Giddey (Base Set),"product,player,card_number,subset",parallel_unknown
+2070,2022-23 Panini Mosaic - Green Mosaic Prizm #129 Josh Giddey,accepted,Mosaic,yes,accepted,2022-23 Mosaic,#129 Josh Giddey (Base Set),"product,player,card_number,subset,parallel",
+2168,2017-18 Panini Contenders #96 Season Ticket - Devin Booker,accepted,,no,unmatched,,,,product_not_in_catalogue
+2186,"2023 Panini Prizm WWE - Top Tier #17 ""The American Nightmare"" Cody Rhodes",out_of_scope,,no,out_of_scope,,,,product_candidate_rejected
+2214,2016-17 Panini Prizm Mosaic - Red #84 Vince Carter,accepted,,no,unmatched,,,,product_not_in_catalogue
+2258,2019-20 Panini Court Kings #4 Karl-Anthony Towns,accepted,,no,unmatched,,,,product_not_in_catalogue
+2334,1999-00 Upper Deck Ionix #39 Allen Iverson,accepted,,no,unmatched,,,,product_not_in_catalogue
+2383,2020-21 Panini Contenders - Game Ticket Green #92 Carmelo Anthony,accepted,,no,unmatched,,,,product_not_in_catalogue
+2403,2016-17 Panini Grand Reserve #36 Carmelo Anthony,accepted,,no,unmatched,,,,product_not_in_catalogue
+2409,2016-17 Panini NBA Hoops - Lights Camera Action #14 Carmelo Anthony,accepted,,no,unmatched,,,,product_not_in_catalogue
+2411,2010-11 Panini Threads #109 Carmelo Anthony,accepted,,no,unmatched,,,,product_not_in_catalogue
+2440,1995-96 Skybox Premium #301 Magic Johnson,accepted,,no,unmatched,,,,product_not_in_catalogue
+2448,1992 Skybox USA #29 Magic Johnson,accepted,,no,unmatched,,,,product_not_in_catalogue
+2458,1996-97 Upper Deck UD3 #45 Aerial Artists - Brent Barry,accepted,,no,unmatched,,,,product_not_in_catalogue
+2567,2017-18 Panini Spectra - Red Prizm #50 Dwight Howard /75,accepted,,no,unmatched,,,,product_not_in_catalogue
+2568,2019-20 Panini Prizm - Fast Break Red Prizm #29 Paul Pierce /125,accepted,,no,unmatched,,,,product_not_in_catalogue
+2643,2022-23 Panini Select - Blue Prizm #24 Concourse - Zion Williamson,accepted,Select,yes,accepted,2022-23 Select,#24 Zion Williamson (Base Set),"product,player,card_number,subset",parallel_unknown
+2781,1997-98 NBA Hoops - Frequent Flyer #18 Marcus Camby,accepted,,no,unmatched,,,,product_not_in_catalogue
+2835,2022 Panini Select WWE - Silver Prizm #177 Premier Level - Becky Lynch,out_of_scope,,no,out_of_scope,,,,product_candidate_rejected
+2837,2022 Panini Select WWE - Orange Flash Prizm #53 Concourse - Becky Lynch,out_of_scope,,no,out_of_scope,,,,product_candidate_rejected
+2880,1998 SkyBox Marvel Creators Collection - Sketchboard Redemptions - Yellow #7 Thor,out_of_scope,,no,out_of_scope,,,,product_not_in_catalogue ; no_player
+2899,2000-01 Fleer Premium #56 Scottie Pippen,accepted,,no,unmatched,,,,product_not_in_catalogue
+2974,2022-23 Panini Crown Royale #30 Anthony Davis,accepted,,no,unmatched,,,,product_not_in_catalogue
+2996,2020-21 Panini Certified #34 Anthony Davis,accepted,Certified,yes,accepted,2020-21 Certified,#34 Anthony Davis (Base Set),"product,player,card_number,subset",
+2998,2019-20 Panini Revolution - Vortex #1 Anthony Davis,accepted,,no,unmatched,,,,product_not_in_catalogue
+3072,2021-22 Donruss Elite - Star Status #16 Stephen Curry,accepted,,no,accepted,2021-22 Elite,#16 Stephen Curry (Star Status),"product,player,card_number,subset",
+3080,2022-23 Donruss Elite #98 Stephen Curry,accepted,Donruss Elite,yes,accepted,2022-23 Donruss Elite,#98 Stephen Curry (Base Set),"product,player,card_number,subset",
+3180,2017-18 Panini NBA Hoops - Highlights #14 Giannis Antetokounmpo,accepted,,no,unmatched,,,,product_not_in_catalogue
+3252,1994-95 SP Championship Series - Die-Cut #60 Tim Hardaway,accepted,,no,unmatched,,,,product_not_in_catalogue
+3261,2019-20 Panini Contenders Optic - Red Prizm #3 Season Ticket - Bradley Beal,accepted,,no,unmatched,,,,product_not_in_catalogue
+3287,2021-22 Panini Chronicles - #252  Luminance - Evan Mobley RC,accepted,Chronicles,yes,accepted,2021-22 Chronicles,#252 Evan Mobley (Base Set),"product,player,card_number,subset",parallel_unknown
+3314,1995-96 NBA Hoops #68 Reggie Miller,accepted,,no,unmatched,,,,product_not_in_catalogue
+3324,2004-05 SP Game Used - Authentic Fabrics #AF-CB Caron Butler,accepted,,no,unmatched,,,,product_not_in_catalogue
+3328,2017-18 Panini Prestige - Micro Etch Rookies #43  Dillon Brooks,accepted,,no,unmatched,,,,product_not_in_catalogue
+3391,"1996-97 Upper Deck Collector's Choice #366 Assignment: Jordan - Gary Payton, Michael Jordan",needs_review,,no,unmatched,,,,product_not_in_catalogue
+3493,2022-23 Panini Select #99  Concourse - Jaylin Williams RC,accepted,Select,yes,accepted,2022-23 Select,#99 Jaylin Williams (Base Set),"product,player,card_number,subset",parallel_unknown
+3582,2022 Panini Select WWE - Red and Blue #31 Concourse - Jimmy Uso,out_of_scope,,no,out_of_scope,,,,product_candidate_rejected
+3646,1996-97 Upper Deck - Redemption Predictors Series 1 #P13 Clarence Weatherspoon,accepted,,no,unmatched,,,,product_not_in_catalogue
+3682,2018-19 Panini Select - Tri-Color Prizm #159 Premier Level - T.J. Warren,accepted,,no,unmatched,,,,product_not_in_catalogue
+3687,2019-20 Panini Chronicles #592  Flux - Jaxson Hayes RC,accepted,Chronicles,yes,accepted,2019-20 Chronicles,#592 Jaxson Hayes (Base set),"product,player,card_number,subset",parallel_unknown
+3780,2018-19 Panini Certified - Certified Future #CF-1  Deandre Ayton,accepted,,no,unmatched,,,,product_not_in_catalogue
+3880,2022 Panini Select WWE - NXT 2.0 - Flash Prizm #10 Jordan Devlin,out_of_scope,,no,out_of_scope,,,,product_candidate_rejected
+3945,2021-22 Panini Donruss - Holo Orange Laser #43 Tyrese Haliburton,accepted,Donruss,yes,accepted,2021-22 Donruss,#43 Tyrese Haliburton (Base Set),"product,player,card_number,subset,parallel",
+4090,1995-96 Upper Deck Collector's Choice - Prize Crash the Game - Gold Scoring #C4 Dana Barros,accepted,,no,unmatched,,,,product_not_in_catalogue
+4149,2018-19 Panini Prizm - Freshman Phenoms - Silver Prizm #16  Mikal Bridges,accepted,,no,unmatched,,,,product_not_in_catalogue
+4187,1994-95 Topps Stadium Club #362 Chris Webber,accepted,,no,unmatched,,,,product_not_in_catalogue
+4209,2020-21 Panini Donruss Optic #101 Kyrie Irving,accepted,Donruss Optic,no,possible,2020-21 Donruss Optic,,"product,player",card_number_not_for_this_player
+4214,2016-17 Panini NBA Hoops - End 2 End #3 Kyrie Irving,accepted,,no,unmatched,,,,product_not_in_catalogue
+4220,2021 Panini Select UFC #134 Premier Level - Israel Adesanya,out_of_scope,,no,out_of_scope,,,,product_candidate_rejected
+4266,2021-22 Panini Chronicles #305 Essentials - Stephen Curry,accepted,Chronicles,yes,accepted,2021-22 Chronicles,#305 Stephen Curry (Base Set),"product,player,card_number,subset",parallel_unknown
+4332,2020-21 Panini Flux #169 Donovan Mitchell,accepted,Flux,yes,accepted,2020-21 Flux,#169 Donovan Mitchell (Base Set),"product,player,card_number,subset",
+4362,2020-21 Panini Mosaic - Will to Win - Mosaic Prizm #19 Domantas Sabonis,accepted,Mosaic,yes,accepted,2020-21 Mosaic,#19 Domantas Sabonis (Will to Win),"product,player,card_number,subset",parallel_unknown
+4376,2019-20 Panini NBA Hoops Premium Stock - Red Cracked Ice Prizm #27 - Lauri Markkanen,accepted,,no,unmatched,,,,product_not_in_catalogue
+4382,2020-21 Panini Flux - Silver #182 Larry Bird,accepted,Flux,yes,accepted,2020-21 Flux,#182 Larry Bird (Base Set),"product,player,card_number,subset,parallel",
+4417,2016-17 Panini Excalibur #43 Nikola Jokic,accepted,,no,unmatched,,,,product_not_in_catalogue
+4429,2019-20 Panini Status - Trophy Club #1 Dwyane Wade,accepted,,no,unmatched,,,,product_not_in_catalogue
+4431,2021-22 Panini Contenders - International Ticket #20 Dirk Nowitzki,accepted,,no,unmatched,,,,product_not_in_catalogue
+4453,2021-22 Panini Court Kings #92 - Rookies I - Franz Wagner RC,accepted,Court Kings,yes,accepted,2021-22 Court Kings,#92 Franz Wagner (Base Set),"product,player,card_number,subset",
+4485,2019-20 Panini NBA Hoops Premium Stock - Silver Prizm #10 Terry Rozier,accepted,,no,unmatched,,,,product_not_in_catalogue
+4491,2021-22 Panini Court Kings - Artistry in Motion #11 Donovan Mitchell,accepted,Court Kings,yes,accepted,2021-22 Court Kings,#11 Donovan Mitchell (Artistry in Motion),"product,player,card_number,subset",
+4665,1996-97 NBA Hoops - NBA Rookie #19 Jeff McInnis,accepted,,no,unmatched,,,,product_not_in_catalogue
+4859,2005-06 Bowman Draft Picks & Prospects - Bravo! #BV-DH Dwight Howard,accepted,,no,unmatched,,,,product_not_in_catalogue
+4864,2007-08 Fleer Hot Prospects - Hot Materials #HM-AS Amar'e Stoudemire,accepted,,no,unmatched,,,,product_not_in_catalogue
+4916,1997-98 Metal Universe Championship Preview #53 Rod Strickland,accepted,,no,unmatched,,,,product_not_in_catalogue
+4920,1997-98 Metal Universe Championship Preview #12 Steve Smith,needs_review,,no,unmatched,,,,product_not_in_catalogue
+4964,1995-96 Flair #38 Allan Houston,accepted,,no,unmatched,,,,product_not_in_catalogue
+4985,1995-96 Topps - Pan For Gold #PFG9 Karl Malone,accepted,,no,unmatched,,,,product_not_in_catalogue
+5059,1994-95 NBA Hoops #413 Sacramento Kings,needs_review,,no,unmatched,,,,product_not_in_catalogue ; no_player
+5079,1996-97 Fleer Metal #66 John Starks,accepted,,no,unmatched,,,,product_not_in_catalogue
+5121,2021-22 Panini Prizm - Ice Prizm #265 - Hakeem Olajuwon,accepted,Prizm,yes,accepted,2021-22 Prizm,#265 Hakeem Olajuwon (Base Set),"product,player,card_number,subset,parallel",
+5126,2021 Panini Chronicles UFC #60 Luminance - Israel Adesanya,out_of_scope,,no,out_of_scope,,,,product_candidate_rejected
+5175,2020-21 Panini Mosaic - Mosaic Camo Pink Prizm #7 Kevin Durant,accepted,Mosaic,yes,accepted,2020-21 Mosaic,#7 Kevin Durant (Base Set),"product,player,card_number,subset,parallel",
+5275,2020-21 Panini Prizm - Blue Wave Prizm #154 Carmelo Anthony,accepted,Prizm,yes,accepted,2020-21 Prizm,#154 Carmelo Anthony (Base Set),"product,player,card_number,subset,parallel",
+5330,2019-20 Panini Select - Tmall Red Wave Prizm #9  Concourse - Zach Norvell Jr. RC,accepted,,no,unmatched,,,,product_not_in_catalogue
+5465,2008-09 Skybox - Paraph Signatures #PS-AT Alando Tucker,accepted,,no,unmatched,,,,product_not_in_catalogue
+5467,2017-18 Panini Spectra - Locked In Autographs #LI-PMS Paul Millsap /99,accepted,,no,unmatched,,,,product_not_in_catalogue
+5468,2014-15 Panini Gala - Cinematic Signatures #26 Mike Muscala /60,accepted,,no,unmatched,,,,product_not_in_catalogue
+5508,2004-05 Upper Deck Finite - Redemption Replacements Signatures #FS-LU  Luke Jackson,needs_review,,no,unmatched,,,,product_not_in_catalogue
+5523,2020-21 Panini Mosaic - Mosaic Green Prizm #292 All-Time Greats - Allen Iverson,accepted,Mosaic,yes,accepted,2020-21 Mosaic,#292 Allen Iverson (Base Set),"product,player,card_number,subset",parallel_unknown
+5630,1995-96 Topps - Pan For Gold #PFG11 David Robinson,accepted,,no,unmatched,,,,product_not_in_catalogue
+5770,2005-06 Upper Deck NBA Reflections #56 Kevin Garnett,accepted,,no,unmatched,,,,product_not_in_catalogue
+5780,2005-06 Bowman Draft Picks & Prospects Chrome #110 Kevin Garnett,accepted,,no,unmatched,,,,product_not_in_catalogue
+5830,2018-19 Panini Prizm - Ruby Wave Prizm #69 Steven Adams,accepted,,no,unmatched,,,,product_not_in_catalogue
+5870,2014-15 Panini Prizm - Orange Die-Cut Prizms #31 David Lee /139,accepted,,no,unmatched,,,,product_not_in_catalogue
+5961,2018-19 Panini Donruss Optic - Retro Series #28 Steve Nash,accepted,,no,unmatched,,,,product_not_in_catalogue
+5976,1995-96 Fleer Metal #161 Magic Johnson,accepted,,no,unmatched,,,,product_not_in_catalogue
+5996,2021-22 Donruss Elite #141 Zion Williamson,accepted,,no,accepted,2021-22 Elite,#141 Zion Williamson (Base Set),"product,player,card_number,subset",
+6003,1995-96 Fleer - Class Encounters #6 Jason Kidd,accepted,,no,unmatched,,,,product_not_in_catalogue
+6015,2015-16 Panini Prizm - Ruby Wave Prizm #273 Chris Mullin /350,accepted,,no,unmatched,,,,product_not_in_catalogue
+6037,2021-22 Donruss Elite #136 Klay Thompson,accepted,,no,accepted,2021-22 Elite,#136 Klay Thompson (Base Set),"product,player,card_number,subset",
+6085,2018-19 Panini Prizm #61 Anfernee Simons RC,accepted,,no,unmatched,,,,product_not_in_catalogue
+6112,"2005-06 Topps Finest - Finest Fact #FF20 Allen Iverson /1,899",accepted,,no,unmatched,,,,product_not_in_catalogue
+6132,1994-95 Topps #260 Charles Barkley,accepted,,no,unmatched,,,,product_not_in_catalogue
+6149,2000-01 Topps Gold Label - Class 1 #78 Mike Bibby,accepted,,no,unmatched,,,,product_not_in_catalogue
+6258,2013 Pokémon - XY Kalos Starter Set #23 Granbull,out_of_scope,,no,out_of_scope,,,,product_not_in_catalogue ; no_player
+6375,2019-20 Panini Prizm #6 Allen Iverson,accepted,,no,unmatched,,,,product_not_in_catalogue
+6432,2020-21 Panini Mosaic - Mosaic Red Wave Prizm #108 Brandon Clarke,accepted,Mosaic,yes,accepted,2020-21 Mosaic,#108 Brandon Clarke (Base Set),"product,player,card_number,subset",parallel_unknown
+6468,"2017-18 Panini Prizm - Red, White & Blue Prizms #199 Kyle Korver",accepted,,no,unmatched,,,,product_not_in_catalogue
+6470,2017-18 Panini Prizm - Silver Prizms #199 Kyle Korver,accepted,,no,unmatched,,,,product_not_in_catalogue
+6489,1996-97 Upper Deck - Generation Excitement - Die-Cut #G18 Shawn Kemp,accepted,,no,unmatched,,,,product_not_in_catalogue
+6544,2002-03 Fleer Genuine - Global Warning #GW7 Hakeem Olajuwon,accepted,,no,unmatched,,,,product_not_in_catalogue
+6551,2006-07 Topps Triple Threads - Relics #TTR-17 Ben Wallace /36,accepted,,no,unmatched,,,,product_not_in_catalogue
+6606,2012-13 Fleer Retro - 1997-98 Z-Force Rave #Z-42 Julius Erving /399,accepted,,no,unmatched,,,,product_not_in_catalogue
+6613,2016-17 Panini Absolute #159 Retired - Nick Van Exel /999,accepted,,no,unmatched,,,,product_not_in_catalogue
+6623,"2009-10 Topps - Gold #126 Derek Fisher /2,009",accepted,,no,unmatched,,,,product_not_in_catalogue
+6624,2002-03 Upper Deck UD Authentics - Gold #37 Derek Fisher /250,accepted,,no,unmatched,,,,product_not_in_catalogue
+6663,2009-10 Topps - Chrome #13 Ben Gordon /999,accepted,,no,unmatched,,,,product_not_in_catalogue
+6674,2018-19 Panini Prizm - Signatures #S-BLP Brook Lopez,accepted,,no,unmatched,,,,product_not_in_catalogue
+6676,2013-14 Totally Certified - Signatures - Totally Blue #161 - Enes Kanter /5,accepted,,no,unmatched,,,,product_not_in_catalogue
+6707,2018-19 Panini Crown Royale - Crown Autographs #CA-ZRD Zach Randolph /99,accepted,,no,unmatched,,,,product_not_in_catalogue
+6718,2019-20 Panini Donruss - Jersey Series #JS-SAM Steven Adams,accepted,,no,unmatched,,,,product_not_in_catalogue
+6759,2013-14 Panini Signatures - Film - Green #72 - Glen Davis /5,accepted,,no,unmatched,,,,product_not_in_catalogue
+6790,"2017-18 Panini Prizm Red, White & Blue Prizms #167 - Jamal Murray",accepted,,no,unmatched,,,,product_not_in_catalogue
+6810,2014-15 Panini Prizm Green Prizms #286 - Dwight Powell RC,accepted,,no,unmatched,,,,product_not_in_catalogue
+6818,2013-14 Totally Certified - Rookie Roll Call Signatures - Silver #7 - Peyton Siva,accepted,,no,unmatched,,,,product_not_in_catalogue
+6831,2016-17 Panini Donruss Optic Checkerboard Prizm #109 - Norman Powell,accepted,,no,unmatched,,,,product_not_in_catalogue
+6866,2018-19 Panini Status - Top Status #11 Patrick Ewing,accepted,,no,unmatched,,,,product_not_in_catalogue
+6899,1996 Fleer USA Basketball - Heroes #7 - Scottie Pippen,accepted,,no,unmatched,,,,product_not_in_catalogue
+6919,2020-21 Panini Donruss Optic - Signature Series - Purple Prizm #SS-TBR.1 - Tony Bradley,accepted,Donruss Optic,yes,possible,2020-21 Donruss Optic,,"product,player",card_number_not_for_this_player
+7046,2019-20 Panini Prizm Silver Prizm #14 - Shawn Kemp,accepted,,no,unmatched,,,,product_not_in_catalogue
+7047,2012-13 Panini Prizm #197 - Shawn Kemp,accepted,,no,unmatched,,,,product_not_in_catalogue
+7051,1999-00 Fleer Focus Masterpiece Mania #45 - Zydrunas Ilgauskas /300,accepted,,no,unmatched,,,,product_not_in_catalogue
+24665,2026 Footy Stars Octane Gold /315,needs_review,,no,unmatched,,,,product_not_in_catalogue
+24746,2017 All Blacks Limited Edition /150,out_of_scope,,no,out_of_scope,,,,product_not_in_catalogue
+24818,Panini Elite 2023-24 Spellbound ‘U’ RC Insert,accepted,,no,unmatched,,,,product_not_in_catalogue
+24937,2023 Topps Update Chrome Blue /150,out_of_scope,,no,out_of_scope,,,,product_not_in_catalogue
+24942,2023-24 Prizm Premier League Snakeskin,out_of_scope,,no,out_of_scope,,,,player_not_in_product
+24986,2025 Topps Chrome Sapphire Gold /50,out_of_scope,,no,out_of_scope,,,,product_candidate_rejected
+25029,Select Card Armour 55pt Top Loaders (25 pack),out_of_scope,,no,out_of_scope,,,,product_candidate_rejected ; no_player
+25049,Select Courtside Goldwave /10,accepted,,no,unmatched,,,,product_candidate_rejected
+25130,Panini LIV Golf 2025 International Hobby Box,out_of_scope,,no,out_of_scope,,,,product_not_in_catalogue ; no_player
+25252,Funko Pop #172,out_of_scope,,no,out_of_scope,,,,product_not_in_catalogue
+25259,Funko Pop #162,out_of_scope,,no,out_of_scope,,,,product_not_in_catalogue
+25266,Funko Pop #141,out_of_scope,,no,out_of_scope,,,,product_not_in_catalogue
+25404,A3 Poster/Print Toploader (Clear),out_of_scope,,no,out_of_scope,,,,product_not_in_catalogue ; no_player
+25407,Panini NFL Contenders 2021 Blaster Box,out_of_scope,,no,out_of_scope,,,,product_not_in_catalogue ; no_player
+25413,Panini Select football 2020 Silver Prizm Premier Level Rookie,out_of_scope,,no,out_of_scope,,,,player_not_in_product
+25449,BCW Trading Card Dividers (10 Pack),out_of_scope,,no,out_of_scope,,,,product_not_in_catalogue ; no_player
+25455,"A3 Custom Print (In A3 Toploader) ""Pumped""",out_of_scope,,no,out_of_scope,,,,product_not_in_catalogue
+25474,2025 Topps Finest #A-4 Kon Knueppel Rookie Card Arrivals,accepted,Finest,yes,accepted,2025-26 Finest,#A-4 Kon Knueppel (Arrivals),"product,player,card_number,subset",
+25515,2024-25 Panini Prizm #12 Luka Doncic Dominance Silver Prizm,accepted,Prizm,yes,accepted,2024-25 Prizm,#12 Luka Doncic (Dominance),"product,player,card_number,subset,parallel",
+25522,2024-25 Panini Donruss Optic #73 Kyle Lowry Purple Holo Prizm,accepted,Donruss Optic,yes,possible,2024-25 Donruss Optic,,"product,player",card_number_not_for_this_player
+25545,2025 Topps #203 VJ Edgecombe Rookie Card,accepted,,no,accepted,2025-26 Topps,#203 VJ Edgecombe (Base Set),"product,player,card_number,subset",
+25611,2025 Topps Chrome #191 Cason Wallace Refractor,accepted,,no,possible,2025-26 Topps,,"product,player",card_number_not_for_this_player
+25686,2017-18 Panini Donruss Optic #103 Steven Adams Lime Green Prizm 47/175,accepted,,no,unmatched,,,,product_not_in_catalogue
+25733,2024-25 Panini Noir #SS-SSM Marcus Smart Smoke Show On Card Autograph 14/15,accepted,,no,unmatched,,,,product_not_in_catalogue
+25757,1997 Upper Deck #19 Anfernee Hardaway Diamond Vision Signature Moves Holographic Card,accepted,,no,unmatched,,,,product_not_in_catalogue
+25769,2024-25 Panini Mosaic #238 Dalton Knecht Rookie Card,accepted,,no,unmatched,,,,product_not_in_catalogue
+25790,2024-25 Panini Prizm Black #4 Derrick Rose Luck Of The Lottery Silver Prizm,accepted,Prizm Black,yes,accepted,2024-25 Prizm Black,#4 Derrick Rose (Luck of the Lottery),"product,player,card_number,subset,parallel",
+25801,2025 Topps Chrome #TC-AN Asa Newell Rookie Card 45th Anniversary,accepted,,no,accepted,2025-26 Topps,#TC-AN Asa Newell (1980-81 Topps Chrome Basketball),"product,player,card_number,subset",
+25813,2024-25 Panini Obsidian #115 Lonzo Ball Orange Flood 053/125,accepted,,no,unmatched,,,,product_not_in_catalogue
+25864,2024-25 Panini Obsidian #29 Josh Giddey SP,accepted,,no,unmatched,,,,product_not_in_catalogue
+25908,2024-25 Panini Donruss Optic #148 Lebron James Purple Holo,accepted,Donruss Optic,yes,accepted,2024-25 Donruss Optic,#148 LeBron James (Base Set),"product,player,card_number,subset",parallel_unknown
+26024,2024-25 Panini Mosaic #MS-MMG Moses Moody Scipts Autograph,accepted,,no,unmatched,,,,product_not_in_catalogue
+26085,1991 Upper Deck #85 James Worthy Las Angeles Checklist,accepted,,no,unmatched,,,,product_not_in_catalogue
+26110,1994 Upper Deck #E10 Derrick Coleman One Time NBA All Star Die Cut,accepted,,no,unmatched,,,,product_not_in_catalogue
+26111,1994 Flair #16 Derrick Coleman USA Basketball Dreamscapes,accepted,,no,unmatched,,,,product_not_in_catalogue
+26199,2020-21 Panini Hoops #HR-RW2 Robert Woodward II Rookie Card Hot Signatures Red Checkerboard Autograph,accepted,Hoops,no,unmatched,,,,player_not_in_product
+26247,2024-25 Panini Revolution #47 Jalen Duren Fireworks 102/149,accepted,Revolution,yes,accepted,2024-25 Revolution,#47 Jalen Duren (Base Set),"product,player,card_number,subset,parallel,serial_limit",
+26269,2024-25 Panini Origins #11 Jordan Poole,accepted,Origins,yes,accepted,2024-25 Origins,#11 Jordan Poole (Base Set),"product,player,card_number,subset",
+26291,2024-25 Panini Origins #99 Devin Carter Rookie Card Red 284/299,accepted,Origins,yes,accepted,2024-25 Origins,#99 Devin Carter (Base Set),"product,player,card_number,subset,parallel,serial_limit",
+26370,1996-97 Fleer Ultra #64 Kevin Garnett,accepted,,no,unmatched,,,,product_not_in_catalogue
+26451,2023-24 Panini Recon #47 Josh Giddey Bronze 092/299,accepted,,no,unmatched,,,,product_not_in_catalogue
+26590,2023-24 Panini Phoenix #127 Dillon Brooks Silver Holo Scope,accepted,Phoenix,yes,accepted,2023-24 Phoenix,#127 Dillon Brooks (Base Set),"product,player,card_number,subset,parallel",
+26647,2024-25 Panini Hoops #14 Zach Lavine City Edition,accepted,Hoops,yes,accepted,2024-25 Hoops,#14 Zach LaVine (City Edition),"product,player,card_number,subset",
+26690,2024-25 Panini Hoops #6 JA Morant Nobility,accepted,Hoops,yes,accepted,2024-25 Hoops,#6 Ja Morant (Nobility),"product,player,card_number,subset",
+26691,2023-24 Panini Prizm Deca #DS-DLI Dereck Lively II Rookie Card Autograph,accepted,,no,possible,2023-24 Prizm,,"product,player",card_number_not_for_this_player
+26724,2023-24 Topps Finest #263 Rare Larry Johnson Checker Board,accepted,,no,unmatched,,,,product_not_in_catalogue
+26758,2022-23 Panini Flux #128 Marcus Morris SR Purple Prizm 24/75,accepted,Flux,yes,accepted,2022-23 Flux,#128 Marcus Morris Sr. (Base Set),"product,player,card_number,subset",parallel_unknown
+26759,2023-24 Panini Phoenix #101 Julius Randle Red Scope 56/75,accepted,Phoenix,yes,accepted,2023-24 Phoenix,#101 Julius Randle (Base Set),"product,player,card_number,subset",parallel_unknown
+26765,2023-24 Panini Impeccable #73 Fred VanVleet,accepted,,no,unmatched,,,,product_not_in_catalogue
+26948,2022-23 Panini Mosaic #17 Keegan Murray Rookie Card Breakaway,accepted,Mosaic,yes,accepted,2022-23 Mosaic,#17 Keegan Murray (Breakaway),"product,player,card_number,subset",
+27002,2023-24 Panini Photogenic #56 Draymond Green,accepted,,no,unmatched,,,,product_not_in_catalogue
+27007,2023-24 Panini Photogenic #54 Fred VanVleet,accepted,,no,unmatched,,,,product_not_in_catalogue
+27014,2020-21 Panini Hoops #29 Kevin Durant Lights Camera Action,accepted,Hoops,yes,accepted,2020-21 Hoops,"#29 Kevin Durant (Lights, Camera, Action)","product,player,card_number,subset",
+27089,2022-23 Panini Mosaic #3 Jalen Duren Rookie Card Introductions Mosaic Prizm,accepted,Mosaic,yes,accepted,2022-23 Mosaic,#3 Jalen Duren (Introductions),"product,player,card_number,subset",parallel_unknown
+27153,2023-24 Panini Select #100 Jamie Jaquez JR Rookie Card Green Flash Prizm,accepted,Select,yes,unmatched,,,,player_not_in_product
+27251,2023-24 Panini Hoops Premium Stock #291 Dereck Lively II Rookie Card Rising Stars,accepted,,no,possible,2023-24 Hoops,,"product,player",card_number_not_for_this_player
+27276,2023-24 Panini Recon #25 Colby Jones Rookie Card,accepted,,no,unmatched,,,,product_not_in_catalogue
+27379,2023-24 Panini Specrta #10 Draymond Green Cracked Ice Prizm 37/49,accepted,,no,possible,2023-24 Prizm,,"product,player",card_number_not_for_this_player
+27427,2022-23 Panini Select #104 Kristaps Porzingis FOTL Purple Pulsar Prizm 4/5,accepted,Select,yes,accepted,2022-23 Select,#104 Kristaps Porzingis (Base Set),"product,player,card_number,subset,parallel,serial_limit",
+27428,2022-23 Panini Select #145 Lauri Markkanen Gold Prizm Die Cut 02/10,accepted,Select,yes,accepted,2022-23 Select,#145 Lauri Markkanen (Base Set),"product,player,card_number,subset,parallel,serial_limit",
+27523,2023-24 Panini Top Class #234 De'Aaron Fox/Domantas Sabonis Synergy,accepted,,no,unmatched,,,,product_not_in_catalogue
+27590,2023-24 Panini Phoenix #7 Ausar Thompson Rookie Card Rookie Rising,accepted,Phoenix,yes,accepted,2023-24 Phoenix,#7 Ausar Thompson (Rookie Rising),"product,player,card_number,subset",
+27667,2023-24 Panini Spectra #105 Chet Holmgren,accepted,,no,unmatched,,,,product_not_in_catalogue
+27723,2023-24 Panini Hoops #264 Brandin Podziemski Rookie Card,accepted,Hoops,yes,accepted,2023-24 Hoops,#264 Brandin Podziemski (Base Set),"product,player,card_number,subset",
+27729,2023-24 Panini Donruss #230 Tristan Vukcevic Rookie Card Rated Rookie Choice,accepted,Donruss,yes,accepted,2023-24 Donruss,#230 Tristan Vukcevic (Base Set),"product,player,card_number,subset",parallel_unknown
+27805,2023-24 Panini Mosaic #9 JA Morant Notoriety,accepted,Mosaic,yes,accepted,2023-24 Mosaic,#9 Ja Morant (Notoriety),"product,player,card_number,subset",
+27879,2023-24 Panini Obsidian #50 Trayce Jackson-Davis Rookie Card SP,accepted,Obsidian,yes,accepted,2023-24 Obsidian,#50 Trayce Jackson-Davis (Base Set),"product,player,card_number,subset",parallel_unknown
+27960,2023-24 Panini Mosaic #265 Dereck Lively II NBA Debut,accepted,Mosaic,yes,accepted,2023-24 Mosaic,#265 Dereck Lively II (Base Set),"product,player,card_number,subset",
+27992,2023-24 Panini Mosaic #12 JA Morant Bank Shot,accepted,Mosaic,yes,accepted,2023-24 Mosaic,#12 Ja Morant (Bank Shot),"product,player,card_number,subset",
+28015,2022-23 Panini Crown Royale #19 Jaden Ivey Rookie Card Die Cut Sno Globe Gold 05/10 PSA8 Near Mint-Mint,accepted,,no,unmatched,,,,product_not_in_catalogue
+28155,2023-24 Panini Photogenic #171 Oliver-Maxence Prosper Rookie Card Holo 03/99,accepted,,no,unmatched,,,,product_not_in_catalogue
+28191,2023-24 Panini Donruss Optic #228 GG Jackson II Rated Rookie Silver Holo Prizm,accepted,Donruss Optic,yes,accepted,2023-24 Donruss Optic,#228 GG Jackson II (Base Set),"product,player,card_number,subset",parallel_unknown
+28203,2023-24 Panini Donruss Optic #203 Brandin Podziemski Rookie Card Rated Rookie,accepted,Donruss Optic,yes,accepted,2023-24 Donruss Optic,#203 Brandin Podziemski (Base Set),"product,player,card_number,subset",
+28204,2023-24 Panini Donruss Optic #3 Scoot Henderson Rookie Card Lottery Ticket,accepted,Donruss Optic,yes,accepted,2023-24 Donruss Optic,#3 Scoot Henderson (The Rookies),"product,player,card_number,subset",
+28297,1995 Upper Deck #178 Hakeem Olajuwon All NBA Third Team Electric Court,accepted,,no,unmatched,,,,product_not_in_catalogue
+28433,2023-24 Panini Photogenic #72 Franz Wagner Cracked Ice Holo 48/75,accepted,,no,unmatched,,,,product_not_in_catalogue
+28482,2023-24 Panini Origins #6 Jett Howard Rookie Card Taking The Leap,accepted,Origins,yes,accepted,2023-24 Origins,#6 Jett Howard (Taking the Leap),"product,player,card_number,subset",
+28546,2023-24 Panini Select #3 Dereck Lively II Rookie Card Sensations,accepted,Select,yes,accepted,2023-24 Select,#3 Dereck Lively II (Sensations),"product,player,card_number,subset",
+28585,2023-24 Panini Select #81 Toumani Camara Rookie Card Concourse,accepted,Select,yes,accepted,2023-24 Select,#81 Toumani Camara (Base Set),"product,player,card_number,subset",parallel_unknown
+28621,2023-24 Panini Select #14 Lebron James Unstoppable,accepted,Select,yes,accepted,2023-24 Select,#14 LeBron James (Unstoppable),"product,player,card_number,subset",
+28644,2023-24 Panini Court Kings #96 Brandin Podziemski Rookie Card Rookies I,accepted,Court Kings,yes,accepted,2023-24 Court Kings,#96 Brandin Podziemski (Base Set),"product,player,card_number,subset",
+28724,2001 Upper Deck #39 Shaquille O'Neal Ovation,accepted,,no,unmatched,,,,product_not_in_catalogue
+28737,2005 Topps #80 Carmelo Anthony Bowmans Chrome Draft Picks and Prospects,accepted,,no,unmatched,,,,product_not_in_catalogue
+28807,2023-24 Panini Select #123 Jalen Hood-Schifino Rookie Card Premier Level,accepted,Select,yes,accepted,2023-24 Select,#123 Jalen Hood-Schifino (Base Set),"product,player,card_number,subset",parallel_unknown
+28848,2020-21 Panini Donruss Optic #151 Anthony Edwards Rookie Card Rated Rookie,accepted,Donruss Optic,no,possible,2020-21 Donruss Optic,,"product,player",subset_unresolved
+28938,1994 Upper Deck #199 Charles Barkley 1994 Pro Files,accepted,,no,unmatched,,,,product_not_in_catalogue
+28941,1993 Topps Archives #44 Charles Barkley,accepted,,no,unmatched,,,,product_not_in_catalogue
+28970,2022-23 Panini Select #63 Desmond Bane Tri Color Prizm,accepted,Select,yes,accepted,2022-23 Select,#63 Desmond Bane (Base Set),"product,player,card_number,subset,parallel",
+28983,2023-24 Panini Recon #2 Jalen Williams Future Legends,accepted,,no,unmatched,,,,product_not_in_catalogue
+28984,2023-24 Panini Recon #8 Brandin Podziemski Rookie Card Rookie Recon,accepted,,no,unmatched,,,,product_not_in_catalogue
+29102,1993-94 Topps Stadium Club #189 Patrick Ewing Frequent Flyers,accepted,,no,unmatched,,,,product_not_in_catalogue
+29117,1995 Upper Deck #183 Patrick Ewing Fun Facts Players Club,accepted,,no,unmatched,,,,product_not_in_catalogue
+29323,2023-24 Panini Prizm #275 Ayo Dosunmu Silver Prizm,accepted,Prizm,yes,accepted,2023-24 Prizm,#275 Ayo Dosunmu (Base Set),"product,player,card_number,subset,parallel",
+29329,2019-20 Panini Chronicles Marquee #250 Kawhi Leonard Marquee Silver,accepted,Chronicles,yes,accepted,2019-20 Chronicles,#250 Kawhi Leonard (Base set),"product,player,card_number,subset",parallel_unknown
+29432,2023-24 Panini Revolution #51 Chris Paul Fractal,accepted,Revolution,yes,accepted,2023-24 Revolution,#51 Chris Paul (Base Set),"product,player,card_number,subset,parallel",
+29459,2023-24 Panini Donruss #11 Jett Howard Rookie Card Great Expectations,accepted,Donruss,no,possible,2023-24 Donruss,,"product,player",subset_unresolved
+29476,2023-24 Panini Revolution #23 Kyrie Irving,accepted,Revolution,yes,accepted,2023-24 Revolution,#23 Kyrie Irving (Base Set),"product,player,card_number,subset",
+29491,2022-23 Panini Select #95 Malaki Branham Rookie Card Red Wave Prizm,accepted,Select,yes,accepted,2022-23 Select,#95 Malaki Branham (Base Set),"product,player,card_number,subset,parallel",
+29562,2023-24 Panini Revolution #121 Brandin Podziemski Rookie Card,accepted,Revolution,yes,accepted,2023-24 Revolution,#121 Brandin Podziemski (Base Set),"product,player,card_number,subset",
+29610,2019-20 Panini Noir #RJ-GGB Goga Bitacze Rookie Card Jumbo Material Game Worn Patch 38/99,accepted,,no,unmatched,,,,product_not_in_catalogue
+29767,2023-24 Panini Donruss Elite #249 Kobe Bufkin Rookie Card SP,accepted,Donruss Elite,no,possible,2023-24 Donruss Elite,,"product,player",subset_unresolved ; parallel_unknown
+29770,2023-24 Panini Donruss Elite #21 James Nnaji Rookie Card New Breed Autograph,accepted,Donruss Elite,yes,possible,2023-24 Donruss Elite,,"product,player",card_number_not_for_this_player
+29849,2023-24 Panini Donruss #22 Trae Young Retro Series,accepted,Donruss,yes,accepted,2023-24 Donruss,#22 Trae Young (Retro Series),"product,player,card_number,subset",
+29858,1995 Upper Deck #H4 Michael Jordan Predictor Gold Foil 3PT Shooting PCT Leader Encased,accepted,,no,unmatched,,,,product_not_in_catalogue
+29888,2023-24 Panini Prizm #RSI-KEY Keyonte Johnson Rookie Card Blue Prizm Autograph 29/49,accepted,Prizm,no,unmatched,,,,player_not_in_product
+29959,2023-24 Panini Prizm #162 Amari Bailey Rookie Card Silver Prizm,accepted,Prizm,yes,accepted,2023-24 Prizm,#162 Amari Bailey (Base Set),"product,player,card_number,subset,parallel",
+30051,2023-24 Panini Court Kings #55 Terry Rozier III,accepted,Court Kings,yes,accepted,2023-24 Court Kings,#55 Terry Rozier III (Base Set),"product,player,card_number,subset",
+30071,2023-24 Panini Hoops #240 James Nnaji Rookie Card Red Back,accepted,Hoops,yes,accepted,2023-24 Hoops,#240 James Nnaji (Base Set),"product,player,card_number,subset,parallel",
+30130,2023-24 Panini Donruss #223 Sidy Cissoko Rookie Card Rated Rookie,accepted,Donruss,yes,accepted,2023-24 Donruss,#223 Sidy Cissoko (Base Set),"product,player,card_number,subset",
+30214,2023-24 Panini Prizm #19 Kawhi Leonard Kaleidoscopic,accepted,Prizm,yes,accepted,2023-24 Prizm,#19 Kawhi Leonard (Kaleidoscopic),"product,player,card_number,subset",parallel_unknown
+30272,2023-24 Panini Donruss #218 Rayan Rupert Rated Rookie,accepted,Donruss,yes,accepted,2023-24 Donruss,#218 Rayan Rupert (Base Set),"product,player,card_number,subset",
+30314,2023-24 Panini Donruss #62 Christian Wood Press Proof,accepted,Donruss,yes,accepted,2023-24 Donruss,#62 Christian Wood (Base Set),"product,player,card_number,subset",parallel_unknown
+30385,2007-08 Fleer #PH27 Michael Jordan Playoff Highlights,accepted,,no,unmatched,,,,product_not_in_catalogue
+30414,2023-24 Panini Donruss Choice #157 Xavier Tillman Red Holo 52/99,accepted,,no,accepted,2023-24 Donruss,#157 Xavier Tillman (Base Set),"product,player,card_number,subset",parallel_unknown
+30457,2023-24 Panini Donruss #9 Jalen Green Crunch Time,accepted,Donruss,yes,accepted,2023-24 Donruss,#9 Jalen Green (Crunch Time),"product,player,card_number,subset",
+30496,1996 Upper Deck #157 Michael Jordan 23 vs Kings,accepted,,no,unmatched,,,,product_not_in_catalogue
+30504,1996 Upper Deck #136 Michael Jordan 23 vs Hawks,accepted,,no,unmatched,,,,product_not_in_catalogue
+30547,2023-24 Panini Hoops Winter #299 Dwyane Wade,accepted,,no,accepted,2023-24 Hoops,#299 Dwyane Wade (Base Set),"product,player,card_number,subset",parallel_unknown
+30552,2023-24 Hoops Winter #8 Amen Thompson Rookie Card Greetings From Houston,accepted,Hoops,yes,accepted,2023-24 Hoops,#8 Amen Thompson (Rookie Greetings),"product,player,card_number,subset",parallel_unknown
+30568,2023-24 Panini Hoops Winter #25 Zion Williamson Skyview,accepted,,no,accepted,2023-24 Hoops,#25 Zion Williamson (Skyview),"product,player,card_number,subset",parallel_unknown
+30588,2023-24 Panini Donruss #6 Cason Wallace Rookie Card Hardwood Masters Gold Press Proof,accepted,Donruss,yes,accepted,2023-24 Donruss,#6 Cason Wallace (Hardwood Masters),"product,player,card_number,subset,parallel",
+30602,2023-24 Donruss #10 Bilal Coulibaly Rookie Card Retro Series Purple Press Proof,accepted,Donruss,yes,accepted,2023-24 Donruss,#10 Bilal Coulibaly (Retro Series),"product,player,card_number,subset,parallel",
+30709,2021-22 Panini Chronicles Mosaic #266 Ziaire Williams Rated Rookie Card Draft Picks,accepted,Chronicles,no,possible,2021-22 Chronicles,,"product,player",card_number_not_for_this_player
+30855,2022-23 Panini Chronicles Hoops Premium Stock#588 Chet Holmgren Rookie Card,accepted,,no,possible,2022-23 Hoops,,"product,player",card_number_not_for_this_player
+30890,1990 Hoops #16 Clyde Drexler All-Star West,accepted,,no,unmatched,,,,product_not_in_catalogue
+30962,2022-23 Panini Chronicles Luminance #PS-GHR Gary Harris Autograph 61/99,accepted,,no,unmatched,,,,product_not_in_catalogue
+31004,2020-21 Panini Hoops #22 Jayson Tatum Vanity Plates,accepted,Hoops,yes,accepted,2020-21 Hoops,#22 Jayson Tatum (Vanity Plates),"product,player,card_number,subset",
+31104,1996 Upper Deck #C8 Grant Hill Champions Of The Court,accepted,,no,unmatched,,,,product_not_in_catalogue
+31113,1997 Hoops #48 Grant Hill,accepted,,no,unmatched,,,,product_not_in_catalogue
+31118,1998 Upper Deck #49 Grant Hill Heart and Soul,accepted,,no,unmatched,,,,product_not_in_catalogue
+31331,2022-23 Recon #3 Bojan Bogdanovic,accepted,,no,unmatched,,,,product_not_in_catalogue
+31433,2020-21 Mosaic #289 Tim Duncan All Time Greats Silver Prizm,accepted,Mosaic,yes,accepted,2020-21 Mosaic,#289 Tim Duncan (Base Set),"product,player,card_number,subset,parallel",
+31491,1996 Upper Deck #FB2 Jason Kidd Fast Break Connections Die Cut,accepted,,no,unmatched,,,,product_not_in_catalogue
+31556,1994 Topps Gold #324 Dennis Rodman Topps Gold,accepted,,no,unmatched,,,,product_not_in_catalogue
+31563,1997 Upper Deck #225 Hakeem Olajuwon,accepted,,no,unmatched,,,,product_not_in_catalogue
+31630,2022-23 Panini Origins #36 Russell Westbrook,accepted,Origins,yes,accepted,2022-23 Origins,#36 Russell Westbrook (Base Set),"product,player,card_number,subset",
+31729,2021-22 Panini Mosaic #FBA-JTA Juan Toscano-Anderson Rookie Card Autograph Fast Break Gold 08/10,accepted,Mosaic,yes,possible,2021-22 Mosaic,,"product,player",card_number_not_for_this_player
+31802,2019-20 Panini Hoops Premium Stock #283 Shaquille O'Neal Tribute,accepted,,no,unmatched,,,,product_not_in_catalogue
+31887,1990 Hoops #23 Hakeem Olajuwon All-Star West,accepted,,no,unmatched,,,,product_not_in_catalogue
+31901,1991 Hoops #78 Hakeem Olajuwon,accepted,,no,unmatched,,,,product_not_in_catalogue
+31906,1996 Upper Deck #5 Hakeem Olajuwon USA Basketball Career Highlights,accepted,,no,unmatched,,,,product_not_in_catalogue
+31984,1994 Classic #69 Shaquille O'Neal Centers Of Attention Gold,accepted,,no,unmatched,,,,product_not_in_catalogue
+32029,2022-23 Panini Recon #47 Joel Embiid 188/199,accepted,,no,unmatched,,,,product_not_in_catalogue
+32073,1994 Upper Deck #400 Shaquille O'Neal DR Basketball,accepted,,no,unmatched,,,,product_not_in_catalogue
+32077,1995 Skybox #89 Shaquille O'Neal,accepted,,no,unmatched,,,,product_not_in_catalogue
+32096,1997-98 Fleer #4 of 20 Shaquille O'Neal Ultrabilities Starter,accepted,,no,unmatched,,,,product_not_in_catalogue
+32111,2022-23 Panini Chronicles Essentials #234 Damian Lillard,accepted,,no,unmatched,,,,product_not_in_catalogue
+32159,1994-95 Fleer Ultra #134 Anfernee Hardaway,accepted,,no,unmatched,,,,product_not_in_catalogue
+32174,1994 Classic #2 Jason Kidd Rookie Card,accepted,,no,unmatched,,,,product_not_in_catalogue
+32212,1997 Topps #106 Dennis Rodman,accepted,,no,unmatched,,,,product_not_in_catalogue
+32214,1995 Topps #11 Dennis Rodman Rebounding Leaders,accepted,,no,unmatched,,,,product_not_in_catalogue
+32240,1997 Hoops #29 Scottie Pippen,accepted,,no,unmatched,,,,product_not_in_catalogue
+32241,1997 Skybox Premium #48 Scottie Pippen,accepted,,no,unmatched,,,,product_not_in_catalogue
+32275,1993 Upper Deck #251 Shawn Kemp Alley-Oop Dunk,accepted,,no,unmatched,,,,product_not_in_catalogue
+32467,1994 Upper Deck #53 Shaquille O'Neal USA Basketball Gold Signature,accepted,,no,unmatched,,,,product_not_in_catalogue
+32487,2003-04 Topps #3 Allen Iverson,accepted,,no,unmatched,,,,product_not_in_catalogue
+32530,1998 Topps Finest #88 Shawn Kemp with Protective Coating,accepted,,no,unmatched,,,,product_not_in_catalogue
+32629,2023-24 Panini Hoops #5 Jayson Tatum Ignition,accepted,Hoops,yes,accepted,2023-24 Hoops,#5 Jayson Tatum (Ignition),"product,player,card_number,subset",
+32664,1993 Action Packed #18 Larry Bird Home Town Hero,accepted,,no,unmatched,,,,product_not_in_catalogue
+32708,1999 Upper Deck #45 Shaquille O'Neal Black Diamond,accepted,,no,unmatched,,,,product_not_in_catalogue
+32728,1995 Hoops #117 Shaquille O'Neal,accepted,,no,unmatched,,,,product_not_in_catalogue
+32781,2021-22 Panini Contenders #3 Evan Mobley Rookie Card 2021 Draft Class,accepted,,no,unmatched,,,,product_not_in_catalogue
+32803,2022-23 Prizm #61 Josh Giddey Pink Cracked Ice Prizm,accepted,Prizm,yes,accepted,2022-23 Prizm,#61 Josh Giddey (Base Set),"product,player,card_number,subset,parallel",
+32823,2022-23 Panini Flux #211 Max Christie Rookie Card Silver Prizm,accepted,Flux,yes,accepted,2022-23 Flux,#211 Max Christie (Base Set),"product,player,card_number,subset,parallel",
+32845,2022-23 Panini Donruss Optic #9 Zion Williamson Express Lane,accepted,Donruss Optic,yes,accepted,2022-23 Donruss Optic,#9 Zion Williamson (Express Lane),"product,player,card_number,subset",
+32888,1994 Topps #107 Dennis Rodman Paint Patrol,accepted,,no,unmatched,,,,product_not_in_catalogue
+32906,1994 Upper Deck #178 Shaquille O'Neal 1994 USA Highlights,accepted,,no,unmatched,,,,product_not_in_catalogue
+32977,2022-23 Panini Chronicles Marquee #250 Ochai Agbaji Rookie Card Asia,accepted,,no,unmatched,,,,product_not_in_catalogue
+32996,2011 Panini National Treasures #15 Brandon Jennings Game Worn Duel Patch 08/10,accepted,,no,unmatched,,,,product_not_in_catalogue
+33064,2021-22 Panini Chronicles Rookies and Stars #112 Franz Wagner Rookie Card,accepted,Chronicles,yes,accepted,2021-22 Chronicles,#112 Franz Wagner (Base Set),"product,player,card_number,subset",
+33198,1993 Upper Deck #SP3 Michael Jordan/Wilt Chamberlin Scoring Titles Insert,accepted,,no,unmatched,,,,product_not_in_catalogue
+33595,2020-21 Panini Donruss Optic #5 Anthony Davis  Air Defense Silver Prizm,accepted,Donruss Optic,yes,accepted,2020-21 Donruss Optic,#5 Anthony Davis (Air Defense),"product,player,card_number,subset",parallel_unknown
+33613,2020-21 Panini Hoops #6 Anthony Davis/Jrue Holiday Jersey Sway,accepted,Hoops,yes,accepted,2020-21 Hoops,#6 Anthony Davis (Zero Gravity),"product,player,card_number,subset",parallel_unknown
+33638,2022-23 Panini Spectra #49 Franz Wagner Astral Prizm 12/49,accepted,,no,possible,2022-23 Prizm,,"product,player",card_number_not_for_this_player
+33736,2021-22 Panini Hoops #9 Luka Doncic Pure Players,accepted,Hoops,yes,accepted,2021-22 Hoops,#9 Luka Doncic (Pure Players),"product,player,card_number,subset",
+33758,2020-21 Panini Chronicles Luminance #150 Kevin Durant,accepted,Chronicles,yes,accepted,2020-21 Chronicles,#150 Kevin Durant (Base Set),"product,player,card_number,subset",parallel_unknown
+121697,2025 Panini Revolution - Fractal #116 Sam Darnold /99,out_of_scope,,no,out_of_scope,,,,player_not_in_product
+177136,2019-20 Hoops Premium Stock #282 Dirk Nowitzki Prizms Pulsar,accepted,,no,unmatched,,,,product_not_in_catalogue
+177151,2019-20 Hoops Premium Stock #297 Ja Morant Prizms Pulsar PSA 10 RC,accepted,,no,unmatched,,,,product_not_in_catalogue
+177493,2020-21 Donruss Optic #15 Luka Doncic Splash!,accepted,Donruss Optic,yes,accepted,2020-21 Donruss Optic,#15 Luka Doncic (Splash!),"product,player,card_number,subset",
+177676,2020-21 Panini Court Kings #127 Malachi Flynn Level 2 RC,accepted,,no,unmatched,,,,product_not_in_catalogue
+177708,2020-21 Panini Impeccable #138 LaMelo Ball Elegance RPA #/99 RC,accepted,,no,unmatched,,,,product_not_in_catalogue
+177732,2020-21 Panini Mosaic #262 LaMelo Ball Choice Fusion Red Yellow PSA 10 #/88 RC,accepted,Mosaic,yes,accepted,2020-21 Mosaic,#262 LaMelo Ball (Base Set),"product,player,card_number,subset,parallel,serial_limit",
+178156,2021-22 Donruss #3 Stephen Curry Crunch Time Press Proof Purple,accepted,Donruss,yes,accepted,2021-22 Donruss,#3 Stephen Curry (Crunch Time),"product,player,card_number,subset,parallel",
+178292,2021-22 Donruss Elite #4 Luka Doncic Primary Colors,accepted,,no,accepted,2021-22 Elite,#4 Luka Doncic (Primary Colors),"product,player,card_number,subset",parallel_unknown
+178353,2021-22 Panini Chronicles #49 Jalen Green Green RC,accepted,Chronicles,yes,accepted,2021-22 Chronicles,#49 Jalen Green (Base Set),"product,player,card_number,subset",parallel_unknown
+178698,2021-22 Panini One and One #JA-VCT Vince Carter Jersey Autographs Green #/5,accepted,,no,unmatched,,,,product_not_in_catalogue
+178746,2021-22 Panini Prizm #4 Luka Doncic Global Reach Prizms Silver,accepted,Prizm,yes,accepted,2021-22 Prizm,#4 Luka Doncic (Global Reach),"product,player,card_number,subset,parallel",
+178891,2021-22 Panini Select #33 Day'Ron Sharpe Tri-Color Prizms RC,accepted,Select,yes,accepted,2021-22 Select,#33 Day'Ron Sharpe (Base Set),"product,player,card_number,subset,parallel",
+179077,2022-23 Donruss Elite #37 Stephen Curry Spellbound,accepted,Donruss Elite,yes,accepted,2022-23 Donruss Elite,#37 Stephen Curry (Spellbound),"product,player,card_number,subset",
+179150,2022-23 Panini Chronicles #147 Chet Holmgren RC,accepted,,no,unmatched,,,,product_not_in_catalogue
+179346,2022-23 Panini Obsidian #103 Josh Giddey,accepted,,no,unmatched,,,,product_not_in_catalogue
+179373,2022-23 Panini Origins #4 Dwyane Wade Catapults,accepted,Origins,yes,accepted,2022-23 Origins,#4 Dwyane Wade (Catapults),"product,player,card_number,subset",
+179400,2022-23 Panini Prizm #228 Jabari Smith Jr. Prizms Blue Ice PSA 9 #/125 RC,accepted,Prizm,no,possible,2022-23 Prizm,,"product,player,parallel,serial_limit",subset_unresolved
+179655,2022-23 Panini Select #196 Chet Holmgren Tri-Color Prizms RC,accepted,Select,yes,accepted,2022-23 Select,#196 Chet Holmgren (Base Set),"product,player,card_number,subset,parallel",
+179659,2022-23 Panini Select #20 Tyrese Haliburton Silver Prizms,accepted,Select,yes,accepted,2022-23 Select,#20 Tyrese Haliburton (Base Set),"product,player,card_number,subset,parallel",
+179692,2022-23 Panini Select #56 Shai Gilgeous-Alexander Red Prizms #/199 SN,accepted,Select,yes,accepted,2022-23 Select,#56 Shai Gilgeous-Alexander (Base Set),"product,player,card_number,subset,parallel,serial_limit",
+179698,2022-23 Panini Select #69 Jabari Smith Jr. Tri-Color Prizms RC,accepted,Select,yes,accepted,2022-23 Select,#69 Jabari Smith Jr. (Base Set),"product,player,card_number,subset,parallel",
+183274,2019-20 Absolute Memorabilia Established Threads /25,accepted,,no,unmatched,,,,product_not_in_catalogue
+188721,2026 NRL League Heroes Playmakers /110,out_of_scope,,no,out_of_scope,,,,product_not_in_catalogue
+188748,2023 NRL Traders Premiership Predictors /260,out_of_scope,,no,out_of_scope,,,,product_not_in_catalogue ; no_player
+188761,2025 NRL Elite NRLW Pink Diamond Mojo /68,out_of_scope,,no,out_of_scope,,,,product_not_in_catalogue
+188854,2025-26 Topps Chrome #252 Dylan Harper Rookie Card,accepted,,no,possible,2025-26 Topps,,"product,player",card_number_not_for_this_player
+188883,2024-25 Panini Prizm #187 Kevin Durant Silver Wave Prizm,accepted,Prizm,no,possible,2024-25 Prizm,,"product,player",subset_unresolved ; parallel_unknown
+188896,1999 Upper Deck MVP #207 Michael Jordan MJ Exclusives,accepted,,no,unmatched,,,,product_not_in_catalogue
+188908,2024 NRL Elite NRL Reflections Priority /36,out_of_scope,,no,out_of_scope,,,,product_not_in_catalogue ; no_player
+188921,2024 NRL Elite Ruby Mojo /50,out_of_scope,,no,out_of_scope,,,,product_not_in_catalogue
+188951,2025 NRL Elite Milestone Case Cards /42,needs_review,,no,out_of_scope,,,,product_not_in_catalogue
+188984,2010-11 Panini Elite Black Box The Rookies Signatures Dual /25,needs_review,,no,unmatched,,,,product_not_in_catalogue ; no_player
+189043,2025-26 Topps Hoops #271 Jaylen Brown 2025 All-Star,accepted,,no,possible,2025-26 Topps,,"product,player",card_number_not_for_this_player
+189064,2025-26 Topps Hoops #285 Jalen Williams All-Star 2025,accepted,,no,possible,2025-26 Topps,,"product,player",card_number_not_for_this_player
+189077,2025-26 Topps Hoops #BH-3 Victor Wembanyama Bounce House Pixel Burst,accepted,,no,possible,2025-26 Topps,,"product,player",card_number_not_for_this_player
+189153,2024 Panini National Treasures WWE Treasured Threads /99,out_of_scope,,no,out_of_scope,,,,product_not_in_catalogue ; no_player
+189312,Rugby League In Person Autograph,out_of_scope,,no,out_of_scope,,,,product_not_in_catalogue
+189337,1986 Fleer PSA EX-MT 6,accepted,,no,unmatched,,,,product_not_in_catalogue
+189373,2025-26 Panini Prizm FIFA Soccer Lotus Flower Prizms /18,out_of_scope,,no,out_of_scope,,,,product_not_in_catalogue
+189398,2022-23 Noir Snapshot Signatures /25,accepted,,no,unmatched,,,,product_not_in_catalogue
+192730,2022-23 Panini Donruss #201 Rated Rookie - Paolo Banchero,accepted,Donruss,yes,accepted,2022-23 Donruss,#201 Paolo Banchero (Base Set),"product,player,card_number,subset",
+192740,2023 Panini Donruss - Donruss Threads #DTH-RW Russell Wilson,out_of_scope,,no,out_of_scope,,,,product_candidate_rejected
+192788,2025-26 NRL League Heroes Bang #B10 Savelio Tamale,out_of_scope,,no,out_of_scope,,,,product_not_in_catalogue
+192975,2025-26 Topps Signature Class #103 Kon Knueppel RC,needs_review,,no,out_of_scope,,,,card_number_not_for_this_player
+193308,2024-25 Panini Select Premier League Orange Ice Prizm #33 Kai Havertz /155,out_of_scope,,no,out_of_scope,,,,player_not_in_product
+193330,2025-26 Panini Donruss Road to FIFA World Cup - Optic #170 Erling Haaland,out_of_scope,,no,out_of_scope,,,,product_not_in_catalogue
+193337,2025 Topps Stadium Club UFC - Special Forces #SF-30 Nassourdine Imavov,out_of_scope,,no,out_of_scope,,,,player_not_in_product
+193353,2005-06 SP Signature Edition - Rookie GRAPHiti #RG-BW Bracey Wright /100,needs_review,,no,unmatched,,,,product_not_in_catalogue
+193522,2001-02 Topps Heritage - Autographs #HA-AJ Alvin Jones,needs_review,,no,unmatched,,,,product_not_in_catalogue
+193529,2006-07 Topps Trademark Moves - Signature Dunk #SDU-7 Ike Diogu /149,accepted,,no,unmatched,,,,product_not_in_catalogue
+193534,2005-06 Upper Deck Hardcourt - Signatures #HS-JO Joey Graham,accepted,,no,unmatched,,,,product_not_in_catalogue
+193577,2011-12 Past & Present - Gamers Materials #59 Marvin Williams,accepted,,no,unmatched,,,,product_not_in_catalogue

@@ -114,8 +114,10 @@ export interface ClassificationRecord {
 
 function toRow(record: ClassificationRecord): Record<string, unknown> {
   const c = record.classification;
-  const isBasketballSingle = c.itemType === 'single_card' && c.sport === 'basketball';
-  const serialLimit = c.fields.serialLimit ?? c.parallel?.serialLimit ?? null;
+  // Descriptive fields are written only when the catalogue backs them: a product for the set, a matched card
+  // row for the number. An unmatched listing keeps its player and the model's hints, nothing more (D-005).
+  const hasProduct = c.product !== null;
+  const serialLimit = hasProduct ? (c.fields.serialLimit ?? c.parallel?.serialLimit ?? null) : null;
 
   return {
     store_product_id: record.storeProductId,
@@ -124,28 +126,30 @@ function toRow(record: ClassificationRecord): Record<string, unknown> {
     status: 'classified',
     item_type: c.itemType,
     sport: c.sport,
-    year: isBasketballSingle ? c.fields.season : null,
-    // Kept for the readers that still filter on category; basketball singles are what they mean by 'NBA'.
-    category: isBasketballSingle ? 'NBA' : null,
+    year: hasProduct ? c.product!.season : null,
+    // Kept for the readers that still filter on category; a catalogue basketball product is what they mean by 'NBA'.
+    category: hasProduct ? 'NBA' : null,
     brand: c.product?.brand ?? null,
     product_line: c.product?.productLine ?? null,
     set_name: c.subset?.name ?? null,
-    card_number: isBasketballSingle ? c.fields.cardNumber : null,
+    card_number: c.card?.cardNumber ?? null,
     player_name: c.playerName,
     player_id: c.playerId,
     variant_name: c.parallel?.name ?? null,
     parallel_name: c.parallel?.name ?? null,
     insert_name: c.subset?.kind === 'insert' ? c.subset.name : null,
-    is_rookie: isBasketballSingle && c.isRookie,
-    is_auto: isBasketballSingle && c.isAutograph,
-    is_serial: isBasketballSingle && serialLimit !== null,
-    serial_number:
-      c.fields.serialCurrent !== null && c.fields.serialLimit !== null
+    is_rookie: hasProduct && c.isRookie,
+    // Null means unknown. It is never true without a matched row (D-006).
+    is_auto: c.isAutograph,
+    is_serial: hasProduct && serialLimit !== null,
+    serial_number: !hasProduct
+      ? null
+      : c.fields.serialCurrent !== null && c.fields.serialLimit !== null
         ? `${c.fields.serialCurrent}/${c.fields.serialLimit}`
         : serialLimit === null
           ? null
           : String(serialLimit),
-    serial_current: c.fields.serialCurrent === null ? null : String(c.fields.serialCurrent),
+    serial_current: hasProduct && c.fields.serialCurrent !== null ? String(c.fields.serialCurrent) : null,
     serial_limit: serialLimit === null ? null : String(serialLimit),
     grader: c.fields.grader,
     grade: c.fields.grade,
@@ -159,18 +163,38 @@ function toRow(record: ClassificationRecord): Record<string, unknown> {
     review_reasons: c.reviewReasons,
     raw_signals: {
       title: record.title,
+      matcherVersion: c.matcherVersion,
+      matchedFields: c.matchedFields,
+      matchReasons: c.matchReasons,
+      yearWidened: c.yearWidened,
+      grounded: c.grounded,
+      // What the model said, kept apart from what the catalogue confirmed so Jev's contribution can be measured.
+      jev: {
+        model: c.jevModel,
+        requests: c.jevRequests,
+        inputTokens: c.inputTokens,
+        itemType: c.hints.itemType,
+        itemTypeConfidence: c.hints.itemTypeConfidence,
+        sport: c.hints.sport,
+        sportConfidence: c.hints.sportConfidence,
+        playerConfidence: c.playerConfidence,
+        productConfidence: c.productConfidence,
+        subsetConfidence: c.subsetConfidence,
+        parallelConfidence: c.parallelConfidence,
+      },
+      playerSource: c.playerSource,
+      parallelStatus: c.parallelStatus,
+      isRelic: c.isRelic,
+      // Kept for readers of v1 rows.
       jevModel: c.jevModel,
       jevRequests: c.jevRequests,
       inputTokens: c.inputTokens,
-      itemTypeConfidence: c.itemTypeConfidence,
-      sportConfidence: c.sportConfidence,
+      itemTypeConfidence: c.hints.itemTypeConfidence,
+      sportConfidence: c.hints.sportConfidence,
       playerConfidence: c.playerConfidence,
-      playerSource: c.playerSource,
       productConfidence: c.productConfidence,
       subsetConfidence: c.subsetConfidence,
       parallelConfidence: c.parallelConfidence,
-      parallelStatus: c.parallelStatus,
-      isRelic: c.isRelic,
     },
   };
 }

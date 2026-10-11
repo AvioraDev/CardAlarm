@@ -94,7 +94,7 @@ describe('classifying new and changed listings', () => {
     expect(pendingClassificationLimit('nope')).toBe(2000);
   });
 
-  it('writes catalogue ids and keeps the legacy text columns filled', async () => {
+  it('writes an unmatched listing with only the player and the hints', async () => {
     const saved: ClassificationRecord[] = [];
     await classifyPendingListings({} as never, {
       jev: firstOptionJev(),
@@ -104,21 +104,24 @@ describe('classifying new and changed listings', () => {
       markChecked: async () => undefined,
     });
 
+    // No catalogue product: the row keeps the player and the model's hints, and asserts nothing else (D-005).
     expect(classificationRow(saved[0]!)).toMatchObject({
       store_product_id: 7,
       classifier_type: 'jev',
       classifier_version: JEV_CLASSIFIER_VERSION,
       item_type: 'single_card',
       sport: 'basketball',
-      category: 'NBA',
-      year: '1994',
-      card_number: '106',
+      category: null,
+      year: null,
+      card_number: null,
       player_name: 'Reggie Miller',
-      is_serial: true,
-      serial_limit: '99',
-      review_status: 'accepted',
+      is_auto: null,
+      is_serial: false,
+      serial_limit: null,
+      review_status: 'unmatched',
       checklist_product_id: null,
     });
+    expect((classificationRow(saved[0]!).raw_signals as { matcherVersion: string }).matcherVersion).toBe(JEV_CLASSIFIER_VERSION);
   });
 });
 
