@@ -10,6 +10,7 @@ import {
   productAliases,
   generateProductAliases,
   cardNumbersAgree,
+  maskPhrases,
   storeProvidedNames,
   titleNameSpans,
   type CatalogueProduct,
@@ -759,26 +760,39 @@ describe('Jev client', () => {
   });
 });
 
-describe('card numbers are compared for format, not relaxed (CAR-92)', () => {
-  it('agrees across case, hyphens, spaces, leading zeros and the subset prefix a seller copies', () => {
-    expect(cardNumbersAgree('ss-26', 'SS-26', 'Signature Selections')).toBe(true);
-    expect(cardNumbersAgree('RS-DOT', 'RS DOT', 'Rookie Signatures')).toBe(true);
-    expect(cardNumbersAgree('007', '7', 'Base Set')).toBe(true);
-    expect(cardNumbersAgree('80B2-AD', '80B2AD', 'Bowman Chrome')).toBe(true);
-    // The prefix is the initials of the subset; the number the checklist prints has no prefix.
-    expect(cardNumbersAgree('SS-26', '26', 'Signature Selections')).toBe(true);
-    expect(cardNumbersAgree('SS-026', '26', 'Signature Selections')).toBe(true);
+describe('card numbers are compared for format, not relaxed (CAR-92, CAR-93)', () => {
+  const alumni = { codePrefix: 'AM' };
+  const none = { codePrefix: null };
+
+  it('agrees across case, hyphens, spaces and leading zeros', () => {
+    expect(cardNumbersAgree('ss-26', 'SS-26', none)).toBe(true);
+    expect(cardNumbersAgree('RS-DOT', 'RS DOT', none)).toBe(true);
+    expect(cardNumbersAgree('007', '7', none)).toBe(true);
+    expect(cardNumbersAgree('80B2-AD', '80B2AD', none)).toBe(true);
+  });
+
+  it('matches "AM-9" to number 9 only of a subset whose stored prefix is AM', () => {
+    expect(cardNumbersAgree('AM-9', '9', alumni)).toBe(true);
+    expect(cardNumbersAgree('am-09', '9', alumni)).toBe(true);
+    // No stored prefix, or a different one: the prefix is not guessed.
+    expect(cardNumbersAgree('AM-9', '9', none)).toBe(false);
+    expect(cardNumbersAgree('AM-9', '9', { codePrefix: 'SS' })).toBe(false);
   });
 
   it('still disagrees when the number is different', () => {
-    expect(cardNumbersAgree('SS-26', '27', 'Signature Selections')).toBe(false);
-    // Right number, but the prefix is not that subset's initials: another subset's card.
-    expect(cardNumbersAgree('DD-26', '26', 'Signature Selections')).toBe(false);
+    expect(cardNumbersAgree('AM-9', '10', alumni)).toBe(false);
     // A bare number never matches a prefixed one by dropping the prefix: that would guess the subset.
-    expect(cardNumbersAgree('26', 'SS-26', 'Signature Selections')).toBe(false);
-    expect(cardNumbersAgree('12', '120', 'Base Set')).toBe(false);
-    expect(cardNumbersAgree('A1', 'A2', 'Base Set')).toBe(false);
-    expect(cardNumbersAgree('5', null, 'Base Set')).toBe(false);
+    expect(cardNumbersAgree('26', 'SS-26', { codePrefix: 'SS' })).toBe(false);
+    expect(cardNumbersAgree('12', '120', none)).toBe(false);
+    expect(cardNumbersAgree('A1', 'A2', none)).toBe(false);
+    expect(cardNumbersAgree('5', null, none)).toBe(false);
+    // A player code is not a number: it cannot match one.
+    expect(cardNumbersAgree('AM-KOJ', '9', alumni)).toBe(false);
+  });
+
+  it('masks a parallel written in the singular (the catalogue says "Silver Prizms", the title says "Silver Prizm")', () => {
+    expect(maskPhrases('panini optic 2020 21 rated rookie silver prizm', ['silver prizms']).includes('prizm')).toBe(false);
+    expect(maskPhrases('2020 21 panini prizm silver prizm 5', ['silver prizms']).trim().replace(/\s+/g, ' ')).toBe('2020 21 panini prizm 5');
   });
 });
 
@@ -796,5 +810,43 @@ describe('a title that names a subset chooses it (CAR-92)', () => {
     expect(subsetsConsistentWithTitle(subsets, fields, '2024-25 Panini Revolution #121 Bub Carrington').map(s => s.name)).toEqual(['Base Set', 'Rookie Variations']);
     const both = [subset(1, 'Silver'), subset(2, 'Silver Wave')];
     expect(subsetsConsistentWithTitle(both, fields, 'Silver Wave #1 Test Player').map(s => s.name)).toEqual(['Silver', 'Silver Wave']);
+  });
+});
+
+describe('insert subset code prefix (CAR-93)', () => {
+  const cards = (subsetId: number, prefix = '') => [
+    { id: subsetId * 10 + 1, subsetId, playerId: 1, cardNumber: prefix ? `${prefix}-9` : '9', playerName: 'Tre Mann', normalizedPlayerName: 'tre mann', isRookie: null },
+    { id: subsetId * 10 + 2, subsetId, playerId: 2, cardNumber: prefix ? `${prefix}-10` : '10', playerName: 'Test Other', normalizedPlayerName: 'test other', isRookie: null },
+  ];
+  const build = (codePrefix: string | null): CatalogueIndex =>
+    new CatalogueIndex({
+      products: [
+        {
+          id: 1, season: '2021-22', brand: 'Panini', productLine: 'Hoops', aliases: ['hoops'],
+          subsets: [
+            { id: 5, productId: 1, name: 'Alumni Mates', kind: 'insert', codePrefix, parallels: [], cards: cards(5) },
+            { id: 6, productId: 1, name: 'Base Set', kind: 'base', codePrefix: null, parallels: [], cards: cards(6).map(c => ({ ...c, cardNumber: String(Number(c.cardNumber) + 100) })) },
+          ],
+        },
+      ],
+    });
+  const jev = () => scriptedJev({ item_type: { choice: 'single_card' }, sport: { choice: 'basketball' }, parallel: { choice: 'base' } });
+
+  it('confirms "AM-9" against number 9 of the subset whose stored prefix is AM', async () => {
+    const result = await classifyListing(evidence('2021-22 Panini Hoops #AM-9 Tre Mann Alumni Mates'), build('AM'), jev());
+    expect(result).toMatchObject({ reviewStatus: 'accepted', subset: { name: 'Alumni Mates' } });
+    expect(result.card?.cardNumber).toBe('9');
+  });
+
+  it('keeps it a conflict when the subset has no stored prefix', async () => {
+    const result = await classifyListing(evidence('2021-22 Panini Hoops #AM-9 Tre Mann Alumni Mates'), build(null), jev());
+    expect(result.reviewStatus).toBe('unmatched');
+    expect(result.reviewReasons).toEqual(expect.arrayContaining(['card_number_conflict']));
+  });
+
+  it('does not turn a player code into a number', async () => {
+    const result = await classifyListing(evidence('2021-22 Panini Hoops #AM-TMA Tre Mann Alumni Mates'), build('AM'), jev());
+    expect(result.reviewStatus).toBe('unmatched');
+    expect(result.reviewReasons).toEqual(expect.arrayContaining(['card_number_conflict', 'conflict:code_not_in_checklist']));
   });
 });

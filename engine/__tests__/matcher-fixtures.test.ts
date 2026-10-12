@@ -52,8 +52,6 @@ const HINT_OVERRIDES: Record<number, { item?: [string, number]; sport?: [string,
 const CHOICES: Record<number, { product?: string; subset?: string }> = {
   // The production model chose "Rookies" over "Rookie Variations" (0.86) for #121; both hold the same number and player.
   1: { subset: 'Rookies' },
-  // "Panini Optic ... Silver Prizm": Optic is a candidate only because aliases are generated from the catalogue; picking it over Prizm is the model's call.
-  14: { product: '2020-21 Panini Donruss Optic' },
 };
 
 function stubFor(

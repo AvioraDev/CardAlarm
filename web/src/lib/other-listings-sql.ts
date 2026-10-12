@@ -7,7 +7,7 @@
  */
 
 /** The classifier version whose rows this section reads. Keep in step with JEV_CLASSIFIER_VERSION in the engine. */
-export const OTHER_LISTINGS_CLASSIFIER_VERSION = "jev-catalogue-v3";
+export const OTHER_LISTINGS_CLASSIFIER_VERSION = "jev-catalogue-v4";
 
 export const OTHER_LISTINGS_LIMIT = 12;
 

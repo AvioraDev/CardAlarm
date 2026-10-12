@@ -35,12 +35,12 @@ export interface PendingClassificationDeps {
 /**
  * Whether the scan worker should classify new and changed listings after each scan.
  *
- * Classifier v2 is opt-in (CARDALARM_JEV_CLASSIFIER_V2=true). It stays off until the v2 migration is applied
- * and the one-off reclassification has been approved: with the new version string every listing counts as
- * pending, so an unguarded worker would spend tokens and then fail to save the new statuses.
+ * On whenever a TypeSafe key is set, so every new or changed listing always gets a row for the current classifier
+ * version. (There used to be an opt-in flag while the v2 migration and the one-off reclassification were pending;
+ * both are done, and a flag nobody manages only left listings unclassified.) CARDALARM_JEV_CLASSIFY=false still
+ * switches it off. engine/src/classify/coverage-check.ts reports any live listing that has no current-version row.
  */
 export function jevClassificationEnabled(env: NodeJS.ProcessEnv = process.env): boolean {
-  if ((env.CARDALARM_JEV_CLASSIFIER_V2 ?? 'false').toLowerCase() !== 'true') return false;
   if ((env.CARDALARM_JEV_CLASSIFY ?? 'true').toLowerCase() === 'false') return false;
   return Boolean(env.TYPESAFE_KEY || env.TYPESAFE_API_KEY);
 }

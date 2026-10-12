@@ -31,6 +31,8 @@ export interface CatalogueSubset {
   kind: string;
   /** The base set this is a numbered block of (CAR-77); absent for a top-level subset. */
   parentId?: number | null;
+  /** The code a card back prints before the number for this subset ("AM" for Alumni Mates: AM-9); null when unknown. */
+  codePrefix?: string | null;
   parallels: CatalogueParallel[];
   cards: CatalogueCard[];
 }
@@ -125,26 +127,20 @@ export function looseCardNumber(value: string): string {
   return value.toUpperCase().replace(/[^A-Z0-9]/g, '').replace(/(^|[A-Z])0+(?=\d)/g, '$1');
 }
 
-const initialsOf = (name: string): string =>
-  normalizeCatalogueName(name)
-    .split(' ')
-    .filter(Boolean)
-    .map(token => token[0]!.toUpperCase())
-    .join('');
-
 /**
  * Whether the number a title states is the number the checklist prints, compared for FORMAT only: case, hyphens
- * and spaces, leading zeros, and the subset prefix a seller copies from the card back ("SS-26" for number 26 of
- * "Signature Selections"). A different number is still a different number.
+ * and spaces, leading zeros, and the subset's code prefix ("AM-9" is number 9 of the subset whose stored prefix is
+ * "AM"). A different number is still a different number, and a prefix this subset does not carry never matches.
  */
-export function cardNumbersAgree(titleNumber: string, catalogueNumber: string | null, subsetName: string): boolean {
+export function cardNumbersAgree(titleNumber: string, catalogueNumber: string | null, subset: { codePrefix?: string | null }): boolean {
   if (catalogueNumber === null) return false;
   if (titleNumber.toLowerCase() === catalogueNumber.toLowerCase()) return true;
   const title = looseCardNumber(titleNumber);
   const printed = looseCardNumber(catalogueNumber);
   if (title !== '' && title === printed) return true;
   const prefixed = /^([A-Za-z]{1,5})-0*(\d+)$/.exec(titleNumber.trim());
-  return Boolean(prefixed && /^\d+$/.test(printed) && String(Number(prefixed[2])) === printed && prefixed[1]!.toUpperCase() === initialsOf(subsetName));
+  const prefix = subset.codePrefix?.toUpperCase();
+  return Boolean(prefixed && prefix && /^\d+$/.test(printed) && String(Number(prefixed[2])) === printed && prefixed[1]!.toUpperCase() === prefix);
 }
 
 /** The product's trade name as written in its checklist file name, e.g. "NBA Hoops" for the product line "Hoops". */
@@ -203,6 +199,26 @@ export function generateProductAliases(products: CatalogueProduct[]): void {
   }
 }
 
+const singular = (token: string): string => (token.length > 3 && token.endsWith('s') ? token.slice(0, -1) : token);
+
+/**
+ * Blanks out every occurrence of the given phrases, comparing words without a plural "s": the catalogue's parallel
+ * "Silver Prizms" masks a title's "Silver Prizm". Phrases are matched as whole words, longest first.
+ */
+export function maskPhrases(haystack: string, phrases: string[]): string {
+  if (phrases.length === 0) return haystack;
+  const tokens = haystack.split(' ');
+  const keys = tokens.map(singular);
+  const blanked = new Set<number>();
+  for (const phrase of phrases) {
+    const wanted = phrase.split(' ').map(singular);
+    for (let start = 0; start + wanted.length <= tokens.length; start++) {
+      if (wanted.every((word, offset) => keys[start + offset] === word)) for (let offset = 0; offset < wanted.length; offset++) blanked.add(start + offset);
+    }
+  }
+  return blanked.size === 0 ? haystack : tokens.map((token, index) => (blanked.has(index) ? '' : token)).join(' ');
+}
+
 function containsPhrase(haystack: string, phrase: string): boolean {
   return ` ${haystack} `.includes(` ${phrase} `);
 }
@@ -231,7 +247,7 @@ export class CatalogueIndex {
     for (const product of this.products) {
       for (const subset of product.subsets) for (const parallel of subset.parallels) if (parallel.normalizedName.includes(' ')) phrases.add(parallel.normalizedName);
     }
-    this.parallelPhrases = [...phrases].sort((a, b) => b.length - a.length);
+    this.parallelPhrases = [...phrases].sort((a, b) => b.split(' ').length - a.split(' ').length || b.length - a.length);
     for (const product of this.products) {
       this.productsById.set(product.id, product);
       for (const subset of product.subsets) {
@@ -310,7 +326,7 @@ export class CatalogueIndex {
     const haystack = texts.map(normalizeCatalogueName).join(' | ');
     // "Silver Prizm" is a parallel, not the Prizm product. Look for products with parallel names masked out first;
     // only when that finds none (a title that is just "2020-21 Silver Prizm #5") use the text as written.
-    const masked = this.parallelPhrases.reduce((text, phrase) => (text.includes(phrase) ? text.split(phrase).join(' ') : text), haystack);
+    const masked = maskPhrases(haystack, this.parallelPhrases);
     if (masked !== haystack) {
       const withoutParallels = this.productsNamedIn(masked, seasonCandidates);
       if (withoutParallels.length > 0) return withoutParallels;
@@ -390,7 +406,7 @@ export class CatalogueIndex {
 
   /** Cards in the product that carry the number the title states (compared for format, see cardNumbersAgree). */
   cardsWithNumber(product: CatalogueProduct, cardNumber: string): CatalogueCard[] {
-    return product.subsets.flatMap(subset => subset.cards.filter(card => cardNumbersAgree(cardNumber, card.cardNumber, subset.name)));
+    return product.subsets.flatMap(subset => subset.cards.filter(card => cardNumbersAgree(cardNumber, card.cardNumber, subset)));
   }
 
   /** Cards in the product where BOTH the card number and the player agree with the title. */
@@ -453,13 +469,15 @@ export function storeProvidedNames(tags: string[], productType: string | null): 
 
 export async function loadCatalogueIndex(db: DbClient): Promise<CatalogueIndex> {
   // parent_subset_id exists once the CAR-77 migration is applied; read without it before then.
-  const loadSubsets = async (): Promise<Array<{ id: string; product_id: string; name: string; kind: string; parent_subset_id?: string | null }>> => {
-    try {
-      return (await db.query(`select id, product_id, name, kind, parent_subset_id from public.checklist_subsets`)).rows;
-    } catch (error) {
-      if ((error as { code?: string }).code !== '42703') throw error;
-      return (await db.query(`select id, product_id, name, kind from public.checklist_subsets`)).rows;
+  const loadSubsets = async (): Promise<Array<{ id: string; product_id: string; name: string; kind: string; parent_subset_id?: string | null; code_prefix?: string | null }>> => {
+    for (const columns of ['id, product_id, name, kind, parent_subset_id, code_prefix', 'id, product_id, name, kind, parent_subset_id', 'id, product_id, name, kind']) {
+      try {
+        return (await db.query(`select ${columns} from public.checklist_subsets`)).rows;
+      } catch (error) {
+        if ((error as { code?: string }).code !== '42703') throw error;
+      }
     }
+    return [];
   };
   const [products, subsets, parallels, cards] = await Promise.all([
     db.query<{ id: string; season: string; brand: string; product_line: string; source_file: string | null }>(
@@ -491,6 +509,7 @@ export async function loadCatalogueIndex(db: DbClient): Promise<CatalogueIndex> 
       name: row.name,
       kind: row.kind,
       parentId: row.parent_subset_id ? Number(row.parent_subset_id) : null,
+      codePrefix: row.code_prefix ?? null,
       parallels: [],
       cards: [],
     });

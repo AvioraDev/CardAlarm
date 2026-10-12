@@ -18,7 +18,7 @@ export const JEV_CLASSIFIER_TYPE = 'jev';
  * v2 (CAR-78, decisions D-005 and D-006): rules generate candidates and decide acceptance; Jev only
  * chooses among the candidates rules allow. A match must map to a catalogue row.
  */
-export const JEV_CLASSIFIER_VERSION = 'jev-catalogue-v3';
+export const JEV_CLASSIFIER_VERSION = 'jev-catalogue-v4';
 
 const NONE = 'none_of_these';
 const BASE = 'base';

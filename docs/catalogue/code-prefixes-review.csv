@@ -1,0 +1,89 @@
+season,product,subset,prefix,listings,stores,share_pct,decision,example_titles
+2021-22,Elite,Rookie Yearbook Autographs,RY,1,1,100,too few listings,2021-22 Donruss Elite #RY-UGA Usman Garuba Rookie Yearbook Autographs RC
+2022-23,Donruss Elite,Turn of the Century Signatures,TCS,1,1,100,too few listings,2022-23 Donruss Elite #TCS-JET Jason Terry Turn of the Century Signatures
+2022-23,Court Kings,Impressionist Ink Jade,II,1,1,100,too few listings,2022-23 Panini Court Kings #II-RAL Rick Fox Impressionist Ink Jade Auto
+2022-23,Mosaic,Collage Autographs Mosaic,CM,1,1,100,too few listings,2022-23 Panini Mosaic #CM-GIL Artis Gilmore Collage Autographs Mosaic
+2022-23,Prizm,Signatures,SIG,1,1,50,codes disagree,2022-23 Panini Prizm #SIG-MMO Moses Moody Signatures Prizms Choice
+2019-20,Chronicles,Airborne Signatures,AB,1,1,100,too few listings,2019-20 Panini Chronicles - Airborne Signatures - Red #AB-DBA Dwayne Bacon
+2025-26,Topps,Power Players,PP,2,2,100,already in the source,2025-26 Topps - Power Players #PP-6 Kevin Durant ; 2025-26 Topps Chrome #PP-5 Victor Wembanyama Power Players
+2023-24,Phoenix,Scorched Signatures,SCS,1,1,100,too few listings,2023-24 Panini Phoenix - Scorched Signatures - Purple #SCS-EVH Elvin Hayes /75
+2021-22,Hoops,Rookie Sweaters,RSW,1,1,100,too few listings,2021-22 Panini Hoops #RSW-FW Franz Wagner Rookie Card Rookie Sweaters
+2023-24,Court Kings,Masterstrokes,MS,1,1,100,too few listings,2023-24 Panini Donruss Court Kings #MS-DAL Dale Ellis Masterstrokes Autograph 21/75
+2020-21,Obsidian,Lightning Strike Signatures,LS,1,1,100,too few listings,2020-21 Panini Obsidian - Lightning Strike Signatures #LS-MRI Mitch Richmond /99
+2020-21,Select,Draft Selections Memorabilia,DS,1,1,100,too few listings,2020-21 Panini Select - Draft Selections Memorabilia #DS-OBI  Obi Toppin
+2020-21,Select,Duet Selections Memorabilia,DS,1,1,100,too few listings,2020-21 Panini Select - Duet Selections Memorabilia #DS-DAJ DeAndre Jordan
+2020-21,Obsidian,Aurora Autographs,AU,1,1,100,too few listings,2020-21 Panini Obsidian - Aurora Autographs #AU-RHA - Richard Hamilton /149
+2020-21,Obsidian,Galaxy Autographs,GAL,1,1,100,too few listings,2020-21 Panini Obsidian - Galaxy Autographs - Electric Etch Orange #GAL-ABY - Aron Baynes /50
+2020-21,Obsidian,Galaxy Autographs Electric Etch Orange,GAL,1,1,100,too few listings,2020-21 Panini Obsidian - Galaxy Autographs - Electric Etch Orange #GAL-ABY - Aron Baynes /50
+2020-21,Flux,Ultraviolet Signatures,UV,1,1,100,too few listings,2020-21 Panini Flux - Ultraviolet Signatures - Silver Prizm #UV-KHE - Khem Birch
+2020-21,Donruss Optic,Fast Break Signatures,FB,1,1,100,too few listings,2020-21 Panini Donruss Optic - Fast Break Signatures #FB-SFR Steve Francis
+2020-21,Hoops,Class of 2020,SS,1,1,100,too few listings,2020-21 Panini NBA Hoops - Now Playing #SS-13 - Killian Hayes
+2025-26,Finest,Muse,M,1,1,100,already in the source,2025-26 Topps Finest - Muse - Refractor #M-3 Magic Johnson
+2021-22,Select,Draft Selections Memorabilia,DS,1,1,100,too few listings,2021-22 Panini Select - Draft Selections Memorabilia #DS-KJN Keon Johnson
+2025-26,Topps,The Daily Dribble,DD,1,1,100,already in the source,2025-26 Topps - The Daily Dribble #DD-20 Paolo Banchero
+2020-21,Hoops,Hot Signatures Rookies,HR,1,1,100,too few listings,2020-21 Hoops #HR-JMC Jaden McDaniels Hot Signatures Rookies RC
+2020-21,Hoops,Arriving Now,SS,1,1,100,too few listings,2020-21 Panini Hoops #SS-17 Tyrese Maxey Rookie Card Arriving Now
+2025-26,Finest,Arrivals,A,3,1,100,already in the source,2025 Topps Finest #A-21 Will Riley Rookie Card Arrivals ; 2025 Topps Finest #A-4 Kon Knueppel Rookie Card Arrivals ; 2025 Topps Finest #A-29 Liam McNeeley Rookie Card Arrivals
+2025-26,Topps,Generation Now,GN,1,1,100,already in the source,2025 Topps #GN-4 Kon Knueppel Rookie Card Generation Now
+2025-26,Topps,MVP Vault,MVP,2,1,100,already in the source,2025 Topps #MVP-5 Russell Westbrook MVP Vault ; 2025 Topps #MVP-2 Shai Gilgeous-Alexander 2025 MVP Vault Holo
+2025-26,Topps,Marks of Excellence,ME,1,1,100,already in the source,2025 Topps #ME-DJ Dillon Jones Marks Of Excellence Autograph Holo
+2025-26,Topps,No Limit,NL,2,1,100,already in the source,2025 Topps #NL-15 Thomas Sorber Rookie Card No Limit Green Holo 60/99 ; 2025 Topps #NL-15 Thomas Sorber Rookie Card No Limit
+2022-23,Donruss Elite,Impact Impressions,II,1,1,100,proposed,2022-23 Panini Donruss Elite #II-EDC Eddy Curry Impact Impressions Autograph 04/10
+2020-21,Donruss Optic,Signature Series,SS,2,2,100,proposed,2020-21 Panini Donruss Optic #SS-DEL Dale Ellis Signature Series ; 2020-21 Panini Donruss Optic - Signature Series - Purple Prizm #SS-TBR.1 - Tony Bradley
+2020-21,Prizm,Rookie Signatures,RS,1,1,100,proposed,2020-21 Panini Prizm #RS-CAN Cole Anthony Rookie Signatures Mojo PSA 10 #/25 RC
+2020-21,Revolution,Rookie Autographs,RA,1,1,100,proposed,2020-21 Panini Revolution #RA-LB LaMelo Ball Rookie Autographs PSA 9 RC
+2021-22,Elite,Pen Pals,PP,1,1,100,proposed,2021-22 Donruss Elite #PP-TMA Tre Mann Pen Pals Black RC
+2021-22,Chronicles,Phoenix Rookie Auto,PRA,1,1,100,proposed,2021-22 Panini Chronicles #PRA-EVM Evan Mobley Phoenix Rookie Auto #/99 RC
+2021-22,Court Kings,Fresh Paint,FP,1,1,100,proposed,2021-22 Panini Court Kings #FP-JKG Jonathan Kuminga Fresh Paint Violet #/49 RC
+2021-22,Mosaic,Autographs Mosaic,AM,2,2,100,proposed,2021-22 Panini Mosaic #AM-MKP Mark Price Autographs Mosaic ; 2021-22 Panini Mosaic - Autographs Mosaic - Choice Fusion Red & Yellow Prizm #AM-SVF Steve Francis
+2024-25,Hoops,Hot Signatures,HS,3,2,100,proposed,2024-25 Panini Hoops #HS-CAS Cason Wallace Hot Signatures ; 2024-25 Panini NBA Hoops - Hot Signatures #HS-CLH Christian Laettner ; 2024-25 Panini Hoops #HS-TAB Thanasis Antetokounmpo Hot Signatures Autograph 24/25
+2024-25,Hoops,Hoops Ink,HI,1,1,100,proposed,2024-25 Panini Hoops #HI-MMW Moses Moody Hoops Ink
+2021-22,Prizm,Rookie Signatures,RS,2,1,100,proposed,2021-22 Panini Prizm #RS-DAY Day'Ron Sharpe Rookie Signatures RC ; 2021-22 Panini Prizm #RS-MMO Moses Moody Rookie Signatures Prizms Silver RC
+2021-22,Select,Rookie Signatures,RS,1,1,100,proposed,2021-22 Panini Select #RS-JGR Jalen Green Rookie Signatures Gold PSA 10 #/10 RC
+2023-24,Phoenix,Rookie Signs,RS,1,1,100,proposed,2023-24 Panini Phoenix #RS-DLV Dereck Lively II Rookie Signs Red Autograph 11/49
+2022-23,Donruss Optic,Fast Break Signatures,FBS,1,1,100,proposed,2022-23 Donruss Optic #FBS-MAX Max Christie Fast Break Signatures RC
+2022-23,Donruss Optic,Rookie Dominators Signatures,RDS,1,1,100,proposed,2022-23 Donruss Optic #RDS-CHS Caleb Houstan Rookie Dominators Signatures RC
+2022-23,Court Kings,Impressionist Ink,II,1,1,100,proposed,2022-23 Panini Court Kings #II-RAL Rick Fox Impressionist Ink Jade Auto
+2022-23,Flux,Equinox Autographs,EA,2,1,100,proposed,2022-23 Panini Flux #EA-JYW Jaylin Williams Equinox Autographs RC ; 2022-23 Panini Flux #EA-NVE Nick Van Exel Equinox Autographs
+2022-23,Flux,Hot Stock Signatures,HSS,2,2,100,proposed,2022-23 Panini Flux #HSS-ODG Ousmane Dieng Hot Stock Signatures RC ; 2022-23 Panini Flux #HSS-JIV Jaden Ivey Rookie Card Hot Stock Signatures
+2022-23,Prizm,Sensational Signatures,SS,1,1,100,proposed,2022-23 Panini Prizm #SS-KH Kevon Harris Sensational Signatures
+2022-23,Select,Rookie Signatures,RS,2,1,100,proposed,2022-23 Panini Select #RS-JSH Jabari Smith Jr. Rookie Signatures #/249 RC ; 2022-23 Panini Select #RS-KGM Keegan Murray Rookie Signatures #/249 RC
+2020-21,Hoops,Hoops Art Signatures,RS,2,2,100,prefix shared by several subsets,2020-21 Panini NBA Hoops - Rookie Special #RS-1 Anthony Edwards ; 2020-21 Hoops #RS-1 Anthony Edwards Rookie Special RC
+2020-21,Hoops,Rookie Special,RS,2,2,100,prefix shared by several subsets,2020-21 Panini NBA Hoops - Rookie Special #RS-1 Anthony Edwards ; 2020-21 Hoops #RS-1 Anthony Edwards Rookie Special RC
+2020-21,Hoops,We Got Next,RS,2,2,100,prefix shared by several subsets,2020-21 Panini NBA Hoops - Rookie Special #RS-1 Anthony Edwards ; 2020-21 Hoops #RS-1 Anthony Edwards Rookie Special RC
+2023-24,Phoenix,Inferno Etchings,IE,1,1,100,proposed,2023-24 Panini Phoenix #IE-CBM Caleb Martin Inferno Etchings Autograph 43/99
+2020-21,Prizm,Sensational Swatches,SSW,5,1,100,proposed,2020-21 Panini Prizm - Sensational Swatches #SSW-RGO Rudy Gobert ; 2020-21 Panini Prizm - Sensational Swatches #SSW-KKU Kyle Kuzma ; 2020-21 Panini Prizm - Sensational Swatches #SSW-JEM - Joel Embiid
+2020-21,Chronicles,Apprentice Signatures,APR,2,1,100,proposed,2020-21 Panini Chronicles - Apprentice Signatures - Red #APR-TDV Terence Davis II ; 2020-21 Panini Chronicles - Apprentice Signatures - Blue #APR-ANF Anfernee Simons /99
+2020-21,Donruss,Signature Series,SG,9,1,100,proposed,2020-21 Panini Donruss - Signature Series #SG-TDK Tony Delk ; 2020-21 Panini Donruss - Signature Series #SG-BSC Brian Scalabrine ; 2020-21 Panini Donruss - Signature Series #SG-SHW Spencer Haywood
+2024-25,Hoops,Great SIGnificance,GS,2,1,100,proposed,2024-25 Panini NBA Hoops - Great SIGnificance #GS-JBW Jared Butler ; 2024-25 Panini NBA Hoops - Great SIGnificance #GS-KBP Kendall Brown
+2024-25,Donruss Optic,Signature Series,SS,3,1,100,proposed,2024-25 Panini Donruss Optic - Signature Series #SS-DOZ Perry Dozier Jr ; 2024-25 Panini Donruss Optic - Signature Series #SS-MIN Josh Minott ; 2024-25 Panini Donruss Optic - Signature Series #SS-TSJ Terrence Shannon Jr.
+2024-25,Prizm,Rookie Signatures,RS,1,1,100,proposed,2024-25 Panini Select - Rookie Signatures - Red Prizm #RS-DAD Pacome Dadiet /99
+2020-21,Select,Autographed Memorabilia,AM,1,1,100,proposed,2020-21 Panini Select - Autographed Memorabilia #AM-EBS Eric Bledsoe /249
+2020-21,Select,Signature Selections,SIS,2,1,100,proposed,2020-21 Panini Select - Signature Selections #SIS-SAM Sam Perkins ; 2020-21 Panini Select - Signature Selections #SIS-SKE - Shawn Kemp
+2023-24,Court Kings,Fresh Paint,FP,1,1,100,proposed,2023-24 Panini Court Kings #FP-MGA Mouhamed Gueye Rookie Card Fresh Paint Autograph 94/99
+2021-22,Select,Signature Selections,SS,2,2,100,prefix shared by several subsets,2021-22 Panini Select - Signature Selections - Silver Prizm #SS-KDN Kendrick Nunn ; 2021 -22 Panini Select #SS-SBR Sterling Brown Signature Selections Autograph Silver Prizm
+2023-24,Prizm,Sensational Signatures,SS,1,1,100,proposed,2023-24 Panini Prizm #SS-MF Markelle Fultz Sensational Signatures Autograph Prizm
+2023-24,Donruss Elite,Impact Impressions,II,2,1,100,proposed,2023-24 Panini Donruss Elite #II-XAV Xavier McDaniel Impact Impressions Autograph ; 2023-24 Panini Donruss Elite #II-MAD Mark Aguirre Impact Impressions Autograph
+2022-23,Mosaic,Autographs Mosaic,AM,1,1,100,proposed,2022-23 Panini Mosaic - Autographs Mosaic - Choice Prizm #AM-ALV Jose Alvarado
+2021-22,Prizm,Sensational Swatches,SW,3,1,100,proposed,2021-22 Panini Prizm - Sensational Swatches #SW-AYO  Ayo Dosunmu ; 2021-22 Panini Prizm - Sensational Swatches #SW-KDR Kevin Durant ; 2021-22 Panini Prizm - Sensational Swatches - Orange Ice Prizm #SW-SAD Steven Adams
+2023-24,Donruss,Next Day,ND,1,1,100,proposed,2023-24 Panini Donruss #ND-BML Brandon Miller Rookie Card Next Day Autograph No Autograph
+2023-24,Donruss Elite,Pen Pals,PP,1,1,100,proposed,2023-24 Panini Donruss Elite #PP-MOU Mouhamed Gueye Rookie Card Pen Pals On Card Autograph
+2020-21,Mosaic,Autographs Mosaic,AM,1,1,100,proposed,2020-21 Panini Mosaic - Autographs Mosaic #AM-KOJ Kelly Oubre Jr.
+2022-23,Origins,Origins Memorabilia,OM,1,1,100,proposed,2022-23 Panini Origins - Origins Memorabilia #OM-BWW Bradley Beal
+2020-21,Select,In Flight Signatures,IF,2,1,100,proposed,2020-21 Panini Select - In Flight Signatures #IF-SKM - Shawn Kemp /249 ; 2020-21 Panini Select - In Flight Signatures #IF-DHW - Dwight Howard /149
+2021-22,Donruss Optic,Dominators Signatures,DS,1,1,100,proposed,2021-22 Panini Donruss Optic - Dominators Signatures #DS-ADR Andre Drummond /99
+2020-21,Hoops,Now Playing,SS,3,1,100,proposed,2020-21 Panini NBA Hoops - Now Playing #SS-22 Tyrese Maxey ; 2020-21 Panini NBA Hoops - Now Playing #SS-26 Saddiq Bey ; 2020-21 Panini NBA Hoops - Now Playing #SS-13 - Killian Hayes
+2020-21,Select,Selective Swatches,SS,2,1,100,proposed,2020-21 Panini Select - Selective Swatches #SS-KKZ Kyle Kuzma ; 2020-21 Panini Select - Selective Swatches #SS-MHR Montrezl Harrell
+2021-22,Hoops,Hoops Ink,HI,1,1,100,proposed,2021-22 Panini NBA Hoops - Hoops Ink #HI-JWL Jason Williams
+2021-22,Select,Throwback Memorabilia,TM,1,1,100,proposed,2021-22 Panini Select - Throwback Memorabilia - Purple Prizm #TM-EKT Enes Freedom /99
+2020-21,Prizm,Penmanship,PE,2,1,100,proposed,2020-21 Panini Prizm - Penmanship #PE-NCL Nicolas Claxton ; 2020-21 Panini Prizm - Penmanship #PE-RID Ricky Davis
+2023-24,Hoops,Rookie Remembrance,RR,1,1,100,proposed,2023-24 Panini NBA Hoops - Rookie Remembrance #RR-ZWN Zion Williamson
+2020-21,Prizm,Sensational Signatures,SS,2,1,100,proposed,2020-21 Panini Prizm - Sensational Signatures - Silver Prizm #SS-JAL Jarrett Allen ; 2020-21 Panini Prizm - Sensational Signatures #SS-JAL Jarrett Allen
+2023-24,Prizm,Signatures,LS,2,1,100,proposed,2023-24 Panini Prizm Draft Picks - Legacy Signatures - Purple Ice Prizm #LS-LYJ Larry Johnson /99 ; 2023-24 Panini Prizm Draft Picks - Legacy Signatures - Purple Ice Prizm #LS-SFM - Steve Francis /99
+2020-21,Prizm,Rookie Penmanship,RP,1,1,100,proposed,2020-21 Panini Prizm - Rookie Penmanship #RP-SMY Skylar Mays
+2021-22,Select,Selective Swatches,SS,1,1,100,prefix shared by several subsets,2021-22 Panini Select - Selective Swatches - Purple Prizm #SS-TTM Tristan Thompson /99
+2023-24,Court Kings,Impressionist Ink,II,1,1,100,proposed,2023-24 Panini Court Kings #II-SET Seth Curry Impressionist Ink Autograph 18/75
+2024-25,Prizm Black,Sensational Signatures,SS,1,1,100,proposed,2024-25 Panini Prizm Black #SS-BUZ Matas Buzelis Sensational Signatures Rookie Card
+2023-24,Flawless,Flawless Shade Signatures,FSS,1,1,100,proposed,2023-24 Panini Flawless #FSS-BJA BJ Armstrong Flawless Shade Signatures on card Autograph 13/15
+2021-22,Hoops,Rookie Remembrance,RR,1,1,100,proposed,2021-22 Panini NBA Hoops - Rookie Remembrance #RR-LZB Lonzo Ball
+2020-21,Flux,Autograph Influx,AI,1,1,100,proposed,2020-21 Panini Flux - Autograph Influx - Silver #AI-RFX Rick Fox

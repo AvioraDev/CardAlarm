@@ -28,7 +28,6 @@ import { saveClassifications, type ClassificationRecord, type ListingRow } from 
  *   --concurrency N       default 6
  *   --out FILE            where to write the run summary (JSON)
  *
- * Writing requires CARDALARM_JEV_CLASSIFIER_V2=true in this process only; the scan worker's setting is untouched.
  * Cost: TypeSafe bills $0.042 per million INPUT tokens and nothing for output.
  */
 
@@ -90,9 +89,6 @@ async function main(): Promise<void> {
   const outFile = optionValue(args, '--out');
   const dryRun = sample !== null || args.includes('--dry-run');
 
-  if (!dryRun && (process.env.CARDALARM_JEV_CLASSIFIER_V2 ?? 'false').toLowerCase() !== 'true') {
-    throw new Error('Refusing to write: set CARDALARM_JEV_CLASSIFIER_V2=true for this process (not in any .env file)');
-  }
   if (!dryRun && !Number.isFinite(estimateUsd)) throw new Error('--estimate-usd is required when writing, so the cost limit can be enforced');
 
   const db = getDb();
