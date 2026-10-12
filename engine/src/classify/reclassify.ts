@@ -16,6 +16,7 @@ import { saveClassifications, type ClassificationRecord, type ListingRow } from 
  *
  *   stage 1  Jev v1 rows that were linked to a product and lost the link when the catalogue was re-imported
  *   stage 2  every other Jev v1 row
+ *   missing  every live listing (as the readers see it) with no row for the current version, from any store
  *
  * Usage:
  *   npx tsx --env-file=web/.env.local engine/src/classify/reclassify.ts --stage 1|2|all [options]
@@ -35,7 +36,7 @@ const USD_PER_INPUT_TOKEN = 0.042 / 1_000_000;
 const SAVE_BATCH = 200;
 const MIN_ATTEMPTS_FOR_ERROR_RATE = 100;
 
-type Stage = '1' | '2' | 'all';
+type Stage = '1' | '2' | 'all' | 'missing';
 
 function optionValue(args: string[], flag: string): string | undefined {
   const index = args.indexOf(flag);
@@ -44,6 +45,18 @@ function optionValue(args: string[], flag: string): string | undefined {
 
 /** Store-product ids to classify. Jev v1 rows only, and none that already have a current-version row (resumable). */
 async function selectIds(db: DbClient, stage: Stage, liveOnly: boolean, limit: number | null, sample: number | null): Promise<number[]> {
+  if (stage === 'missing') {
+    const missing = await db.query<{ store_product_id: string }>(
+      `select sp.id::text as store_product_id
+       from public.store_products sp
+       where sp.is_active and sp.current_availability
+         and not exists (select 1 from public.product_classifications cur where cur.store_product_id = sp.id and cur.classifier_type = $1 and cur.classifier_version = $2)
+       order by case when $3::boolean then md5(sp.id::text) else lpad(sp.id::text, 12, '0') end
+       ${limit !== null || sample !== null ? 'limit ' + Number(sample ?? limit) : ''}`,
+      [JEV_CLASSIFIER_TYPE, JEV_CLASSIFIER_VERSION, sample !== null]
+    );
+    return missing.rows.map(row => Number(row.store_product_id));
+  }
   const result = await db.query<{ store_product_id: string }>(
     `select pc.store_product_id
      from public.product_classifications pc
@@ -79,7 +92,7 @@ async function main(): Promise<void> {
   const sampleArg = optionValue(args, '--sample');
   const sample = sampleArg ? Number(sampleArg) : null;
   const stage = (optionValue(args, '--stage') ?? 'all') as Stage;
-  if (!['1', '2', 'all'].includes(stage)) throw new Error('--stage must be 1, 2 or all');
+  if (!['1', '2', 'all', 'missing'].includes(stage)) throw new Error('--stage must be 1, 2, all or missing');
   const liveOnly = args.includes('--live-only');
   const limitArg = optionValue(args, '--limit');
   const limit = limitArg ? Number(limitArg) : null;

@@ -1,0 +1,56 @@
+{
+  "label": "1-switch-to-jev",
+  "reader": "jev",
+  "emailModeDuringRun": "log",
+  "emailModeBefore": "(unset)",
+  "coverage": {
+    "before": {
+      "live": 12659,
+      "missing": 0,
+      "version": "jev-catalogue-v4"
+    },
+    "after": {
+      "live": 12659,
+      "missing": 0,
+      "version": "jev-catalogue-v4"
+    }
+  },
+  "matchesUpserted": 1,
+  "alertsEnqueued": 0,
+  "alertsProcessedInLogMode": 0,
+  "watchlists": [
+    {
+      "watchlist": "Ajay Mitchell",
+      "confirmed": {
+        "before": 1,
+        "after": 0
+      },
+      "possible": {
+        "before": 1,
+        "after": 0
+      },
+      "otherListings": null,
+      "alertRows": {
+        "before": 12,
+        "after": 12
+      }
+    },
+    {
+      "watchlist": "Dylan Harper",
+      "confirmed": {
+        "before": 0,
+        "after": 1
+      },
+      "possible": {
+        "before": 0,
+        "after": 0
+      },
+      "otherListings": 11,
+      "alertRows": {
+        "before": 12,
+        "after": 12
+      }
+    }
+  ],
+  "wouldHaveFired": []
+}
