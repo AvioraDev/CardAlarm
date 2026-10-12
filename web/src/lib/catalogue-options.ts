@@ -87,16 +87,61 @@ function hasCardFilter(filters: WatchlistCatalogueOptionFilters): boolean {
   return Boolean(filters.playerId || filters.setId || filters.cardId || normalizedText(filters.season) || normalizedText(filters.productLine));
 }
 
+/**
+ * One person. The players table also holds the player strings of multi-player cards ("Kevin Durant/Kevin Durant",
+ * "Allen Iverson/Derrick Rose/Ja Morant", 281 of 1,583 rows); those are cards, not people, so they are never offered.
+ */
+export const SINGLE_PLAYER_SQL = `full_name !~ '[/&]' and full_name !~* '\\sand\\s'`;
+
+/** Every NBA player, once each, in name order. Ids are numbers (pg returns bigint as text). */
 async function playerOptions(): Promise<Array<{ id: number; full_name: string }>> {
-  return query<{ id: number; full_name: string }>(
+  const rows = await query<{ id: string | number; full_name: string }>(
     `select distinct on (normalized_name) id, full_name
      from public.players
      where active = true
        and sport = 'basketball'
        and league = 'NBA'
-     order by normalized_name, full_name
-     limit 300`,
+       and ${SINGLE_PLAYER_SQL}
+     order by normalized_name, full_name`,
   );
+  return rows.map((row) => ({ id: Number(row.id), full_name: row.full_name }));
+}
+
+/** Players whose name contains every word typed, names that start with the text first. At most `limit`. */
+export async function searchPlayerOptions(term: string, limit = 20): Promise<CatalogueOption[]> {
+  const words = term.toLowerCase().replace(/[^a-z0-9'\s.-]/g, " ").split(/\s+/).filter(Boolean).slice(0, 5);
+  if (words.length === 0) return [];
+  const params: unknown[] = [];
+  const conditions = words.map((word) => {
+    params.push(`%${word.replace(/[%_\\]/g, "")}%`);
+    return `normalized_name like $${params.length}`;
+  });
+  params.push(`${words[0]}%`);
+  const startsWith = `$${params.length}`;
+  params.push(Math.max(1, Math.min(limit, 50)));
+  const rows = await query<{ id: string | number; full_name: string }>(
+    `select id, full_name from (
+       select distinct on (normalized_name) id, full_name, normalized_name
+       from public.players
+       where active = true and sport = 'basketball' and league = 'NBA' and ${SINGLE_PLAYER_SQL}
+         and ${conditions.join(" and ")}
+       order by normalized_name
+     ) matches
+     order by (normalized_name like ${startsWith}) desc, normalized_name
+     limit $${params.length}`,
+    params,
+  );
+  return rows.map((row) => ({ id: Number(row.id), label: row.full_name }));
+}
+
+/** One player by id, or null. Used where the id comes from the address bar. */
+export async function getPlayerOption(id: number): Promise<CatalogueOption | null> {
+  const rows = await query<{ id: string | number; full_name: string }>(
+    `select id, full_name from public.players
+     where id = $1 and active = true and sport = 'basketball' and league = 'NBA' and ${SINGLE_PLAYER_SQL}`,
+    [id],
+  );
+  return rows[0] ? { id: Number(rows[0].id), label: rows[0].full_name } : null;
 }
 
 async function teamOptions(): Promise<Array<{ id: number; name: string; abbreviation: string | null }>> {
@@ -320,15 +365,15 @@ export async function getWatchlistCatalogueOptions(
   ]);
 
   return {
-    players: uniqueOptions(players.map((player) => ({ id: player.id, label: player.full_name }))),
-    teams: uniqueOptions(teams.map((team) => ({ id: team.id, label: compactLabel([team.name, team.abbreviation ? `(${team.abbreviation})` : null]) }))),
-    sets: uniqueOptions(sets.map((set) => ({ id: set.id, label: compactLabel([set.season, set.brand, set.product_line]) }))),
+    players: uniqueOptions(players.map((player) => ({ id: Number(player.id), label: player.full_name }))),
+    teams: uniqueOptions(teams.map((team) => ({ id: Number(team.id), label: compactLabel([team.name, team.abbreviation ? `(${team.abbreviation})` : null]) }))),
+    sets: uniqueOptions(sets.map((set) => ({ id: Number(set.id), label: compactLabel([set.season, set.brand, set.product_line]) }))),
     cards: uniqueOptions(cards.map((card) => ({
-      id: card.id,
+      id: Number(card.id),
       label: compactLabel([card.season, card.brand, card.product_line, card.card_number ? `#${card.card_number}` : null, card.player_name]),
     }))),
     variants: uniqueOptions(variants.map((variant) => ({
-      id: variant.id,
+      id: Number(variant.id),
       label: compactLabel([
         variant.product_line,
         variant.card_number ? `#${variant.card_number}` : null,

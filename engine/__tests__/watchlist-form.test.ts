@@ -103,7 +103,7 @@ describe("watchlist form validation", () => {
     expect(parseBooleanState(makeForm({ isActive: "on" }), "isActive")).toBeNull();
   });
 
-  it("normalizes exact generic rookie watchlists to rookie-only filters", () => {
+  it("does not turn a watchlist called Rookies into a rookie-only filter: the name is only a label", () => {
     for (const name of ["Rookie", "Rookies", "RC"]) {
       const result = parseWatchlistForm(makeForm({ name }));
 
@@ -111,7 +111,7 @@ describe("watchlist form validation", () => {
         ok: true,
         value: expect.objectContaining({
           name,
-          rookieOnly: true,
+          rookieOnly: false,
           includeTerms: null,
         }),
       });
