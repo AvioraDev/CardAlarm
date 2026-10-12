@@ -1,3 +1,4 @@
+import { readerClassificationFilterSql, readerPossibleSql } from "./classifier-reader";
 export type CanonicalBackfillRule = {
   id: number;
   watchlist_id: number;
@@ -101,7 +102,7 @@ export function productClassificationLateralJoinSql(): string {
        select *
        from public.product_classifications pc
        where pc.store_product_id = sp.id
-         and pc.classifier_type = 'deterministic'
+         and ${readerClassificationFilterSql("pc")}
        order by (pc.classifier_type = 'jev') desc, pc.updated_at desc
        limit 1
      ) pc on true`;
@@ -115,8 +116,6 @@ export function buildCanonicalBackfillSql(rule: CanonicalBackfillRule): Backfill
     "sp.is_active = true",
     "sp.current_availability = true",
     "pc.category = 'NBA'",
-    // D-001: Jev runs in shadow, so readers only see deterministic rows. The jev branches below take effect again if the filter above is widened.
-    "(pc.classifier_type <> 'jev' or pc.review_status = 'accepted')",
   ];
 
   if (rule.player_id) {
@@ -195,7 +194,7 @@ export function buildCanonicalBackfillSql(rule: CanonicalBackfillRule): Backfill
        pcm.id,
        ${confidenceSql}::numeric(5, 4),
        case
-         when (pc.classifier_type <> 'jev' and pcm.status = 'possible') or ${confidenceSql} < greatest(${minimumConfidencePlaceholder}::numeric, 0.75) then 'possible'
+         when (pc.classifier_type <> 'jev' and pcm.status = 'possible') or ${readerPossibleSql("pc")} or ${confidenceSql} < greatest(${minimumConfidencePlaceholder}::numeric, 0.75) then 'possible'
          else 'current'
        end,
        now(),

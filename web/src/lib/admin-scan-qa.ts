@@ -1,3 +1,4 @@
+import { readerClassificationFilterSql } from "./classifier-reader";
 import "server-only";
 
 import { requireAdmin } from "./auth";
@@ -350,7 +351,7 @@ async function getRecentMatches(summary: ScanQaSummaryRow | null, filters: ScanQ
        select *
        from public.product_classifications pc
        where pc.store_product_id = sp.id
-         and pc.classifier_type = 'deterministic'
+         and ${readerClassificationFilterSql("pc")}
        order by (pc.classifier_type = 'jev') desc, pc.updated_at desc
        limit 1
      ) pc on true

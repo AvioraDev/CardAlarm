@@ -1,3 +1,4 @@
+import { readerClassificationFilterSql } from "./classifier-reader";
 import type { FilterOptions } from "./types";
 
 const INVENTORY_ACTIVE_WHERE = "sp.is_active = true AND sp.current_availability = true";
@@ -202,7 +203,7 @@ export function inventoryClassificationJoinSql(): string {
        select *
        from public.product_classifications pc
        where pc.store_product_id = sp.id
-         and pc.classifier_type = 'deterministic'
+         and ${readerClassificationFilterSql("pc")}
        order by (pc.classifier_type = 'jev') desc, pc.updated_at desc
        limit 1
      ) pc on true`;
@@ -232,7 +233,7 @@ export function inventoryClassificationSetJoinSql(): string {
          pc.player_name, pc.variant_name, pc.parallel_name, pc.insert_name, pc.is_rookie, pc.is_auto,
          pc.is_serial, pc.serial_number, pc.serial_current, pc.serial_limit
        from public.product_classifications pc
-       where pc.classifier_type = 'deterministic'
+       where ${readerClassificationFilterSql("pc")}
        order by pc.store_product_id, (pc.classifier_type = 'jev') desc, pc.updated_at desc
      ) pc on pc.store_product_id = sp.id`;
 }
