@@ -26,19 +26,20 @@ describe('watchlist reconciliation retires stale matches (CAR-71)', () => {
     const upserted = await reconcileActiveWatchlistMatches(db);
 
     expect(upserted).toBe(3);
-    expect(calls.map(c => (c.sql.includes('clock_timestamp') ? 'clock' : c.sql.includes('insert into') ? 'insert' : 'delete'))).toEqual([
+    expect(calls.map(c => (c.sql.includes('update public.watchlist_rules') ? 'link players' : c.sql.includes('clock_timestamp') ? 'clock' : c.sql.includes('insert into') ? 'insert' : 'delete'))).toEqual([
+      'link players',
       'clock',
       'insert',
       'delete',
     ]);
-    expect(calls[2]!.params).toEqual([startedAt]);
-    expect(calls[2]!.sql).toContain('wm.last_matched_at < $1');
+    expect(calls[3]!.params).toEqual([startedAt]);
+    expect(calls[3]!.sql).toContain('wm.last_matched_at < $1');
   });
 
   it('only retires matches on active watchlists and still-available listings', async () => {
     const { db, calls } = fakeDb();
     await reconcileActiveWatchlistMatches(db);
-    const sql = calls[2]!.sql.replace(/\s+/g, ' ');
+    const sql = calls[3]!.sql.replace(/\s+/g, ' ');
 
     expect(sql).toContain('w.is_active = true');
     expect(sql).toContain('sp.is_active = true');
