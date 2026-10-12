@@ -1,8 +1,8 @@
 import fs from 'fs';
 import path from 'path';
 
-// CAR-69 / D-001: Jev classifies and stores rows but must not influence matches or inventory
-// until it beats the deterministic classifier on the labelled set (CAR-63).
+// D-001 kept Jev in shadow (readers saw only deterministic rows). D-008 supersedes it: readers read the Jev classifier,
+// but only through the one shared filter, so the setting that rolls back to Standard governs all of them.
 const readers = [
   'engine/src/watchlist-reconciliation.ts',
   'web/src/lib/watchlist-backfill-sql.ts',
@@ -10,10 +10,11 @@ const readers = [
   'web/src/lib/admin-scan-qa.ts',
 ];
 
-describe('Jev shadow mode (D-001)', () => {
-  it.each(readers)('%s reads only deterministic classifications', file => {
+describe('Reader classification (D-008, supersedes the D-001 shadow)', () => {
+  it.each(readers)('%s takes its classification filter from the shared reader module', file => {
     const source = fs.readFileSync(path.join(__dirname, '../..', file), 'utf8');
-    expect(source).toContain("classifier_type = 'deterministic'");
+    expect(source).toContain('readerClassificationFilterSql(');
+    expect(source).not.toContain("classifier_type = 'deterministic'");
     expect(source).not.toMatch(/classifier_type in \([^)]*'jev'/);
   });
 });

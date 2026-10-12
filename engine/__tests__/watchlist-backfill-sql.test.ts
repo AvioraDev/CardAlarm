@@ -1,3 +1,4 @@
+import { readerClassificationFilterSql, readerPossibleSql } from '../../web/src/lib/classifier-reader';
 import {
   buildCanonicalBackfillSql,
   hasCanonicalBackfillPositiveFilter,
@@ -93,7 +94,7 @@ describe('canonical watchlist backfill SQL', () => {
     const joinSql = productClassificationLateralJoinSql();
 
     expect(joinSql).toContain('where pc.store_product_id = sp.id');
-    expect(joinSql).toContain("pc.classifier_type = 'deterministic'");
+    expect(joinSql).toContain(readerClassificationFilterSql('pc'));
     expect(joinSql).toContain("order by (pc.classifier_type = 'jev') desc, pc.updated_at desc");
     expect(joinSql).toContain('limit 1');
   });
@@ -101,7 +102,8 @@ describe('canonical watchlist backfill SQL', () => {
   it('only matches a Jev classification once it is accepted, and matches players by player record', () => {
     const built = buildCanonicalBackfillSql(rule({ player_id: 2378 }));
 
-    expect(built?.sql).toContain("(pc.classifier_type <> 'jev' or pc.review_status = 'accepted')");
+    expect(built?.sql).toContain(readerClassificationFilterSql('pc'));
+    expect(built?.sql).toContain(readerPossibleSql('pc'));
     expect(built?.sql).toContain('pc.player_id = $3');
     expect(built?.sql).toContain("case when pc.classifier_type = 'jev' then pc.confidence else pcm.confidence end");
   });

@@ -6,8 +6,10 @@
  * to find the listings; none of its fields are returned. It never touches the alerts tables.
  */
 
-/** The classifier version whose rows this section reads. Keep in step with JEV_CLASSIFIER_VERSION in the engine. */
-export const OTHER_LISTINGS_CLASSIFIER_VERSION = "jev-catalogue-v4";
+import { JEV_READER_VERSION } from "./classifier-reader";
+
+/** The classifier version whose rows this section reads: the version the readers read. */
+export const OTHER_LISTINGS_CLASSIFIER_VERSION = JEV_READER_VERSION;
 
 export const OTHER_LISTINGS_LIMIT = 12;
 

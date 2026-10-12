@@ -1,4 +1,5 @@
 import type { DbClient } from './db';
+import { readerClassificationFilterSql, readerPossibleSql } from './classifier-reader';
 
 /**
  * Matches active watchlist rules against classified inventory. The Jev classification is used when a
@@ -29,6 +30,7 @@ export async function reconcileActiveWatchlistMatches(db: DbClient): Promise<num
        coalesce(case when pc.classifier_type = 'jev' then pc.confidence else pcm.confidence end, 0)::numeric(5, 4),
        case
          when (pc.classifier_type <> 'jev' and pcm.status = 'possible')
+           or ${readerPossibleSql('pc')}
            or coalesce(case when pc.classifier_type = 'jev' then pc.confidence else pcm.confidence end, 0) < greatest(coalesce(wr.minimum_match_confidence, 0.75), 0.75)
            then 'possible'
          else 'current'
@@ -43,7 +45,7 @@ export async function reconcileActiveWatchlistMatches(db: DbClient): Promise<num
        select *
        from public.product_classifications pc
        where pc.store_product_id = sp.id
-         and pc.classifier_type = 'deterministic'
+         and ${readerClassificationFilterSql('pc')}
        order by (pc.classifier_type = 'jev') desc, pc.updated_at desc
        limit 1
      ) pc on true
@@ -56,7 +58,6 @@ export async function reconcileActiveWatchlistMatches(db: DbClient): Promise<num
      ) pcm on true
      where w.is_active = true
        and pc.category = 'NBA'
-       and (pc.classifier_type <> 'jev' or pc.review_status = 'accepted')
        and (
          wr.player_id is not null
          or nullif(wr.include_terms, '') is not null
