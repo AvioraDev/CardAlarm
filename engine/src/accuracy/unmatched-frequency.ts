@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import { closeDb, getDb } from '../db';
+import { JEV_CLASSIFIER_VERSION } from '../classify/classifier';
 import { parseSeason } from '../classify/title-fields';
 import { toCsv } from './csv';
 
@@ -12,7 +13,7 @@ import { toCsv } from './csv';
  * this table and takes no part in matching.
  *
  * Usage:
- *   npx tsx --env-file=web/.env.local engine/src/accuracy/unmatched-frequency.ts [--out docs/accuracy/unmatched-frequency-001.csv]
+ *   npx tsx --env-file=web/.env.local engine/src/accuracy/unmatched-frequency.ts [--out docs/accuracy/unmatched-frequency-001.csv] [--version jev-catalogue-v2]
  */
 
 // Longest phrases first so "Donruss Optic" wins over "Donruss" and "Prizm Black" over "Prizm".
@@ -44,6 +45,9 @@ function startYear(season: string): number {
 interface Row {
   id: string;
   title: string;
+  player_name: string | null;
+  review_reasons: string[] | null;
+  match_reasons: string[] | null;
 }
 
 interface Group {
@@ -58,15 +62,20 @@ async function main(): Promise<void> {
   const outIndex = args.indexOf('--out');
   const out = path.resolve(outIndex === -1 ? 'docs/accuracy/unmatched-frequency-001.csv' : args[outIndex + 1]!);
 
+  // A listing can hold a row per classifier version; count one version only, or every reclassified listing counts twice.
+  const versionIndex = args.indexOf('--version');
+  const version = versionIndex === -1 ? JEV_CLASSIFIER_VERSION : args[versionIndex + 1]!;
+
   const db = getDb();
   try {
     const { rows } = await db.query<Row>(
-      `select sp.id::text id, sp.title
+      `select sp.id::text id, sp.title, pc.player_name, pc.review_reasons, pc.raw_signals->'matchReasons' as match_reasons
        from public.product_classifications pc
        join public.store_products sp on sp.id = pc.store_product_id
        join public.stores s on s.id = sp.store_id and s.is_active
-       where pc.classifier_type = 'jev' and pc.item_type = 'single_card' and pc.sport = 'basketball'
-         and sp.is_active and sp.current_availability and pc.product_line is null`
+       where pc.classifier_type = 'jev' and pc.classifier_version = $1 and pc.item_type = 'single_card' and pc.sport = 'basketball'
+         and sp.is_active and sp.current_availability and pc.product_line is null`,
+      [version]
     );
     const catalogue = await db.query<{ season: string; normalized_product_line: string }>(
       `select season, normalized_product_line from public.checklist_products where sport = 'basketball'`
@@ -85,6 +94,7 @@ async function main(): Promise<void> {
       );
     };
 
+    const detail: string[][] = [['store_product_id', 'title', 'season', 'product', 'player', 'review_reasons', 'match_reasons']];
     const groups = new Map<string, Group>();
     const unparsed = { total: 0, noYear: 0, noProduct: 0, neither: 0 };
     for (const row of rows) {
@@ -101,6 +111,9 @@ async function main(): Promise<void> {
       const group = groups.get(key) ?? { season, product, listings: 0, catalogueHasProduct: inCatalogue(season, product) };
       group.listings += 1;
       groups.set(key, group);
+      if (group.catalogueHasProduct && startYear(season) >= 2019) {
+        detail.push([row.id, row.title, season, product, row.player_name ?? '', (row.review_reasons ?? []).join(' ; '), (row.match_reasons ?? []).join(' ; ')]);
+      }
     }
 
     const total = rows.length;
@@ -126,6 +139,9 @@ async function main(): Promise<void> {
 
     fs.mkdirSync(path.dirname(out), { recursive: true });
     fs.writeFileSync(out, toCsv(lines), 'utf8');
+    // Listings from 2019-20 on whose product is in the catalogue and which are still unmatched: why each one failed.
+    const detailIndex = args.indexOf('--catalogued-detail');
+    if (detailIndex !== -1) fs.writeFileSync(path.resolve(args[detailIndex + 1]!), toCsv(detail), 'utf8');
 
     const sum = (list: Group[]): number => list.reduce((acc, group) => acc + group.listings, 0);
     console.log(JSON.stringify({
