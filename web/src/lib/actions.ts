@@ -1,5 +1,6 @@
 "use server";
 
+import { liveListingSql } from "./live-listing";
 import { revalidatePath } from "next/cache";
 import { requireAdmin, requireUser } from "./auth";
 import { execute, query } from "./db";
@@ -38,7 +39,7 @@ async function assertUserCanAccessFeedbackTarget(
      where w.user_id = $1
        and w.is_active = true
        and sp.is_active = true
-       and sp.current_availability = true
+       and ${liveListingSql("sp")}
        and sp.id = $2
        and (
          $3::bigint is null

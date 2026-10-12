@@ -1,3 +1,4 @@
+import { liveListingSql } from "./live-listing";
 import { query } from "./db";
 import type {
   ListingRow,
@@ -167,8 +168,7 @@ export async function getActiveUserWatchlistChips(userId: string): Promise<Watch
      left join public.watchlist_matches wm on wm.watchlist_id = w.id
      left join public.store_products sp
        on sp.id = wm.store_product_id
-      and sp.is_active = true
-      and sp.current_availability = true
+      and ${liveListingSql("sp")}
      ${userFeedbackStateJoinSql()}
      where w.user_id = $1
        and w.is_active = true

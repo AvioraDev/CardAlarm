@@ -1,4 +1,5 @@
 import { readerClassificationFilterSql, readerPossibleSql } from "./classifier-reader";
+import { liveListingSql } from "./live-listing";
 export type CanonicalBackfillRule = {
   id: number;
   watchlist_id: number;
@@ -113,8 +114,7 @@ export function buildCanonicalBackfillSql(rule: CanonicalBackfillRule): Backfill
 
   const params: unknown[] = [rule.watchlist_id, rule.id];
   const conditions = [
-    "sp.is_active = true",
-    "sp.current_availability = true",
+    liveListingSql("sp"),
     "pc.category = 'NBA'",
   ];
 

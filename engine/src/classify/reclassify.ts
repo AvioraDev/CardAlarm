@@ -23,6 +23,7 @@ import { saveClassifications, type ClassificationRecord, type ListingRow } from 
  *
  *   --sample N            classify N listings spread across the stages and write nothing (timing and cost)
  *   --live-only           only listings currently available
+ *   --ids A,B,C           classify exactly these store_product ids again, replacing their current-version rows
  *   --limit N             cap the number of listings (default: all)
  *   --estimate-usd X      the cost estimate; the run stops when spend exceeds it by more than 20%
  *   --max-error-rate R    stop when failures / attempts exceeds R after 100 attempts (default 0.02)
@@ -45,6 +46,8 @@ function optionValue(args: string[], flag: string): string | undefined {
 
 /** Store-product ids to classify. Jev v1 rows only, and none that already have a current-version row (resumable). */
 async function selectIds(db: DbClient, stage: Stage, liveOnly: boolean, limit: number | null, sample: number | null): Promise<number[]> {
+  const explicit = optionValue(process.argv.slice(2), '--ids');
+  if (explicit) return explicit.split(',').map(Number).filter(Number.isFinite);
   if (stage === 'missing') {
     const missing = await db.query<{ store_product_id: string }>(
       `select sp.id::text as store_product_id

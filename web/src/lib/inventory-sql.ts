@@ -1,12 +1,12 @@
 import { readerClassificationFilterSql } from "./classifier-reader";
+import { liveListingSql } from "./live-listing";
 import type { FilterOptions } from "./types";
 
-const INVENTORY_ACTIVE_WHERE = "sp.is_active = true AND sp.current_availability = true";
+const INVENTORY_ACTIVE_WHERE = liveListingSql("sp");
 const WATCHLIST_MATCH_ACTIVE_WHERE = `
   w.user_id = $1
   AND w.is_active = true
-  AND sp.is_active = true
-  AND sp.current_availability = true`;
+  AND ${liveListingSql("sp")}`;
 const TITLE_SERIAL_SIGNAL = "coalesce(sp.title, '') ~* '\\m(\\d{1,4}\\s*/\\s*\\d{1,5}|#?/\\s*\\d{1,5})\\M'";
 const TITLE_AUTO_SIGNAL = "coalesce(sp.title, '') ~* '\\m(auto|autograph)\\M'";
 const TITLE_ROOKIE_SIGNAL = "coalesce(sp.title, '') ~* '\\m(rc|rookie)\\M'";

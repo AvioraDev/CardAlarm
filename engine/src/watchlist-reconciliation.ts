@@ -1,11 +1,15 @@
 import type { DbClient } from './db';
 import { readerClassificationFilterSql, readerPossibleSql } from './classifier-reader';
+import { liveListingSql } from './live-listing';
+import { linkWatchlistPlayers } from './watchlist-players';
 
 /**
  * Matches active watchlist rules against classified inventory. The Jev classification is used when a
  * listing has one; the deterministic one is only a fallback for listings Jev has not reached yet.
  */
 export async function reconcileActiveWatchlistMatches(db: DbClient): Promise<number> {
+  // A watchlist made before its player was in the catalogue is a words-only rule; link it first so it matches by player.
+  await linkWatchlistPlayers(db);
   const { rows: [clock] } = await db.query<{ started_at: Date }>('select clock_timestamp() as started_at');
   const result = await db.query(
     `insert into public.watchlist_matches (
@@ -40,7 +44,7 @@ export async function reconcileActiveWatchlistMatches(db: DbClient): Promise<num
      from public.watchlist_rules wr
      join public.watchlists w on w.id = wr.watchlist_id
      left join public.players p on p.id = wr.player_id
-     join public.store_products sp on sp.is_active = true and sp.current_availability = true
+     join public.store_products sp on ${liveListingSql('sp')}
      join lateral (
        select *
        from public.product_classifications pc

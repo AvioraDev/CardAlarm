@@ -111,7 +111,8 @@ export interface CodePrefixEntry {
 }
 
 export function loadCodePrefixEntries(file = CODE_PREFIXES_FILE): CodePrefixEntry[] {
-  return fs.existsSync(file) ? (JSON.parse(fs.readFileSync(file, 'utf8')) as { entries: CodePrefixEntry[] }).entries : [];
+  // Only prefixes the source checklist itself prints are used; derived (store_codes) entries are disabled.
+  return fs.existsSync(file) ? (JSON.parse(fs.readFileSync(file, 'utf8')) as { entries: CodePrefixEntry[] }).entries.filter(entry => entry.source === 'source') : [];
 }
 
 /** The prefix every (or nearly every) card number of the subset carries in the source: "CM-KK", "CM-JT" -> "CM". */

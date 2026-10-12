@@ -1,3 +1,4 @@
+import { liveListingSql } from "./live-listing";
 import "server-only";
 import { query, transaction } from "./db";
 
@@ -180,8 +181,7 @@ export async function enqueueWatchlistAlerts(watchlistId: number): Promise<numbe
        left join auth.users au on au.id = w.user_id
        where w.id = $1
          and w.is_active = true
-         and sp.is_active = true
-         and sp.current_availability = true
+         and ${liveListingSql("sp")}
        on conflict (dedupe_key) do update set
          status = case
            when public.alerts.status = 'suppressed' and excluded.status = 'pending' then 'pending'

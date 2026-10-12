@@ -11,15 +11,16 @@ import { loadCodePrefixEntries, sourceCodePrefix, type CodePrefixEntry } from '.
  * Subset code prefixes (CAR-93): "AM" for Alumni Mates, so a store's "AM-9" can be compared with number 9.
  *
  *   derive  reads live store titles and proposes a prefix for each insert subset where the codes are consistent.
- *           Writes docs/catalogue/code-prefixes.json (the list) and docs/catalogue/code-prefixes-review.csv
- *           (the evidence). Changes nothing in the database.
- *   apply   writes prefixes to checklist_subsets: from the source checklist where its card numbers carry the prefix,
- *           otherwise from the reviewed list. Re-importing a checklist applies the same two sources.
+ *           Writes docs/catalogue/code-prefixes-derived-disabled.json and docs/catalogue/code-prefixes-review.csv
+ *           (the evidence). Changes nothing in the database, and nothing here is used by the matcher.
+ *   apply   writes prefixes to checklist_subsets from the source checklist, where its card numbers carry the prefix.
+ *           Derived prefixes are disabled and never applied.
  *
  * Usage: npx tsx --env-file=web/.env.local engine/src/catalogue/code-prefixes.ts derive|apply [--dry-run]
  */
 
-const FILE = 'docs/catalogue/code-prefixes.json';
+// Derived prefixes are proposals only and are NOT applied (disabled 2026-10-12): they go to a separate file.
+const FILE = 'docs/catalogue/code-prefixes-derived-disabled.json';
 const REVIEW = 'docs/catalogue/code-prefixes-review.csv';
 const MIN_LISTINGS = 2;
 const MIN_SHARE = 0.9;

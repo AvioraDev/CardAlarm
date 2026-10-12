@@ -50,7 +50,7 @@ describe('server action validation and ownership checks', () => {
     expect(actions).toContain('async function assertUserCanAccessFeedbackTarget');
     expect(actions).toContain('from public.watchlist_matches wm');
     expect(actions).toContain('w.user_id = $1');
-    expect(actions).toContain('sp.current_availability = true');
+    expect(actions).toContain('liveListingSql("sp")');
     expect(actions).toContain('wm.product_card_match_id = pcm.id or wm.product_card_match_id is null');
     expect(actions).toContain('insert into public.match_feedback');
   });
