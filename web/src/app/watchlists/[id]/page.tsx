@@ -16,6 +16,7 @@ import {
   updateWatchlistAction,
 } from "@/lib/watchlist-actions";
 import { CatalogueRefineForm, WatchlistFormFields } from "../watchlist-form-fields";
+import { OtherListingsSection } from "./other-listings";
 
 interface WatchlistDetailPageProps {
   params: Promise<{ id: string }>;
@@ -184,6 +185,10 @@ export default async function WatchlistDetailPage({ params, searchParams }: Watc
           See these cards
         </Link>
       </section>
+
+      {rule?.player_id ? (
+        <OtherListingsSection userId={user.id} watchlistId={watchlist.id} playerName={labelFor(ruleOptions.players, rule.player_id)} />
+      ) : null}
 
       {rule ? (
         <section className="panel p-5 md:p-6">
