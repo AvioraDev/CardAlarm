@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import { closeDb, getDb } from '../db';
+import { maskPhrases } from '../classify/catalogue-index';
 import { JEV_CLASSIFIER_VERSION } from '../classify/classifier';
 import { parseSeason } from '../classify/title-fields';
 import { toCsv } from './csv';
@@ -43,7 +44,7 @@ function firstProduct(haystack: string): string | null {
  */
 function parseProduct(title: string, parallelPhrases: string[]): string | null {
   const haystack = ` ${normalize(title)} `;
-  const masked = parallelPhrases.reduce((text, phrase) => (text.includes(` ${phrase} `) ? text.split(` ${phrase} `).join('  ') : text), haystack);
+  const masked = maskPhrases(haystack, parallelPhrases);
   return (masked !== haystack ? firstProduct(masked) : null) ?? firstProduct(haystack);
 }
 

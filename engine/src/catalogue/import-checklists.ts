@@ -99,6 +99,45 @@ export function parseChecklistFile(filePath: string, accepted: AcceptedDiscrepan
   return { product, subsets, report, traces };
 }
 
+const CODE_PREFIXES_FILE = 'docs/catalogue/code-prefixes.json';
+
+export interface CodePrefixEntry {
+  season: string;
+  productLine: string;
+  subset: string;
+  prefix: string;
+  /** 'store_codes' prefixes were derived from consistent codes in live store titles and are listed for review. */
+  source: 'source' | 'store_codes';
+}
+
+export function loadCodePrefixEntries(file = CODE_PREFIXES_FILE): CodePrefixEntry[] {
+  return fs.existsSync(file) ? (JSON.parse(fs.readFileSync(file, 'utf8')) as { entries: CodePrefixEntry[] }).entries : [];
+}
+
+/** The prefix every (or nearly every) card number of the subset carries in the source: "CM-KK", "CM-JT" -> "CM". */
+export function sourceCodePrefix(cardNumbers: Array<string | null>): string | null {
+  const numbers = cardNumbers.filter((value): value is string => Boolean(value));
+  if (numbers.length < 2) return null;
+  const prefixes = numbers.map(value => /^([A-Za-z]{1,5})-/.exec(value)?.[1]?.toUpperCase() ?? null);
+  const counts = new Map<string, number>();
+  for (const prefix of prefixes) if (prefix) counts.set(prefix, (counts.get(prefix) ?? 0) + 1);
+  const [top] = [...counts.entries()].sort((a, b) => b[1] - a[1]);
+  return top && top[1] / numbers.length >= 0.9 ? top[0] : null;
+}
+
+function codePrefixFor(
+  product: ParsedChecklist['product'],
+  subset: ParsedChecklist['subsets'][number],
+  entries: CodePrefixEntry[] = loadCodePrefixEntries()
+): { code_prefix: string | null; code_prefix_source: string | null } {
+  const fromSource = sourceCodePrefix(subset.cards.map(card => card.cardNumber));
+  if (fromSource) return { code_prefix: fromSource, code_prefix_source: 'source' };
+  const listed = entries.find(
+    entry => entry.season === product.season && normalizeCatalogueName(entry.productLine) === normalizeCatalogueName(product.productLine) && normalizeCatalogueName(entry.subset) === normalizeCatalogueName(subset.name)
+  );
+  return listed ? { code_prefix: listed.prefix.toUpperCase(), code_prefix_source: listed.source } : { code_prefix: null, code_prefix_source: null };
+}
+
 function isSinglePlayerName(name: string): boolean {
   return !/[\/&]|\band\b/i.test(name) && name.trim().split(/\s+/).length >= 2;
 }
@@ -124,6 +163,7 @@ async function importChecklist(parsed: ParsedChecklist): Promise<{ subsets: numb
     number_from: subset.numberFrom ?? null,
     number_to: subset.numberTo ?? null,
     parent_normalized_name: subset.parentName ? normalizeCatalogueName(subset.parentName) : null,
+    ...codePrefixFor(product, subset),
   }));
   const parallelRows = subsets.flatMap((subset, index) =>
     subset.parallels.map(parallel => ({
@@ -176,12 +216,12 @@ async function importChecklist(parsed: ParsedChecklist): Promise<{ subsets: numb
       `with subset_input as (
          select * from jsonb_to_recordset($2::jsonb) as x(
            position integer, name text, normalized_name text, kind text, declared_card_count integer,
-           number_from integer, number_to integer
+           number_from integer, number_to integer, code_prefix text, code_prefix_source text
          )
        ),
        inserted_subsets as (
-         insert into public.checklist_subsets (product_id, name, normalized_name, kind, declared_card_count, number_from, number_to)
-         select $1, name, normalized_name, kind, declared_card_count, number_from, number_to
+         insert into public.checklist_subsets (product_id, name, normalized_name, kind, declared_card_count, number_from, number_to, code_prefix, code_prefix_source)
+         select $1, name, normalized_name, kind, declared_card_count, number_from, number_to, code_prefix, code_prefix_source
          from subset_input
          returning id, kind, normalized_name
        ),

@@ -1,0 +1,383 @@
+{
+  "status": "PENDING review by Harry. Derived from consistent codes in live store titles (see code-prefixes-review.csv). A prefix only lets \"PREFIX-n\" match number n of that subset, for a player who has a card in it.",
+  "entries": [
+    {
+      "season": "2020-21",
+      "productLine": "Chronicles",
+      "subset": "Apprentice Signatures",
+      "prefix": "APR",
+      "source": "store_codes"
+    },
+    {
+      "season": "2020-21",
+      "productLine": "Donruss Optic",
+      "subset": "Signature Series",
+      "prefix": "SS",
+      "source": "store_codes"
+    },
+    {
+      "season": "2020-21",
+      "productLine": "Donruss",
+      "subset": "Signature Series",
+      "prefix": "SG",
+      "source": "store_codes"
+    },
+    {
+      "season": "2020-21",
+      "productLine": "Flux",
+      "subset": "Autograph Influx",
+      "prefix": "AI",
+      "source": "store_codes"
+    },
+    {
+      "season": "2020-21",
+      "productLine": "Hoops",
+      "subset": "Now Playing",
+      "prefix": "SS",
+      "source": "store_codes"
+    },
+    {
+      "season": "2020-21",
+      "productLine": "Mosaic",
+      "subset": "Autographs Mosaic",
+      "prefix": "AM",
+      "source": "store_codes"
+    },
+    {
+      "season": "2020-21",
+      "productLine": "Prizm",
+      "subset": "Penmanship",
+      "prefix": "PE",
+      "source": "store_codes"
+    },
+    {
+      "season": "2020-21",
+      "productLine": "Prizm",
+      "subset": "Rookie Penmanship",
+      "prefix": "RP",
+      "source": "store_codes"
+    },
+    {
+      "season": "2020-21",
+      "productLine": "Prizm",
+      "subset": "Rookie Signatures",
+      "prefix": "RS",
+      "source": "store_codes"
+    },
+    {
+      "season": "2020-21",
+      "productLine": "Prizm",
+      "subset": "Sensational Signatures",
+      "prefix": "SS",
+      "source": "store_codes"
+    },
+    {
+      "season": "2020-21",
+      "productLine": "Prizm",
+      "subset": "Sensational Swatches",
+      "prefix": "SSW",
+      "source": "store_codes"
+    },
+    {
+      "season": "2020-21",
+      "productLine": "Revolution",
+      "subset": "Rookie Autographs",
+      "prefix": "RA",
+      "source": "store_codes"
+    },
+    {
+      "season": "2020-21",
+      "productLine": "Select",
+      "subset": "Autographed Memorabilia",
+      "prefix": "AM",
+      "source": "store_codes"
+    },
+    {
+      "season": "2020-21",
+      "productLine": "Select",
+      "subset": "In Flight Signatures",
+      "prefix": "IF",
+      "source": "store_codes"
+    },
+    {
+      "season": "2020-21",
+      "productLine": "Select",
+      "subset": "Selective Swatches",
+      "prefix": "SS",
+      "source": "store_codes"
+    },
+    {
+      "season": "2020-21",
+      "productLine": "Select",
+      "subset": "Signature Selections",
+      "prefix": "SIS",
+      "source": "store_codes"
+    },
+    {
+      "season": "2021-22",
+      "productLine": "Chronicles",
+      "subset": "Phoenix Rookie Auto",
+      "prefix": "PRA",
+      "source": "store_codes"
+    },
+    {
+      "season": "2021-22",
+      "productLine": "Court Kings",
+      "subset": "Fresh Paint",
+      "prefix": "FP",
+      "source": "store_codes"
+    },
+    {
+      "season": "2021-22",
+      "productLine": "Donruss Optic",
+      "subset": "Dominators Signatures",
+      "prefix": "DS",
+      "source": "store_codes"
+    },
+    {
+      "season": "2021-22",
+      "productLine": "Elite",
+      "subset": "Pen Pals",
+      "prefix": "PP",
+      "source": "store_codes"
+    },
+    {
+      "season": "2021-22",
+      "productLine": "Hoops",
+      "subset": "Hoops Ink",
+      "prefix": "HI",
+      "source": "store_codes"
+    },
+    {
+      "season": "2021-22",
+      "productLine": "Hoops",
+      "subset": "Rookie Remembrance",
+      "prefix": "RR",
+      "source": "store_codes"
+    },
+    {
+      "season": "2021-22",
+      "productLine": "Mosaic",
+      "subset": "Autographs Mosaic",
+      "prefix": "AM",
+      "source": "store_codes"
+    },
+    {
+      "season": "2021-22",
+      "productLine": "Prizm",
+      "subset": "Rookie Signatures",
+      "prefix": "RS",
+      "source": "store_codes"
+    },
+    {
+      "season": "2021-22",
+      "productLine": "Prizm",
+      "subset": "Sensational Swatches",
+      "prefix": "SW",
+      "source": "store_codes"
+    },
+    {
+      "season": "2021-22",
+      "productLine": "Select",
+      "subset": "Rookie Signatures",
+      "prefix": "RS",
+      "source": "store_codes"
+    },
+    {
+      "season": "2021-22",
+      "productLine": "Select",
+      "subset": "Throwback Memorabilia",
+      "prefix": "TM",
+      "source": "store_codes"
+    },
+    {
+      "season": "2022-23",
+      "productLine": "Court Kings",
+      "subset": "Impressionist Ink",
+      "prefix": "II",
+      "source": "store_codes"
+    },
+    {
+      "season": "2022-23",
+      "productLine": "Donruss Elite",
+      "subset": "Impact Impressions",
+      "prefix": "II",
+      "source": "store_codes"
+    },
+    {
+      "season": "2022-23",
+      "productLine": "Donruss Optic",
+      "subset": "Fast Break Signatures",
+      "prefix": "FBS",
+      "source": "store_codes"
+    },
+    {
+      "season": "2022-23",
+      "productLine": "Donruss Optic",
+      "subset": "Rookie Dominators Signatures",
+      "prefix": "RDS",
+      "source": "store_codes"
+    },
+    {
+      "season": "2022-23",
+      "productLine": "Flux",
+      "subset": "Equinox Autographs",
+      "prefix": "EA",
+      "source": "store_codes"
+    },
+    {
+      "season": "2022-23",
+      "productLine": "Flux",
+      "subset": "Hot Stock Signatures",
+      "prefix": "HSS",
+      "source": "store_codes"
+    },
+    {
+      "season": "2022-23",
+      "productLine": "Mosaic",
+      "subset": "Autographs Mosaic",
+      "prefix": "AM",
+      "source": "store_codes"
+    },
+    {
+      "season": "2022-23",
+      "productLine": "Origins",
+      "subset": "Origins Memorabilia",
+      "prefix": "OM",
+      "source": "store_codes"
+    },
+    {
+      "season": "2022-23",
+      "productLine": "Prizm",
+      "subset": "Sensational Signatures",
+      "prefix": "SS",
+      "source": "store_codes"
+    },
+    {
+      "season": "2022-23",
+      "productLine": "Select",
+      "subset": "Rookie Signatures",
+      "prefix": "RS",
+      "source": "store_codes"
+    },
+    {
+      "season": "2023-24",
+      "productLine": "Court Kings",
+      "subset": "Fresh Paint",
+      "prefix": "FP",
+      "source": "store_codes"
+    },
+    {
+      "season": "2023-24",
+      "productLine": "Court Kings",
+      "subset": "Impressionist Ink",
+      "prefix": "II",
+      "source": "store_codes"
+    },
+    {
+      "season": "2023-24",
+      "productLine": "Donruss Elite",
+      "subset": "Impact Impressions",
+      "prefix": "II",
+      "source": "store_codes"
+    },
+    {
+      "season": "2023-24",
+      "productLine": "Donruss Elite",
+      "subset": "Pen Pals",
+      "prefix": "PP",
+      "source": "store_codes"
+    },
+    {
+      "season": "2023-24",
+      "productLine": "Donruss",
+      "subset": "Next Day",
+      "prefix": "ND",
+      "source": "store_codes"
+    },
+    {
+      "season": "2023-24",
+      "productLine": "Flawless",
+      "subset": "Flawless Shade Signatures",
+      "prefix": "FSS",
+      "source": "store_codes"
+    },
+    {
+      "season": "2023-24",
+      "productLine": "Hoops",
+      "subset": "Rookie Remembrance",
+      "prefix": "RR",
+      "source": "store_codes"
+    },
+    {
+      "season": "2023-24",
+      "productLine": "Phoenix",
+      "subset": "Inferno Etchings",
+      "prefix": "IE",
+      "source": "store_codes"
+    },
+    {
+      "season": "2023-24",
+      "productLine": "Phoenix",
+      "subset": "Rookie Signs",
+      "prefix": "RS",
+      "source": "store_codes"
+    },
+    {
+      "season": "2023-24",
+      "productLine": "Prizm",
+      "subset": "Sensational Signatures",
+      "prefix": "SS",
+      "source": "store_codes"
+    },
+    {
+      "season": "2023-24",
+      "productLine": "Prizm",
+      "subset": "Signatures",
+      "prefix": "LS",
+      "source": "store_codes"
+    },
+    {
+      "season": "2024-25",
+      "productLine": "Donruss Optic",
+      "subset": "Signature Series",
+      "prefix": "SS",
+      "source": "store_codes"
+    },
+    {
+      "season": "2024-25",
+      "productLine": "Hoops",
+      "subset": "Great SIGnificance",
+      "prefix": "GS",
+      "source": "store_codes"
+    },
+    {
+      "season": "2024-25",
+      "productLine": "Hoops",
+      "subset": "Hoops Ink",
+      "prefix": "HI",
+      "source": "store_codes"
+    },
+    {
+      "season": "2024-25",
+      "productLine": "Hoops",
+      "subset": "Hot Signatures",
+      "prefix": "HS",
+      "source": "store_codes"
+    },
+    {
+      "season": "2024-25",
+      "productLine": "Prizm Black",
+      "subset": "Sensational Signatures",
+      "prefix": "SS",
+      "source": "store_codes"
+    },
+    {
+      "season": "2024-25",
+      "productLine": "Prizm",
+      "subset": "Rookie Signatures",
+      "prefix": "RS",
+      "source": "store_codes"
+    }
+  ]
+}
