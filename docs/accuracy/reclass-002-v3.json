@@ -1,0 +1,24 @@
+{
+  "stage": "all",
+  "liveOnly": false,
+  "dryRun": false,
+  "selected": 12659,
+  "attempts": 12659,
+  "classified": 12659,
+  "failures": 0,
+  "errorRate": 0,
+  "requests": 16862,
+  "inputTokens": 14591938,
+  "costUsd": 0.6128613960000001,
+  "seconds": 499.044,
+  "listingsPerSecond": 25.366500749432916,
+  "saved": 12659,
+  "stoppedEarly": null,
+  "status": {
+    "possible": 221,
+    "out_of_scope": 1751,
+    "unmatched": 6653,
+    "accepted": 4034
+  },
+  "classifierVersion": "jev-catalogue-v3"
+}
