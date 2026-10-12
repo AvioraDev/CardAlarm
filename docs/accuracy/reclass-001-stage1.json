@@ -1,0 +1,23 @@
+{
+  "stage": "1",
+  "liveOnly": false,
+  "dryRun": false,
+  "selected": 3213,
+  "attempts": 2868,
+  "classified": 2868,
+  "failures": 0,
+  "errorRate": 0,
+  "requests": 5463,
+  "inputTokens": 4583095,
+  "costUsd": 0.19248999000000003,
+  "seconds": 157.956,
+  "listingsPerSecond": 18.15695510142065,
+  "saved": 2868,
+  "stoppedEarly": "cost $0.192 is more than 20% over the $0.160 estimate",
+  "status": {
+    "accepted": 2489,
+    "possible": 141,
+    "unmatched": 238
+  },
+  "classifierVersion": "jev-catalogue-v2"
+}
