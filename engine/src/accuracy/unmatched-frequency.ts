@@ -32,10 +32,19 @@ const PRODUCT_VOCABULARY = [
 const normalize = (value: string): string => value.toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
 const VOCAB = PRODUCT_VOCABULARY.map(name => ({ name, key: ` ${normalize(name)} ` }));
 
-function parseProduct(title: string): string | null {
-  const haystack = ` ${normalize(title)} `;
+function firstProduct(haystack: string): string | null {
   for (const entry of VOCAB) if (haystack.includes(entry.key)) return entry.name;
   return null;
+}
+
+/**
+ * The product a title names. Parallel names from the catalogue ("Silver Prizm") are masked first, so a parallel is
+ * not counted as the product; if masking leaves nothing, the text as written is used.
+ */
+function parseProduct(title: string, parallelPhrases: string[]): string | null {
+  const haystack = ` ${normalize(title)} `;
+  const masked = parallelPhrases.reduce((text, phrase) => (text.includes(` ${phrase} `) ? text.split(` ${phrase} `).join('  ') : text), haystack);
+  return (masked !== haystack ? firstProduct(masked) : null) ?? firstProduct(haystack);
 }
 
 function startYear(season: string): number {
@@ -95,11 +104,15 @@ async function main(): Promise<void> {
     };
 
     const detail: string[][] = [['store_product_id', 'title', 'season', 'product', 'player', 'review_reasons', 'match_reasons']];
+    const parallels = await db.query<{ normalized_name: string }>(
+      `select distinct normalized_name from public.checklist_parallels where position(' ' in normalized_name) > 0`
+    );
+    const parallelPhrases = parallels.rows.map(row => normalize(row.normalized_name)).sort((a, b) => b.length - a.length);
     const groups = new Map<string, Group>();
     const unparsed = { total: 0, noYear: 0, noProduct: 0, neither: 0 };
     for (const row of rows) {
       const { season } = parseSeason(row.title);
-      const product = parseProduct(row.title);
+      const product = parseProduct(row.title, parallelPhrases);
       if (!season || !product) {
         unparsed.total += 1;
         if (!season && !product) unparsed.neither += 1;

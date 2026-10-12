@@ -42,6 +42,8 @@ export interface CatalogueProduct {
   productLine: string;
   /** Normalised phrases that identify this product line in a title, longest first. */
   aliases: string[];
+  /** The checklist file the product was imported from; its name carries the trade name ("NBA Hoops"). */
+  sourceFile?: string | null;
   subsets: CatalogueSubset[];
 }
 
@@ -113,17 +115,92 @@ function editDistance(a: string, b: string, limit: number): number {
   return previous[b.length]!;
 }
 
+/** The normalised product line. Further aliases are generated from the whole catalogue (generateProductAliases). */
 function productAliases(productLine: string): string[] {
-  const normalized = normalizeCatalogueName(productLine);
-  const aliases = new Set<string>([normalized]);
-  if (normalized.startsWith('donruss optic')) aliases.add(normalized.replace(/^donruss /, ''));
-  if (normalized === 'hoops') aliases.add('nba hoops');
-  if (normalized === 'topps') aliases.add('topps basketball');
-  // Panini's 2021-22 Elite is sold as "Donruss Elite" by every other year and store.
-  if (normalized === 'elite') aliases.add('donruss elite');
-  // Stores write "Topps Chrome Cosmic" for the product Topps calls "Cosmic Chrome".
-  if (normalized === 'cosmic chrome') aliases.add('chrome cosmic');
-  return [...aliases].sort((a, b) => b.length - a.length);
+  return [normalizeCatalogueName(productLine)];
+}
+
+/** Letters and digits only, upper case, leading zeros dropped from digit runs: "SW-0AYO" -> "SWAYO", "007" -> "7". */
+export function looseCardNumber(value: string): string {
+  return value.toUpperCase().replace(/[^A-Z0-9]/g, '').replace(/(^|[A-Z])0+(?=\d)/g, '$1');
+}
+
+const initialsOf = (name: string): string =>
+  normalizeCatalogueName(name)
+    .split(' ')
+    .filter(Boolean)
+    .map(token => token[0]!.toUpperCase())
+    .join('');
+
+/**
+ * Whether the number a title states is the number the checklist prints, compared for FORMAT only: case, hyphens
+ * and spaces, leading zeros, and the subset prefix a seller copies from the card back ("SS-26" for number 26 of
+ * "Signature Selections"). A different number is still a different number.
+ */
+export function cardNumbersAgree(titleNumber: string, catalogueNumber: string | null, subsetName: string): boolean {
+  if (catalogueNumber === null) return false;
+  if (titleNumber.toLowerCase() === catalogueNumber.toLowerCase()) return true;
+  const title = looseCardNumber(titleNumber);
+  const printed = looseCardNumber(catalogueNumber);
+  if (title !== '' && title === printed) return true;
+  const prefixed = /^([A-Za-z]{1,5})-0*(\d+)$/.exec(titleNumber.trim());
+  return Boolean(prefixed && /^\d+$/.test(printed) && String(Number(prefixed[2])) === printed && prefixed[1]!.toUpperCase() === initialsOf(subsetName));
+}
+
+/** The product's trade name as written in its checklist file name, e.g. "NBA Hoops" for the product line "Hoops". */
+function tradeNameFromFile(product: Pick<CatalogueProduct, 'season' | 'brand' | 'sourceFile'>): string | null {
+  if (!product.sourceFile) return null;
+  const stem = product.sourceFile.replace(/\.xlsx$/i, '').replace(/\(\d+\)$/, '').replace(/[-_]+/g, ' ');
+  const withoutSeason = normalizeCatalogueName(stem).replace(/^\d{4}( \d{2})? /, '');
+  const brand = normalizeCatalogueName(product.brand);
+  const withoutBrand = withoutSeason.startsWith(brand + ' ') ? withoutSeason.slice(brand.length + 1) : withoutSeason;
+  const name = withoutBrand.replace(/ basketball checklist.*$/, '').replace(/ checklist.*$/, '').trim();
+  return name || null;
+}
+
+/**
+ * Aliases for each product, generated from the catalogue itself (nothing here names a product):
+ *  - the product line, and the trade name in the checklist file name;
+ *  - the line without its family prefix ("Donruss Optic" -> "Optic") when the prefix is itself a product line and
+ *    the remainder is not another product's name that season and not a parallel or subset name anywhere in the
+ *    catalogue (so "Prizm Black" never becomes "Black");
+ *  - a longer line from another season that ends with this line ("Elite" in 2021-22 is "Donruss Elite" every
+ *    other year).
+ */
+export function generateProductAliases(products: CatalogueProduct[]): void {
+  const vocabulary = new Set<string>();
+  for (const product of products) {
+    for (const subset of product.subsets) {
+      vocabulary.add(normalizeCatalogueName(subset.name));
+      for (const parallel of subset.parallels) vocabulary.add(parallel.normalizedName);
+    }
+  }
+  const lineOf = (product: CatalogueProduct): string => normalizeCatalogueName(product.productLine);
+  const allLines = new Set(products.map(lineOf));
+
+  for (const product of products) {
+    const line = lineOf(product);
+    const aliases = new Set<string>([line]);
+    const trade = tradeNameFromFile(product);
+    if (trade && trade.endsWith(line)) aliases.add(trade);
+
+    const tokens = line.split(' ');
+    for (let index = 1; index < tokens.length; index++) {
+      const prefix = tokens.slice(0, index).join(' ');
+      const suffix = tokens.slice(index).join(' ');
+      if (!allLines.has(prefix) || suffix.length < 5 || vocabulary.has(suffix)) continue;
+      const taken = products.some(
+        other => other !== product && other.season === product.season && (lineOf(other) === suffix || lineOf(other).endsWith(` ${suffix}`))
+      );
+      if (!taken) aliases.add(suffix);
+    }
+
+    for (const other of products) {
+      const otherLine = lineOf(other);
+      if (other.season !== product.season && otherLine !== line && otherLine.endsWith(` ${line}`)) aliases.add(otherLine);
+    }
+    product.aliases = [...aliases].sort((a, b) => b.length - a.length);
+  }
 }
 
 function containsPhrase(haystack: string, phrase: string): boolean {
@@ -145,9 +222,16 @@ export class CatalogueIndex {
   private readonly playersByEdgeToken = new Map<string, CataloguePlayer[]>();
   private readonly subsetsById = new Map<number, CatalogueSubset>();
   private readonly productsById = new Map<number, CatalogueProduct>();
+  /** Multi-word parallel names in the catalogue, longest first ("silver prizm"): they mention a product without naming it. */
+  private readonly parallelPhrases: string[];
 
   constructor(data: CatalogueData) {
     this.products = data.products;
+    const phrases = new Set<string>();
+    for (const product of this.products) {
+      for (const subset of product.subsets) for (const parallel of subset.parallels) if (parallel.normalizedName.includes(' ')) phrases.add(parallel.normalizedName);
+    }
+    this.parallelPhrases = [...phrases].sort((a, b) => b.length - a.length);
     for (const product of this.products) {
       this.productsById.set(product.id, product);
       for (const subset of product.subsets) {
@@ -224,6 +308,17 @@ export class CatalogueIndex {
   /** Products whose line is named in the text, restricted to the given seasons when the title states one. */
   findProducts(texts: string[], seasonCandidates: string[]): CatalogueProduct[] {
     const haystack = texts.map(normalizeCatalogueName).join(' | ');
+    // "Silver Prizm" is a parallel, not the Prizm product. Look for products with parallel names masked out first;
+    // only when that finds none (a title that is just "2020-21 Silver Prizm #5") use the text as written.
+    const masked = this.parallelPhrases.reduce((text, phrase) => (text.includes(phrase) ? text.split(phrase).join(' ') : text), haystack);
+    if (masked !== haystack) {
+      const withoutParallels = this.productsNamedIn(masked, seasonCandidates);
+      if (withoutParallels.length > 0) return withoutParallels;
+    }
+    return this.productsNamedIn(haystack, seasonCandidates);
+  }
+
+  private productsNamedIn(haystack: string, seasonCandidates: string[]): CatalogueProduct[] {
     const matches: Array<{ product: CatalogueProduct; alias: string; aliasLength: number }> = [];
 
     for (const product of this.products) {
@@ -256,11 +351,11 @@ export class CatalogueIndex {
    * usually identify one card; either alone narrows the subsets Jev has to choose between.
    */
   findCards(product: CatalogueProduct, cardNumber: string | null, playerName: string | null): CatalogueCard[] {
-    const number = cardNumber?.toLowerCase() ?? null;
+    const number = cardNumber;
     const player = playerName ? playerKey(playerName) : null;
     const isPlayer = (card: CatalogueCard): boolean => playerKey(card.playerName) === player;
     const all = product.subsets.flatMap(subset => subset.cards);
-    const byNumber = number ? all.filter(card => card.cardNumber?.toLowerCase() === number) : [];
+    const byNumber = number ? this.cardsWithNumber(product, number) : [];
     const byPlayer = player ? all.filter(isPlayer) : [];
 
     if (number && player) {
@@ -293,13 +388,15 @@ export class CatalogueIndex {
     );
   }
 
+  /** Cards in the product that carry the number the title states (compared for format, see cardNumbersAgree). */
+  cardsWithNumber(product: CatalogueProduct, cardNumber: string): CatalogueCard[] {
+    return product.subsets.flatMap(subset => subset.cards.filter(card => cardNumbersAgree(cardNumber, card.cardNumber, subset.name)));
+  }
+
   /** Cards in the product where BOTH the card number and the player agree with the title. */
   findAgreeingCards(product: CatalogueProduct, cardNumber: string, playerName: string): CatalogueCard[] {
-    const number = cardNumber.toLowerCase();
     const player = playerKey(playerName);
-    return product.subsets
-      .flatMap(subset => subset.cards)
-      .filter(card => card.cardNumber?.toLowerCase() === number && playerKey(card.playerName) === player);
+    return this.cardsWithNumber(product, cardNumber).filter(card => playerKey(card.playerName) === player);
   }
 
   /** Every card of the player in the product, across subsets. */
@@ -365,8 +462,8 @@ export async function loadCatalogueIndex(db: DbClient): Promise<CatalogueIndex> 
     }
   };
   const [products, subsets, parallels, cards] = await Promise.all([
-    db.query<{ id: string; season: string; brand: string; product_line: string }>(
-      `select id, season, brand, product_line from public.checklist_products where sport = 'basketball'`
+    db.query<{ id: string; season: string; brand: string; product_line: string; source_file: string | null }>(
+      `select id, season, brand, product_line, source_file from public.checklist_products where sport = 'basketball'`
     ),
     loadSubsets().then(rows => ({ rows })),
     db.query<{ id: string; subset_id: string; name: string; normalized_name: string; serial_limit: number | null }>(
@@ -425,16 +522,17 @@ export async function loadCatalogueIndex(db: DbClient): Promise<CatalogueIndex> 
     subsetsByProduct.set(subset.productId, list);
   }
 
-  return new CatalogueIndex({
-    products: products.rows.map(row => ({
-      id: Number(row.id),
-      season: row.season,
-      brand: row.brand,
-      productLine: row.product_line,
-      aliases: productAliases(row.product_line),
-      subsets: subsetsByProduct.get(Number(row.id)) ?? [],
-    })),
-  });
+  const built: CatalogueProduct[] = products.rows.map(row => ({
+    id: Number(row.id),
+    season: row.season,
+    brand: row.brand,
+    productLine: row.product_line,
+    aliases: productAliases(row.product_line),
+    sourceFile: row.source_file,
+    subsets: subsetsByProduct.get(Number(row.id)) ?? [],
+  }));
+  generateProductAliases(built);
+  return new CatalogueIndex({ products: built });
 }
 
 export { productAliases };

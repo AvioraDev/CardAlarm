@@ -8,13 +8,17 @@ import {
   CatalogueIndex,
   playerKey,
   productAliases,
+  generateProductAliases,
+  cardNumbersAgree,
   storeProvidedNames,
   titleNameSpans,
   type CatalogueProduct,
+  type CatalogueSubset,
 } from '../src/classify/catalogue-index';
 import {
   buildOptions,
   classifyListing,
+  JEV_CLASSIFIER_VERSION,
   parallelsMatchingSerial,
   subsetsConsistentWithTitle,
 } from '../src/classify/classifier';
@@ -281,14 +285,47 @@ describe('catalogue candidates', () => {
   });
 
   it('finds the product catalogued as "Elite" when the title says "Donruss Elite", without ambiguity', () => {
-    const product = (id: number, productLine: string): CatalogueProduct => ({
-      id, season: '2021-22', brand: 'Panini', productLine, aliases: productAliases(productLine), subsets: [],
+    const product = (id: number, season: string, productLine: string): CatalogueProduct => ({
+      id, season, brand: 'Panini', productLine, aliases: productAliases(productLine), subsets: [],
     });
-    const index = new CatalogueIndex({ products: [product(1, 'Donruss'), product(2, 'Elite')] });
+    // The alias comes from the catalogue: another season's "Donruss Elite" ends with this season's "Elite".
+    const products = [product(1, '2021-22', 'Donruss'), product(2, '2021-22', 'Elite'), product(3, '2022-23', 'Donruss Elite')];
+    generateProductAliases(products);
+    const index = new CatalogueIndex({ products });
 
     expect(index.findProducts(['2021-22 Donruss Elite #141 Zion Williamson'], ['2021-22']).map(found => found.productLine)).toEqual(['Elite']);
     // A title that names only one of them still finds that one.
     expect(index.findProducts(['2021-22 Panini Donruss #1 Test Player'], ['2021-22']).map(found => found.productLine)).toEqual(['Donruss']);
+  });
+
+  it('generates aliases from the catalogue and never turns a parallel or a place into a product name', () => {
+    const product = (id: number, productLine: string, extra: Partial<CatalogueProduct> = {}): CatalogueProduct => ({
+      id, season: '2023-24', brand: 'Panini', productLine, aliases: productAliases(productLine), subsets: [], ...extra,
+    });
+    const blackParallel = { id: 1, productId: 3, name: 'Black', kind: 'base', parallels: [{ id: 1, name: 'Black', normalizedName: 'black', serialLimit: null }], cards: [] };
+    const products = [
+      product(1, 'Donruss'),
+      product(2, 'Donruss Optic', { sourceFile: '2023-24-Panini-Donruss-Optic-Basketball-Checklist.xlsx' }),
+      product(3, 'Prizm'),
+      product(4, 'Prizm Black', { subsets: [blackParallel] }),
+      product(5, 'Court Kings'),
+      product(6, 'Hoops', { sourceFile: '2023-24-Panini-NBA-Hoops-Basketball-Checklist.xlsx' }),
+    ];
+    generateProductAliases(products);
+    const aliasesOf = (line: string): string[] => products.find(p => p.productLine === line)!.aliases;
+
+    expect(aliasesOf('Donruss Optic')).toContain('optic');
+    expect(aliasesOf('Hoops')).toContain('nba hoops'); // from the checklist file name
+    expect(aliasesOf('Prizm Black')).not.toContain('black'); // a parallel name in the catalogue
+    expect(aliasesOf('Court Kings')).not.toContain('kings'); // "Court" is not a product line
+  });
+
+  it('does not give two products the same short alias in one season', () => {
+    const product = (id: number, productLine: string): CatalogueProduct => ({ id, season: '2023-24', brand: 'Panini', productLine, aliases: productAliases(productLine), subsets: [] });
+    const products = [product(1, 'Donruss'), product(2, 'Donruss Optic'), product(3, 'Contenders'), product(4, 'Contenders Optic')];
+    generateProductAliases(products);
+    expect(products.find(p => p.productLine === 'Donruss Optic')!.aliases).not.toContain('optic');
+    expect(products.find(p => p.productLine === 'Contenders Optic')!.aliases).not.toContain('optic');
   });
 
   it('narrows cards by number and player, trusting the player when they disagree', () => {
@@ -496,7 +533,7 @@ describe('classifyListing: rules decide acceptance, the model only tie-breaks (D
     expect(result.reviewStatus).toBe('accepted');
     expect(result.card?.id).toBe(1);
     expect(result.matchedFields).toEqual(expect.arrayContaining(['product', 'player', 'card_number', 'subset']));
-    expect(result.matcherVersion).toBe('jev-catalogue-v2');
+    expect(result.matcherVersion).toBe(JEV_CLASSIFIER_VERSION);
     // The player and the product each had one exact candidate, so neither was put to the model.
     expect(Object.keys(jev.asked[0]!)).toEqual(['item_type', 'sport']);
   });
@@ -719,5 +756,45 @@ describe('Jev client', () => {
 
     await expect(client.ask('state', {})).rejects.toThrow('HTTP 422');
     expect(fetchImpl).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe('card numbers are compared for format, not relaxed (CAR-92)', () => {
+  it('agrees across case, hyphens, spaces, leading zeros and the subset prefix a seller copies', () => {
+    expect(cardNumbersAgree('ss-26', 'SS-26', 'Signature Selections')).toBe(true);
+    expect(cardNumbersAgree('RS-DOT', 'RS DOT', 'Rookie Signatures')).toBe(true);
+    expect(cardNumbersAgree('007', '7', 'Base Set')).toBe(true);
+    expect(cardNumbersAgree('80B2-AD', '80B2AD', 'Bowman Chrome')).toBe(true);
+    // The prefix is the initials of the subset; the number the checklist prints has no prefix.
+    expect(cardNumbersAgree('SS-26', '26', 'Signature Selections')).toBe(true);
+    expect(cardNumbersAgree('SS-026', '26', 'Signature Selections')).toBe(true);
+  });
+
+  it('still disagrees when the number is different', () => {
+    expect(cardNumbersAgree('SS-26', '27', 'Signature Selections')).toBe(false);
+    // Right number, but the prefix is not that subset's initials: another subset's card.
+    expect(cardNumbersAgree('DD-26', '26', 'Signature Selections')).toBe(false);
+    // A bare number never matches a prefixed one by dropping the prefix: that would guess the subset.
+    expect(cardNumbersAgree('26', 'SS-26', 'Signature Selections')).toBe(false);
+    expect(cardNumbersAgree('12', '120', 'Base Set')).toBe(false);
+    expect(cardNumbersAgree('A1', 'A2', 'Base Set')).toBe(false);
+    expect(cardNumbersAgree('5', null, 'Base Set')).toBe(false);
+  });
+});
+
+describe('a title that names a subset chooses it (CAR-92)', () => {
+  const subset = (id: number, name: string): CatalogueSubset => ({ id, productId: 1, name, kind: 'base', parallels: [], cards: [] });
+  const fields = { isAutograph: false, isRelic: false };
+
+  it('picks the one subset whose distinctive name is in the title', () => {
+    const subsets = [subset(1, 'Base Season Ticket'), subset(2, 'Ticket Stub')];
+    expect(subsetsConsistentWithTitle(subsets, fields, '2023-24 Panini Contenders #47 Aaron Gordon Season Ticket').map(s => s.name)).toEqual(['Base Season Ticket']);
+  });
+
+  it('keeps all candidates when the title names none, or more than one, of them', () => {
+    const subsets = [subset(1, 'Base Set'), subset(2, 'Rookie Variations')];
+    expect(subsetsConsistentWithTitle(subsets, fields, '2024-25 Panini Revolution #121 Bub Carrington').map(s => s.name)).toEqual(['Base Set', 'Rookie Variations']);
+    const both = [subset(1, 'Silver'), subset(2, 'Silver Wave')];
+    expect(subsetsConsistentWithTitle(both, fields, 'Silver Wave #1 Test Player').map(s => s.name)).toEqual(['Silver', 'Silver Wave']);
   });
 });

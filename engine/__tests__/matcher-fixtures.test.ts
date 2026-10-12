@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import { normalizeCatalogueName } from '../src/catalogue/checklist-parser';
-import { CatalogueIndex, productAliases, type CatalogueProduct } from '../src/classify/catalogue-index';
+import { CatalogueIndex, generateProductAliases, productAliases, type CatalogueProduct } from '../src/classify/catalogue-index';
 import { classifyListing, JEV_CLASSIFIER_VERSION, type ListingClassification } from '../src/classify/classifier';
 import type { ListingEvidence } from '../src/classify/evidence';
 import type { JevClient, JevQuestion, JevResponse } from '../src/classify/jev-client';
@@ -34,9 +34,10 @@ const fixtures: Fixture[] = JSON.parse(fs.readFileSync(path.join(__dirname, 'fix
 const snapshot: { products: Array<Omit<CatalogueProduct, 'aliases'>> } = JSON.parse(
   fs.readFileSync(path.join(__dirname, 'fixtures/catalogue-snapshot.json'), 'utf8')
 );
-const catalogue = new CatalogueIndex({
-  products: snapshot.products.map(product => ({ ...product, aliases: productAliases(product.productLine) })),
-});
+const catalogueProducts: CatalogueProduct[] = snapshot.products.map(product => ({ ...product, aliases: productAliases(product.productLine) }));
+// Aliases are generated from the catalogue, as in production; nothing in the test names a product.
+generateProductAliases(catalogueProducts);
+const catalogue = new CatalogueIndex({ products: catalogueProducts });
 
 const words = (value: string): string[] => normalizeCatalogueName(value).split(' ').filter(Boolean);
 
@@ -48,7 +49,10 @@ const HINT_OVERRIDES: Record<number, { item?: [string, number]; sport?: [string,
 };
 
 /** Choices where tokens alone cannot say which candidate a model would pick. */
-const CHOICES: Record<number, { product?: string }> = {
+const CHOICES: Record<number, { product?: string; subset?: string }> = {
+  // The production model chose "Rookies" over "Rookie Variations" (0.86) for #121; both hold the same number and player.
+  1: { subset: 'Rookies' },
+  // "Panini Optic ... Silver Prizm": Optic is a candidate only because aliases are generated from the catalogue; picking it over Prizm is the model's call.
   14: { product: '2020-21 Panini Donruss Optic' },
 };
 
@@ -87,7 +91,7 @@ function stubFor(
             [...real].sort((a, b) => words(b).filter(w => titleWords.has(w)).length - words(a).filter(w => titleWords.has(w)).length)[0] ??
             'none_of_these';
         } else if (id === 'subset') {
-          choice = real.find(option => option === 'Base Set') ?? real[0] ?? 'none_of_these';
+          choice = CHOICES[fixtureNumber]?.subset ?? real.find(option => option === 'Base Set') ?? real[0] ?? 'none_of_these';
         } else if (id === 'parallel') {
           const covered = real
             .filter(option => {
