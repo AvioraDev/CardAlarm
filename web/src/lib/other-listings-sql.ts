@@ -7,6 +7,7 @@
  */
 
 import { JEV_READER_VERSION } from "./classifier-reader";
+import { liveListingSql } from "./live-listing";
 
 /** The classifier version whose rows this section reads: the version the readers read. */
 export const OTHER_LISTINGS_CLASSIFIER_VERSION = JEV_READER_VERSION;
@@ -44,8 +45,8 @@ export function otherListingsSql(): string {
       and pc.classifier_type = 'jev'
       and pc.classifier_version = $3
       and pc.review_status = 'unmatched'
-     join public.store_products sp on sp.id = pc.store_product_id and sp.is_active and sp.current_availability
-     join public.stores st on st.id = sp.store_id and st.is_active
+     join public.store_products sp on sp.id = pc.store_product_id and ${liveListingSql("sp")}
+     join public.stores st on st.id = sp.store_id
      where w.id = $1 and w.user_id = $2
      order by sp.last_checked_at desc nulls last, sp.id desc
      limit $4`;

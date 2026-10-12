@@ -1,3 +1,4 @@
+import { liveListingSql } from './live-listing';
 import type { DbClient } from './db';
 
 export type AlertStatus = 'pending' | 'processing' | 'sent' | 'failed' | 'suppressed';
@@ -183,8 +184,7 @@ export async function enqueueAlertCandidates(db: DbClient, watchlistId?: number)
      left join public.product_card_matches pcm on pcm.id = wm.product_card_match_id
      left join auth.users au on au.id = w.user_id
      where w.is_active = true
-       and sp.is_active = true
-       and sp.current_availability = true
+       and ${liveListingSql('sp')}
        ${watchlistFilter}
      on conflict (dedupe_key) do update set
        status = case

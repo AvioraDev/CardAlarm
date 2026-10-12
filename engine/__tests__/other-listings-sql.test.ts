@@ -1,3 +1,4 @@
+import { liveListingSql } from '../../web/src/lib/live-listing';
 import fs from 'node:fs';
 import path from 'node:path';
 import { OTHER_LISTINGS_CLASSIFIER_VERSION, OTHER_LISTINGS_LIMIT, otherListingsSql } from '../../web/src/lib/other-listings-sql';
@@ -20,8 +21,8 @@ describe('other listings for a player', () => {
   it('only reads unmatched listings of the watched player that are live, from active stores', () => {
     expect(sql).toContain("pc.review_status = 'unmatched'");
     expect(sql).toContain('pc.player_id = wr.player_id');
-    expect(sql).toContain('sp.is_active and sp.current_availability');
-    expect(sql).toContain('st.is_active');
+    // Live = active, available, active store, recent successful scan, recently seen: the shared rule (CAR-96).
+    expect(sql).toContain(liveListingSql('sp'));
   });
 
   it('checks ownership inside the query, so another user\'s watchlist returns nothing', () => {
