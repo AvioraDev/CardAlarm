@@ -10,7 +10,18 @@ async function main(): Promise<void> {
   const db = getDb();
   try {
     const catalogue = await loadCatalogueIndex(db);
-    const jev = createJevClient();
+    const real = createJevClient();
+    const jev = {
+      ask: async (state: unknown, questions: Record<string, unknown>) => {
+        const r = await real.ask(state as never, questions as never);
+        if (process.env.DEBUG_ANSWERS) {
+          const criteria = Object.fromEntries(Object.entries(questions).map(([k, q]) => [k, (q as { criteria?: unknown }).criteria ?? null]));
+          console.log('   Q:', JSON.stringify((criteria as Record<string, unknown>).product ?? null).slice(0, 700));
+          console.log('   A:', JSON.stringify((r.answers as Record<string, unknown>).product ?? null).slice(0, 600));
+        }
+        return r;
+      },
+    };
     const { rows } = await db.query(
       `select sp.id, sp.source, sp.title, sp.description, sp.raw_latest_payload, null::text as evidence_hash from public.store_products sp where sp.id = any($1::bigint[]) order by sp.id`,
       [ids]
