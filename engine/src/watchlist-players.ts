@@ -6,7 +6,7 @@ import type { DbClient } from './db';
  * A watchlist made before the player was in the catalogue ("Ajay Mitchell", created 12 May; the player row appeared
  * 25 May with the checklist import) is saved as a custom rule: words only, no player. It then never matches by player
  * and never shows "Other listings". This links it, conservatively: the rule has no player, and its only non-rookie
- * include term (or, with no terms, the watchlist's name) is exactly one catalogue player's full name.
+ * include term is exactly one catalogue player's full name. The watchlist's name is never read.
  *
  * Returns the ids of the rules that were linked. Safe to run on every reconcile.
  */
@@ -14,12 +14,9 @@ export async function linkWatchlistPlayers(db: DbClient): Promise<number[]> {
   const result = await db.query<{ id: string }>(
     `with candidate as (
        select wr.id as rule_id,
-              coalesce(
-                (select lower(trim(term))
-                 from regexp_split_to_table(coalesce(wr.include_terms, ''), '[,\n]') term
-                 where nullif(trim(term), '') is not null and trim(term) !~* '^(rookie|rookies|rc)$'),
-                case when nullif(trim(coalesce(wr.include_terms, '')), '') is null then lower(trim(w.name)) end
-              ) as name,
+              (select lower(trim(term))
+               from regexp_split_to_table(coalesce(wr.include_terms, ''), '[,\n]') term
+               where nullif(trim(term), '') is not null and trim(term) !~* '^(rookie|rookies|rc)$') as name,
               (select count(*)
                from regexp_split_to_table(coalesce(wr.include_terms, ''), '[,\n]') term
                where nullif(trim(term), '') is not null and trim(term) !~* '^(rookie|rookies|rc)$') as term_count

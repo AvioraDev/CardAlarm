@@ -7,7 +7,6 @@ import { enqueueAndProcessWatchlistAlerts } from "./alerts";
 import { backfillWatchlist } from "./watchlist-backfill";
 import {
   parseBooleanState,
-  isGenericRookieWatchlistTerm,
   parsePositiveFormId,
   parseWatchlistForm,
 } from "./watchlist-form";
@@ -79,11 +78,8 @@ export async function createWatchlistAction(formData: FormData): Promise<void> {
     min_price: watchlistInput.minPrice,
     max_price: watchlistInput.maxPrice,
     currency: watchlistInput.currency,
-    include_terms:
-      watchlistInput.includeTerms ??
-      (watchlistInput.rookieOnly && isGenericRookieWatchlistTerm(watchlistInput.name)
-        ? null
-        : watchlistInput.name),
+    // The watchlist's name is a label. Only terms typed into "Must include words" are ever searched for.
+    include_terms: watchlistInput.includeTerms,
     exclude_terms: watchlistInput.excludeTerms,
     minimum_match_confidence: watchlistInput.minimumMatchConfidence,
   });
@@ -145,11 +141,7 @@ export async function updateWatchlistAction(formData: FormData): Promise<void> {
       min_price: watchlistInput.minPrice,
       max_price: watchlistInput.maxPrice,
       currency: watchlistInput.currency,
-      include_terms:
-        watchlistInput.includeTerms ??
-        (watchlistInput.rookieOnly && isGenericRookieWatchlistTerm(watchlistInput.name)
-          ? null
-          : watchlistInput.name),
+      include_terms: watchlistInput.includeTerms,
       exclude_terms: watchlistInput.excludeTerms,
       minimum_match_confidence: watchlistInput.minimumMatchConfidence,
     })

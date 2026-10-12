@@ -2,7 +2,7 @@ import Link from "next/link";
 import { friendlyError } from "@/lib/friendly-error";
 import { requireUser } from "@/lib/auth";
 import type { WatchlistCatalogueOptionFilters } from "@/lib/catalogue-options";
-import { getWatchlistCatalogueOptions } from "@/lib/catalogue-options";
+import { getPlayerOption, getWatchlistCatalogueOptions, searchPlayerOptions } from "@/lib/catalogue-options";
 import { createWatchlistAction } from "@/lib/watchlist-actions";
 import { CatalogueRefineForm, WatchlistFormFields } from "../watchlist-form-fields";
 import { QuickStartCreateFields, QuickStartPlayerPicker } from "./quick-start";
@@ -35,9 +35,10 @@ export default async function NewWatchlistPage({ searchParams }: NewWatchlistPag
   };
   const catalogueOptions = await getWatchlistCatalogueOptions(selected);
   const quick = (Array.isArray(params.quick) ? params.quick[0] : params.quick) === "1";
-  const quickPlayer = selected.playerId
-    ? catalogueOptions.players.find((player) => player.id === selected.playerId) ?? null
-    : null;
+  // Looked up by id on its own, so any player can be chosen whatever the length of the list.
+  const quickPlayer = selected.playerId ? await getPlayerOption(selected.playerId) : null;
+  const searchText = queryText(params.q);
+  const searchResults = quick && !quickPlayer && searchText && searchText.length >= 2 ? await searchPlayerOptions(searchText) : [];
 
   const errorBanner = error ? (
     <div role="alert" className="notice notice-error mt-5">
@@ -76,10 +77,10 @@ export default async function NewWatchlistPage({ searchParams }: NewWatchlistPag
               {errorBanner}
               {selected.playerId ? (
                 <p role="alert" className="mt-4 text-[0.875rem] text-danger">
-                  We couldn&apos;t find that player. Pick another from the list.
+                  We couldn&apos;t find that player. Search again below.
                 </p>
               ) : null}
-              <QuickStartPlayerPicker players={catalogueOptions.players} />
+              <QuickStartPlayerPicker query={searchText} results={searchResults} />
             </>
           )}
         </section>

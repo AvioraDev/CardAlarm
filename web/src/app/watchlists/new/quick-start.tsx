@@ -1,23 +1,55 @@
+import Link from "next/link";
 import { SubmitButton } from "@/app/components/submit-button";
 import type { CatalogueOption } from "@/lib/catalogue-options";
 
-export function QuickStartPlayerPicker({ players }: { players: CatalogueOption[] }) {
+export function QuickStartPlayerPicker({ query, results }: { query: string | null; results: CatalogueOption[] }) {
   return (
-    <form method="get" action="/watchlists/new" className="mt-6 space-y-4">
-      <input type="hidden" name="quick" value="1" />
-      <label className="block">
-        <span className="field-label">Player</span>
-        <select name="playerId" required defaultValue="" className="field">
-          <option value="" disabled>Choose a player</option>
-          {players.map((player) => (
-            <option key={player.id} value={player.id}>{player.label}</option>
-          ))}
-        </select>
-      </label>
-      <SubmitButton className="btn btn-primary w-full" pendingLabel="Loading…">
-        Continue
-      </SubmitButton>
-    </form>
+    <div className="mt-6 space-y-4">
+      <form method="get" action="/watchlists/new" className="space-y-3" role="search">
+        <input type="hidden" name="quick" value="1" />
+        <label className="block">
+          <span className="field-label">Search for a player</span>
+          <input
+            name="q"
+            type="search"
+            required
+            minLength={2}
+            maxLength={60}
+            defaultValue={query ?? ""}
+            placeholder="Start typing a name, like Wembanyama"
+            autoComplete="off"
+            className="field"
+          />
+        </label>
+        <SubmitButton className="btn btn-primary w-full" pendingLabel="Searching…">
+          Search
+        </SubmitButton>
+      </form>
+
+      {query ? (
+        results.length > 0 ? (
+          <ul aria-label="Players found" className="divide-y divide-border overflow-hidden rounded-card border border-border">
+            {results.map((player) => (
+              <li key={player.id}>
+                <Link
+                  href={`/watchlists/new?quick=1&playerId=${player.id}`}
+                  className="flex min-h-11 items-center justify-between gap-3 px-4 py-2 text-text hover:bg-mat"
+                >
+                  <span>{player.label}</span>
+                  <span aria-hidden="true" className="text-text-muted">Watch</span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p role="status" className="text-[0.875rem] text-text-muted">
+            No players match &ldquo;{query}&rdquo;. Check the spelling, or try just the surname.
+          </p>
+        )
+      ) : (
+        <p className="text-[0.875rem] text-text-muted">Type at least two letters of a first or last name.</p>
+      )}
+    </div>
   );
 }
 

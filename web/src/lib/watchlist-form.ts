@@ -167,9 +167,6 @@ export function parseWatchlistForm(formData: FormData): WatchlistFormResult {
   if (typeof rawOnly !== "boolean") return rawOnly;
   const notificationEnabled = checkbox(formData, "notification_enabled", "Email alerts");
   if (typeof notificationEnabled !== "boolean") return notificationEnabled;
-  const genericRookieWatchlist =
-    isGenericRookieWatchlistTerm(name) &&
-    (includeTerms === null || isGenericRookieWatchlistTerm(includeTerms));
 
   return {
     ok: true,
@@ -186,7 +183,8 @@ export function parseWatchlistForm(formData: FormData): WatchlistFormResult {
       season,
       cardNumber,
       parallel,
-      rookieOnly: rookieOnly || genericRookieWatchlist,
+      // Ticking "Rookies" is the only way to ask for rookies; a watchlist called "Rookies" asks for nothing by its name.
+      rookieOnly,
       autographOnly,
       relicOnly,
       serialNumberedOnly,
@@ -195,7 +193,7 @@ export function parseWatchlistForm(formData: FormData): WatchlistFormResult {
       minPrice,
       maxPrice,
       currency,
-      includeTerms: genericRookieWatchlist ? null : includeTerms,
+      includeTerms,
       excludeTerms,
       minimumMatchConfidence,
       notificationEnabled,
