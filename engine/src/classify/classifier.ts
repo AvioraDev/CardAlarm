@@ -18,7 +18,7 @@ export const JEV_CLASSIFIER_TYPE = 'jev';
  * v2 (CAR-78, decisions D-005 and D-006): rules generate candidates and decide acceptance; Jev only
  * chooses among the candidates rules allow. A match must map to a catalogue row.
  */
-export const JEV_CLASSIFIER_VERSION = 'jev-catalogue-v2';
+export const JEV_CLASSIFIER_VERSION = 'jev-catalogue-v3';
 
 const NONE = 'none_of_these';
 const BASE = 'base';
@@ -185,12 +185,30 @@ function parallelLabel(parallel: CatalogueParallel): string {
  */
 export function subsetsConsistentWithTitle(
   subsets: CatalogueSubset[],
-  fields: Pick<TitleFields, 'isAutograph' | 'isRelic'>
+  fields: Pick<TitleFields, 'isAutograph' | 'isRelic'>,
+  title?: string
 ): CatalogueSubset[] {
   const consistent = subsets.filter(
     subset => (subset.kind !== 'autograph' || fields.isAutograph) && (subset.kind !== 'memorabilia' || fields.isRelic)
   );
-  return consistent.length > 0 ? consistent : subsets;
+  const candidates = consistent.length > 0 ? consistent : subsets;
+  // When the title names exactly one of the candidate subsets, that one is chosen ("Season Ticket" -> "Base Season Ticket").
+  if (title && candidates.length > 1) {
+    const named = candidates.filter(subset => titleNamesSubset(title, subset.name));
+    if (named.length === 1) return named;
+  }
+  return candidates;
+}
+
+const GENERIC_SUBSET_WORDS = new Set(['base', 'set']);
+
+/** The title contains the subset's distinctive name as a whole phrase ("Base Set" alone names nothing). */
+export function titleNamesSubset(title: string, subsetName: string): boolean {
+  const phrase = normalizeCatalogueName(subsetName)
+    .split(' ')
+    .filter(token => token && !GENERIC_SUBSET_WORDS.has(token))
+    .join(' ');
+  return phrase !== '' && ` ${normalizeCatalogueName(title)} `.includes(` ${phrase} `);
 }
 
 /** Print runs are compared in code: a title that says /125 can only be a parallel numbered to 125. */
@@ -429,7 +447,7 @@ export async function classifyListing(
   // A player derived from the card number is a derived value, not a stated one (it caps at Possible).
   let derivedPlayerFromNumber = false;
   if (!playerName && fields.cardNumber) {
-    const pool = product.subsets.flatMap(subset => subset.cards).filter(card => card.cardNumber?.toLowerCase() === fields.cardNumber!.toLowerCase());
+    const pool = catalogue.cardsWithNumber(product, fields.cardNumber);
     const names = new Set(pool.map(card => card.normalizedPlayerName));
     if (pool.length > 0 && names.size === 1) {
       playerName = pool[0]!.playerName;
@@ -470,12 +488,17 @@ export async function classifyListing(
 
   const playerRows = catalogue.playerCards(product, playerName);
   if (agreeing.length === 0 && number) {
-    const numberRows = product.subsets.flatMap(subset => subset.cards).filter(row => row.cardNumber?.toLowerCase() === number.toLowerCase());
+    const numberRows = catalogue.cardsWithNumber(product, number);
     if (playerRows.length > 0 || numberRows.length > 0) {
       // The number belongs to someone else, or the player has no such number, in the product the title names.
       // A guess about the product here would be a bad match, so none is stored (the listing is shown only as
       // the store describes it, under the player).
       reasons.push('card_number_conflict');
+      // The kind of conflict, so the remaining ones can be counted by type.
+      if (numberRows.length === 0 && /[A-Za-z]/.test(number)) reasons.push('conflict:code_not_in_checklist');
+      else if (numberRows.length === 0) reasons.push('conflict:number_not_in_product');
+      else if (playerRows.length === 0) reasons.push('conflict:player_has_no_card_in_product');
+      else reasons.push('conflict:number_belongs_to_another_player');
       matchReasons.splice(0, matchReasons.length, `Card #${number} is not a ${playerName} card in the products the title names; no product is recorded`);
       return unmatched();
     }
@@ -497,7 +520,8 @@ export async function classifyListing(
     const subsetIds = [...new Set(agreeing.map(row => row.subsetId))];
     const subsetCandidates = subsetsConsistentWithTitle(
       subsetIds.map(id => catalogue.subset(id)).filter((candidate): candidate is CatalogueSubset => candidate !== undefined),
-      fields
+      fields,
+      evidence.title
     );
 
     const parallelPool = new Map<string, CatalogueParallel>();
