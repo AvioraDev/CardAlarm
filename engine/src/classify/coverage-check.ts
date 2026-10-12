@@ -9,10 +9,12 @@ import { JEV_CLASSIFIER_TYPE, JEV_CLASSIFIER_VERSION } from './classifier';
  * Exit code 1 when any live listing is missing a row.
  */
 
-/** Live = available, active, from an active store. $1 type, $2 version. */
+/**
+ * Live = active and available, whatever the store: that is what the readers show (they do not look at the store's
+ * status), so a listing from a deactivated store still counts. $1 type, $2 version.
+ */
 export function missingCurrentVersionSql(listLimit = 0): string {
   const base = `from public.store_products sp
-     join public.stores s on s.id = sp.store_id and s.is_active
      where sp.is_active and sp.current_availability
        and not exists (
          select 1 from public.product_classifications pc
@@ -29,7 +31,7 @@ export interface Coverage {
 
 export async function checkCoverage(db: DbClient): Promise<Coverage> {
   const live = await db.query<{ live: number }>(
-    `select count(*)::int as live from public.store_products sp join public.stores s on s.id = sp.store_id and s.is_active where sp.is_active and sp.current_availability`
+    `select count(*)::int as live from public.store_products sp where sp.is_active and sp.current_availability`
   );
   const missing = await db.query<{ missing: number }>(missingCurrentVersionSql(), [JEV_CLASSIFIER_TYPE, JEV_CLASSIFIER_VERSION]);
   return { live: live.rows[0]!.live, missing: missing.rows[0]!.missing, version: JEV_CLASSIFIER_VERSION };

@@ -1,0 +1,97 @@
+{
+  "label": "2-switch-to-jev-after-coverage",
+  "reader": "jev",
+  "emailModeDuringRun": "log",
+  "emailModeBefore": "(unset)",
+  "coverage": {
+    "before": {
+      "live": 38437,
+      "missing": 0,
+      "version": "jev-catalogue-v4"
+    },
+    "after": {
+      "live": 38437,
+      "missing": 0,
+      "version": "jev-catalogue-v4"
+    }
+  },
+  "matchesUpserted": 12,
+  "alertsEnqueued": 5,
+  "alertsProcessedInLogMode": 0,
+  "watchlists": [
+    {
+      "watchlist": "Ajay Mitchell",
+      "confirmed": {
+        "before": 0,
+        "after": 6
+      },
+      "possible": {
+        "before": 0,
+        "after": 0
+      },
+      "otherListings": null,
+      "alertRows": {
+        "before": 12,
+        "after": 12
+      }
+    },
+    {
+      "watchlist": "Dylan Harper",
+      "confirmed": {
+        "before": 1,
+        "after": 4
+      },
+      "possible": {
+        "before": 0,
+        "after": 2
+      },
+      "otherListings": 11,
+      "alertRows": {
+        "before": 12,
+        "after": 17
+      }
+    }
+  ],
+  "wouldHaveFired": [
+    {
+      "watchlist": "Dylan Harper",
+      "title": "2025-26 Topps Finest DYLAN HARPER Uncommon Rookie Base #102",
+      "store": "cherry",
+      "price": "19.99",
+      "match_status": "current",
+      "status": "suppressed"
+    },
+    {
+      "watchlist": "Dylan Harper",
+      "title": "2025-26 Topps Three DYLAN HARPER Rookie Autographs Blue 5/15",
+      "store": "cherry",
+      "price": "2499.99",
+      "match_status": "possible",
+      "status": "suppressed"
+    },
+    {
+      "watchlist": "Dylan Harper",
+      "title": "2025-26 Topps Finest DYLAN HARPER First Rookie Sky Blue 58/150 #2",
+      "store": "cherry",
+      "price": "199.99",
+      "match_status": "current",
+      "status": "suppressed"
+    },
+    {
+      "watchlist": "Dylan Harper",
+      "title": "2025-26 Topps Three DYLAN HARPER Rookie 3 Patch Auto Vertical Silver 15/49",
+      "store": "cherry",
+      "price": "9999.99",
+      "match_status": "possible",
+      "status": "suppressed"
+    },
+    {
+      "watchlist": "Dylan Harper",
+      "title": "2025-26 Topps Finest DYLAN HARPER Arrivals Rookie Blue 47/99 #2",
+      "store": "cherry",
+      "price": "299.99",
+      "match_status": "current",
+      "status": "suppressed"
+    }
+  ]
+}
